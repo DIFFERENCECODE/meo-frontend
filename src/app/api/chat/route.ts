@@ -1,5 +1,5 @@
 // src/app/api/chat/route.ts
-export const runtime = 'nodejs'; 
+export const runtime = 'nodejs';
 
 import { NextResponse } from 'next/server';
 
@@ -18,7 +18,7 @@ export async function POST(request: Request) {
       console.error("MEO_API_URL environment variable is not set on Vercel.");
       throw new Error("Backend API URL is not configured on the server.");
     }
-    
+
     console.log(`Proxying request for session ${session_id} to: ${backendApiUrl}/chat`);
 
     // 3. Forward the request to our real backend on EC2
@@ -26,7 +26,7 @@ export async function POST(request: Request) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       // The body here perfectly matches what our FastAPI endpoint expects
-      body: JSON.stringify({ query, session_id }),
+      body: JSON.stringify({ message: query, session_id }),
     });
 
     // 4. Handle the response from the backend

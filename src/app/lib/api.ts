@@ -2,13 +2,13 @@
 import { Source } from './types';
 
 export interface ChatResponse {
-    answer: string;
+    response: string;
     session_id: string;
     retrieved_sources: Source[];
+    mode: string;
 }
 
 export async function postChatMessage(query: string, sessionId: string | null): Promise<ChatResponse> {
-    // The endpoint is now a simple, same-origin path to our new API route
     const endpoint = '/api/chat';
 
     const response = await fetch(endpoint, {
