@@ -1,5 +1,5 @@
-import Chatbot from '../components/Chatbot';
+import AuthGate from '../components/AuthGate';
 
 export default function Home() {
-  return <Chatbot />;
+  return <AuthGate />;
 }

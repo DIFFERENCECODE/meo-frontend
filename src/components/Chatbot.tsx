@@ -6,6 +6,7 @@ import { postChatMessage } from '../app/lib/api';
 import { Message, Source } from '../app/lib/types';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { useAuth } from 'react-oidc-context';
 
 interface Conversation {
   id: string;
@@ -26,6 +27,20 @@ function truncateTitle(text: string, max = 36): string {
 }
 
 export default function Chatbot() {
+  const auth = useAuth();
+  const userEmail = auth.user?.profile?.email as string | undefined;
+  const userLabel = userEmail ?? 'MeO User';
+  const userInitial = userLabel.charAt(0).toUpperCase();
+
+  const signOut = () => {
+    const clientId = '4qsgmdorsa5dj0b974quqg47ep';
+    const cognitoDomain = 'https://eu-north-19zg2hxlti.auth.eu-north-1.amazoncognito.com';
+    // Use exact origin (no trailing slash) — must match Cognito "Allowed sign-out URLs" exactly
+    const logoutUri = window.location.origin.replace(/\/$/, '');
+    auth.removeUser(); // clear local OIDC state
+    window.location.href = `${cognitoDomain}/logout?client_id=${clientId}&logout_uri=${encodeURIComponent(logoutUri)}`;
+  };
+
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeConvId, setActiveConvId] = useState<string | null>(null);
   const [input, setInput] = useState('');
@@ -37,10 +52,32 @@ export default function Chatbot() {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
+    // Derive a stable session_id from the logged-in user's email, falling back to a UUID
     const stored = localStorage.getItem('meo-session-id');
-    const id = stored || crypto.randomUUID();
+    const id = userEmail
+      ? `user-${userEmail.replace(/[^a-z0-9]/gi, '_')}`
+      : stored || crypto.randomUUID();
     setSessionId(id);
     localStorage.setItem('meo-session-id', id);
+
+    // Load previous chat history from the database
+    fetch(`/api/history/${encodeURIComponent(id)}`)
+      .then(res => res.ok ? res.json() : [])
+      .then((history: { sender: string; text: string }[]) => {
+        if (history.length > 0) {
+          const restoredConv = {
+            id: id,
+            title: truncateTitle(history.find(m => m.sender === 'user')?.text ?? 'Previous conversation'),
+            messages: history.map(m => ({
+              text: m.text,
+              sender: m.sender === 'user' ? 'user' as const : 'meo' as const,
+            })),
+          };
+          setConversations([restoredConv]);
+          setActiveConvId(id);
+        }
+      })
+      .catch(() => { }); // silently ignore if history load fails
 
     const checkMobile = () => {
       const mobile = window.innerWidth <= 768;
@@ -50,7 +87,7 @@ export default function Chatbot() {
     checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
-  }, []);
+  }, [userEmail]);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -161,9 +198,11 @@ export default function Chatbot() {
       </div>
       <div className={styles.messageBubble}>
         {msg.sender === 'meo' ? (
-          <ReactMarkdown remarkPlugins={[remarkGfm]} className={styles.markdownProse}>
-            {msg.text}
-          </ReactMarkdown>
+          <div className={styles.markdownProse}>
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+              {msg.text}
+            </ReactMarkdown>
+          </div>
         ) : (
           msg.text
         )}
@@ -234,8 +273,17 @@ export default function Chatbot() {
 
         <div className={styles.sidebarFooter}>
           <button className={styles.userProfileBtn}>
-            <div className={styles.avatar}>M</div>
-            <span>MeO User</span>
+            <div className={styles.avatar}>{userInitial}</div>
+            <span className={styles.historyItemText} title={userLabel}>{userLabel}</span>
+          </button>
+          <button
+            className={styles.signOutBtn}
+            onClick={signOut}
+            title="Sign out"
+          >
+            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h6a2 2 0 012 2v1" />
+            </svg>
           </button>
         </div>
       </aside>

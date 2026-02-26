@@ -171,6 +171,30 @@
   border-top: 1px solid #222;
   padding: 10px;
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.signOutBtn {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  border-radius: 8px;
+  background: transparent;
+  border: none;
+  color: #888;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.15s, color 0.15s;
+}
+
+.signOutBtn:hover {
+  background: #2a2a2a;
+  color: #ececec;
 }
 
 .userProfileBtn {
