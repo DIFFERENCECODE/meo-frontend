@@ -57,3 +57,33 @@ export interface BioAgeMetrics {
   baselineDate: string | null;
   targetDate: string | null;
 }
+
+
+// Sanitise biomarker values before passing to markdown
+export function sanitiseBiomarkerValue(value: number | null | undefined): string {
+  if (value === null || value === undefined) return '—';
+  return String(value);
+}
+
+// The 4 captured test biomarkers
+export interface ClockTestResult {
+  glucose_0: number | null;    // mmol/L
+  insulin_0: number | null;    // µIU/mL
+  glucose_120: number | null;  // mmol/L
+  insulin_120: number | null;  // µIU/mL
+}
+// Verification Checklist
+//
+// Once done, paste this into a chat message to confirm everything renders:
+// ```
+// | Biomarker | Value | Unit | Status |
+// |---|---|---|---|
+// | Glucose_0 | 4.8 | mmol/L | ✅ Normal |
+// | Insulin_0 | 9.2 | µIU/mL | ✅ Normal |
+// | Glucose_120 | 8.4 | mmol/L | ⚠️ High |
+// | Insulin_120 | 78 | µIU/mL | ⚠️ High |
+// | HOMA-IR | 1.98 | — | ✅ Normal |
+//
+// - Clock Score calculated from paired Glucose + Insulin response
+// - No partial scoring applied
+// ```
