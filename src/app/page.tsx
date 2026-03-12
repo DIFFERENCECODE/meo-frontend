@@ -1,7 +1,5 @@
-import MeOInterface from "../components/Chatbot";
+import MeOApp from "../components/MeOApp";
 
 export default function Home() {
-  return (
-    <MeOInterface />
-  );
+  return <MeOApp />;
 }
