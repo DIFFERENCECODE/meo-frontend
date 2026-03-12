@@ -22,7 +22,7 @@ For new team members and developers, we've created comprehensive documentation:
 
 ## 🚀 Getting Started
 
-First, run the development server In Terminal:
+First, run the development server:
 
 ```bash
 npm run dev
