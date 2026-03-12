@@ -1,20 +1,10 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+import AuthProvider from "../components/AuthProvider";
 
 export const metadata: Metadata = {
-  title: "Meo - Your Metabolic Health AI Assistant",
-  description: "AI assistant to support metabolic health",
+  title: "MeO – Metabolic Health AI",
+  description: "Your personal metabolic health AI assistant powered by LangGraph and AWS Bedrock.",
 };
 
 export default function RootLayout({
@@ -23,13 +13,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        style={{ margin: 0, padding: 0, height: "100vh" }}
-        suppressHydrationWarning
-      >
-        {children}
+    <html lang="en">
+      <body>
+        <AuthProvider>
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );

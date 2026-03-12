@@ -1,7 +1,5 @@
-import MeOInterface from "../components/Chatbot";
+import AuthGate from '../components/AuthGate';
 
 export default function Home() {
-  return (
-    <MeOInterface />
-  );
+  return <AuthGate />;
 }

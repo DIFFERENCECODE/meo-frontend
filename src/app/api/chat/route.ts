@@ -1,48 +1,49 @@
 // src/app/api/chat/route.ts
-import { NextRequest, NextResponse } from 'next/server';
+export const runtime = 'nodejs';
 
-export async function POST(request: NextRequest) {
+import { NextResponse } from 'next/server';
+
+// This is the main function that handles incoming POST requests from our frontend
+export async function POST(request: Request) {
   try {
+    // 1. Get the data from the frontend's request
     const body = await request.json();
-    const { message, session_id } = body;
+    const { query, session_id } = body;
 
-    // Validate input
-    if (!message) {
-      return NextResponse.json(
-        { error: 'Message is required' },
-        { status: 400 }
-      );
+    // 2. Get the backend URL from our Vercel environment variables
+    // Note: We are using MEO_API_URL, which is the correct name in our project
+    const backendApiUrl = process.env.MEO_API_URL;
+
+    if (!backendApiUrl) {
+      console.error("MEO_API_URL environment variable is not set on Vercel.");
+      throw new Error("Backend API URL is not configured on the server.");
     }
 
-    console.log('[Proxy] Forwarding to backend:', { message, session_id });
+    console.log(`Proxying request for session ${session_id} to: ${backendApiUrl}/chat`);
 
-    const response = await fetch('https://api.meo.meterbolic.com/api/chat', {
+    // 3. Forward the request to our real backend on EC2
+    const backendResponse = await fetch(`${backendApiUrl}/chat`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        message: message,
-        session_id: session_id || 'demo_session',
-      }),
+      // The body here perfectly matches what our FastAPI endpoint expects
+      body: JSON.stringify({ message: query, session_id }),
     });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('[Proxy] Backend error:', response.status, errorText);
-      return NextResponse.json(
-        { error: `Backend error: ${response.status}` },
-        { status: response.status }
-      );
+    // 4. Handle the response from the backend
+    if (!backendResponse.ok) {
+      // If the backend returned an error, forward it to the frontend
+      const errorData = await backendResponse.json();
+      console.error("Backend returned an error:", errorData);
+      return NextResponse.json({ detail: errorData.detail || 'Error from backend service' }, { status: backendResponse.status });
     }
 
-    const data = await response.json();
-    console.log('[Proxy] Backend response received');
+    // If successful, get the JSON data and send it back to the frontend
+    const data = await backendResponse.json();
     return NextResponse.json(data);
 
   } catch (error) {
-    console.error('[Proxy] Chat API error:', error);
-    return NextResponse.json(
-      { error: 'Failed to process chat request' },
-      { status: 500 }
-    );
+    // This catches any other errors, like network issues
+    console.error('An unexpected error occurred in the API route:', error);
+    return NextResponse.json({ detail: 'An internal server error occurred in the proxy.' }, { status: 500 });
   }
 }
