@@ -114,8 +114,8 @@ export async function POST(request: NextRequest) {
     console.log('[Proxy] Forwarding to backend:', { message, session_id });
 
     // Temporary EC2 backend (HTTP) — proxied server-side to avoid mixed-content
-    // Production: 'https://api.meo.meterbolic.com/api/chat'
-    const BACKEND_URL = process.env.MEO_API_URL || 'http://54.164.182.103:8000/api/chat';
+    // Production: ' http://54.164.182.103:8000/api/chat'
+    const BACKEND_URL = process.env.MEO_API_URL || 'https://api.meo.meterbolic.com/api/chat';
 
     const response = await fetch(BACKEND_URL, {
       method: 'POST',
