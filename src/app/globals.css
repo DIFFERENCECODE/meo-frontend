@@ -360,3 +360,95 @@
   content: '—';
   color: oklch(0.4 0.02 240);
 }
+
+/* Vendor Theme CSS Variables */
+:root {
+  /* Default to Meterbolic theme */
+  --vendor-primary: #a4d65e;
+  --vendor-primary-hover: #8bc34a;
+  --vendor-primary-foreground: #1a3a3a;
+  --vendor-background: #2C5858;
+  --vendor-background-gradient: linear-gradient(180deg, #2a5555 0%, #1e4444 40%, #1a3a3a 100%);
+  --vendor-card: rgba(40, 70, 70, 0.8);
+  --vendor-card-border: rgba(255, 255, 255, 0.1);
+  --vendor-foreground: #ffffff;
+  --vendor-muted: rgba(255, 255, 255, 0.6);
+  --vendor-accent: rgba(164, 214, 94, 0.15);
+  --vendor-success: #22c55e;
+  --vendor-warning: #f97316;
+  --vendor-error: #ef4444;
+}
+
+/* Eos theme when data-vendor="eos" is set - uses Meterbolic branding */
+[data-vendor="eos"] {
+  --vendor-primary: #a4d65e;
+  --vendor-primary-hover: #8bc34a;
+  --vendor-primary-foreground: #1a3a3a;
+  --vendor-background: #2C5858;
+  --vendor-background-gradient: linear-gradient(180deg, #2a5555 0%, #1e4444 40%, #1a3a3a 100%);
+  --vendor-card: rgba(40, 70, 70, 0.8);
+  --vendor-card-border: rgba(255, 255, 255, 0.1);
+  --vendor-foreground: #ffffff;
+  --vendor-muted: rgba(255, 255, 255, 0.6);
+  --vendor-accent: rgba(164, 214, 94, 0.15);
+  --vendor-success: #22c55e;
+  --vendor-warning: #f97316;
+  --vendor-error: #ef4444;
+}
+
+/* Panel Layout Utilities */
+@layer utilities {
+  /* Panel transitions */
+  .panel-transition {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Hide scrollbar but keep functionality */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Panel shadow for overlay panels */
+  .panel-shadow {
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  }
+
+  /* Glassmorphism effect for panels */
+  .glass {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+}
+
+/* Responsive panel behavior */
+@media (max-width: 768px) {
+  /* On mobile, panels overlay the main content */
+  .left-panel-open .chat-panel {
+    filter: brightness(0.7);
+  }
+  
+  .right-panel-open .chat-panel {
+    filter: brightness(0.7);
+  }
+}
+
+/* Line clamp utilities */
+@layer utilities {
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
