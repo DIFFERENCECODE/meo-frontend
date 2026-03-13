@@ -304,21 +304,21 @@
   --vendor-error: #ef4444;
 }
 
-/* Eos theme when data-vendor="eos" is set */
+/* Eos theme when data-vendor="eos" is set - uses Meterbolic branding */
 [data-vendor="eos"] {
-  --vendor-primary: #f472b6;
-  --vendor-primary-hover: #ec4899;
-  --vendor-primary-foreground: #1e1e2e;
-  --vendor-background: #1e1e2e;
-  --vendor-background-gradient: linear-gradient(180deg, #2d1b4e 0%, #1e1e2e 40%, #151521 100%);
-  --vendor-card: rgba(45, 27, 78, 0.8);
-  --vendor-card-border: rgba(244, 114, 182, 0.2);
-  --vendor-foreground: #f8fafc;
-  --vendor-muted: rgba(248, 250, 252, 0.6);
-  --vendor-accent: rgba(244, 114, 182, 0.15);
-  --vendor-success: #34d399;
-  --vendor-warning: #fbbf24;
-  --vendor-error: #f87171;
+  --vendor-primary: #a4d65e;
+  --vendor-primary-hover: #8bc34a;
+  --vendor-primary-foreground: #1a3a3a;
+  --vendor-background: #2C5858;
+  --vendor-background-gradient: linear-gradient(180deg, #2a5555 0%, #1e4444 40%, #1a3a3a 100%);
+  --vendor-card: rgba(40, 70, 70, 0.8);
+  --vendor-card-border: rgba(255, 255, 255, 0.1);
+  --vendor-foreground: #ffffff;
+  --vendor-muted: rgba(255, 255, 255, 0.6);
+  --vendor-accent: rgba(164, 214, 94, 0.15);
+  --vendor-success: #22c55e;
+  --vendor-warning: #f97316;
+  --vendor-error: #ef4444;
 }
 
 /* Panel Layout Utilities */

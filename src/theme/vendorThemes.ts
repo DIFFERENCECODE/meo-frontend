@@ -130,45 +130,45 @@ export const meterbolicTheme: VendorTheme = {
   },
 };
 
-// Eos Theme - Dawn-inspired purple/rose theme
+// Eos Theme - Uses Meterbolic branding
 export const eosTheme: VendorTheme = {
   id: 'eos',
   name: 'Eos',
   header: 'MeO for Eos',
   tagline: 'Prevention over cure.',
-  // Light mode - Eos branding (purple/rose)
+  // Light mode - Meterbolic branding (teal gradient)
   colors: {
-    primary: '#f472b6', // Rose pink
-    primaryHover: '#ec4899',
-    primaryForeground: '#1e1e2e',
+    primary: '#a4d65e',
+    primaryHover: '#8bc34a',
+    primaryForeground: '#1a3a3a',
     
-    background: '#1e1e2e', // Deep purple-blue
-    backgroundGradientStart: '#2d1b4e',
-    backgroundGradientMid: '#1e1e2e',
-    backgroundGradientEnd: '#151521',
+    background: '#1a3a3a',
+    backgroundGradientStart: '#1a3a3a',
+    backgroundGradientMid: '#264545',
+    backgroundGradientEnd: '#2a5555',
     
-    card: 'rgba(45, 27, 78, 0.8)',
-    cardHover: 'rgba(55, 37, 88, 0.9)',
-    cardBorder: 'rgba(244, 114, 182, 0.2)',
+    card: 'rgba(40, 70, 70, 0.8)',
+    cardHover: 'rgba(50, 80, 80, 0.9)',
+    cardBorder: 'rgba(255, 255, 255, 0.1)',
     
-    foreground: '#f8fafc',
-    muted: 'rgba(248, 250, 252, 0.6)',
+    foreground: '#ffffff',
+    muted: 'rgba(255, 255, 255, 0.6)',
     
-    accent: 'rgba(244, 114, 182, 0.15)',
-    accentHover: 'rgba(244, 114, 182, 0.25)',
+    accent: 'rgba(164, 214, 94, 0.15)',
+    accentHover: 'rgba(164, 214, 94, 0.25)',
     
-    success: '#34d399',
-    warning: '#fbbf24',
-    error: '#f87171',
+    success: '#22c55e',
+    warning: '#f97316',
+    error: '#ef4444',
     
-    chartPrimary: '#8b5cf6',
-    chartSecondary: '#f472b6',
-    chartTertiary: '#fbbf24',
+    chartPrimary: '#3b82f6',
+    chartSecondary: '#f97316',
+    chartTertiary: '#a4d65e',
   },
   // Dark mode - Gemini/GPT style (dark gray)
   darkColors: {
-    primary: '#f472b6',
-    primaryHover: '#ec4899',
+    primary: '#a4d65e',
+    primaryHover: '#8bc34a',
     primaryForeground: '#1a1a1a',
     
     background: '#1a1a1a',
@@ -183,28 +183,28 @@ export const eosTheme: VendorTheme = {
     foreground: '#e3e3e3',
     muted: 'rgba(255, 255, 255, 0.5)',
     
-    accent: 'rgba(244, 114, 182, 0.15)',
-    accentHover: 'rgba(244, 114, 182, 0.25)',
+    accent: 'rgba(164, 214, 94, 0.15)',
+    accentHover: 'rgba(164, 214, 94, 0.25)',
     
-    success: '#34d399',
-    warning: '#fbbf24',
-    error: '#f87171',
+    success: '#22c55e',
+    warning: '#f97316',
+    error: '#ef4444',
     
-    chartPrimary: '#8b5cf6',
-    chartSecondary: '#f472b6',
-    chartTertiary: '#fbbf24',
+    chartPrimary: '#3b82f6',
+    chartSecondary: '#f97316',
+    chartTertiary: '#a4d65e',
   },
   cssVariables: {
-    '--vendor-primary': '#f472b6',
-    '--vendor-primary-hover': '#ec4899',
-    '--vendor-primary-foreground': '#1e1e2e',
-    '--vendor-background': '#1e1e2e',
-    '--vendor-background-gradient': 'linear-gradient(180deg, #2d1b4e 0%, #1e1e2e 40%, #151521 100%)',
-    '--vendor-card': 'rgba(45, 27, 78, 0.8)',
-    '--vendor-card-border': 'rgba(244, 114, 182, 0.2)',
-    '--vendor-foreground': '#f8fafc',
-    '--vendor-muted': 'rgba(248, 250, 252, 0.6)',
-    '--vendor-accent': 'rgba(244, 114, 182, 0.15)',
+    '--vendor-primary': '#a4d65e',
+    '--vendor-primary-hover': '#8bc34a',
+    '--vendor-primary-foreground': '#1a3a3a',
+    '--vendor-background': '#2C5858',
+    '--vendor-background-gradient': 'linear-gradient(180deg, #2a5555 0%, #1e4444 40%, #1a3a3a 100%)',
+    '--vendor-card': 'rgba(40, 70, 70, 0.8)',
+    '--vendor-card-border': 'rgba(255, 255, 255, 0.1)',
+    '--vendor-foreground': '#ffffff',
+    '--vendor-muted': 'rgba(255, 255, 255, 0.6)',
+    '--vendor-accent': 'rgba(164, 214, 94, 0.15)',
   },
 };
 
