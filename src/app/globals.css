@@ -285,3 +285,78 @@
     -webkit-backface-visibility: hidden;
   }
 }
+
+/* ── MeO Clinical Markdown ── */
+.medical-markdown .table-wrapper {
+  overflow-x: auto;
+  margin: 1rem 0;
+  border-radius: 8px;
+  border: 1px solid oklch(0.25 0.03 240);
+}
+
+.medical-markdown table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+  font-family: 'DM Mono', monospace;
+}
+
+.clinical-th {
+  background: oklch(0.12 0.02 240);
+  color: oklch(0.75 0.12 180);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 0.68rem;
+  padding: 10px 16px;
+  text-align: left;
+  border-bottom: 1px solid oklch(0.3 0.05 220);
+  white-space: nowrap;
+}
+
+.clinical-td {
+  padding: 9px 16px;
+  border-bottom: 1px solid oklch(0.18 0.02 240);
+  color: oklch(0.85 0.02 220);
+}
+
+.medical-markdown tr:last-child td {
+  border-bottom: none;
+}
+
+.medical-markdown tr:hover td {
+  background: oklch(0.15 0.03 200 / 0.4);
+}
+
+.medical-markdown ul,
+.medical-markdown ol {
+  padding-left: 1.25rem;
+  margin: 0.5rem 0;
+  color: oklch(0.75 0.03 220);
+  line-height: 1.8;
+  font-size: 0.85rem;
+}
+
+.medical-markdown code {
+  background: oklch(0.1 0.02 240);
+  border: 1px solid oklch(0.25 0.04 220);
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-size: 0.82em;
+  color: oklch(0.75 0.12 180);
+}
+
+.medical-markdown blockquote {
+  border-left: 3px solid oklch(0.65 0.12 180);
+  background: oklch(0.65 0.12 180 / 0.08);
+  margin: 0.75rem 0;
+  padding: 10px 14px;
+  border-radius: 0 6px 6px 0;
+  color: oklch(0.75 0.05 220);
+  font-size: 0.82rem;
+}
+
+/* Null/missing data — never shown as placeholder */
+.medical-markdown td:empty::after {
+  content: '—';
+  color: oklch(0.4 0.02 240);
+}
