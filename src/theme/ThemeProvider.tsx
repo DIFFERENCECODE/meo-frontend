@@ -50,25 +50,50 @@ interface ThemeProviderProps {
   defaultColorMode?: 'light' | 'dark';
 }
 
+// localStorage keys for user preferences
+const STORAGE_KEYS = {
+  colorMode: 'meo-color-mode',
+  vendor: 'meo-vendor',
+  mode: 'meo-mode',
+} as const;
+
 export function ThemeProvider({
   children,
   defaultVendor = 'meterbolic',
   defaultMode = 'patient',
-  defaultColorMode = 'dark',
+  defaultColorMode = 'light',
 }: ThemeProviderProps) {
-  // Vendor and theme state
-  const [vendor, setVendorState] = useState<Vendor>(defaultVendor);
+  // Initialize state from localStorage or defaults
+  const [vendor, setVendorState] = useState<Vendor>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem(STORAGE_KEYS.vendor);
+      if (saved === 'meterbolic' || saved === 'eos') return saved;
+    }
+    return defaultVendor;
+  });
   const [theme, setTheme] = useState<VendorTheme>(getVendorTheme(defaultVendor));
   
   // Mode state
-  const [mode, setModeState] = useState<Mode>(defaultMode);
+  const [mode, setModeState] = useState<Mode>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem(STORAGE_KEYS.mode);
+      if (saved === 'patient' || saved === 'practitioner') return saved;
+    }
+    return defaultMode;
+  });
   
   // Panel state
   const [isLeftPanelOpen, setLeftPanelOpen] = useState(true);
   const [isRightPanelOpen, setRightPanelOpen] = useState(false);
   
-  // Color mode
-  const [colorMode, setColorModeState] = useState<ColorMode>(defaultColorMode);
+  // Color mode - initialize from localStorage or default to light
+  const [colorMode, setColorModeState] = useState<ColorMode>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem(STORAGE_KEYS.colorMode);
+      if (saved === 'light' || saved === 'dark') return saved;
+    }
+    return defaultColorMode;
+  });
 
   // Compute active colors based on colorMode
   const colors = useMemo(() => getThemeColors(theme, colorMode), [theme, colorMode]);
@@ -102,15 +127,21 @@ export function ThemeProvider({
   // Vendor methods
   const setVendor = useCallback((newVendor: Vendor) => {
     setVendorState(newVendor);
+    localStorage.setItem(STORAGE_KEYS.vendor, newVendor);
   }, []);
 
   const toggleVendor = useCallback(() => {
-    setVendorState(prev => prev === 'meterbolic' ? 'eos' : 'meterbolic');
+    setVendorState(prev => {
+      const newVendor = prev === 'meterbolic' ? 'eos' : 'meterbolic';
+      localStorage.setItem(STORAGE_KEYS.vendor, newVendor);
+      return newVendor;
+    });
   }, []);
 
   // Mode methods
   const setMode = useCallback((newMode: Mode) => {
     setModeState(newMode);
+    localStorage.setItem(STORAGE_KEYS.mode, newMode);
     // Auto-open right panel when switching to practitioner mode
     if (newMode === 'practitioner') {
       setRightPanelOpen(true);
@@ -120,6 +151,7 @@ export function ThemeProvider({
   const toggleMode = useCallback(() => {
     setModeState(prev => {
       const newMode = prev === 'patient' ? 'practitioner' : 'patient';
+      localStorage.setItem(STORAGE_KEYS.mode, newMode);
       // Auto-open right panel when switching to practitioner mode
       if (newMode === 'practitioner') {
         setRightPanelOpen(true);
@@ -140,10 +172,15 @@ export function ThemeProvider({
   // Color mode methods
   const setColorMode = useCallback((newMode: ColorMode) => {
     setColorModeState(newMode);
+    localStorage.setItem(STORAGE_KEYS.colorMode, newMode);
   }, []);
 
   const toggleColorMode = useCallback(() => {
-    setColorModeState(prev => prev === 'dark' ? 'light' : 'dark');
+    setColorModeState(prev => {
+      const newMode = prev === 'dark' ? 'light' : 'dark';
+      localStorage.setItem(STORAGE_KEYS.colorMode, newMode);
+      return newMode;
+    });
   }, []);
 
   const contextValue: ThemeContextValue = {
