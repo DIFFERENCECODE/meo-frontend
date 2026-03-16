@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { 
   Menu, 
   SquarePen, 
@@ -8,7 +9,8 @@ import {
   Settings,
   Clock,
   Sun,
-  Moon
+  Moon,
+  User
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -16,20 +18,42 @@ import { VendorToggle } from '@/components/vendor/VendorToggle';
 import { ModeToggle } from '@/components/mode/ModeToggle';
 import { cn } from '@/lib/utils';
 
+export interface ChatListItem {
+  id: string;
+  title: string;
+  created_at?: string | null;
+  updated_at?: string | null;
+}
+
 interface LeftPanelProps {
   onNewChat?: () => void;
   onSettingsClick?: () => void;
+  /** Dynamic chats from API; when provided, sidebar shows these instead of mock list */
+  chats?: ChatListItem[];
+  /** Current chat id (for highlight) */
+  currentChatId?: string | null;
+  /** When user selects a chat in the list */
+  onSelectChat?: (id: string) => void;
   className?: string;
 }
 
-// Mock chat history for Gemini-like layout
-const mockChatHistory = [
-  { id: '1', title: 'Kraft Curve Analysis', date: 'Today' },
-  { id: '2', title: 'Glucose Patterns', date: 'Today' },
-  { id: '3', title: 'Metabolic Health Basics', date: 'Yesterday' },
-];
+function formatChatDate(created_at?: string | null): string {
+  if (!created_at) return '';
+  try {
+    const d = new Date(created_at);
+    const now = new Date();
+    const isToday = d.toDateString() === now.toDateString();
+    if (isToday) return 'Today';
+    const yesterday = new Date(now);
+    yesterday.setDate(yesterday.getDate() - 1);
+    if (d.toDateString() === yesterday.toDateString()) return 'Yesterday';
+    return d.toLocaleDateString();
+  } catch {
+    return '';
+  }
+}
 
-export function LeftPanel({ onNewChat, onSettingsClick, className }: LeftPanelProps) {
+export function LeftPanel({ onNewChat, onSettingsClick, chats, currentChatId, onSelectChat, className }: LeftPanelProps) {
   const { isLeftPanelOpen, toggleLeftPanel, theme, colors, colorMode, toggleColorMode } = useTheme();
   const [showSettings, setShowSettings] = useState(false);
 
@@ -135,15 +159,31 @@ export function LeftPanel({ onNewChat, onSettingsClick, className }: LeftPanelPr
                   Chats
                 </p>
                 <div className="space-y-1">
-                  {mockChatHistory.map((chat) => (
-                    <button
-                      key={chat.id}
-                      className="w-full text-left px-3 py-2 rounded-lg text-sm truncate transition-colors hover:bg-white/5"
-                      style={{ color: colors.foreground }}
-                    >
-                      {chat.title}
-                    </button>
-                  ))}
+                  {chats && chats.length > 0 ? (
+                    chats.map((chat) => (
+                      <button
+                        key={chat.id}
+                        type="button"
+                        onClick={() => onSelectChat?.(chat.id)}
+                        className="w-full text-left px-3 py-2 rounded-lg text-sm truncate transition-colors hover:bg-white/5"
+                        style={{
+                          color: colors.foreground,
+                          backgroundColor: currentChatId === chat.id ? colors.accent || 'transparent' : undefined,
+                        }}
+                      >
+                        <span className="block truncate">{chat.title}</span>
+                        {formatChatDate(chat.updated_at || chat.created_at) && (
+                          <span className="block text-xs mt-0.5" style={{ color: colors.muted }}>
+                            {formatChatDate(chat.updated_at || chat.created_at)}
+                          </span>
+                        )}
+                      </button>
+                    ))
+                  ) : (
+                    <p className="px-3 py-2 text-sm" style={{ color: colors.muted }}>
+                      No chats yet. Start a new one.
+                    </p>
+                  )}
                 </div>
 
                 {/* Vendor/Mode Toggles - Collapsible section */}
@@ -200,9 +240,17 @@ export function LeftPanel({ onNewChat, onSettingsClick, className }: LeftPanelPr
                       className="overflow-hidden"
                     >
                       <div 
-                        className="ml-6 mt-1 p-2 rounded-lg"
+                        className="ml-6 mt-1 p-2 rounded-lg space-y-1"
                         style={{ backgroundColor: colors.accent }}
                       >
+                        <Link
+                          href="/profile"
+                          className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors hover:bg-white/5"
+                          style={{ color: colors.foreground }}
+                        >
+                          <User className="h-4 w-4" />
+                          <span>Profile</span>
+                        </Link>
                         <button
                           onClick={toggleColorMode}
                           className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors hover:bg-white/5"

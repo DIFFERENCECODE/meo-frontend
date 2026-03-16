@@ -3,7 +3,7 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { useTheme } from '@/theme/ThemeProvider';
-import { LeftPanel } from './LeftPanel';
+import { LeftPanel, ChatListItem } from './LeftPanel';
 import { RightPanel } from './RightPanel';
 import { cn } from '@/lib/utils';
 
@@ -14,6 +14,9 @@ interface ThreePanelLayoutProps {
   solutionContent?: React.ReactNode;
   onNewChat?: () => void;
   onSettingsClick?: () => void;
+  chats?: ChatListItem[];
+  currentChatId?: string | null;
+  onSelectChat?: (id: string) => void;
   className?: string;
 }
 
@@ -24,6 +27,9 @@ export function ThreePanelLayout({
   solutionContent,
   onNewChat,
   onSettingsClick,
+  chats,
+  currentChatId,
+  onSelectChat,
   className,
 }: ThreePanelLayoutProps) {
   const { 
@@ -50,7 +56,10 @@ export function ThreePanelLayout({
       {/* Left Panel */}
       <LeftPanel 
         onNewChat={onNewChat} 
-        onSettingsClick={onSettingsClick} 
+        onSettingsClick={onSettingsClick}
+        chats={chats}
+        currentChatId={currentChatId}
+        onSelectChat={onSelectChat}
       />
 
       {/* Center Panel (Chat) - flexes to fill remaining space */}
