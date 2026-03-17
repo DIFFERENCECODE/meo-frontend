@@ -9,6 +9,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import MedicalMarkdown from './MedicalMarkdown';
 
 // Utility for merging Tailwind classes
 function cn(...inputs: (string | undefined | null | false)[]) {
@@ -132,7 +133,7 @@ const mockVendors: Vendor[] = [
 function extractGraphData(sources: { type?: string; gap_solved?: string }[]): GraphData | null {
   const graphSource = sources.find(s => s.type === "graph_data");
   if (!graphSource || !graphSource.gap_solved) return null;
-  
+
   try {
     return JSON.parse(graphSource.gap_solved);
   } catch (e) {
@@ -145,7 +146,7 @@ function extractGraphData(sources: { type?: string; gap_solved?: string }[]): Gr
 function getBioAgeMetrics(data: BioAgeData): BioAgeMetrics {
   const baseline = data.records.find(r => r.recordType === "CLINICAL");
   const target = data.records.find(r => r.recordType === "TARGET");
-  
+
   return {
     baseline: baseline?.value ?? null,
     target: target?.value ?? null,
@@ -158,7 +159,7 @@ function getBioAgeMetrics(data: BioAgeData): BioAgeMetrics {
 // Transform kraft data for charting (group by time)
 function transformKraftForChart(data: KraftDataPoint[]): TransformedKraftPoint[] {
   const timeMap = new Map<number, { time: number; Insulin?: number; Glucose?: number }>();
-  
+
   data.forEach(point => {
     if (!timeMap.has(point.time)) {
       timeMap.set(point.time, { time: point.time });
@@ -168,9 +169,9 @@ function transformKraftForChart(data: KraftDataPoint[]): TransformedKraftPoint[]
       entry[point.analyte] = point.value;
     }
   });
-  
+
   const sorted = Array.from(timeMap.values()).sort((a, b) => a.time - b.time);
-  
+
   // Convert to chart format with time labels
   return sorted.map((entry, index) => ({
     time: `${(index * 0.5).toFixed(1)}hr`,
@@ -184,14 +185,14 @@ function generateBioAgeTrajectory(metrics: BioAgeMetrics): BiologicalAgeDataPoin
   if (metrics.baseline === null || metrics.target === null) {
     return biologicalAgeDataDefault;
   }
-  
+
   // Generate a trajectory from baseline to target over 18 data points
   const points: BiologicalAgeDataPoint[] = [];
   const startDate = new Date();
   startDate.setMonth(startDate.getMonth() - 3); // Start 3 months ago
-  
+
   const stepValue = (metrics.baseline - metrics.target) / 17;
-  
+
   for (let i = 0; i < 18; i++) {
     const date = new Date(startDate);
     date.setDate(date.getDate() + i * 5);
@@ -201,7 +202,7 @@ function generateBioAgeTrajectory(metrics: BioAgeMetrics): BiologicalAgeDataPoin
       target: metrics.target,
     });
   }
-  
+
   return points;
 }
 
@@ -300,13 +301,13 @@ function RiskScoreGauge({ score }: { score: number }) {
 }
 
 // --- Biological Age Gauge Component (ECharts Half-Circle Speedometer) ---
-function BiologicalAgeGauge({ 
-  biologicalAge, 
-  chronologicalAge, 
-  targetAge 
-}: { 
-  biologicalAge: number; 
-  chronologicalAge: number; 
+function BiologicalAgeGauge({
+  biologicalAge,
+  chronologicalAge,
+  targetAge
+}: {
+  biologicalAge: number;
+  chronologicalAge: number;
   targetAge: number;
 }) {
   const option: EChartsOption = {
@@ -425,8 +426,8 @@ function BiologicalAgeGauge({
 // --- Blood Droplet SVG Component ---
 function BloodDroplet({ className }: { className?: string }) {
   return (
-    <svg 
-      viewBox="0 0 24 24" 
+    <svg
+      viewBox="0 0 24 24"
       className={className}
       fill="currentColor"
     >
@@ -445,18 +446,18 @@ function Logo({ size = 'large', onClick }: { size?: 'large' | 'small'; onClick?:
       )}>
         Me
       </span>
-      <BloodDroplet 
+      <BloodDroplet
         className={cn(
           "text-medical-primary",
           size === 'large' ? "w-10 h-10 mt-1" : "w-5 h-5"
-        )} 
+        )}
       />
     </>
   );
 
   if (onClick) {
     return (
-      <button 
+      <button
         onClick={onClick}
         className="flex items-center gap-0 hover:opacity-80 transition-opacity"
       >
@@ -546,13 +547,13 @@ export default function MeOInterface() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: messageText, session_id: 'demo_session' })
       });
-      
+
       const data = await res.json();
       const botResponse = data.response;
 
       // Add the bot response first
       setMessages(prev => [...prev, { role: 'assistant', content: botResponse }]);
-      
+
       // Now apply the mode transition AFTER response is added
       // Backend mode takes priority, then fallback to frontend detection
       if (data.mode === 'analysis' || data.mode === 'solution') {
@@ -560,13 +561,13 @@ export default function MeOInterface() {
       } else if (intendedMode !== 'response') {
         setViewMode(intendedMode);
       }
-      
+
       // Check for graph data in sources when in analysis mode
       const finalMode = data.mode || intendedMode;
       if (finalMode === 'analysis') {
         const retrievedSources = data.retrieved_sources || [];
         const graphDataParsed = extractGraphData(retrievedSources);
-        
+
         if (graphDataParsed) {
           // Extract and set bio age metrics
           if (graphDataParsed.bio_age_data) {
@@ -574,7 +575,7 @@ export default function MeOInterface() {
             setBioAgeMetrics(metrics);
             setBioAgeTrajectory(generateBioAgeTrajectory(metrics));
           }
-          
+
           // Transform and set kraft curve data
           if (graphDataParsed.kraft_curve_data && graphDataParsed.kraft_curve_data.length > 0) {
             const transformedKraft = transformKraftForChart(graphDataParsed.kraft_curve_data);
@@ -585,8 +586,8 @@ export default function MeOInterface() {
 
     } catch (err) {
       console.error(err);
-      setMessages(prev => [...prev, { 
-        role: 'assistant', 
+      setMessages(prev => [...prev, {
+        role: 'assistant',
         content: "I'm having trouble connecting. Please check your internet connection or try again later."
       }]);
     } finally {
@@ -612,10 +613,10 @@ export default function MeOInterface() {
 
   const handleMouseMove = useCallback((e: MouseEvent) => {
     if (!isDragging || !containerRef.current) return;
-    
+
     const containerRect = containerRef.current.getBoundingClientRect();
     const newWidth = ((e.clientX - containerRect.left) / containerRect.width) * 100;
-    
+
     // Clamp between 25% and 60%
     setChatPanelWidth(Math.min(60, Math.max(25, newWidth)));
   }, [isDragging]);
@@ -655,8 +656,8 @@ export default function MeOInterface() {
     return (
       <div className={cn(
         "min-h-screen flex items-center justify-center p-4",
-        theme === 'dark' 
-          ? "bg-gradient-to-b from-background via-medical-bg to-medical-accent/10" 
+        theme === 'dark'
+          ? "bg-gradient-to-b from-background via-medical-bg to-medical-accent/10"
           : "bg-white"
       )}>
         {/* Limited Preview Badge - Fixed at top center */}
@@ -739,8 +740,8 @@ export default function MeOInterface() {
   return (
     <div className={cn(
       "min-h-screen",
-      theme === 'dark' 
-        ? "bg-gradient-to-b from-background via-medical-bg to-medical-accent/10" 
+      theme === 'dark'
+        ? "bg-gradient-to-b from-background via-medical-bg to-medical-accent/10"
         : "bg-white",
       isDragging && "select-none cursor-col-resize"
     )}>
@@ -765,22 +766,22 @@ export default function MeOInterface() {
 
       {/* Layout Container */}
       <div ref={containerRef} className="h-screen flex overflow-hidden">
-        
+
         {/* Chat Panel - Fixed, doesn't scroll with right panel */}
-        <motion.div 
+        <motion.div
           layout
           className={cn(
             "flex flex-col bg-card/50 backdrop-blur h-screen flex-shrink-0",
-            viewMode === 'response' 
-              ? "border-0" 
+            viewMode === 'response'
+              ? "border-0"
               : "border-r border-medical-border"
           )}
-          style={{ 
+          style={{
             width: viewMode === 'response' ? '100%' : `${chatPanelWidth}%`
           }}
           transition={{ duration: 0.3, ease: "easeInOut" }}
         >
-          
+
           {/* Header Section */}
           <div className="p-4 border-b border-medical-border flex items-center justify-between">
             <Logo size="small" onClick={handleRefresh} />
@@ -802,19 +803,25 @@ export default function MeOInterface() {
                 )}>
                   {msg.role === 'user' ? (
                     // User Message - right-aligned bubble
-                    <div 
+                    <div
                       className="max-w-[85%] rounded-2xl px-4 py-3"
                       style={{ backgroundColor: '#2C564C' }}
                     >
                       <p className="text-sm leading-relaxed text-white">{msg.content}</p>
                     </div>
                   ) : (
+                    // // Assistant Message - clean centered text, no bubble (Gemini-style)
+                    // <div className="w-full">
+                    //   <div className="prose prose-sm max-w-none text-foreground/90 leading-relaxed">
+                    //     <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                    //       {msg.content}
+                    //     </ReactMarkdown>
+                    //   </div>
+                    // </div>
                     // Assistant Message - clean centered text, no bubble (Gemini-style)
                     <div className="w-full">
                       <div className="prose prose-sm max-w-none text-foreground/90 leading-relaxed">
-                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                          {msg.content}
-                        </ReactMarkdown>
+                        <MedicalMarkdown content={msg.content} />
                       </div>
                     </div>
                   )}
@@ -887,14 +894,14 @@ export default function MeOInterface() {
         {/* Right Panel - Analysis/Solution Dashboard - Only shown when not in response mode */}
         <AnimatePresence>
           {viewMode !== 'response' && (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, x: 50 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 50 }}
               transition={{ duration: 0.3, ease: "easeInOut" }}
               className="hidden md:flex flex-1 flex-col p-8 overflow-y-auto h-screen"
             >
-          
+
               {/* Header Section */}
               <div className="flex justify-between items-start mb-6">
                 <div>
@@ -919,360 +926,360 @@ export default function MeOInterface() {
               </div>
 
               {/* Analysis View - Stacked Cards */}
-          {viewMode === 'analysis' && (
-            <div className="space-y-6 flex-1">
-              
-              {/* Card 1: Biological Age Analysis - Flippable */}
-              <div className="perspective-1000">
-                <div
-                  className="relative cursor-pointer transition-transform duration-700"
-                  style={{
-                    transformStyle: 'preserve-3d',
-                    transform: isBioAgeFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
-                  }}
-                  onClick={() => setIsBioAgeFlipped(!isBioAgeFlipped)}
-                >
-                  {/* Front Side - Gauge Meter */}
-                  <div 
-                    className="bg-card/80 backdrop-blur border border-medical-border rounded-xl shadow-lg p-6"
-                    style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
-                  >
-                    {/* Card Header */}
-                    <div className="flex justify-between items-start mb-4">
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="w-3 h-3 rounded-full bg-red-500"></span>
-                          <h2 className="text-xl font-bold text-foreground">Biological Age Analysis</h2>
+              {viewMode === 'analysis' && (
+                <div className="space-y-6 flex-1">
+
+                  {/* Card 1: Biological Age Analysis - Flippable */}
+                  <div className="perspective-1000">
+                    <div
+                      className="relative cursor-pointer transition-transform duration-700"
+                      style={{
+                        transformStyle: 'preserve-3d',
+                        transform: isBioAgeFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
+                      }}
+                      onClick={() => setIsBioAgeFlipped(!isBioAgeFlipped)}
+                    >
+                      {/* Front Side - Gauge Meter */}
+                      <div
+                        className="bg-card/80 backdrop-blur border border-medical-border rounded-xl shadow-lg p-6"
+                        style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
+                      >
+                        {/* Card Header */}
+                        <div className="flex justify-between items-start mb-4">
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <span className="w-3 h-3 rounded-full bg-red-500"></span>
+                              <h2 className="text-xl font-bold text-foreground">Biological Age Analysis</h2>
+                            </div>
+                          </div>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); setIsBioAgeFlipped(!isBioAgeFlipped); }}
+                            className="p-2 rounded-lg hover:bg-medical-accent transition-colors"
+                          >
+                            <FlipHorizontal className="h-5 w-5 text-muted-foreground hover:text-foreground" />
+                          </button>
+                        </div>
+
+                        {/* Gauge Display */}
+                        <div className="flex flex-col items-center py-4">
+                          <BiologicalAgeGauge
+                            biologicalAge={bioAgeMetrics.baseline ?? 41.9}
+                            chronologicalAge={42}
+                            targetAge={bioAgeMetrics.target ?? 41.5}
+                          />
+
+                          {/* Text Below Gauge */}
+                          <div className="text-center mt-4">
+                            <p className="text-sm text-muted-foreground">
+                              {bioAgeMetrics.improvement !== null && bioAgeMetrics.improvement > 0 ? (
+                                <>Improvement: <span className="text-medical-primary font-bold">{bioAgeMetrics.improvement.toFixed(2)} years</span></>
+                              ) : (
+                                <>You are aging <span className="text-medical-primary font-bold">4% slower</span> than average</>
+                              )}
+                            </p>
+                            <p className="text-xs text-muted-foreground mt-1">Target Age: {bioAgeMetrics.target?.toFixed(2) ?? '41.50'}</p>
+                          </div>
                         </div>
                       </div>
-                      <button 
-                        onClick={(e) => { e.stopPropagation(); setIsBioAgeFlipped(!isBioAgeFlipped); }}
-                        className="p-2 rounded-lg hover:bg-medical-accent transition-colors"
-                      >
-                        <FlipHorizontal className="h-5 w-5 text-muted-foreground hover:text-foreground" />
-                      </button>
-                    </div>
 
-                    {/* Gauge Display */}
-                    <div className="flex flex-col items-center py-4">
-                      <BiologicalAgeGauge 
-                        biologicalAge={bioAgeMetrics.baseline ?? 41.9} 
-                        chronologicalAge={42} 
-                        targetAge={bioAgeMetrics.target ?? 41.5} 
-                      />
-                      
-                      {/* Text Below Gauge */}
-                      <div className="text-center mt-4">
-                        <p className="text-sm text-muted-foreground">
-                          {bioAgeMetrics.improvement !== null && bioAgeMetrics.improvement > 0 ? (
-                            <>Improvement: <span className="text-medical-primary font-bold">{bioAgeMetrics.improvement.toFixed(2)} years</span></>
-                          ) : (
-                            <>You are aging <span className="text-medical-primary font-bold">4% slower</span> than average</>
-                          )}
-                        </p>
-                        <p className="text-xs text-muted-foreground mt-1">Target Age: {bioAgeMetrics.target?.toFixed(2) ?? '41.50'}</p>
+                      {/* Back Side - Line Chart Graph */}
+                      <div
+                        className="absolute inset-0 bg-card/80 backdrop-blur border border-medical-border rounded-xl shadow-lg p-6"
+                        style={{
+                          backfaceVisibility: 'hidden',
+                          WebkitBackfaceVisibility: 'hidden',
+                          transform: 'rotateY(180deg)'
+                        }}
+                      >
+                        {/* Card Header */}
+                        <div className="flex justify-between items-start mb-4">
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <span className="w-3 h-3 rounded-full bg-red-500"></span>
+                              <h2 className="text-xl font-bold text-foreground">Your Age Journey</h2>
+                            </div>
+                            <p className="text-sm text-muted-foreground mt-1">Clinical progress vs target over time</p>
+                          </div>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); setIsBioAgeFlipped(!isBioAgeFlipped); }}
+                            className="p-2 rounded-lg hover:bg-medical-accent transition-colors"
+                          >
+                            <FlipHorizontal className="h-5 w-5 text-muted-foreground hover:text-foreground" />
+                          </button>
+                        </div>
+
+                        {/* Line Chart (ECharts) */}
+                        <div className="h-[300px] w-full">
+                          <ReactECharts
+                            option={{
+                              grid: {
+                                top: 40,
+                                right: 30,
+                                bottom: 60,
+                                left: 50,
+                              },
+                              xAxis: {
+                                type: 'category',
+                                data: bioAgeTrajectory.map(d => d.date),
+                                axisLine: { lineStyle: { color: '#374151' } },
+                                axisLabel: { color: '#9ca3af', fontSize: 10, interval: 2 },
+                                axisTick: { lineStyle: { color: '#374151' } },
+                              },
+                              yAxis: {
+                                type: 'value',
+                                min: bioAgeMetrics.target ? bioAgeMetrics.target - 0.1 : 41.45,
+                                max: bioAgeMetrics.baseline ? bioAgeMetrics.baseline + 0.05 : 41.95,
+                                axisLine: { lineStyle: { color: '#374151' } },
+                                axisLabel: {
+                                  color: '#9ca3af',
+                                  fontSize: 12,
+                                  formatter: (value: number) => value.toFixed(2),
+                                },
+                                splitLine: { lineStyle: { color: '#374151', opacity: 0.3, type: 'dashed' } },
+                              },
+                              tooltip: {
+                                trigger: 'axis',
+                                backgroundColor: '#1f2937',
+                                borderColor: '#374151',
+                                textStyle: { color: '#fff' },
+                                formatter: (params: Array<{ seriesName: string; value: number; marker: string }>) => {
+                                  return params.map(p => `${p.marker} ${p.seriesName}: ${p.value.toFixed(2)}`).join('<br/>');
+                                },
+                              },
+                              legend: {
+                                data: ['YOU', 'OUR TARGET'],
+                                bottom: 10,
+                                textStyle: { color: '#9ca3af' },
+                              },
+                              series: [
+                                {
+                                  name: 'YOU',
+                                  type: 'line',
+                                  data: bioAgeTrajectory.map(d => d.you),
+                                  smooth: true,
+                                  lineStyle: { color: '#f97316', width: 3 },
+                                  itemStyle: { color: '#f97316' },
+                                  symbol: 'circle',
+                                  symbolSize: 8,
+                                },
+                                {
+                                  name: 'OUR TARGET',
+                                  type: 'line',
+                                  data: bioAgeTrajectory.map(d => d.target),
+                                  smooth: true,
+                                  lineStyle: { color: '#a4d65e', width: 3 },
+                                  itemStyle: { color: '#a4d65e' },
+                                  symbol: 'circle',
+                                  symbolSize: 8,
+                                },
+                              ],
+                            } as EChartsOption}
+                            style={{ width: '100%', height: '100%' }}
+                            opts={{ renderer: 'svg' }}
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
 
-                  {/* Back Side - Line Chart Graph */}
-                  <div 
-                    className="absolute inset-0 bg-card/80 backdrop-blur border border-medical-border rounded-xl shadow-lg p-6"
-                    style={{ 
-                      backfaceVisibility: 'hidden', 
-                      WebkitBackfaceVisibility: 'hidden',
-                      transform: 'rotateY(180deg)'
-                    }}
-                  >
+                  {/* Card 2: Kraft Curve Analysis - Static */}
+                  <div className="bg-card/80 backdrop-blur border border-medical-border rounded-xl shadow-lg p-6">
+
                     {/* Card Header */}
                     <div className="flex justify-between items-start mb-4">
                       <div>
-                        <div className="flex items-center gap-2">
-                          <span className="w-3 h-3 rounded-full bg-red-500"></span>
-                          <h2 className="text-xl font-bold text-foreground">Your Age Journey</h2>
-                        </div>
-                        <p className="text-sm text-muted-foreground mt-1">Clinical progress vs target over time</p>
+                        <h2 className="text-xl font-bold text-foreground">Kraft Curve Analysis</h2>
+                        <p className="text-sm text-muted-foreground">5-Hour Glucose Tolerance Test</p>
                       </div>
-                      <button 
-                        onClick={(e) => { e.stopPropagation(); setIsBioAgeFlipped(!isBioAgeFlipped); }}
-                        className="p-2 rounded-lg hover:bg-medical-accent transition-colors"
-                      >
-                        <FlipHorizontal className="h-5 w-5 text-muted-foreground hover:text-foreground" />
-                      </button>
+                      <span className="px-3 py-1 rounded-full text-xs font-medium bg-orange-500/20 text-orange-400 border border-orange-500/30">
+                        At Risk
+                      </span>
                     </div>
 
-                    {/* Line Chart (ECharts) */}
-                    <div className="h-[300px] w-full">
+                    {/* Chart Section (ECharts) */}
+                    <div className="h-[350px] w-full">
                       <ReactECharts
                         option={{
+                          animation: true,
                           grid: {
-                            top: 40,
-                            right: 30,
-                            bottom: 60,
-                            left: 50,
+                            top: 60,
+                            right: 80,
+                            bottom: 80,
+                            left: 60,
+                            containLabel: false,
                           },
                           xAxis: {
                             type: 'category',
-                            data: bioAgeTrajectory.map(d => d.date),
+                            data: graphData.map(d => d.time),
+                            boundaryGap: false,
                             axisLine: { lineStyle: { color: '#374151' } },
-                            axisLabel: { color: '#9ca3af', fontSize: 10, interval: 2 },
+                            axisLabel: { color: '#9ca3af', fontSize: 12 },
                             axisTick: { lineStyle: { color: '#374151' } },
                           },
-                          yAxis: {
-                            type: 'value',
-                            min: bioAgeMetrics.target ? bioAgeMetrics.target - 0.1 : 41.45,
-                            max: bioAgeMetrics.baseline ? bioAgeMetrics.baseline + 0.05 : 41.95,
-                            axisLine: { lineStyle: { color: '#374151' } },
-                            axisLabel: { 
-                              color: '#9ca3af', 
-                              fontSize: 12,
-                              formatter: (value: number) => value.toFixed(2),
+                          yAxis: [
+                            {
+                              type: 'value',
+                              name: 'Glucose (mg/dL)',
+                              min: 0,
+                              max: 200,
+                              position: 'left',
+                              axisLine: { show: true, lineStyle: { color: '#3b82f6' } },
+                              axisLabel: { color: '#3b82f6', fontSize: 12 },
+                              splitLine: { lineStyle: { color: '#374151', opacity: 0.3, type: 'dashed' } },
+                              nameTextStyle: { color: '#3b82f6', fontSize: 12 },
+                              nameLocation: 'end',
                             },
-                            splitLine: { lineStyle: { color: '#374151', opacity: 0.3, type: 'dashed' } },
-                          },
+                            {
+                              type: 'value',
+                              name: 'Insulin (μIU/mL)',
+                              min: 0,
+                              max: 150,
+                              position: 'right',
+                              axisLine: { show: true, lineStyle: { color: '#f97316' } },
+                              axisLabel: { color: '#f97316', fontSize: 12 },
+                              splitLine: { show: false },
+                              nameTextStyle: { color: '#f97316', fontSize: 12 },
+                              nameLocation: 'end',
+                            },
+                          ],
                           tooltip: {
                             trigger: 'axis',
                             backgroundColor: '#1f2937',
                             borderColor: '#374151',
                             textStyle: { color: '#fff' },
-                            formatter: (params: Array<{seriesName: string; value: number; marker: string}>) => {
-                              return params.map(p => `${p.marker} ${p.seriesName}: ${p.value.toFixed(2)}`).join('<br/>');
-                            },
                           },
                           legend: {
-                            data: ['YOU', 'OUR TARGET'],
+                            data: ['glucose', 'insulin'],
                             bottom: 10,
                             textStyle: { color: '#9ca3af' },
+                            icon: 'circle',
+                          },
+                          dataset: {
+                            source: graphData,
                           },
                           series: [
                             {
-                              name: 'YOU',
+                              name: 'glucose',
                               type: 'line',
-                              data: bioAgeTrajectory.map(d => d.you),
-                              smooth: true,
+                              yAxisIndex: 0,
+                              encode: { x: 'time', y: 'glucose' },
+                              smooth: 0.3,
+                              showSymbol: true,
+                              lineStyle: { color: '#3b82f6', width: 3 },
+                              itemStyle: { color: '#3b82f6' },
+                              symbol: 'circle',
+                              symbolSize: 10,
+                            },
+                            {
+                              name: 'insulin',
+                              type: 'line',
+                              yAxisIndex: 1,
+                              encode: { x: 'time', y: 'insulin' },
+                              smooth: 0.3,
+                              showSymbol: true,
                               lineStyle: { color: '#f97316', width: 3 },
                               itemStyle: { color: '#f97316' },
                               symbol: 'circle',
-                              symbolSize: 8,
-                            },
-                            {
-                              name: 'OUR TARGET',
-                              type: 'line',
-                              data: bioAgeTrajectory.map(d => d.target),
-                              smooth: true,
-                              lineStyle: { color: '#a4d65e', width: 3 },
-                              itemStyle: { color: '#a4d65e' },
-                              symbol: 'circle',
-                              symbolSize: 8,
+                              symbolSize: 10,
                             },
                           ],
                         } as EChartsOption}
                         style={{ width: '100%', height: '100%' }}
-                        opts={{ renderer: 'svg' }}
+                        notMerge={true}
                       />
                     </div>
-                  </div>
-                </div>
-              </div>
 
-              {/* Card 2: Kraft Curve Analysis - Static */}
-              <div className="bg-card/80 backdrop-blur border border-medical-border rounded-xl shadow-lg p-6">
-                
-                {/* Card Header */}
-                <div className="flex justify-between items-start mb-4">
-                  <div>
-                    <h2 className="text-xl font-bold text-foreground">Kraft Curve Analysis</h2>
-                    <p className="text-sm text-muted-foreground">5-Hour Glucose Tolerance Test</p>
-                  </div>
-                  <span className="px-3 py-1 rounded-full text-xs font-medium bg-orange-500/20 text-orange-400 border border-orange-500/30">
-                    At Risk
-                  </span>
-                </div>
-
-                {/* Chart Section (ECharts) */}
-                <div className="h-[350px] w-full">
-                  <ReactECharts
-                    option={{
-                      animation: true,
-                      grid: {
-                        top: 60,
-                        right: 80,
-                        bottom: 80,
-                        left: 60,
-                        containLabel: false,
-                      },
-                      xAxis: {
-                        type: 'category',
-                        data: graphData.map(d => d.time),
-                        boundaryGap: false,
-                        axisLine: { lineStyle: { color: '#374151' } },
-                        axisLabel: { color: '#9ca3af', fontSize: 12 },
-                        axisTick: { lineStyle: { color: '#374151' } },
-                      },
-                      yAxis: [
-                        {
-                          type: 'value',
-                          name: 'Glucose (mg/dL)',
-                          min: 0,
-                          max: 200,
-                          position: 'left',
-                          axisLine: { show: true, lineStyle: { color: '#3b82f6' } },
-                          axisLabel: { color: '#3b82f6', fontSize: 12 },
-                          splitLine: { lineStyle: { color: '#374151', opacity: 0.3, type: 'dashed' } },
-                          nameTextStyle: { color: '#3b82f6', fontSize: 12 },
-                          nameLocation: 'end',
-                        },
-                        {
-                          type: 'value',
-                          name: 'Insulin (μIU/mL)',
-                          min: 0,
-                          max: 150,
-                          position: 'right',
-                          axisLine: { show: true, lineStyle: { color: '#f97316' } },
-                          axisLabel: { color: '#f97316', fontSize: 12 },
-                          splitLine: { show: false },
-                          nameTextStyle: { color: '#f97316', fontSize: 12 },
-                          nameLocation: 'end',
-                        },
-                      ],
-                      tooltip: {
-                        trigger: 'axis',
-                        backgroundColor: '#1f2937',
-                        borderColor: '#374151',
-                        textStyle: { color: '#fff' },
-                      },
-                      legend: {
-                        data: ['glucose', 'insulin'],
-                        bottom: 10,
-                        textStyle: { color: '#9ca3af' },
-                        icon: 'circle',
-                      },
-                      dataset: {
-                        source: graphData,
-                      },
-                      series: [
-                        {
-                          name: 'glucose',
-                          type: 'line',
-                          yAxisIndex: 0,
-                          encode: { x: 'time', y: 'glucose' },
-                          smooth: 0.3,
-                          showSymbol: true,
-                          lineStyle: { color: '#3b82f6', width: 3 },
-                          itemStyle: { color: '#3b82f6' },
-                          symbol: 'circle',
-                          symbolSize: 10,
-                        },
-                        {
-                          name: 'insulin',
-                          type: 'line',
-                          yAxisIndex: 1,
-                          encode: { x: 'time', y: 'insulin' },
-                          smooth: 0.3,
-                          showSymbol: true,
-                          lineStyle: { color: '#f97316', width: 3 },
-                          itemStyle: { color: '#f97316' },
-                          symbol: 'circle',
-                          symbolSize: 10,
-                        },
-                      ],
-                    } as EChartsOption}
-                    style={{ width: '100%', height: '100%' }}
-                    notMerge={true}
-                  />
-                </div>
-
-                {/* Metrics Grid */}
-                <div className="grid grid-cols-3 gap-4 mt-6">
-                  <div className="bg-medical-accent/30 border border-medical-border rounded-lg p-4">
-                    <p className="text-3xl font-bold text-blue-400">160</p>
-                    <p className="text-xs text-muted-foreground">Peak Glucose</p>
-                  </div>
-                  <div className="bg-medical-accent/30 border border-medical-border rounded-lg p-4">
-                    <p className="text-3xl font-bold text-orange-500">120</p>
-                    <p className="text-xs text-muted-foreground">Peak Insulin</p>
-                  </div>
-                  <div className="bg-medical-accent/30 border border-medical-border rounded-lg p-4">
-                    <p className="text-3xl font-bold text-medical-primary">5hr</p>
-                    <p className="text-xs text-muted-foreground">Recovery Time</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Solution View - Vendor Cards */}
-          {viewMode === 'solution' && (
-            <div className="space-y-4">
-              {mockVendors.map((vendor) => (
-                <div 
-                  key={vendor.id}
-                  className="bg-card/80 backdrop-blur border border-medical-border rounded-xl p-6 hover:border-medical-primary/50 transition-all cursor-pointer group"
-                >
-                  <div className="flex justify-between items-start">
-                    {/* Left Content */}
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <h3 className="text-xl font-bold text-foreground group-hover:text-medical-primary transition-colors">
-                          {vendor.name}
-                        </h3>
-                        {vendor.available ? (
-                          <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-green-500/20 text-green-400 border border-green-500/30">
-                            Available
-                          </span>
-                        ) : (
-                          <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-gray-500/20 text-gray-400 border border-gray-500/30">
-                            Waitlist
-                          </span>
-                        )}
+                    {/* Metrics Grid */}
+                    <div className="grid grid-cols-3 gap-4 mt-6">
+                      <div className="bg-medical-accent/30 border border-medical-border rounded-lg p-4">
+                        <p className="text-3xl font-bold text-blue-400">160</p>
+                        <p className="text-xs text-muted-foreground">Peak Glucose</p>
                       </div>
-                      <p className="text-sm text-medical-primary font-medium mb-2">{vendor.category}</p>
-                      <p className="text-sm text-muted-foreground mb-4 leading-relaxed">{vendor.description}</p>
-                      
-                      {/* Tags */}
-                      <div className="flex flex-wrap gap-2 mb-4">
-                        {vendor.tags.map((tag, i) => (
-                          <span 
-                            key={i}
-                            className="px-2 py-1 rounded-md text-xs bg-medical-accent/50 text-foreground border border-medical-border"
-                          >
-                            {tag}
-                          </span>
-                        ))}
+                      <div className="bg-medical-accent/30 border border-medical-border rounded-lg p-4">
+                        <p className="text-3xl font-bold text-orange-500">120</p>
+                        <p className="text-xs text-muted-foreground">Peak Insulin</p>
                       </div>
+                      <div className="bg-medical-accent/30 border border-medical-border rounded-lg p-4">
+                        <p className="text-3xl font-bold text-medical-primary">5hr</p>
+                        <p className="text-xs text-muted-foreground">Recovery Time</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
 
-                      {/* Meta Info */}
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                        <div className="flex items-center gap-1">
-                          <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
-                          <span className="text-foreground font-medium">{vendor.rating}</span>
-                          <span>({vendor.reviews} reviews)</span>
+              {/* Solution View - Vendor Cards */}
+              {viewMode === 'solution' && (
+                <div className="space-y-4">
+                  {mockVendors.map((vendor) => (
+                    <div
+                      key={vendor.id}
+                      className="bg-card/80 backdrop-blur border border-medical-border rounded-xl p-6 hover:border-medical-primary/50 transition-all cursor-pointer group"
+                    >
+                      <div className="flex justify-between items-start">
+                        {/* Left Content */}
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            <h3 className="text-xl font-bold text-foreground group-hover:text-medical-primary transition-colors">
+                              {vendor.name}
+                            </h3>
+                            {vendor.available ? (
+                              <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-green-500/20 text-green-400 border border-green-500/30">
+                                Available
+                              </span>
+                            ) : (
+                              <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-gray-500/20 text-gray-400 border border-gray-500/30">
+                                Waitlist
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-sm text-medical-primary font-medium mb-2">{vendor.category}</p>
+                          <p className="text-sm text-muted-foreground mb-4 leading-relaxed">{vendor.description}</p>
+
+                          {/* Tags */}
+                          <div className="flex flex-wrap gap-2 mb-4">
+                            {vendor.tags.map((tag, i) => (
+                              <span
+                                key={i}
+                                className="px-2 py-1 rounded-md text-xs bg-medical-accent/50 text-foreground border border-medical-border"
+                              >
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
+
+                          {/* Meta Info */}
+                          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                            <div className="flex items-center gap-1">
+                              <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
+                              <span className="text-foreground font-medium">{vendor.rating}</span>
+                              <span>({vendor.reviews} reviews)</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <MapPin className="h-4 w-4" />
+                              <span>{vendor.location}</span>
+                            </div>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-1">
-                          <MapPin className="h-4 w-4" />
-                          <span>{vendor.location}</span>
+
+                        {/* Right Content - Price & CTA */}
+                        <div className="flex flex-col items-end gap-3 ml-6">
+                          <div className="text-right">
+                            <p className="text-2xl font-bold text-foreground">{vendor.price}</p>
+                          </div>
+                          <button className="flex items-center gap-2 px-4 py-2 bg-medical-primary hover:bg-medical-primary/90 text-primary-foreground font-medium rounded-lg transition-colors">
+                            Book Now
+                            <ChevronRight className="h-4 w-4" />
+                          </button>
+                          <button className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                            Learn More
+                          </button>
                         </div>
                       </div>
                     </div>
-
-                    {/* Right Content - Price & CTA */}
-                    <div className="flex flex-col items-end gap-3 ml-6">
-                      <div className="text-right">
-                        <p className="text-2xl font-bold text-foreground">{vendor.price}</p>
-                      </div>
-                      <button className="flex items-center gap-2 px-4 py-2 bg-medical-primary hover:bg-medical-primary/90 text-primary-foreground font-medium rounded-lg transition-colors">
-                        Book Now
-                        <ChevronRight className="h-4 w-4" />
-                      </button>
-                      <button className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                        Learn More
-                      </button>
-                    </div>
-                  </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          )}
+              )}
             </motion.div>
           )}
         </AnimatePresence>
