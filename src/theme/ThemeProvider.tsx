@@ -39,6 +39,10 @@ interface ThemeContextValue {
   colorMode: 'light' | 'dark';
   setColorMode: (mode: 'light' | 'dark') => void;
   toggleColorMode: () => void;
+
+  // User role (for conditional UI like practitioner mode)
+  userRole: string;
+  setUserRole: (role: string) => void;
 }
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
@@ -183,6 +187,9 @@ export function ThemeProvider({
     });
   }, []);
 
+  // User role (set from /api/me response by MeOApp)
+  const [userRole, setUserRole] = useState<string>('demo');
+
   const contextValue: ThemeContextValue = {
     vendor,
     setVendor,
@@ -201,6 +208,8 @@ export function ThemeProvider({
     colorMode,
     setColorMode,
     toggleColorMode,
+    userRole,
+    setUserRole,
   };
 
   return (

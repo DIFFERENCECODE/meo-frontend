@@ -23,7 +23,7 @@ interface BioAgeMetrics {
 
 // Inner component that uses the theme context
 function MeOAppInner() {
-  const { theme, mode, setRightPanelOpen } = useTheme();
+  const { theme, mode, setRightPanelOpen, setVendor, setUserRole } = useTheme();
 
   // Chat state
   const [isActive, setIsActive] = useState(false);
@@ -52,6 +52,8 @@ function MeOAppInner() {
     baselineDate: null,
     targetDate: null,
   });
+  // Vendor cards from RAG — populated when backend returns solution mode
+  const [vendorCards, setVendorCards] = useState<any[]>([]);
 
   // Helper functions from original Chatbot
   const extractGraphData = (sources: any[]) => {
@@ -143,6 +145,22 @@ function MeOAppInner() {
       }
     })();
   }, []);
+
+  // When signed in, load profile and sync vendor from backend
+  useEffect(() => {
+    if (!idToken) return;
+    fetch('/api/profile', { headers: { Authorization: `Bearer ${idToken}` } })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data?.vendor_id && (data.vendor_id === 'meterbolic' || data.vendor_id === 'eos')) {
+          setVendor(data.vendor_id);
+        }
+        if (data?.role) {
+          setUserRole(data.role);
+        }
+      })
+      .catch(() => {});
+  }, [idToken]);
 
   // When signed in, load chats and ensure we have a current chat
   useEffect(() => {
@@ -300,6 +318,27 @@ function MeOAppInner() {
           }
       }
       }
+      // Extract vendor cards for solution mode
+      if (finalMode === 'solution') {
+        const retrievedSources = data.retrieved_sources || [];
+        const vendors = retrievedSources
+          .filter((s: any) => s.type === 'vendor_card')
+          .map((s: any, i: number) => ({
+            id: String(i + 1),
+            name: s.title || 'Unknown',
+            category: s.category || 'General',
+            description: s.gap_solved || s.content || '',
+            price: s.price || '',
+            location: s.location || '',
+            tags: s.category ? [s.category] : [],
+            available: true,
+            url: s.url || null,
+            score: s.score || null,
+          }));
+        if (vendors.length > 0) {
+          setVendorCards(vendors);
+        }
+      }
       // Refresh chats so sidebar shows updated title (e.g. first message)
       if (idToken && res.ok) {
         try {
@@ -393,7 +432,7 @@ function MeOAppInner() {
     <ThreePanelLayout
       viewMode={viewMode}
       analysisContent={<AnalysisContent graphData={graphData} bioAgeMetrics={bioAgeMetrics} />}
-      solutionContent={<SolutionContent />}
+      solutionContent={<SolutionContent vendors={vendorCards} />}
       onNewChat={handleNewChat}
       chats={chatsLoading ? [] : chats}
       currentChatId={currentChatId}
