@@ -26,19 +26,19 @@ interface AnalysisContentProps {
   bioAgeMetrics: BioAgeMetrics;
 }
 
-// Default data
+// Default data - glucose in mmol/L (normal range 4-9), insulin in µIU/mL
 const defaultKraftData: GraphDataPoint[] = [
-  { time: '0hr', glucose: 85, insulin: 5 },
-  { time: '0.5hr', glucose: 145, insulin: 55 },
-  { time: '1hr', glucose: 160, insulin: 95 },
-  { time: '1.5hr', glucose: 150, insulin: 120 },
-  { time: '2hr', glucose: 135, insulin: 95 },
-  { time: '2.5hr', glucose: 115, insulin: 65 },
-  { time: '3hr', glucose: 100, insulin: 40 },
-  { time: '3.5hr', glucose: 92, insulin: 28 },
-  { time: '4hr', glucose: 88, insulin: 18 },
-  { time: '4.5hr', glucose: 85, insulin: 12 },
-  { time: '5hr', glucose: 83, insulin: 8 },
+  { time: '0hr', glucose: 4.7, insulin: 5 },
+  { time: '0.5hr', glucose: 8.1, insulin: 55 },
+  { time: '1hr', glucose: 8.9, insulin: 95 },
+  { time: '1.5hr', glucose: 8.3, insulin: 120 },
+  { time: '2hr', glucose: 7.5, insulin: 95 },
+  { time: '2.5hr', glucose: 6.4, insulin: 65 },
+  { time: '3hr', glucose: 5.6, insulin: 40 },
+  { time: '3.5hr', glucose: 5.1, insulin: 28 },
+  { time: '4hr', glucose: 4.9, insulin: 18 },
+  { time: '4.5hr', glucose: 4.7, insulin: 12 },
+  { time: '5hr', glucose: 4.6, insulin: 8 },
 ];
 
 // Risk Score Gauge Component
@@ -406,9 +406,9 @@ export function AnalysisContent({ graphData, bioAgeMetrics }: AnalysisContentPro
               yAxis: [
                 {
                   type: 'value',
-                  name: 'Glucose (mg/dL)',
+                  name: 'Glucose (mmol/L)',
                   min: 0,
-                  max: 200,
+                  max: 15,
                   position: 'left',
                   axisLine: { show: true, lineStyle: { color: '#3b82f6' } },
                   axisLabel: { color: '#3b82f6', fontSize: 12 },
@@ -416,7 +416,7 @@ export function AnalysisContent({ graphData, bioAgeMetrics }: AnalysisContentPro
                 },
                 {
                   type: 'value',
-                  name: 'Insulin (μIU/mL)',
+                  name: 'Insulin (µIU/mL)',
                   min: 0,
                   max: 150,
                   position: 'right',

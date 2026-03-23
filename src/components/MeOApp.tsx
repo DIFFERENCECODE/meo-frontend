@@ -244,15 +244,6 @@ function MeOAppInner() {
     setLoading(true);
     setIsActive(true);
 
-    // Determine intended mode from query
-    const lowerMessage = messageText.toLowerCase();
-    let intendedMode: 'response' | 'analysis' | 'solution' = viewMode;
-    if (lowerMessage.includes('kraft') || lowerMessage.includes('analyze') || lowerMessage.includes('analysis')) {
-      intendedMode = 'analysis';
-    } else if (lowerMessage.includes('specialist') || lowerMessage.includes('find')) {
-      intendedMode = 'solution';
-    }
-
     try {
       const headers: Record<string, string> = { 'Content-Type': 'application/json' };
       if (idToken) {
@@ -292,12 +283,15 @@ function MeOAppInner() {
 
       setMessages((prev) => [...prev, { role: 'assistant', content: botResponse }]);
 
-      // Set view mode based on backend or frontend detection
-      const finalMode = data.mode || intendedMode;
-      if (finalMode !== 'response') {
-        setViewMode(finalMode);
-        // Auto-open right panel for analysis/solution (always — overrides practitioner)
+      // Set view mode exclusively from backend response
+      const finalMode = data.mode || 'response';
+      setViewMode(finalMode);
+      
+      // Open right panel for analysis/solution, close for other modes
+      if (finalMode === 'analysis' || finalMode === 'solution') {
         setRightPanelOpen(true);
+      } else {
+        setRightPanelOpen(false);
       }
 
       // Process graph data for analysis mode
