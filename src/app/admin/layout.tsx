@@ -7,7 +7,7 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { getIdToken } from '@/app/lib/auth';
 import { LayoutDashboard, Users, Activity, FileText, ArrowLeft, Shield } from 'lucide-react';
 
-const ADMIN_EMAILS = ['eric@meterbolic.com', 'muhammad.naeem@meterbolic.com'];
+const ADMIN_EMAILS = ['eric@meterbolic.com', 'muhammad.naeem@meterbolic.com', 'dtlstech@gmail.com'];
 
 const navItems = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
