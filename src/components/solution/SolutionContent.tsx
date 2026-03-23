@@ -4,8 +4,27 @@ import React from 'react';
 import { Star, MapPin, ChevronRight } from 'lucide-react';
 import { useTheme } from '@/theme/ThemeProvider';
 
+interface VendorCard {
+  id: string;
+  name: string;
+  category: string;
+  description: string;
+  price?: string;
+  location?: string;
+  tags: string[];
+  available: boolean;
+  url?: string | null;
+  score?: number | null;
+  rating?: number;
+  reviews?: number;
+}
+
+interface SolutionContentProps {
+  vendors?: VendorCard[];
+}
+
 // Mock vendor data
-const mockVendors = [
+const mockVendors: VendorCard[] = [
   {
     id: '1',
     name: 'EOS Dr Arup Sen',
@@ -46,8 +65,9 @@ const mockVendors = [
   },
 ];
 
-export function SolutionContent() {
+export function SolutionContent({ vendors = [] }: SolutionContentProps) {
   const { theme } = useTheme();
+  const displayVendors = vendors.length > 0 ? vendors : mockVendors;
 
   return (
     <div className="space-y-4">
@@ -57,12 +77,12 @@ export function SolutionContent() {
           Recommended Support
         </h1>
         <p className="text-sm" style={{ color: theme.colors.muted }}>
-          Matched to your metabolic profile
+          {vendors.length > 0 ? `${vendors.length} matches found` : 'Matched to your metabolic profile'}
         </p>
       </div>
 
       {/* Vendor Cards */}
-      {mockVendors.map((vendor) => (
+      {displayVendors.map((vendor) => (
         <div
           key={vendor.id}
           className="rounded-xl p-6 border transition-all cursor-pointer group"
@@ -130,17 +150,26 @@ export function SolutionContent() {
 
               {/* Meta Info */}
               <div className="flex items-center gap-4 text-sm" style={{ color: theme.colors.muted }}>
-                <div className="flex items-center gap-1">
-                  <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
-                  <span style={{ color: theme.colors.foreground }} className="font-medium">
-                    {vendor.rating}
-                  </span>
-                  <span>({vendor.reviews} reviews)</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <MapPin className="h-4 w-4" />
-                  <span>{vendor.location}</span>
-                </div>
+                {vendor.rating && (
+                  <div className="flex items-center gap-1">
+                    <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
+                    <span style={{ color: theme.colors.foreground }} className="font-medium">
+                      {vendor.rating}
+                    </span>
+                    {vendor.reviews && <span>({vendor.reviews} reviews)</span>}
+                  </div>
+                )}
+                {vendor.score && (
+                  <div className="flex items-center gap-1">
+                    <span>Match: {Math.round(vendor.score * 100)}%</span>
+                  </div>
+                )}
+                {vendor.location && (
+                  <div className="flex items-center gap-1">
+                    <MapPin className="h-4 w-4" />
+                    <span>{vendor.location}</span>
+                  </div>
+                )}
               </div>
             </div>
 
