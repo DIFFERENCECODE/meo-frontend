@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Plus, SlidersHorizontal, FlaskConical, ChevronDown, Mic } from 'lucide-react';
+import { Send, Plus, SlidersHorizontal, FlaskConical, ChevronDown, Mic, BarChart3, Lightbulb, Stethoscope } from 'lucide-react';
 import { useTheme } from '@/theme/ThemeProvider';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -122,7 +122,7 @@ export function ChatPanel({
   onRefresh,
   className,
 }: ChatPanelProps) {
-  const { theme, colors, vendor, isLeftPanelOpen, isRightPanelOpen } = useTheme();
+  const { theme, colors, vendor, mode, isLeftPanelOpen, isRightPanelOpen, setRightPanelOpen } = useTheme();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [isToolsOpen, setIsToolsOpen] = useState(false);
@@ -155,6 +155,13 @@ export function ChatPanel({
     // Handle tool selection
     if (tool === 'protocol') {
       handleActionClick('Enter Protocol Mode');
+    } else if (tool === 'analysis') {
+      handleActionClick('Analyze my metabolic health data');
+    } else if (tool === 'solution') {
+      handleActionClick('Find specialist recommendations for me');
+    } else if (tool === 'workspace') {
+      // Open practitioner workspace panel
+      setRightPanelOpen(true);
     }
   };
 
@@ -266,6 +273,66 @@ export function ChatPanel({
                                 </p>
                               </div>
                             </button>
+                            <button
+                              onClick={() => handleToolClick('analysis')}
+                              className="w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-colors hover:bg-white/10"
+                              style={{ color: colors.foreground }}
+                            >
+                              <div 
+                                className="p-2 rounded-lg"
+                                style={{ backgroundColor: colors.primary + '20' }}
+                              >
+                                <BarChart3 className="h-5 w-5" style={{ color: colors.primary }} />
+                              </div>
+                              <div className="text-left">
+                                <p className="font-medium text-sm">Analysis Mode</p>
+                                <p className="text-xs" style={{ color: colors.muted }}>
+                                  Visualize your health data
+                                </p>
+                              </div>
+                            </button>
+                            {/* Solution Mode - only show for patients */}
+                            {mode === 'patient' && (
+                              <button
+                                onClick={() => handleToolClick('solution')}
+                                className="w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-colors hover:bg-white/10"
+                                style={{ color: colors.foreground }}
+                              >
+                                <div 
+                                  className="p-2 rounded-lg"
+                                  style={{ backgroundColor: colors.primary + '20' }}
+                                >
+                                  <Lightbulb className="h-5 w-5" style={{ color: colors.primary }} />
+                                </div>
+                                <div className="text-left">
+                                  <p className="font-medium text-sm">Solution Mode</p>
+                                  <p className="text-xs" style={{ color: colors.muted }}>
+                                    Get specialist recommendations
+                                  </p>
+                                </div>
+                              </button>
+                            )}
+                            {/* Practitioner Workspace - only show for practitioners */}
+                            {mode === 'practitioner' && (
+                              <button
+                                onClick={() => handleToolClick('workspace')}
+                                className="w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-colors hover:bg-white/10"
+                                style={{ color: colors.foreground }}
+                              >
+                                <div 
+                                  className="p-2 rounded-lg"
+                                  style={{ backgroundColor: colors.primary + '20' }}
+                                >
+                                  <Stethoscope className="h-5 w-5" style={{ color: colors.primary }} />
+                                </div>
+                                <div className="text-left">
+                                  <p className="font-medium text-sm">Practitioner Workspace</p>
+                                  <p className="text-xs" style={{ color: colors.muted }}>
+                                    Patient management & insights
+                                  </p>
+                                </div>
+                              </button>
+                            )}
                           </div>
                         </motion.div>
                       )}
@@ -321,16 +388,6 @@ export function ChatPanel({
         style={{ borderColor: colors.cardBorder }}
       >
         <Logo size="small" onClick={onRefresh} vendor={vendor} />
-        <div
-          className="px-3 py-1.5 rounded-full text-xs font-medium border"
-          style={{
-            backgroundColor: `${colors.primary}20`,
-            borderColor: `${colors.primary}40`,
-            color: colors.primary,
-          }}
-        >
-          Limited Preview
-        </div>
       </div>
 
       {/* Messages */}

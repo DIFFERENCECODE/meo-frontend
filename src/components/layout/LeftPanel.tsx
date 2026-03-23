@@ -6,14 +6,16 @@ import {
   SquarePen, 
   ChevronRight,
   Settings,
-  Clock,
   Sun,
-  Moon
+  Moon,
+  Palette,
+  User,
+  Stethoscope,
+  Check
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useTheme } from '@/theme/ThemeProvider';
-import { VendorToggle } from '@/components/vendor/VendorToggle';
-import { ModeToggle } from '@/components/mode/ModeToggle';
+
 import { cn } from '@/lib/utils';
 
 interface LeftPanelProps {
@@ -30,8 +32,10 @@ const mockChatHistory = [
 ];
 
 export function LeftPanel({ onNewChat, onSettingsClick, className }: LeftPanelProps) {
-  const { isLeftPanelOpen, toggleLeftPanel, theme, colors, colorMode, toggleColorMode } = useTheme();
+  const { isLeftPanelOpen, toggleLeftPanel, theme, colors, colorMode, toggleColorMode, vendor, setVendor, mode, setMode } = useTheme();
   const [showSettings, setShowSettings] = useState(false);
+  const [showVendor, setShowVendor] = useState(false);
+  const [showMode, setShowMode] = useState(false);
 
   return (
     <>
@@ -146,48 +150,137 @@ export function LeftPanel({ onNewChat, onSettingsClick, className }: LeftPanelPr
                   ))}
                 </div>
 
-                {/* Vendor/Mode Toggles - Collapsible section */}
-                <div className="mt-6 space-y-4">
-                  <div className="px-3">
-                    <p 
-                      className="text-xs font-medium uppercase tracking-wider mb-2"
-                      style={{ color: colors.muted }}
-                    >
-                      Vendor
-                    </p>
-                    <VendorToggle />
-                  </div>
-                  <div className="px-3">
-                    <p 
-                      className="text-xs font-medium uppercase tracking-wider mb-2"
-                      style={{ color: colors.muted }}
-                    >
-                      Mode
-                    </p>
-                    <ModeToggle />
-                  </div>
-                </div>
+
               </div>
 
-              {/* Footer - Activity & Settings */}
+              {/* Footer - Vendor, Mode & Settings */}
               <div 
                 className="p-2 space-y-1"
                 style={{ borderTop: `1px solid ${colors.cardBorder}` }}
               >
+                {/* Vendor Button */}
                 <button
+                  onClick={() => { setShowVendor(!showVendor); setShowMode(false); setShowSettings(false); }}
                   className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors hover:bg-white/5"
                   style={{ color: colors.muted }}
                 >
-                  <Clock className="h-5 w-5" />
-                  <span>Activity</span>
+                  <Palette className="h-5 w-5" />
+                  <span>Vendor</span>
+                  <ChevronRight 
+                    className={`h-4 w-4 ml-auto transition-transform ${showVendor ? 'rotate-90' : ''}`} 
+                  />
                 </button>
+
+                {/* Vendor Submenu */}
+                <AnimatePresence>
+                  {showVendor && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      className="overflow-hidden"
+                    >
+                      <div 
+                        className="ml-6 mt-1 p-2 rounded-lg space-y-1"
+                        style={{ backgroundColor: colors.accent }}
+                      >
+                        <button
+                          onClick={() => { setVendor('meterbolic'); setShowVendor(false); }}
+                          className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors hover:bg-white/5"
+                          style={{ color: colors.foreground }}
+                        >
+                          <span>Meterbolic</span>
+                          {vendor === 'meterbolic' && (
+                            <Check className="h-4 w-4" style={{ color: colors.primary }} />
+                          )}
+                        </button>
+                        <button
+                          onClick={() => { setVendor('eos'); setShowVendor(false); }}
+                          className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors hover:bg-white/5"
+                          style={{ color: colors.foreground }}
+                        >
+                          <span>Eos</span>
+                          {vendor === 'eos' && (
+                            <Check className="h-4 w-4" style={{ color: colors.primary }} />
+                          )}
+                        </button>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                {/* Mode Button */}
                 <button
-                  onClick={() => setShowSettings(!showSettings)}
+                  onClick={() => { setShowMode(!showMode); setShowVendor(false); setShowSettings(false); }}
+                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors hover:bg-white/5"
+                  style={{ color: colors.muted }}
+                >
+                  {mode === 'practitioner' ? (
+                    <Stethoscope className="h-5 w-5" />
+                  ) : (
+                    <User className="h-5 w-5" />
+                  )}
+                  <span>Mode</span>
+                  <ChevronRight 
+                    className={`h-4 w-4 ml-auto transition-transform ${showMode ? 'rotate-90' : ''}`} 
+                  />
+                </button>
+
+                {/* Mode Submenu */}
+                <AnimatePresence>
+                  {showMode && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      className="overflow-hidden"
+                    >
+                      <div 
+                        className="ml-6 mt-1 p-2 rounded-lg space-y-1"
+                        style={{ backgroundColor: colors.accent }}
+                      >
+                        <button
+                          onClick={() => { setMode('patient'); setShowMode(false); }}
+                          className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors hover:bg-white/5"
+                          style={{ color: colors.foreground }}
+                        >
+                          <span className="flex items-center gap-2">
+                            <User className="h-4 w-4" />
+                            <span>Patient</span>
+                          </span>
+                          {mode === 'patient' && (
+                            <Check className="h-4 w-4" style={{ color: colors.primary }} />
+                          )}
+                        </button>
+                        <button
+                          onClick={() => { setMode('practitioner'); setShowMode(false); }}
+                          className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors hover:bg-white/5"
+                          style={{ color: colors.foreground }}
+                        >
+                          <span className="flex items-center gap-2">
+                            <Stethoscope className="h-4 w-4" />
+                            <span>Practitioner</span>
+                          </span>
+                          {mode === 'practitioner' && (
+                            <Check className="h-4 w-4" style={{ color: colors.primary }} />
+                          )}
+                        </button>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                {/* Settings Button */}
+                <button
+                  onClick={() => { setShowSettings(!showSettings); setShowVendor(false); setShowMode(false); }}
                   className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors hover:bg-white/5"
                   style={{ color: colors.muted }}
                 >
                   <Settings className="h-5 w-5" />
                   <span>Settings & help</span>
+                  <ChevronRight 
+                    className={`h-4 w-4 ml-auto transition-transform ${showSettings ? 'rotate-90' : ''}`} 
+                  />
                 </button>
 
                 {/* Settings Submenu */}

@@ -163,6 +163,11 @@ function MeOAppInner() {
     setInput('');
   }, []);
 
+  // Handle closing right panel (reset viewMode)
+  const handleClosePanel = useCallback(() => {
+    setViewMode('response');
+  }, []);
+
   // Handle refresh
   const handleRefresh = useCallback(() => {
     window.location.reload();
@@ -174,6 +179,7 @@ function MeOAppInner() {
       analysisContent={<AnalysisContent graphData={graphData} bioAgeMetrics={bioAgeMetrics} />}
       solutionContent={<SolutionContent />}
       onNewChat={handleNewChat}
+      onClosePanel={handleClosePanel}
     >
       <ChatPanel
         messages={messages}
