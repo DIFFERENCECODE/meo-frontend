@@ -19,6 +19,12 @@ interface RightPanelProps {
   // Custom content for analysis/solution modes
   analysisContent?: React.ReactNode;
   solutionContent?: React.ReactNode;
+  // Callback when panel is closed (to reset viewMode)
+  onClose?: () => void;
+  // Resizable panel props
+  width?: number;
+  onResizeStart?: () => void;
+  isResizing?: boolean;
   className?: string;
 }
 
@@ -26,6 +32,10 @@ export function RightPanel({
   viewMode = 'response',
   analysisContent,
   solutionContent,
+  onClose,
+  width = 450,
+  onResizeStart,
+  isResizing = false,
   className 
 }: RightPanelProps) {
   const { isRightPanelOpen, toggleRightPanel, mode, theme } = useTheme();
@@ -35,32 +45,11 @@ export function RightPanel({
   const showAnalysis = viewMode === 'analysis' && !isPractitionerMode;
   const showSolution = viewMode === 'solution' && !isPractitionerMode;
 
-  // Don't render if conditions don't require the panel
-  const shouldShow = isRightPanelOpen || showAnalysis || showSolution;
+  // Panel shows only for analysis/solution modes or when practitioner explicitly opens it
+  const shouldShow = showAnalysis || showSolution || (isRightPanelOpen && isPractitionerMode);
 
   return (
     <>
-      {/* Toggle button when panel is closed */}
-      <AnimatePresence>
-        {!isRightPanelOpen && !showAnalysis && !showSolution && (
-          <motion.button
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 20 }}
-            transition={{ duration: 0.2 }}
-            onClick={toggleRightPanel}
-            className="fixed top-4 right-4 z-50 p-3 rounded-xl backdrop-blur border shadow-lg hover:scale-105 transition-transform"
-            style={{
-              backgroundColor: theme.colors.card,
-              borderColor: theme.colors.cardBorder,
-            }}
-            aria-label="Open right panel"
-          >
-            <PanelRight className="h-5 w-5" style={{ color: theme.colors.foreground }} />
-          </motion.button>
-        )}
-      </AnimatePresence>
-
       {/* Panel */}
       <AnimatePresence>
         {shouldShow && (
@@ -82,17 +71,37 @@ export function RightPanel({
               exit={{ x: '100%', opacity: 0 }}
               transition={{ duration: 0.3, ease: 'easeInOut' }}
               className={cn(
-                'h-screen flex flex-col overflow-hidden z-40',
+                'h-screen flex flex-col overflow-hidden z-40 relative',
                 'fixed md:relative right-0 top-0',
                 'border-l shadow-xl md:shadow-none',
-                'w-full md:w-[450px] lg:w-[500px]',
+                'w-full',
                 className
               )}
               style={{
                 backgroundColor: theme.colors.background,
                 borderColor: theme.colors.cardBorder,
+                width: typeof window !== 'undefined' && window.innerWidth >= 768 ? `${width}px` : '100%',
+                minWidth: '300px',
+                maxWidth: '700px',
               }}
             >
+              {/* Resize Handle */}
+              <div
+                onMouseDown={onResizeStart}
+                className={cn(
+                  'hidden md:block absolute left-0 top-0 bottom-0 w-1.5 cursor-col-resize z-50',
+                  'hover:bg-white/20 transition-colors',
+                  isResizing && 'bg-white/30'
+                )}
+                style={{ 
+                  backgroundColor: isResizing ? theme.colors.primary + '40' : 'transparent',
+                }}
+              >
+                <div 
+                  className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-16 rounded-full opacity-0 hover:opacity-100 transition-opacity"
+                  style={{ backgroundColor: theme.colors.primary }}
+                />
+              </div>
               {/* Header */}
               <div 
                 className="flex items-center justify-between p-4 border-b"
@@ -117,8 +126,14 @@ export function RightPanel({
                   </p>
                 </div>
                 <button
-                  onClick={toggleRightPanel}
-                  className="p-2 rounded-lg transition-colors"
+                  onClick={() => {
+                    toggleRightPanel();
+                    // Reset viewMode to return to chat when closing analysis/solution panel
+                    if (!isPractitionerMode && onClose) {
+                      onClose();
+                    }
+                  }}
+                  className="p-2 rounded-lg transition-colors hover:bg-white/10"
                   style={{ color: theme.colors.muted }}
                   aria-label="Close panel"
                 >

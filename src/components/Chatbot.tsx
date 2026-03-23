@@ -660,13 +660,6 @@ export default function MeOInterface() {
           ? "bg-gradient-to-b from-background via-medical-bg to-medical-accent/10"
           : "bg-white"
       )}>
-        {/* Limited Preview Badge - Fixed at top center */}
-        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50">
-          <div className="px-4 py-2 rounded-full text-sm font-medium border border-medical-primary/40 bg-medical-primary/10 backdrop-blur-md text-medical-primary">
-            Limited Preview
-          </div>
-        </div>
-
         {/* Theme Toggle */}
         <button
           onClick={toggleTheme}
@@ -745,13 +738,6 @@ export default function MeOInterface() {
         : "bg-white",
       isDragging && "select-none cursor-col-resize"
     )}>
-      {/* Limited Preview Badge - Fixed at top center */}
-      <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50">
-        <div className="px-4 py-2 rounded-full text-sm font-medium border border-medical-primary/40 bg-medical-primary/10 backdrop-blur-md text-medical-primary">
-          Limited Preview
-        </div>
-      </div>
-
       {/* Theme Toggle */}
       <button
         onClick={toggleTheme}

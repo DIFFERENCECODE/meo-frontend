@@ -42,7 +42,7 @@ const defaultKraftData: GraphDataPoint[] = [
 ];
 
 // Risk Score Gauge Component
-function RiskScoreGauge({ score }: { score: number }) {
+function RiskScoreGauge({ score, isDark }: { score: number; isDark: boolean }) {
   const color = score >= 70 ? '#ef4444' : score >= 50 ? '#f97316' : '#22c55e';
 
   const option: EChartsOption = {
@@ -63,7 +63,7 @@ function RiskScoreGauge({ score }: { score: number }) {
         axisLine: {
           lineStyle: {
             width: 8,
-            color: [[1, 'rgba(255, 255, 255, 0.1)']],
+            color: [[1, isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)']],
           },
         },
         axisTick: { show: false },
@@ -89,10 +89,12 @@ function RiskScoreGauge({ score }: { score: number }) {
 function BiologicalAgeGauge({
   biologicalAge,
   targetAge,
+  isDark,
 }: {
   biologicalAge: number;
   chronologicalAge: number;
   targetAge: number;
+  isDark: boolean;
 }) {
   const option: EChartsOption = {
     series: [
@@ -123,7 +125,7 @@ function BiologicalAgeGauge({
           width: 12,
           offsetCenter: [0, '-10%'],
           itemStyle: {
-            color: 'white',
+            color: isDark ? 'white' : '#1f2937',
             shadowColor: 'rgba(0, 0, 0, 0.3)',
             shadowBlur: 8,
             shadowOffsetY: 3,
@@ -132,7 +134,7 @@ function BiologicalAgeGauge({
         axisTick: { length: 8, lineStyle: { color: 'auto', width: 2 } },
         splitLine: { length: 15, lineStyle: { color: 'auto', width: 3 } },
         axisLabel: {
-          color: '#9ca3af',
+          color: isDark ? '#9ca3af' : '#4b5563',
           fontSize: 12,
           distance: -45,
           rotate: 'tangential',
@@ -147,7 +149,7 @@ function BiologicalAgeGauge({
         detail: {
           fontSize: 28,
           fontWeight: 'bold',
-          color: '#ffffff',
+          color: isDark ? '#ffffff' : '#1f2937',
           offsetCenter: [0, '25%'],
           valueAnimation: true,
           formatter: (value: number) => `${value.toFixed(1)}\nAge`,
@@ -166,7 +168,8 @@ function BiologicalAgeGauge({
 }
 
 export function AnalysisContent({ graphData, bioAgeMetrics }: AnalysisContentProps) {
-  const { theme } = useTheme();
+  const { theme, colorMode } = useTheme();
+  const isDarkMode = colorMode === 'dark';
   const [isBioAgeFlipped, setIsBioAgeFlipped] = useState(false);
 
   const data = graphData.length > 0 ? graphData : defaultKraftData;
@@ -208,7 +211,7 @@ export function AnalysisContent({ graphData, bioAgeMetrics }: AnalysisContentPro
             </p>
             <p className="text-3xl font-bold text-orange-500">65</p>
           </div>
-          <RiskScoreGauge score={65} />
+          <RiskScoreGauge score={65} isDark={isDarkMode} />
         </div>
       </div>
 
@@ -250,7 +253,7 @@ export function AnalysisContent({ graphData, bioAgeMetrics }: AnalysisContentPro
               </button>
             </div>
             <div className="flex flex-col items-center py-4">
-              <BiologicalAgeGauge biologicalAge={metrics.baseline} chronologicalAge={42} targetAge={metrics.target} />
+              <BiologicalAgeGauge biologicalAge={metrics.baseline} chronologicalAge={42} targetAge={metrics.target} isDark={isDarkMode} />
               <div className="text-center mt-4">
                 <p className="text-sm" style={{ color: theme.colors.muted }}>
                   Improvement: <span style={{ color: theme.colors.primary }} className="font-bold">{metrics.improvement.toFixed(2)} years</span>
@@ -302,24 +305,24 @@ export function AnalysisContent({ graphData, bioAgeMetrics }: AnalysisContentPro
                   xAxis: {
                     type: 'category',
                     data: bioAgeTrajectory.map((d) => d.date),
-                    axisLine: { lineStyle: { color: '#374151' } },
-                    axisLabel: { color: '#9ca3af', fontSize: 10, interval: 2 },
+                    axisLine: { lineStyle: { color: isDarkMode ? '#374151' : '#d1d5db' } },
+                    axisLabel: { color: isDarkMode ? '#9ca3af' : '#4b5563', fontSize: 10, interval: 2 },
                   },
                   yAxis: {
                     type: 'value',
                     min: metrics.target - 0.1,
                     max: metrics.baseline + 0.05,
-                    axisLine: { lineStyle: { color: '#374151' } },
-                    axisLabel: { color: '#9ca3af', fontSize: 12, formatter: (v: number) => v.toFixed(2) },
-                    splitLine: { lineStyle: { color: '#374151', opacity: 0.3, type: 'dashed' } },
+                    axisLine: { lineStyle: { color: isDarkMode ? '#374151' : '#d1d5db' } },
+                    axisLabel: { color: isDarkMode ? '#9ca3af' : '#4b5563', fontSize: 12, formatter: (v: number) => v.toFixed(2) },
+                    splitLine: { lineStyle: { color: isDarkMode ? '#374151' : '#e5e7eb', opacity: 0.3, type: 'dashed' } },
                   },
                   tooltip: {
                     trigger: 'axis',
-                    backgroundColor: '#1f2937',
-                    borderColor: '#374151',
-                    textStyle: { color: '#fff' },
+                    backgroundColor: isDarkMode ? '#1f2937' : '#ffffff',
+                    borderColor: isDarkMode ? '#374151' : '#e5e7eb',
+                    textStyle: { color: isDarkMode ? '#fff' : '#1f2937' },
                   },
-                  legend: { data: ['YOU', 'OUR TARGET'], bottom: 10, textStyle: { color: '#9ca3af' } },
+                  legend: { data: ['YOU', 'OUR TARGET'], bottom: 10, textStyle: { color: isDarkMode ? '#9ca3af' : '#4b5563' } },
                   series: [
                     {
                       name: 'YOU',
@@ -389,8 +392,8 @@ export function AnalysisContent({ graphData, bioAgeMetrics }: AnalysisContentPro
                 type: 'category',
                 data: data.map((d) => d.time),
                 boundaryGap: false,
-                axisLine: { lineStyle: { color: '#374151' } },
-                axisLabel: { color: '#9ca3af', fontSize: 12 },
+                axisLine: { lineStyle: { color: isDarkMode ? '#374151' : '#d1d5db' } },
+                axisLabel: { color: isDarkMode ? '#9ca3af' : '#4b5563', fontSize: 12 },
               },
               yAxis: [
                 {
@@ -401,7 +404,7 @@ export function AnalysisContent({ graphData, bioAgeMetrics }: AnalysisContentPro
                   position: 'left',
                   axisLine: { show: true, lineStyle: { color: '#3b82f6' } },
                   axisLabel: { color: '#3b82f6', fontSize: 12 },
-                  splitLine: { lineStyle: { color: '#374151', opacity: 0.3, type: 'dashed' } },
+                  splitLine: { lineStyle: { color: isDarkMode ? '#374151' : '#e5e7eb', opacity: 0.3, type: 'dashed' } },
                 },
                 {
                   type: 'value',
@@ -416,11 +419,11 @@ export function AnalysisContent({ graphData, bioAgeMetrics }: AnalysisContentPro
               ],
               tooltip: {
                 trigger: 'axis',
-                backgroundColor: '#1f2937',
-                borderColor: '#374151',
-                textStyle: { color: '#fff' },
+                backgroundColor: isDarkMode ? '#1f2937' : '#ffffff',
+                borderColor: isDarkMode ? '#374151' : '#e5e7eb',
+                textStyle: { color: isDarkMode ? '#fff' : '#1f2937' },
               },
-              legend: { data: ['glucose', 'insulin'], bottom: 10, textStyle: { color: '#9ca3af' }, icon: 'circle' },
+              legend: { data: ['glucose', 'insulin'], bottom: 10, textStyle: { color: isDarkMode ? '#9ca3af' : '#4b5563' }, icon: 'circle' },
               dataset: { source: data },
               series: [
                 {
