@@ -179,8 +179,19 @@ export function RightPanel({
                       <>
                         <TestResults results={testResults} lastUpdated={clinicianData ? 'Now' : undefined} />
                         <Insights insights={insights} />
-                        <Interventions />
-                        <MessagingPanel />
+                        <Interventions interventions={
+                          clinicianData?.metabolic_goals?.map((goal: string) => ({
+                            type: 'lifestyle' as const,
+                            title: goal,
+                            description: `Patient goal: ${goal}`,
+                            status: 'active' as const,
+                            progress: undefined,
+                          })) || []
+                        } />
+                        <MessagingPanel
+                          patientSessionId={selectedPatientId}
+                          patientName={clinicianData?.patient_name}
+                        />
                       </>
                     ) : (
                       <p className="text-sm text-center py-8" style={{ color: theme.colors.muted }}>
