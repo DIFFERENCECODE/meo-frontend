@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useTheme } from '@/theme/ThemeProvider';
 import { AppShell } from '@/components/layout/AppShell';
 import { getIdToken } from '@/app/lib/auth';
@@ -14,10 +15,13 @@ interface ProfileData {
   metabolic_goals: string[];
   role: string;
   vendor_id: string;
+  meterbolic_userid?: string | null;
+  organization_id?: number | null;
 }
 
 export default function ProfilePage() {
   const { colors } = useTheme();
+  const router = useRouter();
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -28,24 +32,29 @@ export default function ProfilePage() {
   useEffect(() => {
     const token = getIdToken();
     if (!token) {
-      setError('Not signed in');
-      setLoading(false);
+      router.replace('/');
       return;
     }
     fetch('/api/profile', {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => {
+        if (res.status === 401) {
+          router.replace('/');
+          return null;
+        }
         if (!res.ok) throw new Error('Failed to load profile');
         return res.json();
       })
-      .then((data: ProfileData) => {
-        setProfile(data);
-        setName(data.name || data.email || '');
+      .then((data: ProfileData | null) => {
+        if (data) {
+          setProfile(data);
+          setName(data.name || data.email || '');
+        }
       })
       .catch(() => setError('Failed to load profile'))
       .finally(() => setLoading(false));
-  }, []);
+  }, [router]);
 
   const handleSave = () => {
     const token = getIdToken();
@@ -76,8 +85,13 @@ export default function ProfilePage() {
   if (loading) {
     return (
       <AppShell>
-        <div className="flex-1 flex items-center justify-center p-6">
-          <p style={{ color: colors.muted }}>Loading profile...</p>
+        <div className="flex-1 flex items-center justify-center p-6" style={{ background: colors.background }}>
+          <div className="text-center">
+            <div className="mx-auto mb-4 flex h-10 w-10 items-center justify-center rounded-full animate-spin" style={{ background: colors.primary }}>
+              <span className="text-lg font-bold" style={{ color: colors.primaryForeground }}>M</span>
+            </div>
+            <p className="text-sm animate-pulse" style={{ color: colors.muted }}>Loading profile...</p>
+          </div>
         </div>
       </AppShell>
     );
@@ -110,37 +124,92 @@ export default function ProfilePage() {
           <h1 className="text-xl font-bold mb-6" style={{ color: colors.foreground }}>
             Profile
           </h1>
-          <p className="text-sm mb-1" style={{ color: colors.muted }}>Email (from Cognito)</p>
-          <p className="mb-6" style={{ color: colors.foreground }}>{profile?.email ?? '—'}</p>
 
-          <label className="block text-sm mb-1" style={{ color: colors.muted }}>Display name</label>
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="w-full rounded-lg px-4 py-2 border mb-6"
-            style={{
-              background: colors.background,
-              borderColor: colors.cardBorder,
-              color: colors.foreground,
-            }}
-          />
-
-          <div className="flex flex-wrap gap-3">
-            <button
-              onClick={handleSave}
-              disabled={saving}
-              className="rounded-lg px-6 py-2 font-medium disabled:opacity-70"
-              style={{ background: colors.primary, color: colors.primaryForeground }}
-            >
-              {saving ? 'Saving...' : 'Save'}
-            </button>
-            {saveSuccess && (
-              <span className="py-2" style={{ color: colors.success }}>Saved.</span>
+          {/* Identity Details */}
+          <div className="space-y-4 mb-6">
+            <div>
+              <p className="text-sm mb-1" style={{ color: colors.muted }}>Email</p>
+              <p style={{ color: colors.foreground }}>{profile?.email ?? '—'}</p>
+            </div>
+            <div>
+              <p className="text-sm mb-1" style={{ color: colors.muted }}>Cognito ID</p>
+              <p className="text-xs font-mono" style={{ color: colors.foreground }}>{profile?.cognito_sub ?? '—'}</p>
+            </div>
+            <div>
+              <p className="text-sm mb-1" style={{ color: colors.muted }}>Meterbolic User ID</p>
+              <p className="font-mono" style={{ color: colors.foreground }}>{profile?.meterbolic_userid ?? 'Not provisioned'}</p>
+            </div>
+            <div className="flex gap-8">
+              <div>
+                <p className="text-sm mb-1" style={{ color: colors.muted }}>Role</p>
+                <span
+                  className="inline-block px-3 py-1 rounded-full text-xs font-medium"
+                  style={{
+                    background: profile?.role === 'patient' ? `${colors.success}20` : `${colors.warning}20`,
+                    color: profile?.role === 'patient' ? colors.success : colors.warning,
+                  }}
+                >
+                  {profile?.role ?? 'demo'}
+                </span>
+              </div>
+              <div>
+                <p className="text-sm mb-1" style={{ color: colors.muted }}>Vendor</p>
+                <p style={{ color: colors.foreground }}>{profile?.vendor_id ?? 'meterbolic'}</p>
+              </div>
+              <div>
+                <p className="text-sm mb-1" style={{ color: colors.muted }}>Organization</p>
+                <p style={{ color: colors.foreground }}>{profile?.organization_id ?? '—'}</p>
+              </div>
+            </div>
+            {profile?.metabolic_goals && profile.metabolic_goals.length > 0 && (
+              <div>
+                <p className="text-sm mb-1" style={{ color: colors.muted }}>Metabolic Goals</p>
+                <div className="flex flex-wrap gap-2">
+                  {profile.metabolic_goals.map((goal, i) => (
+                    <span
+                      key={i}
+                      className="px-3 py-1 rounded-full text-xs border"
+                      style={{ borderColor: colors.primary, color: colors.primary }}
+                    >
+                      {goal}
+                    </span>
+                  ))}
+                </div>
+              </div>
             )}
           </div>
 
-          <div className="mt-8 pt-6 border-t" style={{ borderColor: colors.cardBorder }}>
+          {/* Editable Name */}
+          <div className="pt-6 border-t" style={{ borderColor: colors.cardBorder }}>
+            <label className="block text-sm mb-1" style={{ color: colors.muted }}>Display name</label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full rounded-lg px-4 py-2 border mb-4"
+              style={{
+                background: colors.background,
+                borderColor: colors.cardBorder,
+                color: colors.foreground,
+              }}
+            />
+            <div className="flex flex-wrap gap-3">
+              <button
+                onClick={handleSave}
+                disabled={saving}
+                className="rounded-lg px-6 py-2 font-medium disabled:opacity-70"
+                style={{ background: colors.primary, color: colors.primaryForeground }}
+              >
+                {saving ? 'Saving...' : 'Save'}
+              </button>
+              {saveSuccess && (
+                <span className="py-2" style={{ color: colors.success }}>Saved.</span>
+              )}
+            </div>
+          </div>
+
+          {/* Password Reset */}
+          <div className="mt-6 pt-6 border-t" style={{ borderColor: colors.cardBorder }}>
             <p className="text-sm mb-2" style={{ color: colors.muted }}>
               Password and account recovery are managed by AWS Cognito.
             </p>

@@ -169,12 +169,23 @@ export function AnalysisContent({ graphData, bioAgeMetrics }: AnalysisContentPro
   const { theme } = useTheme();
   const [isBioAgeFlipped, setIsBioAgeFlipped] = useState(false);
 
-  const data = graphData.length > 0 ? graphData : defaultKraftData;
+  const hasRealData = graphData.length > 0;
+  const data = hasRealData ? graphData : defaultKraftData;
   const metrics = {
-    baseline: bioAgeMetrics.baseline ?? 41.9,
-    target: bioAgeMetrics.target ?? 41.5,
-    improvement: bioAgeMetrics.improvement ?? 0.4,
+    baseline: bioAgeMetrics.baseline ?? 0,
+    target: bioAgeMetrics.target ?? 0,
+    improvement: bioAgeMetrics.improvement ?? 0,
   };
+
+  // Compute Kraft curve summary metrics from actual data
+  const peakGlucose = Math.round(Math.max(...data.map(d => d.glucose)));
+  const peakInsulin = Math.round(Math.max(...data.map(d => d.insulin)));
+  // Recovery time: last timepoint where glucose is still above baseline (first reading)
+  const baselineGlucose = data[0]?.glucose ?? 0;
+  const recoveryIndex = data.findLastIndex(d => d.glucose > baselineGlucose * 1.05);
+  const recoveryTime = recoveryIndex >= 0 ? data[recoveryIndex]?.time ?? '—' : data[data.length - 1]?.time ?? '—';
+  // Risk score: simple heuristic based on peak insulin and recovery
+  const riskScore = Math.min(100, Math.round((peakInsulin / 1.5) + (recoveryIndex / data.length) * 30));
 
   // Generate bio age trajectory
   const bioAgeTrajectory = Array.from({ length: 18 }, (_, i) => {
@@ -206,9 +217,9 @@ export function AnalysisContent({ graphData, bioAgeMetrics }: AnalysisContentPro
             <p className="text-xs" style={{ color: theme.colors.muted }}>
               Risk Score
             </p>
-            <p className="text-3xl font-bold text-orange-500">65</p>
+            <p className="text-3xl font-bold text-orange-500">{riskScore}</p>
           </div>
-          <RiskScoreGauge score={65} />
+          <RiskScoreGauge score={riskScore} />
         </div>
       </div>
 
@@ -457,9 +468,9 @@ export function AnalysisContent({ graphData, bioAgeMetrics }: AnalysisContentPro
         {/* Metrics Grid */}
         <div className="grid grid-cols-3 gap-4 mt-6">
           {[
-            { value: '160', label: 'Peak Glucose', color: '#3b82f6' },
-            { value: '120', label: 'Peak Insulin', color: '#f97316' },
-            { value: '5hr', label: 'Recovery Time', color: theme.colors.primary },
+            { value: String(peakGlucose), label: 'Peak Glucose', color: '#3b82f6' },
+            { value: String(peakInsulin), label: 'Peak Insulin', color: '#f97316' },
+            { value: recoveryTime, label: 'Recovery Time', color: theme.colors.primary },
           ].map((metric, i) => (
             <div
               key={i}
