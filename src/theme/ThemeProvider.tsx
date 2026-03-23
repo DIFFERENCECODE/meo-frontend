@@ -39,6 +39,10 @@ interface ThemeContextValue {
   colorMode: 'light' | 'dark';
   setColorMode: (mode: 'light' | 'dark') => void;
   toggleColorMode: () => void;
+
+  // User role (for conditional UI like practitioner mode)
+  userRole: string;
+  setUserRole: (role: string) => void;
 }
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
@@ -63,37 +67,31 @@ export function ThemeProvider({
   defaultMode = 'patient',
   defaultColorMode = 'light',
 }: ThemeProviderProps) {
-  // Initialize state from localStorage or defaults
-  const [vendor, setVendorState] = useState<Vendor>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem(STORAGE_KEYS.vendor);
-      if (saved === 'meterbolic' || saved === 'eos') return saved;
-    }
-    return defaultVendor;
-  });
+  // Initialize with defaults (SSR-safe), then hydrate from localStorage in useEffect
+  const [vendor, setVendorState] = useState<Vendor>(defaultVendor);
   const [theme, setTheme] = useState<VendorTheme>(getVendorTheme(defaultVendor));
-  
-  // Mode state
-  const [mode, setModeState] = useState<Mode>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem(STORAGE_KEYS.mode);
-      if (saved === 'patient' || saved === 'practitioner') return saved;
-    }
-    return defaultMode;
-  });
-  
-  // Panel state
+  const [mode, setModeState] = useState<Mode>(defaultMode);
   const [isLeftPanelOpen, setLeftPanelOpen] = useState(true);
   const [isRightPanelOpen, setRightPanelOpen] = useState(false);
-  
-  // Color mode - initialize from localStorage or default to light
-  const [colorMode, setColorModeState] = useState<ColorMode>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem(STORAGE_KEYS.colorMode);
-      if (saved === 'light' || saved === 'dark') return saved;
+  const [colorMode, setColorModeState] = useState<ColorMode>(defaultColorMode);
+  const [mounted, setMounted] = useState(false);
+
+  // Hydrate from localStorage after mount (prevents SSR mismatch)
+  useEffect(() => {
+    const savedVendor = localStorage.getItem(STORAGE_KEYS.vendor);
+    if (savedVendor === 'meterbolic' || savedVendor === 'eos') {
+      setVendorState(savedVendor);
     }
-    return defaultColorMode;
-  });
+    const savedMode = localStorage.getItem(STORAGE_KEYS.mode);
+    if (savedMode === 'patient' || savedMode === 'practitioner') {
+      setModeState(savedMode);
+    }
+    const savedColor = localStorage.getItem(STORAGE_KEYS.colorMode);
+    if (savedColor === 'light' || savedColor === 'dark') {
+      setColorModeState(savedColor);
+    }
+    setMounted(true);
+  }, []);
 
   // Compute active colors based on colorMode
   const colors = useMemo(() => getThemeColors(theme, colorMode), [theme, colorMode]);
@@ -183,6 +181,9 @@ export function ThemeProvider({
     });
   }, []);
 
+  // User role (set from /api/me response by MeOApp)
+  const [userRole, setUserRole] = useState<string>('demo');
+
   const contextValue: ThemeContextValue = {
     vendor,
     setVendor,
@@ -201,6 +202,8 @@ export function ThemeProvider({
     colorMode,
     setColorMode,
     toggleColorMode,
+    userRole,
+    setUserRole,
   };
 
   return (

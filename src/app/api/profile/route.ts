@@ -27,7 +27,7 @@ export async function PUT(request: NextRequest) {
   }
   try {
     const body = await request.json();
-    const res = await fetch(getBackendUrl('/me'), {
+    const res = await fetch(`${BACKEND_BASE}/me`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',

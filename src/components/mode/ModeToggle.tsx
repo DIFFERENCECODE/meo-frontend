@@ -10,13 +10,22 @@ interface ModeToggleProps {
   className?: string;
 }
 
-const modeOptions: { id: Mode; label: string; icon: typeof User }[] = [
+const allModes: { id: Mode; label: string; icon: typeof User }[] = [
   { id: 'patient', label: 'Patient', icon: User },
   { id: 'practitioner', label: 'Practitioner', icon: Stethoscope },
 ];
 
+// Roles that can access practitioner mode
+const PRACTITIONER_ROLES = ['clinician', 'admin', 'practitioner'];
+
 export function ModeToggle({ className }: ModeToggleProps) {
-  const { mode, setMode, theme } = useTheme();
+  const { mode, setMode, theme, userRole } = useTheme();
+
+  const canAccessPractitioner = PRACTITIONER_ROLES.includes(userRole);
+  const modeOptions = canAccessPractitioner ? allModes : allModes.filter((m) => m.id === 'patient');
+
+  // If only one option, don't show the toggle
+  if (modeOptions.length <= 1) return null;
 
   return (
     <div
@@ -26,7 +35,7 @@ export function ModeToggle({ className }: ModeToggleProps) {
       {modeOptions.map((option) => {
         const isActive = mode === option.id;
         const IconComponent = option.icon;
-        
+
         return (
           <button
             key={option.id}

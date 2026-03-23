@@ -1,10 +1,11 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'motion/react';
 import { useTheme } from '@/theme/ThemeProvider';
-import { LeftPanel } from './LeftPanel';
+import { LeftPanel, ChatListItem } from './LeftPanel';
+import { getIdToken } from '@/app/lib/auth';
 import { cn } from '@/lib/utils';
 
 interface AppShellProps {
@@ -19,6 +20,16 @@ interface AppShellProps {
 export function AppShell({ children, className }: AppShellProps) {
   const { theme } = useTheme();
   const router = useRouter();
+  const [chats, setChats] = useState<ChatListItem[]>([]);
+
+  useEffect(() => {
+    const token = getIdToken();
+    if (!token) return;
+    fetch('/api/chats', { headers: { Authorization: `Bearer ${token}` } })
+      .then((res) => (res.ok ? res.json() : []))
+      .then((list: ChatListItem[]) => setChats(list))
+      .catch(() => {});
+  }, []);
 
   return (
     <div
@@ -30,6 +41,8 @@ export function AppShell({ children, className }: AppShellProps) {
       <LeftPanel
         onNewChat={() => router.push('/')}
         onSettingsClick={() => {}}
+        chats={chats}
+        onSelectChat={(id) => router.push(`/?chat=${id}`)}
       />
       <motion.main
         className="flex-1 flex flex-col h-full overflow-auto relative"

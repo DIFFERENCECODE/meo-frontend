@@ -23,30 +23,37 @@ interface BioAgeMetrics {
 
 // Inner component that uses the theme context
 function MeOAppInner() {
-  const { mode, setRightPanelOpen } = useTheme();
-  
+  const { theme, mode, setRightPanelOpen, setVendor, setUserRole } = useTheme();
+
   // Chat state
   const [isActive, setIsActive] = useState(false);
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
   const [viewMode, setViewMode] = useState<'response' | 'analysis' | 'solution'>('response');
-  const [idToken, setIdToken] = useState<string | null>(null);
+  // Auth: initialize from localStorage synchronously to prevent flash
+  const [idToken, setIdToken] = useState<string | null>(() => {
+    if (typeof window === 'undefined') return null;
+    return window.localStorage.getItem('meo_id_token');
+  });
   const [isExchanging, setIsExchanging] = useState(false);
+  const [authChecked, setAuthChecked] = useState(false);
   // Sidebar: list of user's chats and current conversation
   const [chats, setChats] = useState<ChatListItem[]>([]);
   const [currentChatId, setCurrentChatId] = useState<string | null>(null);
   const [chatsLoading, setChatsLoading] = useState(false);
   
-  // Graph/Analysis data state (preserved from original Chatbot)
+  // Graph/Analysis data state — populated from backend, no hardcoded defaults
   const [graphData, setGraphData] = useState<any[]>([]);
-  const [bioAgeMetrics, setBioAgeMetrics] = useState({
-    baseline: 41.9,
-    target: 41.5,
-    improvement: 0.4,
-    baselineDate: null as string | null,
-    targetDate: null as string | null,
+  const [bioAgeMetrics, setBioAgeMetrics] = useState<BioAgeMetrics>({
+    baseline: 0,
+    target: 0,
+    improvement: 0,
+    baselineDate: null,
+    targetDate: null,
   });
+  // Vendor cards from RAG — populated when backend returns solution mode
+  const [vendorCards, setVendorCards] = useState<any[]>([]);
 
   // Helper functions from original Chatbot
   const extractGraphData = (sources: any[]) => {
@@ -63,8 +70,8 @@ function MeOAppInner() {
     const baseline = data.records.find((r: any) => r.recordType === 'CLINICAL');
     const target = data.records.find((r: any) => r.recordType === 'TARGET');
     return {
-      baseline: baseline?.value ?? 41.9,
-      target: target?.value ?? 41.5,
+      baseline: baseline?.value ?? 0,
+      target: target?.value ?? 0,
       improvement: baseline && target ? baseline.value - target.value : 0,
       baselineDate: baseline ? new Date(baseline.time).toLocaleDateString() : null,
       targetDate: target ? new Date(target.time).toLocaleDateString() : null,
@@ -107,15 +114,20 @@ function MeOAppInner() {
 
   // On mount, capture ?code=... from Cognito redirect and exchange for tokens.
   useEffect(() => {
-    const existing = getIdToken();
-    if (existing) {
-      setIdToken(existing);
+    if (idToken) {
+      setAuthChecked(true);
       return;
     }
-    if (typeof window === 'undefined') return;
+    if (typeof window === 'undefined') {
+      setAuthChecked(true);
+      return;
+    }
     const url = new URL(window.location.href);
     const code = url.searchParams.get('code');
-    if (!code) return;
+    if (!code) {
+      setAuthChecked(true);
+      return;
+    }
 
     setIsExchanging(true);
     (async () => {
@@ -129,9 +141,26 @@ function MeOAppInner() {
         console.error('Failed to exchange Cognito code for tokens', err);
       } finally {
         setIsExchanging(false);
+        setAuthChecked(true);
       }
     })();
   }, []);
+
+  // When signed in, load profile and sync vendor from backend
+  useEffect(() => {
+    if (!idToken) return;
+    fetch('/api/profile', { headers: { Authorization: `Bearer ${idToken}` } })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data?.vendor_id && (data.vendor_id === 'meterbolic' || data.vendor_id === 'eos')) {
+          setVendor(data.vendor_id);
+        }
+        if (data?.role) {
+          setUserRole(data.role);
+        }
+      })
+      .catch(() => {});
+  }, [idToken]);
 
   // When signed in, load chats and ensure we have a current chat
   useEffect(() => {
@@ -267,10 +296,8 @@ function MeOAppInner() {
       const finalMode = data.mode || intendedMode;
       if (finalMode !== 'response') {
         setViewMode(finalMode);
-        // Auto-open right panel for analysis/solution (unless in practitioner mode)
-        if (mode === 'patient') {
-          setRightPanelOpen(true);
-        }
+        // Auto-open right panel for analysis/solution (always — overrides practitioner)
+        setRightPanelOpen(true);
       }
 
       // Process graph data for analysis mode
@@ -288,6 +315,27 @@ function MeOAppInner() {
             setGraphData(transformed);
           }
       }
+      }
+      // Extract vendor cards for solution mode
+      if (finalMode === 'solution') {
+        const retrievedSources = data.retrieved_sources || [];
+        const vendors = retrievedSources
+          .filter((s: any) => s.type === 'vendor_card')
+          .map((s: any, i: number) => ({
+            id: String(i + 1),
+            name: s.title || 'Unknown',
+            category: s.category || 'General',
+            description: s.gap_solved || s.content || '',
+            price: s.price || '',
+            location: s.location || '',
+            tags: s.category ? [s.category] : [],
+            available: true,
+            url: s.url || null,
+            score: s.score || null,
+          }));
+        if (vendors.length > 0) {
+          setVendorCards(vendors);
+        }
       }
       // Refresh chats so sidebar shows updated title (e.g. first message)
       if (idToken && res.ok) {
@@ -353,6 +401,20 @@ function MeOAppInner() {
     window.location.reload();
   }, []);
 
+  // Show loading screen while checking auth (prevents flash of landing page on refresh)
+  if (!authChecked) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: theme.colors.background }}>
+        <div className="text-center">
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full animate-spin" style={{ background: theme.colors.primary }}>
+            <span className="text-2xl font-bold" style={{ color: theme.colors.primaryForeground }}>M</span>
+          </div>
+          <p className="text-sm animate-pulse" style={{ color: theme.colors.muted }}>Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
   // Not signed in: show landing page (or "Signing you in..." when exchanging code).
   if (!idToken) {
     return (
@@ -368,7 +430,7 @@ function MeOAppInner() {
     <ThreePanelLayout
       viewMode={viewMode}
       analysisContent={<AnalysisContent graphData={graphData} bioAgeMetrics={bioAgeMetrics} />}
-      solutionContent={<SolutionContent />}
+      solutionContent={<SolutionContent vendors={vendorCards} />}
       onNewChat={handleNewChat}
       chats={chatsLoading ? [] : chats}
       currentChatId={currentChatId}
