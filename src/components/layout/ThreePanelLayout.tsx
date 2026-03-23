@@ -40,11 +40,11 @@ export function ThreePanelLayout({
   } = useTheme();
 
   // Determine if right panel should be visible
-  const isPractitionerMode = mode === 'practitioner';
-  const showRightPanel = isRightPanelOpen || 
-    (viewMode === 'analysis' && !isPractitionerMode) || 
-    (viewMode === 'solution' && !isPractitionerMode) ||
-    isPractitionerMode;
+  // Analysis/solution from chat always show, regardless of practitioner mode
+  const showRightPanel = isRightPanelOpen ||
+    viewMode === 'analysis' ||
+    viewMode === 'solution' ||
+    mode === 'practitioner';
 
   return (
     <div 

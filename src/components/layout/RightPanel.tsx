@@ -96,9 +96,10 @@ export function RightPanel({
     }
   }
 
-  const isPractitionerMode = mode === 'practitioner';
-  const showAnalysis = viewMode === 'analysis' && !isPractitionerMode;
-  const showSolution = viewMode === 'solution' && !isPractitionerMode;
+  // Analysis/solution from chat take priority over practitioner workspace
+  const showAnalysis = viewMode === 'analysis';
+  const showSolution = viewMode === 'solution';
+  const isPractitionerMode = mode === 'practitioner' && !showAnalysis && !showSolution;
   const shouldShow = isRightPanelOpen || showAnalysis || showSolution;
 
   return (
@@ -168,7 +169,13 @@ export function RightPanel({
               </div>
 
               <div className="flex-1 overflow-y-auto p-4">
-                {isPractitionerMode ? (
+                {showAnalysis ? (
+                  // Analysis Content — highest priority
+                  <div className="space-y-6">{analysisContent}</div>
+                ) : showSolution ? (
+                  // Solution Content
+                  <div className="space-y-4">{solutionContent}</div>
+                ) : isPractitionerMode ? (
                   <div className="space-y-6">
                     <PatientList onSelectPatient={handleSelectPatient} selectedPatientId={selectedPatientId} />
                     {clinicianLoading ? (
@@ -199,10 +206,6 @@ export function RightPanel({
                       </p>
                     )}
                   </div>
-                ) : showAnalysis ? (
-                  <div className="space-y-6">{analysisContent}</div>
-                ) : showSolution ? (
-                  <div className="space-y-4">{solutionContent}</div>
                 ) : (
                   <div className="flex flex-col items-center justify-center h-full text-center">
                     <div className="p-4 rounded-full mb-4" style={{ backgroundColor: theme.colors.accent }}>

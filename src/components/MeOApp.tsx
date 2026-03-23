@@ -296,10 +296,8 @@ function MeOAppInner() {
       const finalMode = data.mode || intendedMode;
       if (finalMode !== 'response') {
         setViewMode(finalMode);
-        // Auto-open right panel for analysis/solution (unless in practitioner mode)
-        if (mode === 'patient') {
-          setRightPanelOpen(true);
-        }
+        // Auto-open right panel for analysis/solution (always — overrides practitioner)
+        setRightPanelOpen(true);
       }
 
       // Process graph data for analysis mode
