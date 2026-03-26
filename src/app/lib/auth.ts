@@ -64,10 +64,77 @@ export function getLogoutUrl(): string {
   return `https://${COGNITO_DOMAIN}/logout?${params.toString()}`;
 }
 
-/** Clear stored id token (local only). */
+/** Clear stored tokens (local only). */
 export function clearIdToken() {
   if (typeof window === 'undefined') return;
   window.localStorage.removeItem('meo_id_token');
+  window.localStorage.removeItem('meo_refresh_token');
+}
+
+/** Store refresh token separately. */
+export function storeRefreshToken(token: string) {
+  if (typeof window === 'undefined') return;
+  window.localStorage.setItem('meo_refresh_token', token);
+}
+
+export function getRefreshToken(): string | null {
+  if (typeof window === 'undefined') return null;
+  return window.localStorage.getItem('meo_refresh_token');
+}
+
+/** Check if JWT is expired (with 60s buffer). */
+export function isIdTokenExpired(idToken: string): boolean {
+  try {
+    const parts = idToken.split('.');
+    if (parts.length !== 3) return true;
+    const payload = JSON.parse(atob(parts[1]));
+    return Date.now() / 1000 > (payload.exp ?? 0) - 60;
+  } catch {
+    return true;
+  }
+}
+
+/** Silently refresh tokens using stored refresh_token. Returns new id_token or null. */
+let refreshPromise: Promise<string | null> | null = null;
+
+export async function refreshIdToken(): Promise<string | null> {
+  // Deduplicate concurrent refresh calls
+  if (refreshPromise) return refreshPromise;
+
+  refreshPromise = (async () => {
+    const refreshToken = getRefreshToken();
+    if (!refreshToken) return null;
+
+    try {
+      const res = await fetch('/api/auth/token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refresh_token: refreshToken }),
+      });
+      if (!res.ok) return null;
+      const data = await res.json();
+      if (data.id_token) {
+        storeIdToken(data.id_token);
+        if (data.refresh_token) storeRefreshToken(data.refresh_token);
+        return data.id_token;
+      }
+      return null;
+    } catch {
+      return null;
+    } finally {
+      refreshPromise = null;
+    }
+  })();
+
+  return refreshPromise;
+}
+
+/** Get a valid id_token — auto-refreshes if expired. */
+export async function getValidIdToken(): Promise<string | null> {
+  const token = getIdToken();
+  if (!token) return null;
+  if (!isIdTokenExpired(token)) return token;
+  return refreshIdToken();
 }
 
 /** Decode JWT payload without verification (client-side only). Returns sub (Cognito user id). */

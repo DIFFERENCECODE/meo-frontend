@@ -7,7 +7,8 @@ import { ChatPanel, Message } from '@/components/layout/ChatPanel';
 import type { ChatListItem } from '@/components/layout/LeftPanel';
 import { AnalysisContent } from '@/components/analysis/AnalysisContent';
 import { SolutionContent } from '@/components/solution/SolutionContent';
-import { getLoginUrl, getLogoutUrl, exchangeCodeForTokens, storeIdToken, getIdToken, clearIdToken, getSubFromIdToken } from '@/app/lib/auth';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { getLoginUrl, getLogoutUrl, exchangeCodeForTokens, storeIdToken, getIdToken, clearIdToken, getSubFromIdToken, storeRefreshToken, getValidIdToken } from '@/app/lib/auth';
 import LandingPage from '@/components/LandingPage';
 
 // Types re-exported from chat panel
@@ -134,6 +135,7 @@ function MeOAppInner() {
       try {
         const tokens = await exchangeCodeForTokens(code);
         storeIdToken(tokens.id_token);
+        if (tokens.refresh_token) storeRefreshToken(tokens.refresh_token);
         setIdToken(tokens.id_token);
         url.searchParams.delete('code');
         window.history.replaceState({}, '', url.toString());
@@ -429,8 +431,8 @@ function MeOAppInner() {
   return (
     <ThreePanelLayout
       viewMode={viewMode}
-      analysisContent={<AnalysisContent graphData={graphData} bioAgeMetrics={bioAgeMetrics} />}
-      solutionContent={<SolutionContent vendors={vendorCards} />}
+      analysisContent={<ErrorBoundary name="Analysis"><AnalysisContent graphData={graphData} bioAgeMetrics={bioAgeMetrics} /></ErrorBoundary>}
+      solutionContent={<ErrorBoundary name="Solutions"><SolutionContent vendors={vendorCards} /></ErrorBoundary>}
       onNewChat={handleNewChat}
       chats={chatsLoading ? [] : chats}
       currentChatId={currentChatId}

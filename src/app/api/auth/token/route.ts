@@ -7,17 +7,31 @@ const REDIRECT_URI = process.env.NEXT_PUBLIC_COGNITO_REDIRECT_URI!;
 
 export async function POST(request: NextRequest) {
   try {
-    const { code } = await request.json();
-    if (!code) {
-      return NextResponse.json({ error: 'Missing code' }, { status: 400 });
+    const json = await request.json();
+    const { code, refresh_token } = json;
+
+    if (!code && !refresh_token) {
+      return NextResponse.json({ error: 'Missing code or refresh_token' }, { status: 400 });
     }
 
-    const body = new URLSearchParams({
-      grant_type: 'authorization_code',
-      code,
-      redirect_uri: REDIRECT_URI,
-      client_id: CLIENT_ID,
-    });
+    let body: URLSearchParams;
+
+    if (refresh_token) {
+      // Token refresh flow
+      body = new URLSearchParams({
+        grant_type: 'refresh_token',
+        refresh_token,
+        client_id: CLIENT_ID,
+      });
+    } else {
+      // Authorization code exchange flow
+      body = new URLSearchParams({
+        grant_type: 'authorization_code',
+        code,
+        redirect_uri: REDIRECT_URI,
+        client_id: CLIENT_ID,
+      });
+    }
 
     const basicAuth = Buffer.from(`${CLIENT_ID}:${CLIENT_SECRET}`).toString('base64');
 
@@ -42,4 +56,3 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Token exchange failed' }, { status: 500 });
   }
 }
-

@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useTheme } from '@/theme/ThemeProvider';
 import { getIdToken } from '@/app/lib/auth';
+import { useDebounce } from '@/lib/hooks';
 import { Search, Trash2, UserCog, Zap, X } from 'lucide-react';
 
 interface User {
@@ -41,12 +42,13 @@ export default function UsersPage() {
 
   useEffect(() => { fetchUsers(); }, [fetchUsers]);
 
+  const debouncedSearch = useDebounce(search, 300);
   const filtered = users.filter(
     (u) =>
-      (u.email || '').toLowerCase().includes(search.toLowerCase()) ||
-      (u.name || '').toLowerCase().includes(search.toLowerCase()) ||
-      (u.meterbolic_userid || '').toLowerCase().includes(search.toLowerCase()) ||
-      (u.role || '').toLowerCase().includes(search.toLowerCase())
+      (u.email || '').toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+      (u.name || '').toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+      (u.meterbolic_userid || '').toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+      (u.role || '').toLowerCase().includes(debouncedSearch.toLowerCase())
   );
 
   const handleEdit = (user: User) => {
