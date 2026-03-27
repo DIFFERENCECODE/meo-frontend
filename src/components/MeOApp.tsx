@@ -308,13 +308,46 @@ function MeOAppInner() {
         const graphDataParsed = extractGraphData(retrievedSources);
 
         if (graphDataParsed) {
-          if (graphDataParsed.bio_age_data) {
+          if (graphDataParsed.bio_age_data?.records?.length > 0) {
             const metrics = getBioAgeMetrics(graphDataParsed.bio_age_data);
             setBioAgeMetrics(metrics);
           }
           if (graphDataParsed.kraft_curve_data?.length > 0) {
             const transformed = transformKraftForChart(graphDataParsed.kraft_curve_data);
             setGraphData(transformed);
+          }
+          // Fallback: use general measurements if BAS/Kraft are empty
+          if (graphDataParsed.measurements?.length > 0 &&
+              (!graphDataParsed.bio_age_data?.records?.length) &&
+              (!graphDataParsed.kraft_curve_data?.length)) {
+            // Extract glucose/insulin pairs for chart display
+            const glucoseEntries = graphDataParsed.measurements
+              .filter((m: any) => m.name === 'Glucose' && m.unit === 'mMol')
+              .sort((a: any, b: any) => new Date(a.time).getTime() - new Date(b.time).getTime());
+            const insulinEntries = graphDataParsed.measurements
+              .filter((m: any) => m.name === 'Insulin' && m.unit === '\u00b5IU/ml')
+              .sort((a: any, b: any) => new Date(a.time).getTime() - new Date(b.time).getTime());
+
+            if (glucoseEntries.length > 0 || insulinEntries.length > 0) {
+              const chartData = glucoseEntries.slice(0, 20).map((g: any, i: number) => ({
+                time: new Date(g.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                glucose: g.value,
+                insulin: insulinEntries[i]?.value ?? 0,
+              }));
+              if (chartData.length > 0) setGraphData(chartData);
+            }
+
+            // Extract BAS if present in measurements
+            const basEntry = graphDataParsed.measurements.find((m: any) => m.name === 'BAS');
+            if (basEntry) {
+              setBioAgeMetrics({
+                baseline: basEntry.value,
+                target: basEntry.value - 0.5,
+                improvement: 0.5,
+                baselineDate: new Date(basEntry.time).toLocaleDateString(),
+                targetDate: null,
+              });
+            }
           }
       }
       }
