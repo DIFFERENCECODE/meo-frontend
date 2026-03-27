@@ -38,52 +38,69 @@ export default function ProfilePage() {
   const [measurements, setMeasurements] = useState<Measurement[]>([]);
   const [measLoading, setMeasLoading] = useState(false);
 
+  // Single useEffect — no router dependency to prevent re-renders
+  const hasLoaded = React.useRef(false);
   useEffect(() => {
+    if (hasLoaded.current) return;
+    hasLoaded.current = true;
+
     const token = getIdToken();
     if (!token) {
       router.replace('/');
       return;
     }
-    fetch('/api/profile', {
-      headers: { Authorization: `Bearer ${token}` },
-    })
+
+    // Fetch profile
+    fetch('/api/profile', { headers: { Authorization: `Bearer ${token}` } })
       .then((res) => {
-        if (res.status === 401) {
-          router.replace('/');
-          return null;
-        }
+        if (res.status === 401) { router.replace('/'); return null; }
         if (!res.ok) throw new Error('Failed to load profile');
         return res.json();
       })
       .then((data: ProfileData | null) => {
-        if (data) {
-          setProfile(data);
-          setName(data.name || data.email || '');
-        }
+        if (data) { setProfile(data); setName(data.name || data.email || ''); }
       })
       .catch(() => setError('Failed to load profile'))
       .finally(() => setLoading(false));
 
-    // Fetch user measurements via meo/user-data
+    // Fetch measurements (single call)
     setMeasLoading(true);
     fetch('/api/user-data', { headers: { Authorization: `Bearer ${token}` } })
       .then(r => r.ok ? r.json() : null)
-      .then(data => {
-        if (data?.measurements?.length > 0) {
-          setMeasurements(data.measurements.slice(0, 30));
-        } else if (data?.bio_age_data?.records?.length > 0) {
-          // Convert BAS records to measurement format
-          setMeasurements(data.bio_age_data.records.map((r: any) => ({
-            time: new Date(r.time).toLocaleDateString(),
-            name: r.analyte || 'BAS',
-            unit: r.unit || '',
-            value: r.value,
-          })));
-        }
-      })
+      .then(data => { parseMeasurements(data); })
       .catch(() => {})
       .finally(() => setMeasLoading(false));
-  }, [router]);
+  }, []);
+
+  // Parse, deduplicate, sort measurements
+  const parseMeasurements = (data: any) => {
+    let entries: Measurement[] = [];
+    if (data?.measurements?.length > 0) {
+      entries = data.measurements;
+    } else if (data?.bio_age_data?.records?.length > 0) {
+      entries = data.bio_age_data.records.map((r: any) => ({
+        time: new Date(r.time).toISOString(),
+        name: r.analyte || 'BAS',
+        unit: r.unit || '',
+        value: r.value,
+      }));
+    }
+    // Sort newest first
+    entries.sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime());
+    // Deduplicate: same name + unit + time = keep only first
+    const seen = new Set<string>();
+    const unique = entries.filter(m => {
+      const key = `${m.time}|${m.name}|${m.unit}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+    // Show primary units only (mMol over mg/dl, µIU/ml over pMol)
+    const preferred = unique.filter(m =>
+      !(['mg/dl', 'pMol', 'pounds', 'inch'].includes(m.unit))
+    );
+    setMeasurements(preferred.slice(0, 30));
+  };
 
   const refreshMeasurements = () => {
     const token = getIdToken();
@@ -92,18 +109,7 @@ export default function ProfilePage() {
     setMeasurements([]);
     fetch('/api/user-data', { headers: { Authorization: `Bearer ${token}` } })
       .then(r => r.ok ? r.json() : null)
-      .then(data => {
-        if (data?.measurements?.length > 0) {
-          setMeasurements(data.measurements.slice(0, 30));
-        } else if (data?.bio_age_data?.records?.length > 0) {
-          setMeasurements(data.bio_age_data.records.map((r: any) => ({
-            time: new Date(r.time).toLocaleDateString(),
-            name: r.analyte || 'BAS',
-            unit: r.unit || '',
-            value: r.value,
-          })));
-        }
-      })
+      .then(data => { parseMeasurements(data); })
       .catch(() => {})
       .finally(() => setMeasLoading(false));
   };
