@@ -85,6 +85,29 @@ export default function ProfilePage() {
       .finally(() => setMeasLoading(false));
   }, [router]);
 
+  const refreshMeasurements = () => {
+    const token = getIdToken();
+    if (!token) return;
+    setMeasLoading(true);
+    setMeasurements([]);
+    fetch('/api/user-data', { headers: { Authorization: `Bearer ${token}` } })
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (data?.measurements?.length > 0) {
+          setMeasurements(data.measurements.slice(0, 30));
+        } else if (data?.bio_age_data?.records?.length > 0) {
+          setMeasurements(data.bio_age_data.records.map((r: any) => ({
+            time: new Date(r.time).toLocaleDateString(),
+            name: r.analyte || 'BAS',
+            unit: r.unit || '',
+            value: r.value,
+          })));
+        }
+      })
+      .catch(() => {})
+      .finally(() => setMeasLoading(false));
+  };
+
   const handleSave = () => {
     const token = getIdToken();
     if (!token || !profile) return;
@@ -239,7 +262,17 @@ export default function ProfilePage() {
 
           {/* Measurements */}
           <div className="mt-6 pt-6 border-t" style={{ borderColor: colors.cardBorder }}>
-            <h2 className="text-lg font-bold mb-4" style={{ color: colors.foreground }}>Recent Measurements</h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-bold" style={{ color: colors.foreground }}>Recent Measurements</h2>
+              <button
+                onClick={refreshMeasurements}
+                disabled={measLoading}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium disabled:opacity-50 transition-colors"
+                style={{ backgroundColor: colors.primary, color: colors.primaryForeground }}
+              >
+                {measLoading ? 'Refreshing...' : 'Refresh'}
+              </button>
+            </div>
             {measLoading ? (
               <p className="text-sm animate-pulse" style={{ color: colors.muted }}>Loading measurements...</p>
             ) : measurements.length === 0 ? (
