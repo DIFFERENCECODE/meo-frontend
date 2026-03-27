@@ -19,6 +19,13 @@ interface ProfileData {
   organization_id?: number | null;
 }
 
+interface Measurement {
+  time: string;
+  name: string;
+  unit: string;
+  value: number;
+}
+
 export default function ProfilePage() {
   const { colors } = useTheme();
   const router = useRouter();
@@ -28,6 +35,8 @@ export default function ProfilePage() {
   const [name, setName] = useState('');
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [measurements, setMeasurements] = useState<Measurement[]>([]);
+  const [measLoading, setMeasLoading] = useState(false);
 
   useEffect(() => {
     const token = getIdToken();
@@ -54,6 +63,26 @@ export default function ProfilePage() {
       })
       .catch(() => setError('Failed to load profile'))
       .finally(() => setLoading(false));
+
+    // Fetch user measurements via meo/user-data
+    setMeasLoading(true);
+    fetch('/api/user-data', { headers: { Authorization: `Bearer ${token}` } })
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (data?.measurements?.length > 0) {
+          setMeasurements(data.measurements.slice(0, 30));
+        } else if (data?.bio_age_data?.records?.length > 0) {
+          // Convert BAS records to measurement format
+          setMeasurements(data.bio_age_data.records.map((r: any) => ({
+            time: new Date(r.time).toLocaleDateString(),
+            name: r.analyte || 'BAS',
+            unit: r.unit || '',
+            value: r.value,
+          })));
+        }
+      })
+      .catch(() => {})
+      .finally(() => setMeasLoading(false));
   }, [router]);
 
   const handleSave = () => {
@@ -206,6 +235,42 @@ export default function ProfilePage() {
                 <span className="py-2" style={{ color: colors.success }}>Saved.</span>
               )}
             </div>
+          </div>
+
+          {/* Measurements */}
+          <div className="mt-6 pt-6 border-t" style={{ borderColor: colors.cardBorder }}>
+            <h2 className="text-lg font-bold mb-4" style={{ color: colors.foreground }}>Recent Measurements</h2>
+            {measLoading ? (
+              <p className="text-sm animate-pulse" style={{ color: colors.muted }}>Loading measurements...</p>
+            ) : measurements.length === 0 ? (
+              <p className="text-sm" style={{ color: colors.muted }}>No measurements found</p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr style={{ borderBottom: `1px solid ${colors.cardBorder}` }}>
+                      {['Date', 'Analyte', 'Value', 'Unit'].map(h => (
+                        <th key={h} className="px-3 py-2 text-left text-xs font-medium uppercase" style={{ color: colors.muted }}>{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {measurements.map((m, i) => (
+                      <tr key={i} style={{ borderBottom: `1px solid ${colors.cardBorder}` }}>
+                        <td className="px-3 py-2 text-xs" style={{ color: colors.muted }}>
+                          {new Date(m.time).toLocaleDateString()}
+                        </td>
+                        <td className="px-3 py-2" style={{ color: colors.foreground }}>{m.name}</td>
+                        <td className="px-3 py-2 font-medium" style={{ color: colors.primary }}>
+                          {typeof m.value === 'number' ? m.value.toFixed(2) : m.value}
+                        </td>
+                        <td className="px-3 py-2 text-xs" style={{ color: colors.muted }}>{m.unit}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
 
           {/* Password Reset */}
