@@ -1,94 +1,114 @@
-# Meo Frontend
+# Meterbolic Web (meo-frontend)
 
-**Meo** is a metabolic health AI assistant that provides personalized insights, data visualization, and recommendations for users monitoring their metabolic health.
+Next.js 16 web application for the Meterbolic metabolic health platform. Provides patient-facing features (AI chat, analysis dashboards, solution recommendations) alongside admin and practitioner management panels.
 
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## Tech Stack
 
-## 📚 Documentation
+- **Framework:** Next.js 16 (App Router)
+- **Language:** TypeScript 5
+- **UI:** React 19, Tailwind CSS 4, Motion (animations)
+- **Charts:** ECharts 6 (Bio Age, Kraft curves)
+- **Icons:** Lucide React
+- **Auth:** AWS Cognito (email/password + Google social auth)
+- **Payments:** Stripe subscriptions (Free / Pro / Clinic tiers), RevenueCat webhook endpoint
+- **State:** React useState (no external state library)
+- **Backend proxy:** Routes requests to the chatbot-rag FastAPI service
 
-For new team members and developers, we've created comprehensive documentation:
+## Prerequisites
 
-- **[CODEBASE_OVERVIEW.md](./CODEBASE_OVERVIEW.md)** - Complete guide to the project structure, technology stack, and implementation details
-- **[ARCHITECTURE.md](./ARCHITECTURE.md)** - Detailed architecture diagrams and data flow explanations  
-- **[QUICK_REFERENCE.md](./QUICK_REFERENCE.md)** - Quick reference for common tasks and operations
+- Node.js >= 20
+- npm >= 10
+- AWS Cognito user pool configured
+- Stripe account with product/price IDs
+- Access to the chatbot-rag API
 
-### Documentation Overview
-
-| Document | Purpose | Best For |
-|----------|---------|----------|
-| CODEBASE_OVERVIEW.md | Comprehensive introduction to the codebase | New team members, understanding the full system |
-| ARCHITECTURE.md | Visual diagrams and technical architecture | Understanding data flow and system design |
-| QUICK_REFERENCE.md | Quick lookup for common tasks | Daily development work |
-
-## 🚀 Getting Started
-
-First, run the development server:
+## Setup
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone <repo-url>
+cd meo-frontend
+npm install
+cp .env.example .env.local   # then fill in values below
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Environment Variables
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Create a `.env.local` file in the project root:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```env
+# Cognito
+COGNITO_USER_POOL_ID=eu-north-1_XXXXXXXXX
+COGNITO_CLIENT_ID=your_cognito_client_id
+COGNITO_CLIENT_SECRET=your_cognito_client_secret
+COGNITO_ISSUER=https://cognito-idp.eu-north-1.amazonaws.com/eu-north-1_XXXXXXXXX
 
-## 🏗️ Technology Stack
+# Backend API
+MEO_API_URL=http://localhost:8080
 
-- **Framework**: Next.js 16 with App Router
-- **Language**: TypeScript 5
-- **Styling**: Tailwind CSS v4
-- **Charts**: ECharts 6
-- **Animations**: Framer Motion 12
-- **UI Icons**: Lucide React
+# Anthropic (server-side AI calls)
+ANTHROPIC_API_KEY=sk-ant-XXXXXXXX
 
-For a complete technology breakdown, see [CODEBASE_OVERVIEW.md](./CODEBASE_OVERVIEW.md#technology-stack).
+# Stripe
+STRIPE_SECRET_KEY=sk_test_XXXXXXXX
+STRIPE_PUBLISHABLE_KEY=pk_test_XXXXXXXX
+STRIPE_WEBHOOK_SECRET=whsec_XXXXXXXX
+STRIPE_PRICE_PRO=price_XXXXXXXX
+STRIPE_PRICE_CLINIC=price_XXXXXXXX
 
-## 📖 Learn More
+# RevenueCat
+REVENUECAT_WEBHOOK_SECRET=your_revenuecat_webhook_secret
+```
 
-### Project Documentation
-- [Codebase Overview](./CODEBASE_OVERVIEW.md) - Understand the full architecture
-- [Architecture Diagrams](./ARCHITECTURE.md) - Visual system design
-- [Quick Reference](./QUICK_REFERENCE.md) - Common tasks and patterns
+## Running
 
-### Next.js Resources
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial
-- [Next.js GitHub repository](https://github.com/vercel/next.js) - feedback and contributions welcome
+```bash
+# Development (port 3000)
+npm run dev
 
-## 🚀 Deploy on Vercel
+# Production build
+npm run build
+npm start
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+# Lint
+npm run lint
+```
 
-Check out the [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Open http://localhost:3000 in your browser.
 
-## 🤝 Contributing
-
-When contributing to this project:
-
-1. Review the [CODEBASE_OVERVIEW.md](./CODEBASE_OVERVIEW.md) to understand the architecture
-2. Check [QUICK_REFERENCE.md](./QUICK_REFERENCE.md) for development patterns
-3. Follow the existing code style and TypeScript conventions
-4. Run `npm run lint` before committing
-5. Test your changes with `npm run build`
-
-## 📝 Project Structure
+## Project Structure
 
 ```
 src/
-├── app/              # Next.js App Router
-│   ├── api/         # API routes (backend proxy)
-│   ├── lib/         # Utilities and types
-│   └── page.tsx     # Main page
-└── components/      # React components
-    └── Chatbot.tsx  # Main chat interface
+  app/                  # Next.js App Router pages
+    admin/              # Admin panel (users, content, monitoring)
+    api/                # API route handlers (proxy to backend, webhooks)
+    lib/                # Utilities and type definitions
+    pricing/            # Subscription / pricing page
+    profile/            # User profile with measurements
+    layout.tsx          # Root layout (three-panel structure)
+    page.tsx            # Landing / chat page
+    globals.css         # Global styles
+  components/           # Shared React components
+  lib/                  # Utilities, API clients, helpers
+  theme/                # Vendor theming (Meterbolic / Eos)
 ```
 
-For detailed structure, see [CODEBASE_OVERVIEW.md](./CODEBASE_OVERVIEW.md#project-structure).
+## Features
+
+- **MeO AI Chat** -- Conversational assistant powered by the chatbot-rag backend
+- **Analysis Dashboard** -- Bio Age score, Kraft insulin/glucose curves rendered with ECharts
+- **Solution Recommendations** -- Vendor/product suggestions based on metabolic data
+- **Profile and Measurements** -- View and manage personal health metrics
+- **Admin Panel** -- User management, content editing, system monitoring
+- **Practitioner Mode** -- Patient list, per-patient dashboards, clinician tools
+- **Cognito Auth** -- Email/password and Google social sign-in
+- **Stripe Subscriptions** -- Free, Pro, and Clinic tiers with checkout flow
+- **RevenueCat Webhook** -- Syncs mobile in-app purchase state
+- **Vendor Theming** -- Switch between Meterbolic and Eos brand themes
+- **Three-Panel Layout** -- Sidebar navigation, main content, contextual detail panel
+
+## Related Documentation
+
+- [CODEBASE_OVERVIEW.md](./CODEBASE_OVERVIEW.md) -- Full guide to the project structure and implementation
+- [ARCHITECTURE.md](./ARCHITECTURE.md) -- Architecture diagrams and data flow
+- [QUICK_REFERENCE.md](./QUICK_REFERENCE.md) -- Quick reference for common development tasks
