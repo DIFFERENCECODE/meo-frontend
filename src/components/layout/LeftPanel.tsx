@@ -2,15 +2,16 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { 
-  Menu, 
-  SquarePen, 
+import {
+  Menu,
+  SquarePen,
   ChevronRight,
   Settings,
   Clock,
   Sun,
   Moon,
-  User
+  User,
+  CreditCard
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -250,6 +251,14 @@ export function LeftPanel({ onNewChat, onSettingsClick, chats, currentChatId, on
                         >
                           <User className="h-4 w-4" />
                           <span>Profile</span>
+                        </Link>
+                        <Link
+                          href="/pricing"
+                          className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors hover:bg-white/5"
+                          style={{ color: colors.foreground }}
+                        >
+                          <CreditCard className="h-4 w-4" />
+                          <span>Subscription</span>
                         </Link>
                         <button
                           onClick={toggleColorMode}

@@ -12,6 +12,17 @@ export function getLoginUrl(): string {
   return `https://${COGNITO_DOMAIN}/login?${params.toString()}`;
 }
 
+export function getGoogleLoginUrl(): string {
+  const params = new URLSearchParams({
+    client_id: CLIENT_ID,
+    response_type: 'code',
+    scope: 'openid email profile',
+    redirect_uri: REDIRECT_URI,
+    identity_provider: 'Google',
+  });
+  return `https://${COGNITO_DOMAIN}/oauth2/authorize?${params.toString()}`;
+}
+
 export async function exchangeCodeForTokens(code: string) {
   const res = await fetch('/api/auth/token', {
     method: 'POST',

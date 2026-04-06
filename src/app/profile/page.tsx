@@ -37,6 +37,7 @@ export default function ProfilePage() {
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [measurements, setMeasurements] = useState<Measurement[]>([]);
   const [measLoading, setMeasLoading] = useState(false);
+  const [subscription, setSubscription] = useState<{ plan: string; status: string; currentPeriodEnd?: number; cancelAtPeriodEnd?: boolean } | null>(null);
 
   // Single useEffect — no router dependency to prevent re-renders
   const hasLoaded = React.useRef(false);
@@ -49,6 +50,12 @@ export default function ProfilePage() {
       router.replace('/');
       return;
     }
+
+    // Fetch subscription status
+    fetch('/api/stripe/status', { headers: { Authorization: `Bearer ${token}` } })
+      .then(r => r.ok ? r.json() : null)
+      .then(data => { if (data) setSubscription(data); })
+      .catch(() => {});
 
     // Fetch profile
     fetch('/api/profile', { headers: { Authorization: `Bearer ${token}` } })
@@ -309,6 +316,66 @@ export default function ProfilePage() {
                   </tbody>
                 </table>
               </div>
+            )}
+          </div>
+
+          {/* Subscription */}
+          <div className="mt-6 pt-6 border-t" style={{ borderColor: colors.cardBorder }}>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-bold" style={{ color: colors.foreground }}>Subscription</h2>
+              {subscription?.plan !== 'free' && subscription?.status === 'active' && (
+                <button
+                  onClick={async () => {
+                    const token = getIdToken();
+                    if (!token) return;
+                    const res = await fetch('/api/stripe/portal', {
+                      method: 'POST',
+                      headers: { Authorization: `Bearer ${token}` },
+                    });
+                    const data = await res.json();
+                    if (data.url) window.location.href = data.url;
+                  }}
+                  className="px-3 py-1.5 rounded-lg text-xs font-medium transition-colors"
+                  style={{ backgroundColor: colors.primary, color: colors.primaryForeground }}
+                >
+                  Manage Billing
+                </button>
+              )}
+            </div>
+            <div className="flex items-center gap-4">
+              <div>
+                <p className="text-sm mb-1" style={{ color: colors.muted }}>Current Plan</p>
+                <span
+                  className="inline-block px-3 py-1 rounded-full text-sm font-semibold"
+                  style={{
+                    background: subscription?.status === 'active' && subscription?.plan !== 'free'
+                      ? `${colors.primary}20` : `${colors.muted}20`,
+                    color: subscription?.status === 'active' && subscription?.plan !== 'free'
+                      ? colors.primary : colors.muted,
+                  }}
+                >
+                  {(subscription?.plan || 'free').charAt(0).toUpperCase() + (subscription?.plan || 'free').slice(1)}
+                </span>
+              </div>
+              {subscription?.status === 'active' && subscription?.currentPeriodEnd && (
+                <div>
+                  <p className="text-sm mb-1" style={{ color: colors.muted }}>
+                    {subscription.cancelAtPeriodEnd ? 'Expires' : 'Renews'}
+                  </p>
+                  <p style={{ color: colors.foreground }}>
+                    {new Date(subscription.currentPeriodEnd * 1000).toLocaleDateString()}
+                  </p>
+                </div>
+              )}
+            </div>
+            {(!subscription || subscription.plan === 'free' || subscription.status !== 'active') && (
+              <a
+                href="/pricing"
+                className="inline-block mt-4 px-6 py-2 rounded-lg text-sm font-semibold transition-colors"
+                style={{ background: colors.primary, color: colors.primaryForeground }}
+              >
+                Upgrade Plan
+              </a>
             )}
           </div>
 

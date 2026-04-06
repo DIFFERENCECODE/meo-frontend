@@ -67,7 +67,7 @@ interface SolutionContentProps {
 
 export function SolutionContent({ vendors = [] }: SolutionContentProps) {
   const { theme } = useTheme();
-  const displayVendors = vendors.length > 0 ? vendors : mockVendors;
+  const displayVendors: VendorCard[] = vendors.length > 0 ? vendors : mockVendors;
 
   return (
     <div className="space-y-4">
