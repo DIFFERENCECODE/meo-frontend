@@ -6,6 +6,7 @@ import { useTheme } from '@/theme/ThemeProvider';
 import ReactECharts from 'echarts-for-react';
 import type { EChartsOption } from 'echarts';
 import { getValidIdToken } from '@/app/lib/auth';
+import { ScoreGauges } from './ScoreGauges';
 
 // Types
 interface BioAgeMetrics {
@@ -353,9 +354,17 @@ export function AnalysisContent({ graphData: graphDataProp, bioAgeMetrics: bioAg
         </div>
       </div>
 
-      {/* Biological Age Card (Flippable) — explicit min-height so the
-          absolutely-positioned back face (which contains a 300px chart)
-          reserves layout space and does not overlap the next card below. */}
+      {/* Grafana-parity score gauges (BAS + KRAFT Deep Fat Score).
+          Self-contained: fetches sessions + scores from /api/scores/*
+          and mirrors the exact Grafana panel thresholds, colors, ranges. */}
+      <ScoreGauges />
+
+      {/* Dead code removed below — the old Bio Age flip card used a
+          heuristic derived from the chat graph_data and is superseded by
+          the Grafana-driven ScoreGauges. Eric's PDF page 7/8 also defers
+          the clinical/target trend chart, so the flipped back view is
+          unnecessary. See git history (commit ce376cd) if needed. */}
+      {false && (
       <div className="perspective-1000" style={{ minHeight: 460 }}>
         <div
           className="relative cursor-pointer transition-transform duration-700"
@@ -507,6 +516,7 @@ export function AnalysisContent({ graphData: graphDataProp, bioAgeMetrics: bioAg
           </div>
         </div>
       </div>
+      )}
 
       {/* Kraft Curve Card */}
       <div
