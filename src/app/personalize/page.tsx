@@ -191,11 +191,13 @@ export default function PersonalizePage() {
         setParsing(false);
         return;
       }
-      // Normalise Sex (and any other coercible enums in future) on the
-      // parsed items before showing them in the review table, so the
-      // user sees the exact value that will be submitted.
+      // Normalise Sex + short units on the parsed items before showing
+      // them in the review table, so the user sees exactly what will
+      // be submitted (and short units like "%" → "pct" don't trip the
+      // validator later).
       for (const item of data.items) {
         normaliseSex(item);
+        normaliseUnit(item);
       }
       setPayload(data);
     } catch (e: any) {
@@ -267,14 +269,37 @@ export default function PersonalizePage() {
     }
   };
 
+  // bang-api requires unit min_length=2. The chatbot-rag validator has
+  // the same map; mirroring it client-side so the review-table edit
+  // loop doesn't reject units before they reach the backend. Keep the
+  // two maps in sync — change one, change both.
+  // See: chatbot-rag/app/api/personalize.py UNIT_FIXES.
+  const UNIT_FIXES: Record<string, string> = {
+    '%': 'pct',
+    g: 'gm',
+    L: 'lt',
+    C: 'cls',
+    F: 'fah',
+  };
+
+  const normaliseUnit = (item: { unit?: string; name?: string }): void => {
+    const unit = (item.unit ?? '').trim();
+    if (unit.length >= 2) return;
+    const fixed = UNIT_FIXES[unit];
+    if (fixed) item.unit = fixed;
+  };
+
   // Validate before submit
   const validatePayload = (): string | null => {
     if (!payload || payload.items.length === 0) return 'No measurements to submit';
     for (let i = 0; i < payload.items.length; i++) {
       const item = payload.items[i];
-      // Normalise Sex in-place so Male/Female are accepted by the
-      // numeric check that follows. Safe no-op for every other analyte.
+      // Normalise Sex + short units in-place so Male/Female and "%" are
+      // accepted by the checks that follow. Safe no-op for every other
+      // analyte. Belt-and-braces — these also run at parse time, but the
+      // user may have edited the row after that.
       normaliseSex(item as { name?: string; value: unknown });
+      normaliseUnit(item as { name?: string; unit?: string });
       if (!item.name || item.name.trim().length === 0) {
         return `Row ${i + 1}: name is required`;
       }
