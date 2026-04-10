@@ -335,6 +335,7 @@ function MeOAppInner() {
               if (chartData.length > 0) setGraphData(chartData);
             }
           }
+        }
       }
       // Extract vendor cards for solution mode
       if (finalMode === 'solution') {
