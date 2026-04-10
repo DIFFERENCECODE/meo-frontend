@@ -741,13 +741,30 @@ export default function PersonalizePage() {
                               />
                             </td>
                             <td className="px-3 py-2">
-                              <input
-                                type="text"
-                                value={item.name}
-                                onChange={(e) => updatePayloadItem(idx, { name: e.target.value })}
+                              <select
+                                value={
+                                  COMMON_ANALYTES.find((a) => a.name === item.name)
+                                    ? item.name
+                                    : '__custom__'
+                                }
+                                onChange={(e) => {
+                                  if (e.target.value === '__custom__') return;
+                                  const found = COMMON_ANALYTES.find((a) => a.name === e.target.value);
+                                  updatePayloadItem(idx, {
+                                    name: e.target.value,
+                                    unit: found?.unit || item.unit,
+                                  });
+                                }}
                                 className="w-full rounded px-2 py-1 text-sm font-medium outline-none"
                                 style={inputStyle}
-                              />
+                              >
+                                {COMMON_ANALYTES.map((a) => (
+                                  <option key={a.name} value={a.name}>{a.name}</option>
+                                ))}
+                                {!COMMON_ANALYTES.find((a) => a.name === item.name) && (
+                                  <option value="__custom__">{item.name}</option>
+                                )}
+                              </select>
                             </td>
                             <td className="px-3 py-2 w-24">
                               <input
