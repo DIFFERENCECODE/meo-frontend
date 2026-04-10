@@ -14,6 +14,7 @@ interface ThreePanelLayoutProps {
   solutionContent?: React.ReactNode;
   onNewChat?: () => void;
   onSettingsClick?: () => void;
+  onCloseRightPanel?: () => void;
   chats?: ChatListItem[];
   currentChatId?: string | null;
   onSelectChat?: (id: string) => void;
@@ -27,6 +28,7 @@ export function ThreePanelLayout({
   solutionContent,
   onNewChat,
   onSettingsClick,
+  onCloseRightPanel,
   chats,
   currentChatId,
   onSelectChat,
@@ -80,6 +82,7 @@ export function ThreePanelLayout({
         viewMode={viewMode}
         analysisContent={analysisContent}
         solutionContent={solutionContent}
+        onClose={onCloseRightPanel}
       />
     </div>
   );

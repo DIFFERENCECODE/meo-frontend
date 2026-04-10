@@ -17,6 +17,7 @@ interface RightPanelProps {
   viewMode?: 'response' | 'analysis' | 'solution';
   analysisContent?: React.ReactNode;
   solutionContent?: React.ReactNode;
+  onClose?: () => void;
   className?: string;
 }
 
@@ -24,9 +25,18 @@ export function RightPanel({
   viewMode = 'response',
   analysisContent,
   solutionContent,
+  onClose,
   className,
 }: RightPanelProps) {
-  const { isRightPanelOpen, toggleRightPanel, mode, theme } = useTheme();
+  const { isRightPanelOpen, toggleRightPanel, setRightPanelOpen, mode, theme } = useTheme();
+
+  // Closing must reset both isRightPanelOpen AND notify the parent to clear
+  // viewMode — otherwise shouldShow stays true via the analysis/solution
+  // branch and the panel can't be dismissed.
+  const handleClose = useCallback(() => {
+    setRightPanelOpen(false);
+    onClose?.();
+  }, [setRightPanelOpen, onClose]);
 
   // Practitioner state
   const [selectedPatientId, setSelectedPatientId] = useState<string | null>(null);
@@ -130,7 +140,7 @@ export function RightPanel({
               exit={{ opacity: 0 }}
               className="md:hidden fixed inset-0 z-40"
               style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
-              onClick={toggleRightPanel}
+              onClick={handleClose}
             />
             <motion.aside
               initial={{ x: '100%', opacity: 0 }}
@@ -163,7 +173,7 @@ export function RightPanel({
                       : ''}
                   </p>
                 </div>
-                <button onClick={toggleRightPanel} className="p-2 rounded-lg transition-colors" style={{ color: theme.colors.muted }} aria-label="Close panel">
+                <button onClick={handleClose} className="p-2 rounded-lg transition-colors" style={{ color: theme.colors.muted }} aria-label="Close panel">
                   {isPractitionerMode ? <PanelRightClose className="h-5 w-5" /> : <X className="h-5 w-5" />}
                 </button>
               </div>

@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BarChart3, FlipHorizontal } from 'lucide-react';
 import { useTheme } from '@/theme/ThemeProvider';
 import ReactECharts from 'echarts-for-react';
 import type { EChartsOption } from 'echarts';
+import { getValidIdToken } from '@/app/lib/auth';
 
 // Types
 interface BioAgeMetrics {
@@ -22,9 +23,20 @@ interface GraphDataPoint {
 }
 
 interface AnalysisContentProps {
-  graphData: GraphDataPoint[];
-  bioAgeMetrics: BioAgeMetrics;
+  // Optional — kept for back-compat with chat-driven graph data, but the
+  // component now self-fetches /api/user-data so values are always correct
+  // regardless of whether the chat populated graphData.
+  graphData?: GraphDataPoint[];
+  bioAgeMetrics?: BioAgeMetrics;
 }
+
+// Canonical unit map: bang-api stores both original and unit-converted
+// twins (e.g. Glucose in mMol AND mg/dL). We keep only the canonical row
+// per (time, analyte) so peak calculations aren't polluted by conversions.
+const CANONICAL_UNITS: Record<string, string[]> = {
+  Glucose: ['mMol', 'mmol/L'],
+  Insulin: ['uIU/mL', 'µIU/ml', 'uIU/ml'],
+};
 
 // Default data
 const defaultKraftData: GraphDataPoint[] = [
@@ -165,27 +177,136 @@ function BiologicalAgeGauge({
   );
 }
 
-export function AnalysisContent({ graphData, bioAgeMetrics }: AnalysisContentProps) {
+export function AnalysisContent({ graphData: graphDataProp, bioAgeMetrics: bioAgeMetricsProp }: AnalysisContentProps) {
   const { theme } = useTheme();
   const [isBioAgeFlipped, setIsBioAgeFlipped] = useState(false);
+  const [fetchedGraphData, setFetchedGraphData] = useState<GraphDataPoint[] | null>(null);
+  const [fetchedBioAge, setFetchedBioAge] = useState<BioAgeMetrics | null>(null);
+  const [hasBioAge, setHasBioAge] = useState(false);
 
-  const hasRealData = graphData.length > 0;
-  const data = hasRealData ? graphData : defaultKraftData;
+  // Self-fetch user data so the page is always correct, regardless of
+  // whether a chat-driven graph_data payload populated MeOApp state.
+  // The chat path was unreliable: kraft_curve_data has unit-converted
+  // duplicates whose Map-based merge produced swapped peaks (insulin
+  // values landing in the glucose field, etc).
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const token = await getValidIdToken();
+        if (!token) return;
+        const res = await fetch('/api/user-data', { headers: { Authorization: `Bearer ${token}` } });
+        if (!res.ok || cancelled) return;
+        const data = await res.json();
+
+        // Build a deduped (time, analyte) → value map preferring canonical units.
+        type Row = { time: string; name: string; unit: string; value: number };
+        const rawMeasurements: Row[] = Array.isArray(data?.measurements) ? data.measurements : [];
+        const byKey = new Map<string, Row>();
+        for (const m of rawMeasurements) {
+          const key = `${m.time}|${m.name}`;
+          const existing = byKey.get(key);
+          const canonical = CANONICAL_UNITS[m.name];
+          const isCanonical = canonical ? canonical.includes(m.unit) : true;
+          if (!existing) {
+            byKey.set(key, m);
+          } else {
+            const existingIsCanonical = canonical ? canonical.includes(existing.unit) : true;
+            if (isCanonical && !existingIsCanonical) byKey.set(key, m);
+          }
+        }
+        const deduped = Array.from(byKey.values());
+
+        // Pair glucose/insulin into chart points by time. Sort by time
+        // ascending so the first point is the baseline reading.
+        const glucoseRows = deduped
+          .filter((m) => m.name === 'Glucose')
+          .sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime());
+        const insulinRows = deduped
+          .filter((m) => m.name === 'Insulin')
+          .sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime());
+
+        // Use whichever series has more points as the time axis;
+        // align the other series by nearest timestamp.
+        const baseRows = glucoseRows.length >= insulinRows.length ? glucoseRows : insulinRows;
+        const otherRows = baseRows === glucoseRows ? insulinRows : glucoseRows;
+        const baseIsGlucose = baseRows === glucoseRows;
+
+        const points: GraphDataPoint[] = baseRows.map((r, i) => {
+          const t = new Date(r.time).getTime();
+          const matched = otherRows.reduce<{ row: Row | null; diff: number }>(
+            (best, candidate) => {
+              const diff = Math.abs(new Date(candidate.time).getTime() - t);
+              return !best.row || diff < best.diff ? { row: candidate, diff } : best;
+            },
+            { row: null, diff: Infinity },
+          );
+          return {
+            time: i === 0 ? '0hr' : `${(i * 0.5).toFixed(1)}hr`,
+            glucose: baseIsGlucose ? r.value : matched.row?.value ?? 0,
+            insulin: baseIsGlucose ? matched.row?.value ?? 0 : r.value,
+          };
+        });
+        if (points.length > 0) setFetchedGraphData(points);
+
+        // Bio Age: only show if BAS records exist. No fabricated zeros.
+        const basRecords: any[] = data?.bio_age_data?.records ?? [];
+        if (basRecords.length > 0) {
+          const baseline = basRecords.find((r) => r.recordType === 'CLINICAL') ?? basRecords[0];
+          const target = basRecords.find((r) => r.recordType === 'TARGET');
+          setFetchedBioAge({
+            baseline: baseline?.value ?? null,
+            target: target?.value ?? null,
+            improvement: baseline && target ? baseline.value - target.value : null,
+            baselineDate: baseline ? new Date(baseline.time).toLocaleDateString() : null,
+            targetDate: target ? new Date(target.time).toLocaleDateString() : null,
+          });
+          setHasBioAge(true);
+        }
+      } catch {
+        // Silent fail — fall back to props or default chart
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  // Prefer self-fetched data over props; fall back to default chart only
+  // when nothing else is available.
+  const effectiveGraphData = fetchedGraphData ?? graphDataProp ?? [];
+  const hasRealData = effectiveGraphData.length > 0;
+  const data = hasRealData ? effectiveGraphData : defaultKraftData;
+
+  const effectiveBioAge: BioAgeMetrics = fetchedBioAge ?? bioAgeMetricsProp ?? {
+    baseline: null, target: null, improvement: null, baselineDate: null, targetDate: null,
+  };
+  const bioAgeAvailable = hasBioAge || (effectiveBioAge.baseline != null && effectiveBioAge.baseline > 0);
   const metrics = {
-    baseline: bioAgeMetrics.baseline ?? 0,
-    target: bioAgeMetrics.target ?? 0,
-    improvement: bioAgeMetrics.improvement ?? 0,
+    baseline: effectiveBioAge.baseline ?? 0,
+    target: effectiveBioAge.target ?? 0,
+    improvement: effectiveBioAge.improvement ?? 0,
   };
 
   // Compute Kraft curve summary metrics from actual data
-  const peakGlucose = Math.round(Math.max(...data.map(d => d.glucose)));
-  const peakInsulin = Math.round(Math.max(...data.map(d => d.insulin)));
+  const peakGlucose = hasRealData
+    ? Number(Math.max(...data.map((d) => d.glucose)).toFixed(1))
+    : Math.round(Math.max(...data.map((d) => d.glucose)));
+  const peakInsulin = hasRealData
+    ? Number(Math.max(...data.map((d) => d.insulin)).toFixed(1))
+    : Math.round(Math.max(...data.map((d) => d.insulin)));
   // Recovery time: last timepoint where glucose is still above baseline (first reading)
   const baselineGlucose = data[0]?.glucose ?? 0;
-  const recoveryIndex = data.findLastIndex(d => d.glucose > baselineGlucose * 1.05);
-  const recoveryTime = recoveryIndex >= 0 ? data[recoveryIndex]?.time ?? '—' : data[data.length - 1]?.time ?? '—';
-  // Risk score: simple heuristic based on peak insulin and recovery
-  const riskScore = Math.min(100, Math.round((peakInsulin / 1.5) + (recoveryIndex / data.length) * 30));
+  const recoveryIndex = data.findLastIndex((d) => d.glucose > baselineGlucose * 1.05);
+  const recoveryTime =
+    recoveryIndex >= 0 ? data[recoveryIndex]?.time ?? '—' : hasRealData ? '—' : data[data.length - 1]?.time ?? '—';
+  // Risk score: clinical heuristic for Kraft test interpretation.
+  //   Peak insulin: <40 µIU/mL is healthy, 40–100 elevated, >100 high risk.
+  //   Recovery: glucose returning to baseline within 2hr is healthy.
+  // Maps to a 0–100 scale where ~30 = low, ~60 = elevated, ~80+ = high.
+  const insulinComponent = Math.min(60, (peakInsulin / 100) * 60);
+  const recoveryComponent = Math.min(40, (Math.max(recoveryIndex, 0) / Math.max(data.length - 1, 1)) * 40);
+  const riskScore = hasRealData
+    ? Math.min(100, Math.max(0, Math.round(insulinComponent + recoveryComponent)))
+    : 0;
 
   // Generate bio age trajectory
   const bioAgeTrajectory = Array.from({ length: 18 }, (_, i) => {
@@ -217,9 +338,9 @@ export function AnalysisContent({ graphData, bioAgeMetrics }: AnalysisContentPro
             <p className="text-xs" style={{ color: theme.colors.muted }}>
               Risk Score
             </p>
-            <p className="text-3xl font-bold text-orange-500">{riskScore}</p>
+            <p className="text-3xl font-bold text-orange-500">{hasRealData ? riskScore : '—'}</p>
           </div>
-          <RiskScoreGauge score={riskScore} />
+          <RiskScoreGauge score={hasRealData ? riskScore : 0} />
         </div>
       </div>
 
@@ -261,15 +382,28 @@ export function AnalysisContent({ graphData, bioAgeMetrics }: AnalysisContentPro
               </button>
             </div>
             <div className="flex flex-col items-center py-4">
-              <BiologicalAgeGauge biologicalAge={metrics.baseline} chronologicalAge={42} targetAge={metrics.target} />
-              <div className="text-center mt-4">
-                <p className="text-sm" style={{ color: theme.colors.muted }}>
-                  Improvement: <span style={{ color: theme.colors.primary }} className="font-bold">{metrics.improvement.toFixed(2)} years</span>
-                </p>
-                <p className="text-xs mt-1" style={{ color: theme.colors.muted }}>
-                  Target Age: {metrics.target.toFixed(2)}
-                </p>
-              </div>
+              {bioAgeAvailable ? (
+                <>
+                  <BiologicalAgeGauge biologicalAge={metrics.baseline} chronologicalAge={42} targetAge={metrics.target} />
+                  <div className="text-center mt-4">
+                    <p className="text-sm" style={{ color: theme.colors.muted }}>
+                      Improvement: <span style={{ color: theme.colors.primary }} className="font-bold">{metrics.improvement.toFixed(2)} years</span>
+                    </p>
+                    <p className="text-xs mt-1" style={{ color: theme.colors.muted }}>
+                      Target Age: {metrics.target.toFixed(2)}
+                    </p>
+                  </div>
+                </>
+              ) : (
+                <div className="text-center py-12 px-6">
+                  <p className="text-base font-semibold mb-2" style={{ color: theme.colors.foreground }}>
+                    Biological age not yet calculated
+                  </p>
+                  <p className="text-sm" style={{ color: theme.colors.muted }}>
+                    Complete a Kraft test and your clinician&apos;s baseline assessment to see your biological age here.
+                  </p>
+                </div>
+              )}
             </div>
           </div>
 
@@ -406,9 +540,10 @@ export function AnalysisContent({ graphData, bioAgeMetrics }: AnalysisContentPro
               yAxis: [
                 {
                   type: 'value',
-                  name: 'Glucose (mg/dL)',
+                  // Real data is in mMol; default mock data is in mg/dL
+                  name: hasRealData ? 'Glucose (mMol)' : 'Glucose (mg/dL)',
                   min: 0,
-                  max: 200,
+                  max: hasRealData ? Math.ceil(Math.max(peakGlucose * 1.2, 15)) : 200,
                   position: 'left',
                   axisLine: { show: true, lineStyle: { color: '#3b82f6' } },
                   axisLabel: { color: '#3b82f6', fontSize: 12 },
@@ -418,7 +553,7 @@ export function AnalysisContent({ graphData, bioAgeMetrics }: AnalysisContentPro
                   type: 'value',
                   name: 'Insulin (μIU/mL)',
                   min: 0,
-                  max: 150,
+                  max: hasRealData ? Math.ceil(Math.max(peakInsulin * 1.3, 30)) : 150,
                   position: 'right',
                   axisLine: { show: true, lineStyle: { color: '#f97316' } },
                   axisLabel: { color: '#f97316', fontSize: 12 },

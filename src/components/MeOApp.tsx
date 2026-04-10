@@ -495,6 +495,7 @@ function MeOAppInner() {
       viewMode={viewMode}
       analysisContent={<ErrorBoundary name="Analysis"><AnalysisContent graphData={graphData} bioAgeMetrics={bioAgeMetrics} /></ErrorBoundary>}
       solutionContent={<ErrorBoundary name="Solutions"><SolutionContent vendors={vendorCards} /></ErrorBoundary>}
+      onCloseRightPanel={() => setViewMode('response')}
       onNewChat={handleNewChat}
       chats={chatsLoading ? [] : chats}
       currentChatId={currentChatId}
