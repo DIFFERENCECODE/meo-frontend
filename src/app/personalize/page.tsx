@@ -196,6 +196,45 @@ export default function PersonalizePage() {
     setFormRows(formRows.map((r, idx) => (idx === i ? { ...r, ...patch } : r)));
   };
 
+  // Edit a parsed payload item directly in the review table
+  const updatePayloadItem = (index: number, patch: Partial<MeasurementItem>) => {
+    if (!payload) return;
+    const newItems = payload.items.map((item, i) =>
+      i === index ? { ...item, ...patch } : item,
+    );
+    setPayload({ ...payload, items: newItems });
+  };
+
+  const removePayloadItem = (index: number) => {
+    if (!payload) return;
+    const newItems = payload.items.filter((_, i) => i !== index);
+    setPayload({ ...payload, items: newItems });
+  };
+
+  // Validate before submit
+  const validatePayload = (): string | null => {
+    if (!payload || payload.items.length === 0) return 'No measurements to submit';
+    for (let i = 0; i < payload.items.length; i++) {
+      const item = payload.items[i];
+      if (!item.name || item.name.trim().length === 0) {
+        return `Row ${i + 1}: name is required`;
+      }
+      if (item.name.includes('|')) {
+        return `Row ${i + 1}: name "${item.name}" contains invalid character "|"`;
+      }
+      if (typeof item.value !== 'number' || isNaN(item.value)) {
+        return `Row ${i + 1} (${item.name}): value must be a number`;
+      }
+      if (!item.unit || item.unit.length < 2) {
+        return `Row ${i + 1} (${item.name}): unit must be at least 2 characters (got "${item.unit}")`;
+      }
+      if (!item.date) {
+        return `Row ${i + 1} (${item.name}): date is required`;
+      }
+    }
+    return null;
+  };
+
   const handleRefine = async () => {
     if (!refineText.trim() || !payload) return;
     setError(null);
@@ -233,6 +272,11 @@ export default function PersonalizePage() {
 
   const handleSubmit = async () => {
     if (!payload || payload.items.length === 0) return;
+    const validationError = validatePayload();
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
     setError(null);
     setSubmitting(true);
     try {
@@ -273,16 +317,6 @@ export default function PersonalizePage() {
     setError(null);
     setSuccess(null);
   };
-
-  // Group items by series + state for display
-  const grouped: Record<string, MeasurementItem[]> = {};
-  if (payload?.items) {
-    payload.items.forEach((item) => {
-      const key = `${item.measurementSeries} | ${item.subjectState}`;
-      if (!grouped[key]) grouped[key] = [];
-      grouped[key].push(item);
-    });
-  }
 
   return (
     <AppShell>
@@ -659,85 +693,104 @@ export default function PersonalizePage() {
                   </div>
                 </div>
 
+                <div className="px-4 py-3" style={{ borderTop: `1px solid ${colors.cardBorder}`, background: colors.background }}>
+                  <p className="text-xs" style={{ color: colors.muted }}>
+                    {'\u270F'} Click any field to edit. Trash icon removes a row.
+                  </p>
+                </div>
                 <div className="overflow-x-auto">
-                  {Object.entries(grouped).map(([groupKey, items]) => (
-                    <div key={groupKey}>
-                      <div
-                        className="px-6 py-3 text-xs font-semibold uppercase tracking-wider"
-                        style={{
-                          color: colors.muted,
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr style={{ borderBottom: `1px solid ${colors.cardBorder}`, background: colors.background }}>
+                        <th className="text-left px-3 py-2 text-xs font-medium uppercase tracking-wider" style={{ color: colors.muted }}>Time (UTC)</th>
+                        <th className="text-left px-3 py-2 text-xs font-medium uppercase tracking-wider" style={{ color: colors.muted }}>Analyte</th>
+                        <th className="text-right px-3 py-2 text-xs font-medium uppercase tracking-wider" style={{ color: colors.muted }}>Value</th>
+                        <th className="text-left px-3 py-2 text-xs font-medium uppercase tracking-wider" style={{ color: colors.muted }}>Unit</th>
+                        <th className="text-left px-3 py-2 text-xs font-medium uppercase tracking-wider" style={{ color: colors.muted }}>State</th>
+                        <th className="px-3 py-2"></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {payload.items.map((item, idx) => {
+                        const inputStyle = {
                           background: colors.background,
-                          borderTop: `1px solid ${colors.cardBorder}`,
-                        }}
-                      >
-                        {groupKey}
-                      </div>
-                      <table className="w-full text-sm">
-                        <thead>
-                          <tr style={{ borderBottom: `1px solid ${colors.cardBorder}` }}>
-                            <th
-                              className="text-left px-6 py-2 text-xs font-medium uppercase tracking-wider"
-                              style={{ color: colors.muted }}
-                            >
-                              Time (UTC)
-                            </th>
-                            <th
-                              className="text-left px-6 py-2 text-xs font-medium uppercase tracking-wider"
-                              style={{ color: colors.muted }}
-                            >
-                              Analyte
-                            </th>
-                            <th
-                              className="text-right px-6 py-2 text-xs font-medium uppercase tracking-wider"
-                              style={{ color: colors.muted }}
-                            >
-                              Value
-                            </th>
-                            <th
-                              className="text-left px-6 py-2 text-xs font-medium uppercase tracking-wider"
-                              style={{ color: colors.muted }}
-                            >
-                              Unit
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {items.map((item, i) => (
-                            <tr
-                              key={i}
-                              style={{
-                                borderBottom:
-                                  i < items.length - 1
-                                    ? `1px solid ${colors.cardBorder}`
-                                    : 'none',
-                              }}
-                            >
-                              <td className="px-6 py-2.5" style={{ color: colors.muted, fontSize: '0.8rem' }}>
-                                {new Date(item.date).toLocaleString(undefined, {
-                                  hour: '2-digit',
-                                  minute: '2-digit',
-                                  month: 'short',
-                                  day: 'numeric',
-                                })}
-                              </td>
-                              <td className="px-6 py-2.5 font-medium" style={{ color: colors.foreground }}>
-                                {item.name}
-                              </td>
-                              <td
-                                className="px-6 py-2.5 text-right font-semibold"
-                                style={{ color: colors.primary }}
+                          color: colors.foreground,
+                          border: `1px solid ${colors.cardBorder}`,
+                        };
+                        const dateValue = item.date.slice(0, 16);
+                        return (
+                          <tr key={idx} style={{ borderBottom: `1px solid ${colors.cardBorder}` }}>
+                            <td className="px-3 py-2">
+                              <input
+                                type="datetime-local"
+                                value={dateValue}
+                                onChange={(e) => {
+                                  const newDate = e.target.value + ':00Z';
+                                  updatePayloadItem(idx, { date: newDate });
+                                }}
+                                className="w-full rounded px-2 py-1 text-xs outline-none"
+                                style={inputStyle}
+                              />
+                            </td>
+                            <td className="px-3 py-2">
+                              <input
+                                type="text"
+                                value={item.name}
+                                onChange={(e) => updatePayloadItem(idx, { name: e.target.value })}
+                                className="w-full rounded px-2 py-1 text-sm font-medium outline-none"
+                                style={inputStyle}
+                              />
+                            </td>
+                            <td className="px-3 py-2 w-24">
+                              <input
+                                type="number"
+                                step="any"
+                                value={item.value}
+                                onChange={(e) => {
+                                  const v = parseFloat(e.target.value);
+                                  updatePayloadItem(idx, { value: isNaN(v) ? 0 : v });
+                                }}
+                                className="w-full rounded px-2 py-1 text-sm text-right outline-none font-semibold"
+                                style={{ ...inputStyle, color: colors.primary }}
+                              />
+                            </td>
+                            <td className="px-3 py-2 w-24">
+                              <input
+                                type="text"
+                                value={item.unit}
+                                onChange={(e) => updatePayloadItem(idx, { unit: e.target.value })}
+                                className="w-full rounded px-2 py-1 text-xs outline-none"
+                                style={inputStyle}
+                                placeholder="min 2"
+                              />
+                            </td>
+                            <td className="px-3 py-2">
+                              <select
+                                value={item.subjectState}
+                                onChange={(e) => updatePayloadItem(idx, { subjectState: e.target.value })}
+                                className="w-full rounded px-2 py-1 text-xs outline-none"
+                                style={inputStyle}
                               >
-                                {typeof item.value === 'number' ? item.value : item.value}
-                              </td>
-                              <td className="px-6 py-2.5" style={{ color: colors.muted }}>
-                                {item.unit}
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  ))}
+                                <option value="FASTING">Fasting</option>
+                                <option value="POSTPRANDIAL">Postprandial</option>
+                              </select>
+                            </td>
+                            <td className="px-3 py-2 text-right">
+                              <button
+                                onClick={() => removePayloadItem(idx)}
+                                className="p-1 rounded transition-colors hover:bg-white/5"
+                                style={{ color: '#ef4444' }}
+                                aria-label="Remove row"
+                                title="Remove this row"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </button>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
                 </div>
               </div>
 
