@@ -148,28 +148,49 @@ function MeOAppInner() {
     })();
   }, []);
 
+  // Background token refresh — fires every 5 minutes while signed in.
+  // Cognito ID tokens expire after 1 hour; refreshing every 5 min keeps the
+  // session alive forever as long as the refresh_token is valid (~30 days).
+  useEffect(() => {
+    if (!idToken) return;
+    const intervalId = setInterval(async () => {
+      try {
+        const fresh = await getValidIdToken();
+        if (fresh && fresh !== idToken) {
+          setIdToken(fresh);
+        }
+      } catch {}
+    }, 5 * 60 * 1000); // 5 minutes
+    return () => clearInterval(intervalId);
+  }, [idToken]);
+
   // When signed in, load profile and sync vendor from backend
   useEffect(() => {
     if (!idToken) return;
-    fetch('/api/profile', { headers: { Authorization: `Bearer ${idToken}` } })
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => {
+    (async () => {
+      const token = (await getValidIdToken()) || idToken;
+      try {
+        const res = await fetch('/api/profile', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) return;
+        const data = await res.json();
         if (data?.vendor_id && (data.vendor_id === 'meterbolic' || data.vendor_id === 'eos')) {
           setVendor(data.vendor_id);
         }
         if (data?.role) {
           setUserRole(data.role);
         }
-      })
-      .catch(() => {});
+      } catch {}
+    })();
   }, [idToken]);
 
   // When signed in, load chats and ensure we have a current chat
   useEffect(() => {
     if (!idToken) return;
     setChatsLoading(true);
-    const token = idToken;
     (async () => {
+      const token = (await getValidIdToken()) || idToken;
       try {
         const res = await fetch('/api/chats', { headers: { Authorization: `Bearer ${token}` } });
         if (!res.ok) {
@@ -211,8 +232,9 @@ function MeOAppInner() {
     let cancelled = false;
     (async () => {
       try {
+        const token = (await getValidIdToken()) || idToken;
         const res = await fetch(`/api/history/${currentChatId}`, {
-          headers: { Authorization: `Bearer ${idToken}` },
+          headers: { Authorization: `Bearer ${token}` },
         });
         if (cancelled) return;
         if (!res.ok) {
@@ -256,23 +278,29 @@ function MeOAppInner() {
     }
 
     try {
+      // Always get a fresh token before making API calls
+      const freshToken = idToken ? (await getValidIdToken()) || idToken : null;
+      if (freshToken && freshToken !== idToken) {
+        setIdToken(freshToken);
+      }
+
       const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-      if (idToken) {
-        headers['Authorization'] = `Bearer ${idToken}`;
+      if (freshToken) {
+        headers['Authorization'] = `Bearer ${freshToken}`;
       }
 
       let sessionId: string;
-      if (idToken) {
+      if (freshToken) {
         if (currentChatId) {
           sessionId = currentChatId;
         } else {
           // Chats still loading or none yet: create a chat now so this message has a thread
           const createRes = await fetch('/api/chats', {
             method: 'POST',
-            headers: { Authorization: `Bearer ${idToken}` },
+            headers: { Authorization: `Bearer ${freshToken}` },
           });
           if (!createRes.ok) {
-            sessionId = getSubFromIdToken(idToken) || 'demo_session';
+            sessionId = getSubFromIdToken(freshToken) || 'demo_session';
           } else {
             const created = await createRes.json();
             setCurrentChatId(created.id);
@@ -373,9 +401,9 @@ function MeOAppInner() {
         }
       }
       // Refresh chats so sidebar shows updated title (e.g. first message)
-      if (idToken && res.ok) {
+      if (freshToken && res.ok) {
         try {
-          const chatsRes = await fetch('/api/chats', { headers: { Authorization: `Bearer ${idToken}` } });
+          const chatsRes = await fetch('/api/chats', { headers: { Authorization: `Bearer ${freshToken}` } });
           if (chatsRes.ok) {
             const list: ChatListItem[] = await chatsRes.json();
             setChats(list);
@@ -408,9 +436,10 @@ function MeOAppInner() {
       return;
     }
     try {
+      const token = (await getValidIdToken()) || idToken;
       const res = await fetch('/api/chats', {
         method: 'POST',
-        headers: { Authorization: `Bearer ${idToken}` },
+        headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
         const created = await res.json();
