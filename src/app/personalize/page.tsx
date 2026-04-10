@@ -191,6 +191,12 @@ export default function PersonalizePage() {
         setParsing(false);
         return;
       }
+      // Normalise Sex (and any other coercible enums in future) on the
+      // parsed items before showing them in the review table, so the
+      // user sees the exact value that will be submitted.
+      for (const item of data.items) {
+        normaliseSex(item);
+      }
       setPayload(data);
     } catch (e: any) {
       setError(e.message || 'Failed to parse');
@@ -246,11 +252,29 @@ export default function PersonalizePage() {
     setPayload({ ...payload, items: newItems });
   };
 
+  // Normalise Sex: the METS-VF formula in bang/api/includes/indices.py
+  // treats Sex as a numeric coefficient (1 = Male, 0 = Female). The LLM
+  // parser often emits it as the literal word "Male"/"Female"; convert
+  // in place so the value passes the numeric check below AND reaches
+  // the backend already in the form indices_engine expects.
+  const normaliseSex = (item: { name?: string; value: unknown }): void => {
+    if (!item.name || item.name.trim().toLowerCase() !== 'sex') return;
+    const raw = String(item.value ?? '').trim().toLowerCase();
+    if (raw === 'male' || raw === 'm' || raw === '1' || raw === '1.0') {
+      item.value = 1;
+    } else if (raw === 'female' || raw === 'f' || raw === '0' || raw === '0.0') {
+      item.value = 0;
+    }
+  };
+
   // Validate before submit
   const validatePayload = (): string | null => {
     if (!payload || payload.items.length === 0) return 'No measurements to submit';
     for (let i = 0; i < payload.items.length; i++) {
       const item = payload.items[i];
+      // Normalise Sex in-place so Male/Female are accepted by the
+      // numeric check that follows. Safe no-op for every other analyte.
+      normaliseSex(item as { name?: string; value: unknown });
       if (!item.name || item.name.trim().length === 0) {
         return `Row ${i + 1}: name is required`;
       }
