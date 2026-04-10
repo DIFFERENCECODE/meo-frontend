@@ -33,9 +33,18 @@ interface AnalysisContentProps {
 // Canonical unit map: bang-api stores both original and unit-converted
 // twins (e.g. Glucose in mMol AND mg/dL). We keep only the canonical row
 // per (time, analyte) so peak calculations aren't polluted by conversions.
+//
+// IMPORTANT for Insulin: bang-api takes the user-submitted value in
+// 'uIU/mL' (capital L) and ALSO writes a converted twin labeled 'µIU/ml'
+// (lowercase l) whose value is value/6.945 — i.e. the pmol/L conversion
+// mislabeled with the wrong micro-unit. The 'µIU/ml' rows are NOT real
+// readings, so we must treat only 'uIU/mL' as canonical and exclude the
+// lowercase variant entirely. Otherwise the dedupe picks whichever row
+// happens to come first and you get a chart with values like 0.21, 1.37
+// instead of the actual 26.9 µIU/mL the user entered.
 const CANONICAL_UNITS: Record<string, string[]> = {
   Glucose: ['mMol', 'mmol/L'],
-  Insulin: ['uIU/mL', 'µIU/ml', 'uIU/ml'],
+  Insulin: ['uIU/mL'],
 };
 
 // Default data
@@ -344,13 +353,16 @@ export function AnalysisContent({ graphData: graphDataProp, bioAgeMetrics: bioAg
         </div>
       </div>
 
-      {/* Biological Age Card (Flippable) */}
-      <div className="perspective-1000">
+      {/* Biological Age Card (Flippable) — explicit min-height so the
+          absolutely-positioned back face (which contains a 300px chart)
+          reserves layout space and does not overlap the next card below. */}
+      <div className="perspective-1000" style={{ minHeight: 460 }}>
         <div
           className="relative cursor-pointer transition-transform duration-700"
           style={{
             transformStyle: 'preserve-3d',
             transform: isBioAgeFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
+            minHeight: 460,
           }}
           onClick={() => setIsBioAgeFlipped(!isBioAgeFlipped)}
         >
