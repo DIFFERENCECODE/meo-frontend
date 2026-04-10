@@ -471,7 +471,7 @@ function MeOAppInner() {
       currentChatId={currentChatId}
       onSelectChat={handleSelectChat}
     >
-      <div className="flex justify-end mt-4 mb-4 pr-6 gap-2">
+      <div className="flex justify-end mt-4 mb-4 pr-20 gap-2">
         <button
           onClick={handleLogout}
           className="rounded-full border border-emerald-500 px-6 py-2 text-sm font-semibold text-emerald-500 hover:bg-emerald-500/10 shadow-md"
