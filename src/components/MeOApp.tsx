@@ -14,14 +14,6 @@ import LandingPage from '@/components/LandingPage';
 // Types re-exported from chat panel
 export type { Message };
 
-interface BioAgeMetrics {
-  baseline: number;
-  target: number;
-  improvement: number;
-  baselineDate: string | null;
-  targetDate: string | null;
-}
-
 // Inner component that uses the theme context
 function MeOAppInner() {
   const { theme, mode, setRightPanelOpen, setVendor, setUserRole } = useTheme();
@@ -44,15 +36,10 @@ function MeOAppInner() {
   const [currentChatId, setCurrentChatId] = useState<string | null>(null);
   const [chatsLoading, setChatsLoading] = useState(false);
   
-  // Graph/Analysis data state — populated from backend, no hardcoded defaults
+  // Graph data state — populated from chat's retrieved_sources for the
+  // Kraft curve. Bio Age metrics are no longer derived here: the Analysis
+  // panel's ScoreGauges component fetches /api/scores/* directly.
   const [graphData, setGraphData] = useState<any[]>([]);
-  const [bioAgeMetrics, setBioAgeMetrics] = useState<BioAgeMetrics>({
-    baseline: 0,
-    target: 0,
-    improvement: 0,
-    baselineDate: null,
-    targetDate: null,
-  });
   // Vendor cards from RAG — populated when backend returns solution mode
   const [vendorCards, setVendorCards] = useState<any[]>([]);
 
@@ -65,18 +52,6 @@ function MeOAppInner() {
     } catch {
       return null;
     }
-  };
-
-  const getBioAgeMetrics = (data: any): BioAgeMetrics => {
-    const baseline = data.records.find((r: any) => r.recordType === 'CLINICAL');
-    const target = data.records.find((r: any) => r.recordType === 'TARGET');
-    return {
-      baseline: baseline?.value ?? 0,
-      target: target?.value ?? 0,
-      improvement: baseline && target ? baseline.value - target.value : 0,
-      baselineDate: baseline ? new Date(baseline.time).toLocaleDateString() : null,
-      targetDate: target ? new Date(target.time).toLocaleDateString() : null,
-    };
   };
 
   const transformKraftForChart = (data: any[]) => {
@@ -336,19 +311,14 @@ function MeOAppInner() {
         const graphDataParsed = extractGraphData(retrievedSources);
 
         if (graphDataParsed) {
-          if (graphDataParsed.bio_age_data?.records?.length > 0) {
-            const metrics = getBioAgeMetrics(graphDataParsed.bio_age_data);
-            setBioAgeMetrics(metrics);
-          }
           if (graphDataParsed.kraft_curve_data?.length > 0) {
             const transformed = transformKraftForChart(graphDataParsed.kraft_curve_data);
             setGraphData(transformed);
           }
-          // Fallback: use general measurements if BAS/Kraft are empty
+          // Fallback: if the chat returned raw measurements but no Kraft
+          // curve, derive chart points from glucose/insulin entries.
           if (graphDataParsed.measurements?.length > 0 &&
-              (!graphDataParsed.bio_age_data?.records?.length) &&
               (!graphDataParsed.kraft_curve_data?.length)) {
-            // Extract glucose/insulin pairs for chart display
             const glucoseEntries = graphDataParsed.measurements
               .filter((m: any) => m.name === 'Glucose' && m.unit === 'mMol')
               .sort((a: any, b: any) => new Date(a.time).getTime() - new Date(b.time).getTime());
@@ -364,20 +334,7 @@ function MeOAppInner() {
               }));
               if (chartData.length > 0) setGraphData(chartData);
             }
-
-            // Extract BAS if present in measurements
-            const basEntry = graphDataParsed.measurements.find((m: any) => m.name === 'BAS');
-            if (basEntry) {
-              setBioAgeMetrics({
-                baseline: basEntry.value,
-                target: basEntry.value - 0.5,
-                improvement: 0.5,
-                baselineDate: new Date(basEntry.time).toLocaleDateString(),
-                targetDate: null,
-              });
-            }
           }
-      }
       }
       // Extract vendor cards for solution mode
       if (finalMode === 'solution') {
@@ -493,7 +450,7 @@ function MeOAppInner() {
   return (
     <ThreePanelLayout
       viewMode={viewMode}
-      analysisContent={<ErrorBoundary name="Analysis"><AnalysisContent graphData={graphData} bioAgeMetrics={bioAgeMetrics} /></ErrorBoundary>}
+      analysisContent={<ErrorBoundary name="Analysis"><AnalysisContent graphData={graphData} /></ErrorBoundary>}
       solutionContent={<ErrorBoundary name="Solutions"><SolutionContent vendors={vendorCards} /></ErrorBoundary>}
       onCloseRightPanel={() => setViewMode('response')}
       onNewChat={handleNewChat}
