@@ -286,37 +286,186 @@
   }
 }
 
-/* ── MeO Clinical Markdown ── */
+/* ── MeO Chat Markdown (ChatGPT-style) ── */
+.medical-markdown {
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 15px;
+  line-height: 1.7;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+.medical-markdown > *:first-child {
+  margin-top: 0;
+}
+
+.medical-markdown > *:last-child {
+  margin-bottom: 0;
+}
+
+/* Paragraphs */
+.medical-markdown p {
+  margin: 0.75rem 0;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* Headings */
+.medical-markdown h1,
+.medical-markdown h2,
+.medical-markdown h3,
+.medical-markdown h4 {
+  font-weight: 600;
+  margin: 1.5rem 0 0.5rem;
+  line-height: 1.35;
+  color: #ffffff;
+}
+
+.medical-markdown h1 { font-size: 1.5rem; }
+.medical-markdown h2 { font-size: 1.2rem; }
+.medical-markdown h3 { font-size: 1.05rem; }
+.medical-markdown h4 { font-size: 0.95rem; }
+
+/* Bold text */
+.medical-markdown strong {
+  font-weight: 700;
+  color: #ffffff;
+}
+
+/* Inline code — coral/pink accent like ChatGPT */
+.medical-markdown code:not(pre code) {
+  background: rgba(255, 107, 107, 0.12);
+  border: none;
+  border-radius: 4px;
+  padding: 0.1em 0.4em;
+  font-size: 0.875em;
+  color: #ff8a8a;
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-weight: 500;
+}
+
+/* Code blocks */
+.medical-markdown pre {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 12px 16px;
+  overflow-x: auto;
+  margin: 0.75rem 0;
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+
+.medical-markdown pre code {
+  background: transparent;
+  border: none;
+  padding: 0;
+  color: rgba(255, 255, 255, 0.92);
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+
+/* Lists */
+.medical-markdown ul,
+.medical-markdown ol {
+  padding-left: 1.5rem;
+  margin: 0.5rem 0 0.75rem;
+  line-height: 1.7;
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.medical-markdown ul {
+  list-style-type: disc;
+}
+
+.medical-markdown ol {
+  list-style-type: decimal;
+}
+
+.medical-markdown li {
+  margin: 0.25rem 0;
+  padding-left: 0.25rem;
+}
+
+.medical-markdown li::marker {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.medical-markdown li > p {
+  margin: 0.25rem 0;
+}
+
+/* Nested lists */
+.medical-markdown li > ul,
+.medical-markdown li > ol {
+  margin: 0.25rem 0;
+}
+
+/* Blockquotes */
+.medical-markdown blockquote {
+  border-left: 3px solid rgba(164, 214, 94, 0.6);
+  background: rgba(164, 214, 94, 0.06);
+  margin: 0.75rem 0;
+  padding: 10px 16px;
+  border-radius: 0 6px 6px 0;
+  color: rgba(255, 255, 255, 0.85);
+  font-style: italic;
+}
+
+.medical-markdown blockquote p {
+  margin: 0;
+}
+
+/* Links */
+.medical-markdown a {
+  color: #a4d65e;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-color: rgba(164, 214, 94, 0.4);
+  transition: text-decoration-color 0.15s;
+}
+
+.medical-markdown a:hover {
+  text-decoration-color: #a4d65e;
+}
+
+/* Horizontal rule */
+.medical-markdown hr {
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  margin: 1.5rem 0;
+}
+
+/* Tables */
 .medical-markdown .table-wrapper {
   overflow-x: auto;
   margin: 1rem 0;
   border-radius: 8px;
-  border: 1px solid oklch(0.25 0.03 240);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .medical-markdown table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.8rem;
-  font-family: 'DM Mono', monospace;
+  font-size: 0.85rem;
 }
 
 .clinical-th {
-  background: oklch(0.12 0.02 240);
-  color: oklch(0.75 0.12 180);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.85);
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  font-size: 0.68rem;
+  letter-spacing: 0.05em;
+  font-size: 0.7rem;
   padding: 10px 16px;
   text-align: left;
-  border-bottom: 1px solid oklch(0.3 0.05 220);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   white-space: nowrap;
+  font-weight: 600;
 }
 
 .clinical-td {
-  padding: 9px 16px;
-  border-bottom: 1px solid oklch(0.18 0.02 240);
-  color: oklch(0.85 0.02 220);
+  padding: 10px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.85);
 }
 
 .medical-markdown tr:last-child td {
@@ -324,41 +473,12 @@
 }
 
 .medical-markdown tr:hover td {
-  background: oklch(0.15 0.03 200 / 0.4);
+  background: rgba(255, 255, 255, 0.02);
 }
 
-.medical-markdown ul,
-.medical-markdown ol {
-  padding-left: 1.25rem;
-  margin: 0.5rem 0;
-  color: oklch(0.75 0.03 220);
-  line-height: 1.8;
-  font-size: 0.85rem;
-}
-
-.medical-markdown code {
-  background: oklch(0.1 0.02 240);
-  border: 1px solid oklch(0.25 0.04 220);
-  border-radius: 4px;
-  padding: 1px 6px;
-  font-size: 0.82em;
-  color: oklch(0.75 0.12 180);
-}
-
-.medical-markdown blockquote {
-  border-left: 3px solid oklch(0.65 0.12 180);
-  background: oklch(0.65 0.12 180 / 0.08);
-  margin: 0.75rem 0;
-  padding: 10px 14px;
-  border-radius: 0 6px 6px 0;
-  color: oklch(0.75 0.05 220);
-  font-size: 0.82rem;
-}
-
-/* Null/missing data — never shown as placeholder */
 .medical-markdown td:empty::after {
   content: '—';
-  color: oklch(0.4 0.02 240);
+  color: rgba(255, 255, 255, 0.3);
 }
 
 /* Vendor Theme CSS Variables */
