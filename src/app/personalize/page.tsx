@@ -93,7 +93,8 @@ export default function PersonalizePage() {
   const [mode, setMode] = useState<InputMode>('paste');
   const [text, setText] = useState('');
   const [formRows, setFormRows] = useState<FormRow[]>([emptyRow()]);
-  const [formDate, setFormDate] = useState(() => new Date().toISOString().slice(0, 10));
+  // Initialize as empty during SSR; populate after mount to avoid hydration mismatch
+  const [formDate, setFormDate] = useState('');
   const [formSubjectId, setFormSubjectId] = useState('');
   const [parsing, setParsing] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -102,6 +103,17 @@ export default function PersonalizePage() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [userEmail, setUserEmail] = useState('');
+  const [timezone, setTimezone] = useState('UTC');
+  const [mounted, setMounted] = useState(false);
+
+  // Set client-only values after mount to avoid hydration mismatch
+  useEffect(() => {
+    setMounted(true);
+    setFormDate(new Date().toISOString().slice(0, 10));
+    try {
+      setTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone);
+    } catch {}
+  }, []);
 
   useEffect(() => {
     // Get user email from token
@@ -137,7 +149,7 @@ export default function PersonalizePage() {
         body: JSON.stringify({
           ...body,
           user_email: userEmail,
-          user_timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+          user_timezone: timezone,
         }),
       });
       const data = await res.json();
@@ -251,7 +263,7 @@ export default function PersonalizePage() {
         body: JSON.stringify({
           text: text,
           user_email: userEmail,
-          user_timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+          user_timezone: timezone,
           previous_payload: payload,
           refinement_instruction: refineText,
         }),
@@ -449,11 +461,7 @@ export default function PersonalizePage() {
               />
               <div className="flex items-center justify-between mt-4">
                 <p className="text-xs" style={{ color: colors.muted }}>
-                  Times will be interpreted in your local timezone (
-                  {typeof window !== 'undefined'
-                    ? Intl.DateTimeFormat().resolvedOptions().timeZone
-                    : 'UTC'}
-                  ) and converted to UTC.
+                  Times will be interpreted in your local timezone ({mounted ? timezone : '...'}) and converted to UTC.
                 </p>
                 <button
                   onClick={handleParse}
