@@ -38,22 +38,34 @@ interface ParsedPayload {
   error?: string;
 }
 
+// Full Kraft panel example for the demo user uk202603111645aaa.
+// Includes everything the Biological Age Score / Deep Fat Score pipeline
+// needs: fasting glucose + insulin, lipid panel (Total Cholesterol / HDL /
+// Triglycerides), body composition (Weight / Height / Waist), and the
+// 5-hour postprandial glucose+insulin curve for the Kraft chart.
 const EXAMPLE_TEXT = `Subject: uk202603111645aaa
 Date: 2026-04-01
 
-FASTING at 9:52
-Glucose 5.1
-Total Cholesterol 7.13
-HDL 2.15
-Triglycerides 0.40
-Insulin 1.44
+BIOMETRICS
+Weight 82 kg
+Height 178 cm
+Waist 94 cm
 
-POSTPRANDIAL
-10:22  Glucose 11.0   Insulin 5.8
-10:52  Glucose 8.9    Insulin 26.9
-11:21  Glucose 6.7    Insulin 9.0
-11:51  Glucose 7.1    Insulin 9.6
-12:50  Glucose 3.0    Insulin 1.44`;
+FASTING at 8:52
+Glucose 5.1
+Insulin 1.44
+Total Cholesterol 4.8
+HDL 1.2
+LDL 3.1
+Triglycerides 1.1
+HbA1c 5.4
+
+POSTPRANDIAL (Kraft 5-hour curve)
+9:22   Glucose 11.0   Insulin 5.8
+9:52   Glucose 8.9    Insulin 26.9
+10:21  Glucose 6.7    Insulin 9.0
+10:51  Glucose 7.1    Insulin 9.6
+11:50  Glucose 3.0    Insulin 1.44`;
 
 type InputMode = 'paste' | 'form';
 
