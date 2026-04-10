@@ -11,6 +11,10 @@ import {
   XCircle,
   RefreshCw,
   AlertCircle,
+  Plus,
+  Trash2,
+  FileText,
+  ListPlus,
 } from 'lucide-react';
 import { useTheme } from '@/theme/ThemeProvider';
 import { AppShell } from '@/components/layout/AppShell';
@@ -51,10 +55,46 @@ POSTPRANDIAL
 11:51  Glucose 7.1    Insulin 9.6
 12:50  Glucose 3.0    Insulin 1.44`;
 
+type InputMode = 'paste' | 'form';
+
+interface FormRow {
+  name: string;
+  value: string;
+  unit: string;
+  time: string; // HH:MM
+  state: 'FASTING' | 'POSTPRANDIAL';
+}
+
+const COMMON_ANALYTES = [
+  { name: 'Glucose', unit: 'mMol' },
+  { name: 'Insulin', unit: 'uIU/mL' },
+  { name: 'LDL', unit: 'mMol' },
+  { name: 'HDL', unit: 'mMol' },
+  { name: 'Total Cholesterol', unit: 'mMol' },
+  { name: 'Triglycerides', unit: 'mMol' },
+  { name: 'HbA1c', unit: '%' },
+  { name: 'Weight', unit: 'kg' },
+  { name: 'Height', unit: 'cm' },
+  { name: 'Waist', unit: 'cm' },
+  { name: 'Hip', unit: 'cm' },
+];
+
+const emptyRow = (): FormRow => ({
+  name: 'Glucose',
+  value: '',
+  unit: 'mMol',
+  time: '',
+  state: 'FASTING',
+});
+
 export default function PersonalizePage() {
   const { colors } = useTheme();
   const router = useRouter();
+  const [mode, setMode] = useState<InputMode>('paste');
   const [text, setText] = useState('');
+  const [formRows, setFormRows] = useState<FormRow[]>([emptyRow()]);
+  const [formDate, setFormDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [formSubjectId, setFormSubjectId] = useState('');
   const [parsing, setParsing] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [payload, setPayload] = useState<ParsedPayload | null>(null);
@@ -78,11 +118,7 @@ export default function PersonalizePage() {
     })();
   }, []);
 
-  const handleParse = async () => {
-    if (!text.trim()) {
-      setError('Please paste your measurements first');
-      return;
-    }
+  const callParse = async (body: any) => {
     setError(null);
     setSuccess(null);
     setParsing(true);
@@ -99,14 +135,14 @@ export default function PersonalizePage() {
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          text: text,
+          ...body,
           user_email: userEmail,
           user_timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         }),
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error || 'Failed to parse measurements');
+        setError(data.error || data.detail || 'Failed to parse measurements');
         setParsing(false);
         return;
       }
@@ -116,7 +152,7 @@ export default function PersonalizePage() {
         return;
       }
       if (!data.items || data.items.length === 0) {
-        setError('No measurements detected in the text');
+        setError('No measurements detected');
         setParsing(false);
         return;
       }
@@ -125,6 +161,39 @@ export default function PersonalizePage() {
       setError(e.message || 'Failed to parse');
     }
     setParsing(false);
+  };
+
+  const handleParse = async () => {
+    if (!text.trim()) {
+      setError('Please paste your measurements first');
+      return;
+    }
+    await callParse({ text });
+  };
+
+  const handleParseForm = async () => {
+    const validRows = formRows.filter((r) => r.name && r.value);
+    if (validRows.length === 0) {
+      setError('Please add at least one measurement');
+      return;
+    }
+    const manual_items = validRows.map((r) => ({
+      name: r.name,
+      value: parseFloat(r.value),
+      unit: r.unit,
+      time: r.time || undefined,
+      date: formDate,
+      subjectState: r.state,
+      subjectId: formSubjectId || undefined,
+    }));
+    await callParse({ manual_items });
+  };
+
+  const addFormRow = () => setFormRows([...formRows, emptyRow()]);
+  const removeFormRow = (i: number) =>
+    setFormRows(formRows.filter((_, idx) => idx !== i));
+  const updateFormRow = (i: number, patch: Partial<FormRow>) => {
+    setFormRows(formRows.map((r, idx) => (idx === i ? { ...r, ...patch } : r)));
   };
 
   const handleRefine = async () => {
@@ -277,8 +346,38 @@ export default function PersonalizePage() {
             </div>
           )}
 
-          {/* Step 1: Input */}
+          {/* Mode Toggle */}
           {!payload && (
+            <div className="flex gap-2 mb-4">
+              <button
+                onClick={() => { setMode('paste'); setError(null); }}
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold transition-colors border"
+                style={{
+                  background: mode === 'paste' ? colors.primary : colors.card,
+                  color: mode === 'paste' ? colors.primaryForeground : colors.foreground,
+                  borderColor: mode === 'paste' ? colors.primary : colors.cardBorder,
+                }}
+              >
+                <FileText className="h-4 w-4" />
+                Paste / Free text
+              </button>
+              <button
+                onClick={() => { setMode('form'); setError(null); }}
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold transition-colors border"
+                style={{
+                  background: mode === 'form' ? colors.primary : colors.card,
+                  color: mode === 'form' ? colors.primaryForeground : colors.foreground,
+                  borderColor: mode === 'form' ? colors.primary : colors.cardBorder,
+                }}
+              >
+                <ListPlus className="h-4 w-4" />
+                Form input
+              </button>
+            </div>
+          )}
+
+          {/* Step 1a: Paste mode */}
+          {!payload && mode === 'paste' && (
             <div
               className="rounded-2xl p-6 border mb-6"
               style={{
@@ -340,6 +439,194 @@ export default function PersonalizePage() {
                     <>
                       <Sparkles className="h-4 w-4" />
                       Parse with AI
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Step 1b: Form mode */}
+          {!payload && mode === 'form' && (
+            <div
+              className="rounded-2xl p-6 border mb-6"
+              style={{
+                background: colors.card,
+                borderColor: colors.cardBorder,
+              }}
+            >
+              <label className="text-sm font-semibold block mb-3" style={{ color: colors.foreground }}>
+                Add measurements manually
+              </label>
+
+              {/* Date and subject */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+                <div>
+                  <label className="text-xs block mb-1" style={{ color: colors.muted }}>Date</label>
+                  <input
+                    type="date"
+                    value={formDate}
+                    onChange={(e) => setFormDate(e.target.value)}
+                    className="w-full rounded-lg px-3 py-2 text-sm outline-none"
+                    style={{
+                      background: colors.background,
+                      color: colors.foreground,
+                      border: `1px solid ${colors.cardBorder}`,
+                    }}
+                  />
+                </div>
+                <div>
+                  <label className="text-xs block mb-1" style={{ color: colors.muted }}>Subject ID (optional)</label>
+                  <input
+                    type="text"
+                    value={formSubjectId}
+                    onChange={(e) => setFormSubjectId(e.target.value)}
+                    placeholder="e.g. uk202603111645aaa"
+                    className="w-full rounded-lg px-3 py-2 text-sm outline-none"
+                    style={{
+                      background: colors.background,
+                      color: colors.foreground,
+                      border: `1px solid ${colors.cardBorder}`,
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Rows */}
+              <div className="space-y-2 mb-3">
+                {formRows.map((row, i) => (
+                  <div
+                    key={i}
+                    className="grid grid-cols-12 gap-2 items-end p-3 rounded-lg"
+                    style={{ background: colors.background }}
+                  >
+                    <div className="col-span-12 sm:col-span-3">
+                      <label className="text-xs block mb-1" style={{ color: colors.muted }}>Analyte</label>
+                      <select
+                        value={row.name}
+                        onChange={(e) => {
+                          const found = COMMON_ANALYTES.find((a) => a.name === e.target.value);
+                          updateFormRow(i, { name: e.target.value, unit: found?.unit || row.unit });
+                        }}
+                        className="w-full rounded-lg px-2 py-1.5 text-sm outline-none"
+                        style={{
+                          background: colors.card,
+                          color: colors.foreground,
+                          border: `1px solid ${colors.cardBorder}`,
+                        }}
+                      >
+                        {COMMON_ANALYTES.map((a) => (
+                          <option key={a.name} value={a.name}>{a.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="col-span-6 sm:col-span-2">
+                      <label className="text-xs block mb-1" style={{ color: colors.muted }}>Value</label>
+                      <input
+                        type="number"
+                        step="any"
+                        value={row.value}
+                        onChange={(e) => updateFormRow(i, { value: e.target.value })}
+                        placeholder="0.0"
+                        className="w-full rounded-lg px-2 py-1.5 text-sm outline-none"
+                        style={{
+                          background: colors.card,
+                          color: colors.foreground,
+                          border: `1px solid ${colors.cardBorder}`,
+                        }}
+                      />
+                    </div>
+                    <div className="col-span-6 sm:col-span-2">
+                      <label className="text-xs block mb-1" style={{ color: colors.muted }}>Unit</label>
+                      <input
+                        type="text"
+                        value={row.unit}
+                        onChange={(e) => updateFormRow(i, { unit: e.target.value })}
+                        className="w-full rounded-lg px-2 py-1.5 text-sm outline-none"
+                        style={{
+                          background: colors.card,
+                          color: colors.foreground,
+                          border: `1px solid ${colors.cardBorder}`,
+                        }}
+                      />
+                    </div>
+                    <div className="col-span-6 sm:col-span-2">
+                      <label className="text-xs block mb-1" style={{ color: colors.muted }}>Time (optional)</label>
+                      <input
+                        type="time"
+                        value={row.time}
+                        onChange={(e) => updateFormRow(i, { time: e.target.value })}
+                        className="w-full rounded-lg px-2 py-1.5 text-sm outline-none"
+                        style={{
+                          background: colors.card,
+                          color: colors.foreground,
+                          border: `1px solid ${colors.cardBorder}`,
+                        }}
+                      />
+                    </div>
+                    <div className="col-span-5 sm:col-span-2">
+                      <label className="text-xs block mb-1" style={{ color: colors.muted }}>State</label>
+                      <select
+                        value={row.state}
+                        onChange={(e) => updateFormRow(i, { state: e.target.value as any })}
+                        className="w-full rounded-lg px-2 py-1.5 text-sm outline-none"
+                        style={{
+                          background: colors.card,
+                          color: colors.foreground,
+                          border: `1px solid ${colors.cardBorder}`,
+                        }}
+                      >
+                        <option value="FASTING">Fasting</option>
+                        <option value="POSTPRANDIAL">Postprandial</option>
+                      </select>
+                    </div>
+                    <div className="col-span-1 flex justify-end">
+                      <button
+                        onClick={() => removeFormRow(i)}
+                        disabled={formRows.length === 1}
+                        className="p-1.5 rounded-lg transition-colors disabled:opacity-30"
+                        style={{ color: colors.error || '#ef4444' }}
+                        aria-label="Remove row"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Add row + Submit */}
+              <div className="flex items-center justify-between mt-4">
+                <button
+                  onClick={addFormRow}
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors"
+                  style={{
+                    background: colors.background,
+                    color: colors.foreground,
+                    border: `1px solid ${colors.cardBorder}`,
+                  }}
+                >
+                  <Plus className="h-4 w-4" />
+                  Add row
+                </button>
+                <button
+                  onClick={handleParseForm}
+                  disabled={parsing}
+                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-colors disabled:opacity-50"
+                  style={{
+                    background: colors.primary,
+                    color: colors.primaryForeground,
+                  }}
+                >
+                  {parsing ? (
+                    <>
+                      <RefreshCw className="h-4 w-4 animate-spin" />
+                      Processing...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="h-4 w-4" />
+                      Process with AI
                     </>
                   )}
                 </button>
