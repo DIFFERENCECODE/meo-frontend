@@ -1,10 +1,26 @@
 import Stripe from 'stripe';
 
-if (!process.env.STRIPE_SECRET_KEY) {
-  throw new Error('STRIPE_SECRET_KEY is not set');
+// Lazy proxy: only instantiate (and only require STRIPE_SECRET_KEY) when a
+// Stripe method is actually invoked, not at module load. Next 16 evaluates
+// every route module during `next build` to collect page data, so a
+// top-level throw broke the production build on any host that hadn't yet
+// added the Stripe secret to .env.
+let _stripe: Stripe | null = null;
+function getStripe(): Stripe {
+  if (_stripe) return _stripe;
+  const key = process.env.STRIPE_SECRET_KEY;
+  if (!key) throw new Error('STRIPE_SECRET_KEY is not set');
+  _stripe = new Stripe(key);
+  return _stripe;
 }
 
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+export const stripe = new Proxy({} as Stripe, {
+  get(_t, prop) {
+    const client = getStripe() as unknown as Record<string | symbol, unknown>;
+    const value = client[prop as string];
+    return typeof value === 'function' ? (value as Function).bind(client) : value;
+  },
+}) as Stripe;
 
 // Product/Price IDs — set these in .env after creating them in Stripe Dashboard
 export const PLANS = {
