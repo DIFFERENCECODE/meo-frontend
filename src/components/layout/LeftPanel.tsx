@@ -11,7 +11,8 @@ import {
   Sun,
   Moon,
   User,
-  CreditCard
+  CreditCard,
+  Sparkles
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -215,6 +216,14 @@ export function LeftPanel({ onNewChat, onSettingsClick, chats, currentChatId, on
                 className="p-2 space-y-1"
                 style={{ borderTop: `1px solid ${colors.cardBorder}` }}
               >
+                <Link
+                  href="/personalize"
+                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors hover:bg-white/5"
+                  style={{ color: colors.muted }}
+                >
+                  <Sparkles className="h-5 w-5" />
+                  <span>Personalize</span>
+                </Link>
                 <Link
                   href="/activity"
                   className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors hover:bg-white/5"
