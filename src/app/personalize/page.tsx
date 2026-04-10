@@ -43,8 +43,19 @@ interface ParsedPayload {
 // needs: fasting glucose + insulin, lipid panel (Total Cholesterol / HDL /
 // Triglycerides), body composition (Weight / Height / Waist), and the
 // 5-hour postprandial glucose+insulin curve for the Kraft chart.
+// Full Kraft panel example. Submitting this writes every analyte the
+// Truth Engine (bang/api/includes/indices.py) needs to compute the
+// Biological Age Score and KRAFT Deep Fat Score: age, sex, body
+// composition, lipids, fasting glucose + insulin, and the postprandial
+// Kraft curve. After submit, chatbot-rag calls /v2/makeindices which
+// runs indices_engine() → BAS + VAT get written automatically and the
+// Analysis gauges light up on the next refresh.
 const EXAMPLE_TEXT = `Subject: uk202603111645aaa
 Date: 2026-04-01
+
+DEMOGRAPHICS
+Age 54 years
+Sex Male
 
 BIOMETRICS
 Weight 82 kg
