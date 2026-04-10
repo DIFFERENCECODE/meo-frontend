@@ -161,15 +161,41 @@ export default function ActivityPage() {
       entries.sort(
         (a, b) => new Date(b.time).getTime() - new Date(a.time).getTime(),
       );
-      // Dedupe
-      const seen = new Set<string>();
-      const unique = entries.filter((m) => {
-        const key = `${m.time}|${m.name}|${m.unit}`;
-        if (seen.has(key)) return false;
-        seen.add(key);
-        return true;
-      });
-      setMeasurements(unique);
+
+      // Dedupe by (time + analyte) — bang-api stores both original and
+      // auto-converted unit variants (e.g. Glucose in mMol AND mg/dl).
+      // Keep only the canonical unit for each measurement.
+      const CANONICAL_UNITS: Record<string, string[]> = {
+        Glucose: ['mMol', 'mmol/L'],
+        Insulin: ['uIU/mL', 'µIU/ml', 'uIU/ml'],
+        LDL: ['mMol'],
+        HDL: ['mMol'],
+        'Total Cholesterol': ['mMol'],
+        Triglycerides: ['mMol'],
+        HbA1c: ['pct', '%'],
+        Weight: ['kg'],
+        Height: ['cm'],
+        Waist: ['cm'],
+        Hip: ['cm'],
+      };
+
+      const byKey = new Map<string, Measurement>();
+      for (const m of entries) {
+        const key = `${m.time}|${m.name}`;
+        const existing = byKey.get(key);
+        const canonical = CANONICAL_UNITS[m.name];
+        const isCanonical = canonical ? canonical.includes(m.unit) : true;
+        if (!existing) {
+          byKey.set(key, m);
+        } else {
+          // Prefer canonical unit; otherwise keep first
+          const existingIsCanonical = canonical ? canonical.includes(existing.unit) : true;
+          if (isCanonical && !existingIsCanonical) {
+            byKey.set(key, m);
+          }
+        }
+      }
+      setMeasurements(Array.from(byKey.values()));
     } catch (e) {
       setError('Failed to load measurements');
     }
