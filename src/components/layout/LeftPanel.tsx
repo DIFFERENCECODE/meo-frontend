@@ -56,20 +56,24 @@ function formatChatDate(created_at?: string | null): string {
 }
 
 export function LeftPanel({ onNewChat, onSettingsClick, chats, currentChatId, onSelectChat, className }: LeftPanelProps) {
-  const { isLeftPanelOpen, toggleLeftPanel, theme, colors, colorMode, toggleColorMode } = useTheme();
+  const { isLeftPanelOpen, toggleLeftPanel, isRightPanelOpen, theme, colors, colorMode, toggleColorMode } = useTheme();
   const [showSettings, setShowSettings] = useState(false);
 
   return (
     <>
-      {/* Collapsed state - hamburger menu icon (Gemini-style) */}
+      {/* Collapsed state - hamburger menu icon (Gemini-style).
+          Hidden while the right panel is open on mobile so the toggles
+          don't bleed through into the RightPanel header (z-50 on top of
+          z-40 panel was producing a visible icon overlap on phones). */}
       <AnimatePresence>
-        {!isLeftPanelOpen && (
+        {!isLeftPanelOpen && !isRightPanelOpen && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.15 }}
             className="fixed top-0 left-0 z-50 flex items-center gap-2 p-3"
+            style={{ paddingTop: 'max(0.75rem, env(safe-area-inset-top))' }}
           >
             <button
               onClick={toggleLeftPanel}

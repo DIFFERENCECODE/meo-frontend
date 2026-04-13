@@ -138,7 +138,7 @@ export function RightPanel({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="md:hidden fixed inset-0 z-40"
+              className="md:hidden fixed inset-0 z-[55]"
               style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
               onClick={handleClose}
             />
@@ -148,7 +148,7 @@ export function RightPanel({
               exit={{ x: '100%', opacity: 0 }}
               transition={{ duration: 0.3, ease: 'easeInOut' }}
               className={cn(
-                'h-screen flex flex-col overflow-hidden z-40',
+                'h-screen flex flex-col overflow-hidden z-[60]',
                 'fixed md:relative right-0 top-0',
                 'border-l shadow-xl md:shadow-none',
                 'w-full md:w-[450px] lg:w-[500px]',
@@ -156,7 +156,13 @@ export function RightPanel({
               )}
               style={{ backgroundColor: theme.colors.background, borderColor: theme.colors.cardBorder }}
             >
-              <div className="flex items-center justify-between p-4 border-b" style={{ borderColor: theme.colors.cardBorder }}>
+              <div
+                className="flex items-center justify-between p-4 border-b"
+                style={{
+                  borderColor: theme.colors.cardBorder,
+                  paddingTop: 'max(1rem, env(safe-area-inset-top))',
+                }}
+              >
                 <div>
                   <h2 className="font-bold text-lg" style={{ color: theme.colors.foreground }}>
                     {isPractitionerMode ? 'Practitioner Workspace' : showAnalysis ? 'Metabolic Analysis' : showSolution ? 'Recommended Support' : 'Details'}
