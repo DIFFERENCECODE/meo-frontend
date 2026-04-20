@@ -216,6 +216,69 @@
   100% { background-position: -200% 0; }
 }
 
+/* ----- Custom scrollbars ------------------------------------------------ */
+/*
+ * Theme-aware scrollbars. The platform is dark-on-green by default so
+ * the native Chromium / Safari scrollbar (light grey, thick, blocky)
+ * breaks the look. We give every scroll container a thin, rounded,
+ * translucent thumb that brightens on hover. Firefox uses the standard
+ * `scrollbar-color` / `scrollbar-width` properties; WebKit + Blink use
+ * the vendor-prefixed ::-webkit-scrollbar family.
+ *
+ * `html` gets tinted to match the primary colour; `*` (everything else)
+ * gets a subtler neutral so nested scroll areas don't fight the page.
+ * Add `.no-scrollbar` on any element that should revert to the default.
+ */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
+}
+
+html {
+  scrollbar-color: rgba(148, 222, 107, 0.45) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+  /* Border creates inner padding against the track for a floating look.
+     `background-clip: padding-box` keeps the border transparent so it
+     just reveals the track colour underneath. */
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  transition: background 0.2s ease;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 222, 107, 0.55);
+  background-clip: padding-box;
+}
+
+*::-webkit-scrollbar-thumb:active {
+  background: rgba(148, 222, 107, 0.75);
+  background-clip: padding-box;
+}
+
+*::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 .slide-in-from-right {
   animation-name: slide-in-from-right;
 }
