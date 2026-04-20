@@ -7,7 +7,10 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
+import { toast } from 'sonner';
 import { ThinkingTrace, type TraceStep } from '@/components/chat/ThinkingTrace';
+import { LanguagePicker, type SupportedLang, getLangMeta } from '@/components/layout/LanguagePicker';
+import useVoiceInput from '@/hooks/useVoiceInput';
 
 // Types
 export type Message = {
@@ -115,6 +118,11 @@ interface ChatPanelProps {
   onInputChange: (value: string) => void;
   onSendMessage: (e?: React.FormEvent, prefill?: string) => void;
   onRefresh?: () => void;
+  /** Current chat language (BCP-47 short code). Drives voice-input
+   *  locale and is sent to chatbot-rag so the LLM replies in the
+   *  same language. */
+  language: SupportedLang;
+  onLanguageChange: (lang: SupportedLang) => void;
   className?: string;
 }
 
@@ -126,12 +134,42 @@ export function ChatPanel({
   onInputChange,
   onSendMessage,
   onRefresh,
+  language,
+  onLanguageChange,
   className,
 }: ChatPanelProps) {
   const { theme, colors, vendor, isLeftPanelOpen, isRightPanelOpen } = useTheme();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [isToolsOpen, setIsToolsOpen] = useState(false);
+
+  // Voice input — Web Speech API dictation. Each interim chunk overwrites
+  // the "live transcript" portion of the input; each final chunk becomes
+  // permanent and the next utterance appends to it. We track what was in
+  // the input BEFORE dictation started so we can restore the caret when
+  // the user cancels mid-stream.
+  const baseInputRef = useRef<string>(input);
+  const liveTranscriptRef = useRef<string>('');
+  const langMeta = getLangMeta(language);
+  const { listening, toggle: toggleVoice, isSupported: voiceSupported } = useVoiceInput({
+    lang: langMeta.bcp47,
+    onResult: (transcript, isFinal) => {
+      if (isFinal) {
+        baseInputRef.current = (baseInputRef.current + ' ' + transcript).trim() + ' ';
+        liveTranscriptRef.current = '';
+        onInputChange(baseInputRef.current);
+      } else {
+        liveTranscriptRef.current = transcript;
+        onInputChange(baseInputRef.current + transcript);
+      }
+    },
+    onError: (msg) => toast.error(`Voice input error: ${msg}`),
+  });
+
+  // Keep the voice base in sync when the user types or we reset the field.
+  useEffect(() => {
+    if (!listening) baseInputRef.current = input;
+  }, [input, listening]);
 
   // Auto-scroll to bottom when messages change
   useEffect(() => {
@@ -280,13 +318,27 @@ export function ChatPanel({
                 </div>
 
                 <div className="flex items-center gap-2">
-                  {/* Mic button */}
-                  <button
-                    className="p-2 rounded-full transition-colors hover:bg-white/10"
-                    style={{ color: colors.muted }}
-                  >
-                    <Mic className="h-5 w-5" />
-                  </button>
+                  {/* Language picker — drives both voice locale and
+                      the `user_language` field we send to chatbot-rag. */}
+                  <LanguagePicker value={language} onChange={onLanguageChange} compact />
+
+                  {/* Mic button — toggles Web Speech API dictation in the
+                      selected language. Hidden when the browser has no
+                      SpeechRecognition support (Firefox, older Safari). */}
+                  {voiceSupported && (
+                    <button
+                      type="button"
+                      onClick={toggleVoice}
+                      aria-label={listening ? 'Stop voice input' : 'Start voice input'}
+                      className="p-2 rounded-full transition-colors hover:bg-white/10"
+                      style={{
+                        color: listening ? colors.primary : colors.muted,
+                        backgroundColor: listening ? `${colors.primary}20` : undefined,
+                      }}
+                    >
+                      <Mic className={`h-5 w-5 ${listening ? 'animate-pulse' : ''}`} />
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
@@ -455,7 +507,8 @@ export function ChatPanel({
             <textarea
               ref={textareaRef}
               placeholder="Ask a follow-up..."
-              className="w-full py-3 pl-4 pr-12 rounded-xl backdrop-blur border focus:outline-none focus:ring-2 resize-none overflow-hidden min-h-[48px] max-h-[200px]"
+              dir={language === 'ar' ? 'rtl' : 'ltr'}
+              className="w-full py-3 pl-4 pr-28 rounded-xl backdrop-blur border focus:outline-none focus:ring-2 resize-none overflow-hidden min-h-[48px] max-h-[200px]"
               style={{
                 backgroundColor: colors.card,
                 borderColor: colors.cardBorder,
@@ -466,16 +519,33 @@ export function ChatPanel({
               onKeyDown={handleKeyDown}
               rows={1}
             />
-            <button
-              type="submit"
-              className="absolute right-2 bottom-2 h-10 w-10 flex items-center justify-center rounded-lg transition-colors"
-              style={{
-                backgroundColor: colors.primary,
-                color: colors.primaryForeground,
-              }}
-            >
-              <Send className="h-4 w-4" />
-            </button>
+            <div className="absolute right-2 bottom-2 flex items-center gap-1">
+              <LanguagePicker value={language} onChange={onLanguageChange} compact />
+              {voiceSupported && (
+                <button
+                  type="button"
+                  onClick={toggleVoice}
+                  aria-label={listening ? 'Stop voice input' : 'Start voice input'}
+                  className="h-10 w-10 flex items-center justify-center rounded-lg transition-colors hover:bg-white/10"
+                  style={{
+                    color: listening ? colors.primary : colors.muted,
+                    backgroundColor: listening ? `${colors.primary}20` : undefined,
+                  }}
+                >
+                  <Mic className={`h-4 w-4 ${listening ? 'animate-pulse' : ''}`} />
+                </button>
+              )}
+              <button
+                type="submit"
+                className="h-10 w-10 flex items-center justify-center rounded-lg transition-colors"
+                style={{
+                  backgroundColor: colors.primary,
+                  color: colors.primaryForeground,
+                }}
+              >
+                <Send className="h-4 w-4" />
+              </button>
+            </div>
           </form>
         </div>
       </div>

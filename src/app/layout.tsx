@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Toaster } from "sonner";
 import { ThemeProvider } from "@/theme/ThemeProvider";
 import "./globals.css";
 
@@ -32,6 +33,17 @@ export default function RootLayout({
       >
         <ThemeProvider>
           {children}
+          {/* Global toast host. Sonner renders its own portal; mounting
+              once at the root is enough — any call to toast.*() from
+              anywhere in the tree shows up here. Dark theme matches the
+              app, top-right position keeps it clear of the chat input. */}
+          <Toaster
+            position="top-right"
+            theme="dark"
+            richColors
+            closeButton
+            duration={4000}
+          />
         </ThemeProvider>
       </body>
     </html>

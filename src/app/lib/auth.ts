@@ -164,6 +164,17 @@ export function redirectToLogin(reason?: string): void {
       // itself is still the critical thing, so swallow and proceed.
     }
   }
+  // Best-effort toast before the navigation — helps users who briefly
+  // see the redirect flash understand what's happening. The import is
+  // dynamic so the auth module stays usable from server components
+  // that don't bundle sonner.
+  if (typeof window !== 'undefined') {
+    import('sonner')
+      .then(({ toast }) => {
+        toast.info('Session expired — redirecting to sign in', { duration: 2000 });
+      })
+      .catch(() => {});
+  }
   window.location.assign(getLoginUrl());
 }
 

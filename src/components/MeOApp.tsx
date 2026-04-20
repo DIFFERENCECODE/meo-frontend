@@ -1,10 +1,12 @@
 'use client';
 
 import React, { useState, useCallback, useEffect } from 'react';
+import { toast } from 'sonner';
 import { ThemeProvider, useTheme } from '@/theme/ThemeProvider';
 import { ThreePanelLayout } from '@/components/layout/ThreePanelLayout';
 import { ChatPanel, Message } from '@/components/layout/ChatPanel';
 import type { ChatListItem } from '@/components/layout/LeftPanel';
+import type { SupportedLang } from '@/components/layout/LanguagePicker';
 import { AnalysisContent } from '@/components/analysis/AnalysisContent';
 import { SolutionContent } from '@/components/solution/SolutionContent';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
@@ -21,6 +23,21 @@ function MeOAppInner() {
   // Chat state
   const [isActive, setIsActive] = useState(false);
   const [input, setInput] = useState('');
+  // Chat language — persisted in localStorage so it survives reloads.
+  // Drives Web Speech API locale AND tells chatbot-rag which language
+  // to reply in via the user_language field on /api/chat/stream.
+  const [language, _setLanguage] = useState<SupportedLang>('en');
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const saved = window.localStorage.getItem('meo_chat_lang') as SupportedLang | null;
+    if (saved && ['en', 'ar', 'hi', 'nl'].includes(saved)) _setLanguage(saved);
+  }, []);
+  const setLanguage = useCallback((lang: SupportedLang) => {
+    _setLanguage(lang);
+    if (typeof window !== 'undefined') {
+      try { window.localStorage.setItem('meo_chat_lang', lang); } catch {}
+    }
+  }, []);
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
   const [viewMode, setViewMode] = useState<'response' | 'analysis' | 'solution'>('response');
@@ -287,7 +304,7 @@ function MeOAppInner() {
       const res = await fetch('/api/chat/stream', {
         method: 'POST',
         headers: { ...headers, Accept: 'text/event-stream' },
-        body: JSON.stringify({ message: messageText, session_id: sessionId }),
+        body: JSON.stringify({ message: messageText, session_id: sessionId, user_language: language }),
       });
 
       if (!res.ok || !res.body) {
@@ -551,8 +568,8 @@ function MeOAppInner() {
       onSelectChat={handleSelectChat}
       onDeleteChat={async (id) => {
         // Optimistic remove from the sidebar; if the DELETE fails
-        // we pull a fresh list from the backend instead of restoring
-        // stale state by hand.
+        // we pull a fresh list from the backend and surface a toast.
+        const deletedTitle = chats.find((c) => c.id === id)?.title;
         setChats((prev) => prev.filter((c) => c.id !== id));
         if (currentChatId === id) {
           setCurrentChatId(null);
@@ -562,8 +579,10 @@ function MeOAppInner() {
         try {
           const res = await apiFetch(`/api/chats/${id}`, { method: 'DELETE' });
           if (!res.ok) throw new Error(`status ${res.status}`);
+          toast.success(deletedTitle ? `Deleted "${deletedTitle}"` : 'Chat deleted');
         } catch (err) {
           console.error('Failed to delete chat', err);
+          toast.error('Couldn\'t delete chat — restored it to the list.');
           const resync = await apiFetch('/api/chats');
           if (resync.ok) setChats(await resync.json());
         }
@@ -585,6 +604,8 @@ function MeOAppInner() {
         onInputChange={setInput}
         onSendMessage={handleSendMessage}
         onRefresh={handleRefresh}
+        language={language}
+        onLanguageChange={setLanguage}
       />
     </ThreePanelLayout>
   );
