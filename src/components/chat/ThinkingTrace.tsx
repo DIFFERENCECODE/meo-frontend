@@ -16,6 +16,7 @@ import { ChevronRight, Activity, Search, Stethoscope, Sparkles, Database, Shield
 import { useTheme } from '@/theme/ThemeProvider';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
+import { useTranslation } from '@/i18n/LanguageContext';
 
 export type TraceStep = {
   kind: 'tool_call' | 'retrieval' | 'analysis' | 'routing' | 'safety' | 'generation';
@@ -44,14 +45,15 @@ const KIND_ICON: Record<TraceStep['kind'], IconComponent> = {
 
 export function ThinkingTrace({ steps, live = false }: Props) {
   const { colors } = useTheme();
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
 
   if (!steps || steps.length === 0) return null;
 
   const totalMs = steps.reduce((sum, s) => sum + (s.duration_ms ?? 0), 0);
   const summary = live
-    ? `Thinking… ${steps[steps.length - 1]?.title ?? ''}`
-    : `Thought for ${(totalMs / 1000).toFixed(1)}s · ${steps.length} step${steps.length === 1 ? '' : 's'}`;
+    ? `${t('chat.thinking_live')} ${steps[steps.length - 1]?.title ?? ''}`
+    : t('chat.thought_for', { seconds: (totalMs / 1000).toFixed(1), count: steps.length });
 
   return (
     <div

@@ -13,7 +13,8 @@
  *
  * Persists to localStorage under `meo_chat_lang`.
  */
-import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { translations, interpolate } from './translations';
 
 export type SupportedLang = 'en' | 'ar' | 'hi' | 'nl';
 
@@ -68,6 +69,30 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     </LanguageContext.Provider>
   );
 }
+
+/**
+ * useTranslation — get the translator function for the current language.
+ *
+ *   const { t } = useTranslation();
+ *   <span>{t('sidebar.new_chat')}</span>
+ *   <span>{t('chat.thought_for', { seconds: 6.4, count: 5 })}</span>
+ *
+ * Missing keys fall back to: (1) the English entry for that key,
+ * (2) the key itself as a last-resort string, so the UI never
+ * crashes or shows empty on a typo.
+ */
+export function useTranslation(): { t: (key: string, vars?: Record<string, string | number>) => string; language: SupportedLang } {
+  const { language } = useLanguage();
+  const t = useMemo(() => {
+    return (key: string, vars?: Record<string, string | number>) => {
+      const localeDict = translations[language] || translations.en;
+      const template = localeDict[key] ?? translations.en[key] ?? key;
+      return interpolate(template, vars);
+    };
+  }, [language]);
+  return { t, language };
+}
+
 
 export function useLanguage(): LanguageContextValue {
   const ctx = useContext(LanguageContext);

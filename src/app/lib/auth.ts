@@ -169,9 +169,23 @@ export function redirectToLogin(reason?: string): void {
   // dynamic so the auth module stays usable from server components
   // that don't bundle sonner.
   if (typeof window !== 'undefined') {
+    // Read the user's preferred language straight from localStorage —
+    // we can't call React hooks from this non-component path. Falls
+    // back to English if no choice has been persisted yet.
+    let msg = 'Session expired — redirecting to sign in';
+    try {
+      const lang = window.localStorage.getItem('meo_chat_lang') || 'en';
+      const translated: Record<string, string> = {
+        en: 'Session expired — redirecting to sign in',
+        ar: 'انتهت الجلسة — جارٍ التحويل لتسجيل الدخول',
+        hi: 'सत्र समाप्त हो गया — साइन इन के लिए रीडायरेक्ट हो रहा है',
+        nl: 'Sessie verlopen — wordt doorgestuurd naar aanmelden',
+      };
+      msg = translated[lang] || msg;
+    } catch {}
     import('sonner')
       .then(({ toast }) => {
-        toast.info('Session expired — redirecting to sign in', { duration: 2000 });
+        toast.info(msg, { duration: 2000 });
       })
       .catch(() => {});
   }

@@ -21,6 +21,7 @@ import { VendorToggle } from '@/components/vendor/VendorToggle';
 import { ModeToggle } from '@/components/mode/ModeToggle';
 import { SkeletonChatRow } from '@/components/Skeleton';
 import { LanguagePicker } from '@/components/layout/LanguagePicker';
+import { useTranslation } from '@/i18n/LanguageContext';
 import { cn } from '@/lib/utils';
 
 export interface ChatListItem {
@@ -67,6 +68,7 @@ function formatChatDate(created_at?: string | null): string {
 
 export function LeftPanel({ onNewChat, onSettingsClick, chats, currentChatId, onSelectChat, onDeleteChat, chatsLoading, className }: LeftPanelProps) {
   const { isLeftPanelOpen, toggleLeftPanel, isRightPanelOpen, theme, colors, colorMode, toggleColorMode } = useTheme();
+  const { t } = useTranslation();
   const [showSettings, setShowSettings] = useState(false);
 
   return (
@@ -95,7 +97,7 @@ export function LeftPanel({ onNewChat, onSettingsClick, chats, currentChatId, on
             <button
               onClick={onNewChat}
               className="p-2 rounded-lg transition-colors hover:bg-white/10"
-              aria-label="New chat"
+              aria-label={t('sidebar.new_chat')}
             >
               <SquarePen className="h-5 w-5" style={{ color: colors.foreground }} />
             </button>
@@ -162,7 +164,7 @@ export function LeftPanel({ onNewChat, onSettingsClick, chats, currentChatId, on
                   }}
                 >
                   <SquarePen className="h-5 w-5" />
-                  <span className="font-medium">New chat</span>
+                  <span className="font-medium">{t('sidebar.new_chat')}</span>
                 </button>
               </div>
 
@@ -172,7 +174,7 @@ export function LeftPanel({ onNewChat, onSettingsClick, chats, currentChatId, on
                   className="px-3 py-2 text-xs font-medium uppercase tracking-wider"
                   style={{ color: colors.muted }}
                 >
-                  Chats
+                  {t('sidebar.chats')}
                 </p>
                 <div className="space-y-1">
                   {chatsLoading && (!chats || chats.length === 0) ? (
@@ -218,11 +220,11 @@ export function LeftPanel({ onNewChat, onSettingsClick, chats, currentChatId, on
                               e.stopPropagation();
                               // Quick confirm — plain browser prompt keeps this
                               // in one file. Swap for a toast/modal later.
-                              if (window.confirm(`Delete "${chat.title}"?`)) {
+                              if (window.confirm(t('chat.delete_confirm', { title: chat.title }))) {
                                 onDeleteChat(chat.id);
                               }
                             }}
-                            aria-label="Delete chat"
+                            aria-label={t('sidebar.delete_chat_aria')}
                             className="absolute right-1.5 top-1/2 -translate-y-1/2 p-1.5 rounded-md opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity hover:bg-red-500/15"
                             style={{ color: colors.muted }}
                           >
@@ -233,7 +235,7 @@ export function LeftPanel({ onNewChat, onSettingsClick, chats, currentChatId, on
                     ))
                   ) : (
                     <p className="px-3 py-2 text-sm" style={{ color: colors.muted }}>
-                      No chats yet. Start a new one.
+                      {t('sidebar.empty_chats')}
                     </p>
                   )}
                 </div>
@@ -279,7 +281,7 @@ export function LeftPanel({ onNewChat, onSettingsClick, chats, currentChatId, on
                   style={{ color: colors.muted }}
                 >
                   <Sparkles className="h-5 w-5" />
-                  <span>Personalize</span>
+                  <span>{t('sidebar.personalize')}</span>
                 </Link>
                 <Link
                   href="/activity"
@@ -287,7 +289,7 @@ export function LeftPanel({ onNewChat, onSettingsClick, chats, currentChatId, on
                   style={{ color: colors.muted }}
                 >
                   <Clock className="h-5 w-5" />
-                  <span>Activity</span>
+                  <span>{t('sidebar.activity')}</span>
                 </Link>
                 <button
                   onClick={() => setShowSettings(!showSettings)}
@@ -295,7 +297,7 @@ export function LeftPanel({ onNewChat, onSettingsClick, chats, currentChatId, on
                   style={{ color: colors.muted }}
                 >
                   <Settings className="h-5 w-5" />
-                  <span>Settings & help</span>
+                  <span>{t('sidebar.settings')}</span>
                 </button>
 
                 {/* Settings Submenu */}

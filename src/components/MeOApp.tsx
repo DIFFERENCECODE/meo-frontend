@@ -6,7 +6,7 @@ import { ThemeProvider, useTheme } from '@/theme/ThemeProvider';
 import { ThreePanelLayout } from '@/components/layout/ThreePanelLayout';
 import { ChatPanel, Message } from '@/components/layout/ChatPanel';
 import type { ChatListItem } from '@/components/layout/LeftPanel';
-import { useLanguage } from '@/i18n/LanguageContext';
+import { useLanguage, useTranslation } from '@/i18n/LanguageContext';
 import { AnalysisContent } from '@/components/analysis/AnalysisContent';
 import { SolutionContent } from '@/components/solution/SolutionContent';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
@@ -28,6 +28,7 @@ function MeOAppInner() {
   // the voice-input locale, and the user_language field we send to
   // chatbot-rag. No more multiple sources of truth.
   const { language, setLanguage } = useLanguage();
+  const { t } = useTranslation();
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
   const [viewMode, setViewMode] = useState<'response' | 'analysis' | 'solution'>('response');
@@ -308,7 +309,7 @@ function MeOAppInner() {
       // has started.
       const liveGenStep: NonNullable<Message['steps']>[number] = {
         kind: 'generation',
-        title: 'Thinking…',
+        title: t('chat.thinking_live'),
         details: '',
       };
       const assistantMsgIndex = messages.length + 1;  // after the user msg added above
@@ -362,8 +363,8 @@ function MeOAppInner() {
               const steps = m.steps ?? [];
               const s0 = steps[0];
               const finalisedSteps =
-                s0 && s0.title === 'Thinking…'
-                  ? [{ ...s0, title: 'Reasoning complete' }, ...steps.slice(1)]
+                s0 && (s0.title === 'Thinking…' || s0.title === t('chat.thinking_live'))
+                  ? [{ ...s0, title: t('chat.reasoning_complete') }, ...steps.slice(1)]
                   : steps;
               next[idx] = { ...m, content: (m.content || '') + payload.delta, steps: finalisedSteps };
               return next;
@@ -574,10 +575,14 @@ function MeOAppInner() {
         try {
           const res = await apiFetch(`/api/chats/${id}`, { method: 'DELETE' });
           if (!res.ok) throw new Error(`status ${res.status}`);
-          toast.success(deletedTitle ? `Deleted "${deletedTitle}"` : 'Chat deleted');
+          toast.success(
+            deletedTitle
+              ? t('chat.delete_success', { title: deletedTitle })
+              : t('chat.delete_default_success'),
+          );
         } catch (err) {
           console.error('Failed to delete chat', err);
-          toast.error('Couldn\'t delete chat — restored it to the list.');
+          toast.error(t('chat.delete_failure'));
           const resync = await apiFetch('/api/chats');
           if (resync.ok) setChats(await resync.json());
         }

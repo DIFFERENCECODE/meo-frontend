@@ -55,12 +55,15 @@ export function useVoiceInput({ onResult, onError, lang, continuous = false }: U
     const impl =
       (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!impl) {
-      onError?.('Voice input is not supported in this browser. Try Chrome, Edge, or Safari.');
+      // Pass a machine-readable error code prefix so consumers can
+      // localise the message via the translation catalog
+      // (voice.unsupported / voice.needs_https / voice.permission_denied
+      // / voice.no_mic / voice.network_required).
+      onError?.('voice.unsupported');
       return;
     }
-    // HTTPS gate — SpeechRecognition silently refuses on http://.
     if (window.location.protocol !== 'https:' && window.location.hostname !== 'localhost') {
-      onError?.('Voice input requires a secure connection (HTTPS).');
+      onError?.('voice.needs_https');
       return;
     }
 
@@ -78,11 +81,11 @@ export function useVoiceInput({ onResult, onError, lang, continuous = false }: U
     } catch (e: any) {
       const name = e?.name || '';
       if (name === 'NotAllowedError' || name === 'PermissionDeniedError') {
-        onError?.('Microphone permission denied. Enable it in your browser site settings.');
+        onError?.('voice.permission_denied');
       } else if (name === 'NotFoundError' || name === 'DevicesNotFoundError') {
-        onError?.('No microphone found on this device.');
+        onError?.('voice.no_mic');
       } else {
-        onError?.(`Microphone error: ${e?.message || name || 'unknown'}`);
+        onError?.(e?.message || name || 'voice.permission_denied');
       }
       return;
     }
@@ -106,17 +109,16 @@ export function useVoiceInput({ onResult, onError, lang, continuous = false }: U
 
     rec.onerror = (event: any) => {
       const err = event.error;
-      // Translate common error codes into something actionable.
+      // Map browser error codes to our translation keys so the
+      // ChatPanel's onError callback can surface a localised toast.
       const map: Record<string, string> = {
-        'not-allowed': 'Microphone permission denied.',
-        'service-not-allowed': 'Voice service not allowed on this page.',
-        'network': 'Voice input needs an internet connection — Chrome uses Google Cloud Speech.',
-        'audio-capture': 'No microphone detected.',
-        'language-not-supported': `Language ${rec.lang} not supported by this browser.`,
-        // 'no-speech' and 'aborted' are routine; surface them silently.
+        'not-allowed': 'voice.permission_denied',
+        'service-not-allowed': 'voice.permission_denied',
+        'network': 'voice.network_required',
+        'audio-capture': 'voice.no_mic',
       };
       if (err && err !== 'no-speech' && err !== 'aborted') {
-        onError?.(map[err] || `Voice error: ${err}`);
+        onError?.(map[err] || err);
       }
       setListening(false);
     };

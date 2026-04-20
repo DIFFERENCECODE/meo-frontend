@@ -11,6 +11,7 @@ import { toast } from 'sonner';
 import { ThinkingTrace, type TraceStep } from '@/components/chat/ThinkingTrace';
 import { LanguagePicker, type SupportedLang, getLangMeta } from '@/components/layout/LanguagePicker';
 import useVoiceInput from '@/hooks/useVoiceInput';
+import { useTranslation } from '@/i18n/LanguageContext';
 
 // Types
 export type Message = {
@@ -139,6 +140,7 @@ export function ChatPanel({
   className,
 }: ChatPanelProps) {
   const { theme, colors, vendor, isLeftPanelOpen, isRightPanelOpen } = useTheme();
+  const { t } = useTranslation();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [isToolsOpen, setIsToolsOpen] = useState(false);
@@ -163,7 +165,12 @@ export function ChatPanel({
         onInputChange(baseInputRef.current + transcript);
       }
     },
-    onError: (msg) => toast.error(msg),
+    onError: (msg) => {
+      // If the hook passes a translation key (voice.xxx), look it up;
+      // otherwise surface the raw message as-is.
+      const text = msg.startsWith('voice.') ? t(msg) : msg;
+      toast.error(text);
+    },
   });
 
   // Surface a transient toast when the mic turns on / off so the user
@@ -172,7 +179,7 @@ export function ChatPanel({
   const prevListeningRef = useRef(false);
   useEffect(() => {
     if (listening && !prevListeningRef.current) {
-      toast.info(`Listening in ${langMeta.nativeLabel}…`, {
+      toast.info(t('voice.listening', { language: langMeta.nativeLabel }), {
         id: 'voice-status',
         duration: 2000,
       });
@@ -180,7 +187,7 @@ export function ChatPanel({
       toast.dismiss('voice-status');
     }
     prevListeningRef.current = listening;
-  }, [listening, langMeta.nativeLabel]);
+  }, [listening, langMeta.nativeLabel, t]);
 
   // Keep the voice base in sync when the user types or we reset the field.
   useEffect(() => {
@@ -345,7 +352,7 @@ export function ChatPanel({
                     <button
                       type="button"
                       onClick={toggleVoice}
-                      aria-label={listening ? 'Stop voice input' : 'Start voice input'}
+                      aria-label={listening ? t('voice.stop') : t('voice.start')}
                       className="p-2 rounded-full transition-colors hover:bg-white/10"
                       style={{
                         color: listening ? colors.primary : colors.muted,
@@ -411,7 +418,7 @@ export function ChatPanel({
             color: colors.primary,
           }}
         >
-          Limited Preview
+          {t('chat.limited_preview')}
         </div>
       </div>
 
@@ -441,7 +448,7 @@ export function ChatPanel({
                       // MeOApp rewrites the title to "Reasoning
                       // complete", flipping this to false and the
                       // panel to its static "Thought for Ns" state.
-                      live={msg.steps[0]?.title === 'Thinking…'}
+                      live={msg.steps[0]?.title === 'Thinking…' || msg.steps[0]?.title === t('chat.thinking_live')}
                     />
                   )}
                   <div
@@ -530,7 +537,7 @@ export function ChatPanel({
           <form onSubmit={onSendMessage} className="relative">
             <textarea
               ref={textareaRef}
-              placeholder="Ask a follow-up..."
+              placeholder={t('chat.placeholder_followup')}
               dir={language === 'ar' ? 'rtl' : 'ltr'}
               className="w-full py-3 pl-4 pr-28 rounded-xl backdrop-blur border focus:outline-none focus:ring-2 resize-none overflow-hidden min-h-[48px] max-h-[200px]"
               style={{
@@ -549,7 +556,7 @@ export function ChatPanel({
                 <button
                   type="button"
                   onClick={toggleVoice}
-                  aria-label={listening ? 'Stop voice input' : 'Start voice input'}
+                  aria-label={listening ? t('voice.stop') : t('voice.start')}
                   className="h-10 w-10 flex items-center justify-center rounded-lg transition-colors hover:bg-white/10"
                   style={{
                     color: listening ? colors.primary : colors.muted,
