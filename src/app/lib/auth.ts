@@ -148,6 +148,78 @@ export async function getValidIdToken(): Promise<string | null> {
   return refreshIdToken();
 }
 
+/** Redirect the current browser tab to Cognito Hosted UI login.
+ *  Clears local tokens first so a stale refresh_token can't loop the
+ *  user back into an unauthenticated session. No-op in SSR. */
+export function redirectToLogin(reason?: string): void {
+  if (typeof window === 'undefined') return;
+  clearIdToken();
+  if (reason) {
+    // Surfaced in the login page as a small banner so users know why
+    // they got kicked out instead of silently re-authing.
+    try {
+      window.sessionStorage.setItem('meo_auth_redirect_reason', reason);
+    } catch {
+      // sessionStorage can throw in Safari private mode — the redirect
+      // itself is still the critical thing, so swallow and proceed.
+    }
+  }
+  window.location.assign(getLoginUrl());
+}
+
+
+/** Fetch wrapper that handles the whole auth dance for client-side calls.
+ *  - Attaches Authorization: Bearer <id_token> (refreshes if expired).
+ *  - On 401, tries one refresh, retries, and if still 401 redirects to
+ *    Cognito Hosted UI login. Callers never see a surviving 401 —
+ *    either the call succeeds, or the tab navigates away.
+ *  - Any non-401 failure returns the Response unchanged so the caller
+ *    can handle status-specific logic (404, 500, etc.).
+ *
+ *  Use for every authenticated fetch in the web app — hand-rolling
+ *  bearer headers at 15 call sites is how 401s end up dead-ending on
+ *  broken pages instead of funneling back through login.
+ */
+export async function apiFetch(
+  input: string | URL | Request,
+  init: RequestInit = {},
+): Promise<Response> {
+  const tryOnce = async (): Promise<Response> => {
+    const token = await getValidIdToken();
+    if (!token) {
+      redirectToLogin('session_expired');
+      // Return a Response-ish shape so TS callers don't need to handle
+      // undefined — the navigation has already started and this promise
+      // never actually settles in practice.
+      return new Response(null, { status: 401 });
+    }
+    const headers = new Headers(init.headers || {});
+    headers.set('Authorization', `Bearer ${token}`);
+    if (init.body && !headers.has('Content-Type') && typeof init.body === 'string') {
+      headers.set('Content-Type', 'application/json');
+    }
+    return fetch(input, { ...init, headers });
+  };
+
+  let resp = await tryOnce();
+  if (resp.status !== 401) return resp;
+
+  // First 401 — refresh token and retry once. Refresh can legitimately
+  // fail (token revoked, rotated by another tab, network flake) in which
+  // case we send the user to login rather than retry-storming.
+  const refreshed = await refreshIdToken();
+  if (!refreshed) {
+    redirectToLogin('refresh_failed');
+    return resp;
+  }
+  resp = await tryOnce();
+  if (resp.status === 401) {
+    redirectToLogin('still_unauthorized');
+  }
+  return resp;
+}
+
+
 /** Decode JWT payload without verification (client-side only). Returns sub (Cognito user id). */
 export function getSubFromIdToken(idToken: string): string | null {
   try {

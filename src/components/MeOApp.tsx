@@ -8,7 +8,7 @@ import type { ChatListItem } from '@/components/layout/LeftPanel';
 import { AnalysisContent } from '@/components/analysis/AnalysisContent';
 import { SolutionContent } from '@/components/solution/SolutionContent';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
-import { getLoginUrl, getLogoutUrl, exchangeCodeForTokens, storeIdToken, getIdToken, clearIdToken, getSubFromIdToken, storeRefreshToken, getValidIdToken } from '@/app/lib/auth';
+import { getLoginUrl, getLogoutUrl, exchangeCodeForTokens, storeIdToken, getIdToken, clearIdToken, getSubFromIdToken, storeRefreshToken, getValidIdToken, apiFetch } from '@/app/lib/auth';
 import LandingPage from '@/components/LandingPage';
 
 // Types re-exported from chat panel
@@ -139,15 +139,16 @@ function MeOAppInner() {
     return () => clearInterval(intervalId);
   }, [idToken]);
 
-  // When signed in, load profile and sync vendor from backend
+  // When signed in, load profile and sync vendor from backend.
+  // apiFetch handles token refresh and redirects to Cognito Hosted UI on
+  // auth failure, so we don't need to hand-roll bearer headers or check
+  // for 401 here — a still-401 response means the tab is already
+  // navigating away to login and this effect will be cancelled.
   useEffect(() => {
     if (!idToken) return;
     (async () => {
-      const token = (await getValidIdToken()) || idToken;
       try {
-        const res = await fetch('/api/profile', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await apiFetch('/api/profile');
         if (!res.ok) return;
         const data = await res.json();
         if (data?.vendor_id && (data.vendor_id === 'meterbolic' || data.vendor_id === 'eos')) {
@@ -165,9 +166,8 @@ function MeOAppInner() {
     if (!idToken) return;
     setChatsLoading(true);
     (async () => {
-      const token = (await getValidIdToken()) || idToken;
       try {
-        const res = await fetch('/api/chats', { headers: { Authorization: `Bearer ${token}` } });
+        const res = await apiFetch('/api/chats');
         if (!res.ok) {
           setChatsLoading(false);
           return;
@@ -177,10 +177,7 @@ function MeOAppInner() {
         if (list.length > 0 && !currentChatId) {
           setCurrentChatId(list[0].id);
         } else if (list.length === 0) {
-          const createRes = await fetch('/api/chats', {
-            method: 'POST',
-            headers: { Authorization: `Bearer ${token}` },
-          });
+          const createRes = await apiFetch('/api/chats', { method: 'POST' });
           if (createRes.ok) {
             const created = await createRes.json();
             setCurrentChatId(created.id);
@@ -207,10 +204,7 @@ function MeOAppInner() {
     let cancelled = false;
     (async () => {
       try {
-        const token = (await getValidIdToken()) || idToken;
-        const res = await fetch(`/api/history/${currentChatId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await apiFetch(`/api/history/${currentChatId}`);
         if (cancelled) return;
         if (!res.ok) {
           setMessages([]);
