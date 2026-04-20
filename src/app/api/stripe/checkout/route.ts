@@ -41,7 +41,12 @@ export async function POST(req: NextRequest) {
       customerId = customer.id;
     }
 
-    const origin = req.headers.get('origin') || 'http://localhost:3000';
+    // Stripe Checkout success/cancel URLs must match a real origin.
+    // The header is normally set by the browser, but server-side or
+    // mobile callers may omit it — fall back to the live web app
+    // instead of localhost so test-mode purchases don't dead-end on a
+    // dev machine that isn't running.
+    const origin = req.headers.get('origin') || 'https://app.meterbolic.com';
 
     const session = await stripe.checkout.sessions.create({
       customer: customerId,

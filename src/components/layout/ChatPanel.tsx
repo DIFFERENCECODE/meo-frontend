@@ -7,11 +7,17 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
+import { ThinkingTrace, type TraceStep } from '@/components/chat/ThinkingTrace';
 
 // Types
 export type Message = {
   role: 'user' | 'assistant';
   content: string;
+  /** Optional agent trace — tool calls, retrievals, analysis steps that
+      led to this response. Rendered as a Claude-style collapsible
+      section above the markdown body. Populated by chatbot-rag's
+      /api/chat response and carried through MeOApp state. */
+  steps?: TraceStep[];
 };
 
 // Blood Droplet SVG Component
@@ -349,6 +355,9 @@ export function ChatPanel({
                 </div>
               ) : (
                 <div className="w-full">
+                  {msg.steps && msg.steps.length > 0 && (
+                    <ThinkingTrace steps={msg.steps} />
+                  )}
                   <div
                     className="prose prose-sm max-w-none leading-relaxed"
                     style={{ color: `${colors.foreground}e6` }}

@@ -295,7 +295,12 @@ function MeOAppInner() {
       const data = await res.json();
       const botResponse = data.response;
 
-      setMessages((prev) => [...prev, { role: 'assistant', content: botResponse }]);
+      // Carry the agent's trace (tool calls, retrievals, analysis steps)
+      // through to the assistant bubble so ThinkingTrace can render it
+      // as a collapsible "Thinking..." section above the markdown body.
+      const steps = Array.isArray(data.steps) ? data.steps : undefined;
+
+      setMessages((prev) => [...prev, { role: 'assistant', content: botResponse, steps }]);
 
       // Set view mode based on backend or frontend detection
       const finalMode = data.mode || intendedMode;
