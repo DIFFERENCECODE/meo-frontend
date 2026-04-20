@@ -280,21 +280,113 @@ function MeOAppInner() {
       } else {
         sessionId = 'demo_session';
       }
-      const res = await fetch('/api/chat', {
+      // Streaming chat — reasoning deltas go into a live "generation"
+      // step in the assistant's ThinkingTrace; content deltas append to
+      // the assistant bubble as they arrive. We append an empty
+      // assistant message up-front and mutate it as chunks stream in.
+      const res = await fetch('/api/chat/stream', {
         method: 'POST',
-        headers,
+        headers: { ...headers, Accept: 'text/event-stream' },
         body: JSON.stringify({ message: messageText, session_id: sessionId }),
       });
 
-      const data = await res.json();
-      const botResponse = data.response;
+      if (!res.ok || !res.body) {
+        throw new Error(`stream error: ${res.status}`);
+      }
 
-      // Carry the agent's trace (tool calls, retrievals, analysis steps)
-      // through to the assistant bubble so ThinkingTrace can render it
-      // as a collapsible "Thinking..." section above the markdown body.
-      const steps = Array.isArray(data.steps) ? data.steps : undefined;
+      // Seed the assistant message with a live "Thinking..." step so
+      // the user sees activity immediately, before the first token
+      // arrives. The step's details field is populated by reasoning
+      // deltas; once content deltas begin we know generation proper
+      // has started.
+      const liveGenStep: NonNullable<Message['steps']>[number] = {
+        kind: 'generation',
+        title: 'Thinking…',
+        details: '',
+      };
+      const assistantMsgIndex = messages.length + 1;  // after the user msg added above
+      setMessages((prev) => [
+        ...prev,
+        { role: 'assistant', content: '', steps: [liveGenStep] },
+      ]);
 
-      setMessages((prev) => [...prev, { role: 'assistant', content: botResponse, steps }]);
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buf = '';
+      let mode: string | null = null;
+      let finalSteps: Message['steps'] | undefined;
+      let botResponse = '';
+
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        buf += decoder.decode(value, { stream: true });
+        // Split on SSE event boundaries (blank line). Keep the trailing
+        // partial event in `buf` for the next read.
+        const events = buf.split('\n\n');
+        buf = events.pop() || '';
+        for (const raw of events) {
+          const line = raw.split('\n').find((l) => l.startsWith('data: '));
+          if (!line) continue;
+          let payload: any;
+          try {
+            payload = JSON.parse(line.slice(6));
+          } catch {
+            continue;
+          }
+          if (payload.phase === 'reasoning' && typeof payload.delta === 'string') {
+            setMessages((prev) => {
+              const next = [...prev];
+              const idx = next.length - 1;
+              const m = next[idx];
+              const existing = m.steps?.[0] ?? liveGenStep;
+              const updatedStep = { ...existing, details: (existing.details || '') + payload.delta };
+              next[idx] = { ...m, steps: [updatedStep] };
+              return next;
+            });
+          } else if (payload.phase === 'content' && typeof payload.delta === 'string') {
+            botResponse += payload.delta;
+            setMessages((prev) => {
+              const next = [...prev];
+              const idx = next.length - 1;
+              const m = next[idx];
+              // Flip the live step's title from "Thinking…" to the
+              // finalised label the first time a content token lands.
+              const steps = m.steps ?? [];
+              const s0 = steps[0];
+              const finalisedSteps =
+                s0 && s0.title === 'Thinking…'
+                  ? [{ ...s0, title: 'Reasoning complete' }, ...steps.slice(1)]
+                  : steps;
+              next[idx] = { ...m, content: (m.content || '') + payload.delta, steps: finalisedSteps };
+              return next;
+            });
+          } else if (payload.phase === 'done') {
+            mode = payload.mode || null;
+            finalSteps = Array.isArray(payload.steps) ? payload.steps : undefined;
+          } else if (payload.phase === 'error') {
+            console.error('[stream] upstream error', payload.message);
+          }
+        }
+      }
+
+      // Replace our ad-hoc step list with the authoritative one the
+      // server emits in the `done` event. This is what future renders
+      // of the conversation (after a page reload) will also see.
+      if (finalSteps) {
+        setMessages((prev) => {
+          const next = [...prev];
+          const idx = next.length - 1;
+          next[idx] = { ...next[idx], steps: finalSteps };
+          return next;
+        });
+      }
+
+      const data: any = { response: botResponse, mode, retrieved_sources: [] };
+      // Placeholder keeping the downstream analysis/solution code below
+      // unchanged — graph data isn't streamed today; a follow-up can
+      // include it in the `done` event if we want inline charts.
+      void assistantMsgIndex;
 
       // Set view mode based on backend or frontend detection
       const finalMode = data.mode || intendedMode;

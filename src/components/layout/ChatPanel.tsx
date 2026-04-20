@@ -356,7 +356,17 @@ export function ChatPanel({
               ) : (
                 <div className="w-full">
                   {msg.steps && msg.steps.length > 0 && (
-                    <ThinkingTrace steps={msg.steps} />
+                    <ThinkingTrace
+                      steps={msg.steps}
+                      // A message is "live" while content is still
+                      // streaming in — detected via the placeholder
+                      // title we set in MeOApp before the first token
+                      // arrives. Once the first content delta lands,
+                      // MeOApp rewrites the title to "Reasoning
+                      // complete", flipping this to false and the
+                      // panel to its static "Thought for Ns" state.
+                      live={msg.steps[0]?.title === 'Thinking…'}
+                    />
                   )}
                   <div
                     className="prose prose-sm max-w-none leading-relaxed"
