@@ -20,6 +20,7 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { VendorToggle } from '@/components/vendor/VendorToggle';
 import { ModeToggle } from '@/components/mode/ModeToggle';
 import { SkeletonChatRow } from '@/components/Skeleton';
+import { LanguagePicker } from '@/components/layout/LanguagePicker';
 import { cn } from '@/lib/utils';
 
 export interface ChatListItem {
@@ -260,11 +261,18 @@ export function LeftPanel({ onNewChat, onSettingsClick, chats, currentChatId, on
                 </div>
               </div>
 
-              {/* Footer - Activity & Settings */}
-              <div 
+              {/* Footer - Activity, Language & Settings */}
+              <div
                 className="p-2 space-y-1"
                 style={{ borderTop: `1px solid ${colors.cardBorder}` }}
               >
+                {/* Platform language — reads/writes LanguageContext
+                    directly so every picker instance (here, in the
+                    chat input) stays in sync. Shown with native label
+                    so users can spot "العربية" at a glance. */}
+                <div className="px-2 pb-1">
+                  <LanguagePicker compact showLabelWhenCompact />
+                </div>
                 <Link
                   href="/personalize"
                   className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors hover:bg-white/5"

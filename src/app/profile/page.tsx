@@ -150,7 +150,7 @@ export default function ProfilePage() {
   if (loading) {
     return (
       <AppShell>
-        <div className="flex-1 flex items-center justify-center p-6" style={{ background: colors.background }}>
+        <div className="flex-1 flex items-center justify-center p-6" style={{ background: 'transparent' }}>
           <div className="text-center">
             <div className="mx-auto mb-4 flex h-10 w-10 items-center justify-center rounded-full animate-spin" style={{ background: colors.primary }}>
               <span className="text-lg font-bold" style={{ color: colors.primaryForeground }}>M</span>

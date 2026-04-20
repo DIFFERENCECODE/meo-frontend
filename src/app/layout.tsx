@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "sonner";
 import { ThemeProvider } from "@/theme/ThemeProvider";
+import { LanguageProvider } from "@/i18n/LanguageContext";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -32,13 +33,20 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <ThemeProvider>
+          <LanguageProvider>
           {children}
+          </LanguageProvider>
           {/* Global toast host. Sonner renders its own portal; mounting
               once at the root is enough — any call to toast.*() from
               anywhere in the tree shows up here. Dark theme matches the
               app, top-right position keeps it clear of the chat input. */}
+          {/* Bottom-right on desktop — keeps toasts out of the chat
+              flow where the right panel toggle also lives. On narrow
+              screens sonner auto-repositions to top so they don't
+              collide with the mobile input bar at the bottom. */}
           <Toaster
-            position="top-right"
+            position="bottom-right"
+            mobileOffset={{ top: 16, right: 16 }}
             theme="dark"
             richColors
             closeButton

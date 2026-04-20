@@ -6,7 +6,7 @@ import { ThemeProvider, useTheme } from '@/theme/ThemeProvider';
 import { ThreePanelLayout } from '@/components/layout/ThreePanelLayout';
 import { ChatPanel, Message } from '@/components/layout/ChatPanel';
 import type { ChatListItem } from '@/components/layout/LeftPanel';
-import type { SupportedLang } from '@/components/layout/LanguagePicker';
+import { useLanguage } from '@/i18n/LanguageContext';
 import { AnalysisContent } from '@/components/analysis/AnalysisContent';
 import { SolutionContent } from '@/components/solution/SolutionContent';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
@@ -23,21 +23,11 @@ function MeOAppInner() {
   // Chat state
   const [isActive, setIsActive] = useState(false);
   const [input, setInput] = useState('');
-  // Chat language — persisted in localStorage so it survives reloads.
-  // Drives Web Speech API locale AND tells chatbot-rag which language
-  // to reply in via the user_language field on /api/chat/stream.
-  const [language, _setLanguage] = useState<SupportedLang>('en');
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const saved = window.localStorage.getItem('meo_chat_lang') as SupportedLang | null;
-    if (saved && ['en', 'ar', 'hi', 'nl'].includes(saved)) _setLanguage(saved);
-  }, []);
-  const setLanguage = useCallback((lang: SupportedLang) => {
-    _setLanguage(lang);
-    if (typeof window !== 'undefined') {
-      try { window.localStorage.setItem('meo_chat_lang', lang); } catch {}
-    }
-  }, []);
+  // Global chat language — backed by LanguageContext so the same
+  // selection drives the sidebar's picker, the chat input's picker,
+  // the voice-input locale, and the user_language field we send to
+  // chatbot-rag. No more multiple sources of truth.
+  const { language, setLanguage } = useLanguage();
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
   const [viewMode, setViewMode] = useState<'response' | 'analysis' | 'solution'>('response');
@@ -405,12 +395,16 @@ function MeOAppInner() {
       // include it in the `done` event if we want inline charts.
       void assistantMsgIndex;
 
-      // Set view mode based on backend or frontend detection
+      // Set view mode based on backend or frontend detection.
+      // NOTE: we deliberately do NOT auto-open the right panel any more.
+      // The supervisor classifies most measurement-adjacent questions as
+      // CLINICAL_QUERY → mode "analysis", which popped the drawer open
+      // on every turn and felt noisy. Users can click the right-panel
+      // toggle when they want the charts; viewMode still drives what
+      // renders INSIDE the panel when they open it.
       const finalMode = data.mode || intendedMode;
       if (finalMode !== 'response') {
         setViewMode(finalMode);
-        // Auto-open right panel for analysis/solution (always — overrides practitioner)
-        setRightPanelOpen(true);
       }
 
       // Process graph data for analysis mode

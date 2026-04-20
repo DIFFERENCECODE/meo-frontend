@@ -404,7 +404,9 @@ export default function PersonalizePage() {
 
   return (
     <AppShell>
-      <div className="flex-1 overflow-auto" style={{ background: colors.background }}>
+      {/* transparent so AppShell's gradient bleeds through — keeps
+          personalize visually consistent with the chat screen. */}
+      <div className="flex-1 overflow-auto" style={{ background: 'transparent' }}>
         <div className="max-w-4xl mx-auto px-6 py-8">
           {/* Header */}
           <div className="mb-8">

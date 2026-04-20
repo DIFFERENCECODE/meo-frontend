@@ -16,8 +16,9 @@
 import React, { useState } from 'react';
 import { ChevronDown, Languages } from 'lucide-react';
 import { useTheme } from '@/theme/ThemeProvider';
+import { useLanguage, type SupportedLang as CtxLang } from '@/i18n/LanguageContext';
 
-export type SupportedLang = 'en' | 'ar' | 'hi' | 'nl';
+export type SupportedLang = CtxLang;
 
 export const LANGUAGES: Array<{
   code: SupportedLang;
@@ -37,16 +38,25 @@ export function getLangMeta(code: SupportedLang) {
 }
 
 interface Props {
-  value: SupportedLang;
-  onChange: (code: SupportedLang) => void;
+  /** Optional — when omitted, picker reads from the global LanguageContext
+   *  so you can mount it anywhere (sidebar footer, settings page, etc.)
+   *  without threading props through the tree. */
+  value?: SupportedLang;
+  onChange?: (code: SupportedLang) => void;
   /** Visually compact variant for tight toolbars. */
   compact?: boolean;
+  /** When true, show the full native label even in the compact variant.
+   *  Used in the sidebar so "English" / "العربية" / etc. is visible. */
+  showLabelWhenCompact?: boolean;
 }
 
-export function LanguagePicker({ value, onChange, compact = false }: Props) {
+export function LanguagePicker({ value, onChange, compact = false, showLabelWhenCompact = false }: Props) {
   const { colors } = useTheme();
   const [open, setOpen] = useState(false);
-  const current = getLangMeta(value);
+  const ctx = useLanguage();
+  const activeValue = value ?? ctx.language;
+  const handleChange = onChange ?? ctx.setLanguage;
+  const current = getLangMeta(activeValue);
 
   return (
     <div className="relative">
@@ -62,7 +72,7 @@ export function LanguagePicker({ value, onChange, compact = false }: Props) {
         aria-label={`Chat language: ${current.englishLabel}`}
       >
         <Languages className="h-4 w-4" />
-        {!compact && <span className="text-sm">{current.nativeLabel}</span>}
+        {(!compact || showLabelWhenCompact) && <span className="text-sm">{current.nativeLabel}</span>}
         <ChevronDown className="h-3 w-3 opacity-70" />
       </button>
 
@@ -79,13 +89,13 @@ export function LanguagePicker({ value, onChange, compact = false }: Props) {
                 key={lang.code}
                 type="button"
                 onClick={() => {
-                  onChange(lang.code);
+                  handleChange(lang.code);
                   setOpen(false);
                 }}
                 className="w-full flex items-center justify-between px-3 py-2 text-left transition-colors hover:bg-white/5"
                 style={{
                   color: colors.foreground,
-                  backgroundColor: lang.code === value ? colors.accent : undefined,
+                  backgroundColor: lang.code === activeValue ? colors.accent : undefined,
                 }}
               >
                 <div>
@@ -94,7 +104,7 @@ export function LanguagePicker({ value, onChange, compact = false }: Props) {
                     {lang.englishLabel}
                   </div>
                 </div>
-                {lang.code === value && (
+                {lang.code === activeValue && (
                   <span className="text-xs" style={{ color: colors.primary }}>
                     ✓
                   </span>
