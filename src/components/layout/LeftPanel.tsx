@@ -19,6 +19,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { useTheme } from '@/theme/ThemeProvider';
 import { VendorToggle } from '@/components/vendor/VendorToggle';
 import { ModeToggle } from '@/components/mode/ModeToggle';
+import { SkeletonChatRow } from '@/components/Skeleton';
 import { cn } from '@/lib/utils';
 
 export interface ChatListItem {
@@ -40,6 +41,10 @@ interface LeftPanelProps {
   /** When user deletes a chat. Parent should DELETE /api/chats/{id} and
    *  update local chat list + currentChatId. */
   onDeleteChat?: (id: string) => void;
+  /** True while the initial /api/chats fetch is in flight — renders
+   *  a stack of Skeleton rows so the sidebar never collapses to
+   *  "No chats yet" during the load race. */
+  chatsLoading?: boolean;
   className?: string;
 }
 
@@ -59,7 +64,7 @@ function formatChatDate(created_at?: string | null): string {
   }
 }
 
-export function LeftPanel({ onNewChat, onSettingsClick, chats, currentChatId, onSelectChat, onDeleteChat, className }: LeftPanelProps) {
+export function LeftPanel({ onNewChat, onSettingsClick, chats, currentChatId, onSelectChat, onDeleteChat, chatsLoading, className }: LeftPanelProps) {
   const { isLeftPanelOpen, toggleLeftPanel, isRightPanelOpen, theme, colors, colorMode, toggleColorMode } = useTheme();
   const [showSettings, setShowSettings] = useState(false);
 
@@ -169,7 +174,17 @@ export function LeftPanel({ onNewChat, onSettingsClick, chats, currentChatId, on
                   Chats
                 </p>
                 <div className="space-y-1">
-                  {chats && chats.length > 0 ? (
+                  {chatsLoading && (!chats || chats.length === 0) ? (
+                    // Show skeleton rows during the initial /api/chats
+                    // race so the sidebar doesn't momentarily flash
+                    // "No chats yet" before real data lands.
+                    <>
+                      <SkeletonChatRow />
+                      <SkeletonChatRow />
+                      <SkeletonChatRow />
+                      <SkeletonChatRow />
+                    </>
+                  ) : chats && chats.length > 0 ? (
                     chats.map((chat) => (
                       <div
                         key={chat.id}

@@ -50,16 +50,44 @@ export function useVoiceInput({ onResult, onError, lang, continuous = false }: U
     cachedLang.current = lang;
   }, [lang]);
 
-  const start = useCallback(() => {
+  const start = useCallback(async () => {
     if (typeof window === 'undefined') return;
     const impl =
       (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!impl) {
-      onError?.('Voice input is not supported in this browser.');
+      onError?.('Voice input is not supported in this browser. Try Chrome, Edge, or Safari.');
       return;
     }
+    // HTTPS gate — SpeechRecognition silently refuses on http://.
+    if (window.location.protocol !== 'https:' && window.location.hostname !== 'localhost') {
+      onError?.('Voice input requires a secure connection (HTTPS).');
+      return;
+    }
+
+    // Explicit microphone permission prompt via getUserMedia — this
+    // gives a clearer error path than SpeechRecognition's silent
+    // `not-allowed` response. The user sees the browser's mic-permission
+    // dialog here; if they deny, we surface a specific message rather
+    // than a confusing silent failure. The stream is immediately
+    // released — SpeechRecognition opens its own audio capture.
+    try {
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        stream.getTracks().forEach((t) => t.stop());
+      }
+    } catch (e: any) {
+      const name = e?.name || '';
+      if (name === 'NotAllowedError' || name === 'PermissionDeniedError') {
+        onError?.('Microphone permission denied. Enable it in your browser site settings.');
+      } else if (name === 'NotFoundError' || name === 'DevicesNotFoundError') {
+        onError?.('No microphone found on this device.');
+      } else {
+        onError?.(`Microphone error: ${e?.message || name || 'unknown'}`);
+      }
+      return;
+    }
+
     if (recognitionRef.current) {
-      // Already listening — stop first, then start fresh.
       try { recognitionRef.current.stop(); } catch {}
     }
 
@@ -69,8 +97,6 @@ export function useVoiceInput({ onResult, onError, lang, continuous = false }: U
     rec.lang = cachedLang.current || navigator.language || 'en-US';
 
     rec.onresult = (event: any) => {
-      // Walk only the NEW results since resultIndex — older ones have
-      // already been forwarded.
       for (let i = event.resultIndex; i < event.results.length; i++) {
         const r = event.results[i];
         const first: SpeechRecognitionResultLike = { transcript: r[0].transcript, isFinal: r.isFinal };
@@ -79,10 +105,18 @@ export function useVoiceInput({ onResult, onError, lang, continuous = false }: U
     };
 
     rec.onerror = (event: any) => {
-      // `no-speech` and `aborted` are routine — don't surface them.
       const err = event.error;
+      // Translate common error codes into something actionable.
+      const map: Record<string, string> = {
+        'not-allowed': 'Microphone permission denied.',
+        'service-not-allowed': 'Voice service not allowed on this page.',
+        'network': 'Voice input needs an internet connection — Chrome uses Google Cloud Speech.',
+        'audio-capture': 'No microphone detected.',
+        'language-not-supported': `Language ${rec.lang} not supported by this browser.`,
+        // 'no-speech' and 'aborted' are routine; surface them silently.
+      };
       if (err && err !== 'no-speech' && err !== 'aborted') {
-        onError?.(String(err));
+        onError?.(map[err] || `Voice error: ${err}`);
       }
       setListening(false);
     };

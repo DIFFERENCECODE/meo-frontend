@@ -563,7 +563,8 @@ function MeOAppInner() {
       solutionContent={<ErrorBoundary name="Solutions"><SolutionContent vendors={vendorCards} /></ErrorBoundary>}
       onCloseRightPanel={() => setViewMode('response')}
       onNewChat={handleNewChat}
-      chats={chatsLoading ? [] : chats}
+      chats={chats}
+      chatsLoading={chatsLoading}
       currentChatId={currentChatId}
       onSelectChat={handleSelectChat}
       onDeleteChat={async (id) => {

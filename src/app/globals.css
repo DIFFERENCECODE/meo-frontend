@@ -207,6 +207,15 @@
   animation-name: fade-in;
 }
 
+/* Shimmer sweep for <Skeleton /> placeholders. The gradient is 200%
+   wide so sliding background-position from 100% -> -100% produces a
+   left-to-right highlight sweep. Paired with Tailwind's animate-pulse
+   on the same element so the skeleton ALSO fades in/out. */
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
 .slide-in-from-right {
   animation-name: slide-in-from-right;
 }

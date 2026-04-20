@@ -163,8 +163,24 @@ export function ChatPanel({
         onInputChange(baseInputRef.current + transcript);
       }
     },
-    onError: (msg) => toast.error(`Voice input error: ${msg}`),
+    onError: (msg) => toast.error(msg),
   });
+
+  // Surface a transient toast when the mic turns on / off so the user
+  // never has to guess whether their click registered. `id` is fixed
+  // so successive toggles update the same toast instead of stacking.
+  const prevListeningRef = useRef(false);
+  useEffect(() => {
+    if (listening && !prevListeningRef.current) {
+      toast.info(`Listening in ${langMeta.nativeLabel}…`, {
+        id: 'voice-status',
+        duration: 2000,
+      });
+    } else if (!listening && prevListeningRef.current) {
+      toast.dismiss('voice-status');
+    }
+    prevListeningRef.current = listening;
+  }, [listening, langMeta.nativeLabel]);
 
   // Keep the voice base in sync when the user types or we reset the field.
   useEffect(() => {
