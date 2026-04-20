@@ -389,14 +389,22 @@ export function ChatPanel({
         background: `linear-gradient(180deg, ${colors.backgroundGradientStart} 0%, ${colors.backgroundGradientMid} 40%, ${colors.backgroundGradientEnd} 100%)`,
       }}
     >
-      {/* Header */}
+      {/* Header.
+          pr-16 reserves space on the right for RightPanel's floating
+          toggle (fixed top-4 right-4), otherwise the "Limited Preview"
+          badge gets clipped by the panel icon on mobile.
+          paddingTop: env(safe-area-inset-top) pushes the header below
+          the iOS status bar when installed as a PWA. */}
       <div
-        className="p-4 border-b flex items-center justify-between"
-        style={{ borderColor: colors.cardBorder }}
+        className="px-4 pr-16 py-4 border-b flex items-center justify-between gap-3"
+        style={{
+          borderColor: colors.cardBorder,
+          paddingTop: 'max(1rem, env(safe-area-inset-top))',
+        }}
       >
         <Logo size="small" onClick={onRefresh} vendor={vendor} />
         <div
-          className="px-3 py-1.5 rounded-full text-xs font-medium border"
+          className="px-3 py-1.5 rounded-full text-xs font-medium border whitespace-nowrap flex-shrink-0"
           style={{
             backgroundColor: `${colors.primary}20`,
             borderColor: `${colors.primary}40`,

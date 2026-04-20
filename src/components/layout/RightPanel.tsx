@@ -122,8 +122,14 @@ export function RightPanel({
             exit={{ opacity: 0, x: 20 }}
             transition={{ duration: 0.2 }}
             onClick={toggleRightPanel}
-            className="fixed top-4 right-4 z-50 p-3 rounded-xl backdrop-blur border shadow-lg hover:scale-105 transition-transform"
-            style={{ backgroundColor: theme.colors.card, borderColor: theme.colors.cardBorder }}
+            className="fixed right-4 z-50 p-3 rounded-xl backdrop-blur border shadow-lg hover:scale-105 transition-transform"
+            style={{
+              // Stack below the iOS status bar on PWA, and leave normal
+              // top-4 spacing on desktop. env() falls back to 1rem.
+              top: 'max(1rem, env(safe-area-inset-top))',
+              backgroundColor: theme.colors.card,
+              borderColor: theme.colors.cardBorder,
+            }}
             aria-label="Open right panel"
           >
             <PanelRight className="h-5 w-5" style={{ color: theme.colors.foreground }} />
