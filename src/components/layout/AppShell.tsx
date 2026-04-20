@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'motion/react';
 import { useTheme } from '@/theme/ThemeProvider';
 import { LeftPanel, ChatListItem } from './LeftPanel';
-import { getIdToken } from '@/app/lib/auth';
+import { apiFetch, getIdToken } from '@/app/lib/auth';
 import { cn } from '@/lib/utils';
 
 interface AppShellProps {
@@ -43,6 +43,30 @@ export function AppShell({ children, className }: AppShellProps) {
         onSettingsClick={() => {}}
         chats={chats}
         onSelectChat={(id) => router.push(`/?chat=${id}`)}
+        onDeleteChat={async (id) => {
+          // Optimistic remove — restore the row if the DELETE fails so
+          // the user isn't left thinking it worked.
+          setChats((prev) => prev.filter((c) => c.id !== id));
+          try {
+            const res = await apiFetch(`/api/chats/${id}`, { method: 'DELETE' });
+            if (!res.ok) throw new Error(`status ${res.status}`);
+            // If the deleted chat was the one currently open in the URL,
+            // bounce the user back to the root so they land on their
+            // next-most-recent conversation (or a fresh new chat).
+            const currentUrl = new URL(window.location.href);
+            if (currentUrl.searchParams.get('chat') === id) {
+              router.push('/');
+            }
+          } catch (err) {
+            console.error('Failed to delete chat', err);
+            // Best-effort reload to resync with backend state.
+            const token = getIdToken();
+            if (token) {
+              const res = await apiFetch('/api/chats');
+              if (res.ok) setChats(await res.json());
+            }
+          }
+        }}
       />
       <motion.main
         className="flex-1 flex flex-col h-full overflow-auto relative"

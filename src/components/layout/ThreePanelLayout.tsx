@@ -18,6 +18,7 @@ interface ThreePanelLayoutProps {
   chats?: ChatListItem[];
   currentChatId?: string | null;
   onSelectChat?: (id: string) => void;
+  onDeleteChat?: (id: string) => void;
   className?: string;
 }
 
@@ -32,6 +33,7 @@ export function ThreePanelLayout({
   chats,
   currentChatId,
   onSelectChat,
+  onDeleteChat,
   className,
 }: ThreePanelLayoutProps) {
   const { 
@@ -56,12 +58,13 @@ export function ThreePanelLayout({
       }}
     >
       {/* Left Panel */}
-      <LeftPanel 
-        onNewChat={onNewChat} 
+      <LeftPanel
+        onNewChat={onNewChat}
         onSettingsClick={onSettingsClick}
         chats={chats}
         currentChatId={currentChatId}
         onSelectChat={onSelectChat}
+        onDeleteChat={onDeleteChat}
       />
 
       {/* Center Panel (Chat) - flexes to fill remaining space */}

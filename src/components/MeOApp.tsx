@@ -457,6 +457,25 @@ function MeOAppInner() {
       chats={chatsLoading ? [] : chats}
       currentChatId={currentChatId}
       onSelectChat={handleSelectChat}
+      onDeleteChat={async (id) => {
+        // Optimistic remove from the sidebar; if the DELETE fails
+        // we pull a fresh list from the backend instead of restoring
+        // stale state by hand.
+        setChats((prev) => prev.filter((c) => c.id !== id));
+        if (currentChatId === id) {
+          setCurrentChatId(null);
+          setMessages([]);
+          setIsActive(false);
+        }
+        try {
+          const res = await apiFetch(`/api/chats/${id}`, { method: 'DELETE' });
+          if (!res.ok) throw new Error(`status ${res.status}`);
+        } catch (err) {
+          console.error('Failed to delete chat', err);
+          const resync = await apiFetch('/api/chats');
+          if (resync.ok) setChats(await resync.json());
+        }
+      }}
     >
       <div className="flex justify-end mt-4 mb-4 pr-20 gap-2">
         <button

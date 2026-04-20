@@ -12,7 +12,8 @@ import {
   Moon,
   User,
   CreditCard,
-  Sparkles
+  Sparkles,
+  Trash2,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -36,6 +37,9 @@ interface LeftPanelProps {
   currentChatId?: string | null;
   /** When user selects a chat in the list */
   onSelectChat?: (id: string) => void;
+  /** When user deletes a chat. Parent should DELETE /api/chats/{id} and
+   *  update local chat list + currentChatId. */
+  onDeleteChat?: (id: string) => void;
   className?: string;
 }
 
@@ -55,7 +59,7 @@ function formatChatDate(created_at?: string | null): string {
   }
 }
 
-export function LeftPanel({ onNewChat, onSettingsClick, chats, currentChatId, onSelectChat, className }: LeftPanelProps) {
+export function LeftPanel({ onNewChat, onSettingsClick, chats, currentChatId, onSelectChat, onDeleteChat, className }: LeftPanelProps) {
   const { isLeftPanelOpen, toggleLeftPanel, isRightPanelOpen, theme, colors, colorMode, toggleColorMode } = useTheme();
   const [showSettings, setShowSettings] = useState(false);
 
@@ -167,23 +171,49 @@ export function LeftPanel({ onNewChat, onSettingsClick, chats, currentChatId, on
                 <div className="space-y-1">
                   {chats && chats.length > 0 ? (
                     chats.map((chat) => (
-                      <button
+                      <div
                         key={chat.id}
-                        type="button"
-                        onClick={() => onSelectChat?.(chat.id)}
-                        className="w-full text-left px-3 py-2 rounded-lg text-sm truncate transition-colors hover:bg-white/5"
+                        className="group relative w-full rounded-lg transition-colors hover:bg-white/5"
                         style={{
-                          color: colors.foreground,
-                          backgroundColor: currentChatId === chat.id ? colors.accent || 'transparent' : undefined,
+                          backgroundColor:
+                            currentChatId === chat.id ? colors.accent || 'transparent' : undefined,
                         }}
                       >
-                        <span className="block truncate">{chat.title}</span>
-                        {formatChatDate(chat.updated_at || chat.created_at) && (
-                          <span className="block text-xs mt-0.5" style={{ color: colors.muted }}>
-                            {formatChatDate(chat.updated_at || chat.created_at)}
-                          </span>
+                        <button
+                          type="button"
+                          onClick={() => onSelectChat?.(chat.id)}
+                          className="w-full text-left px-3 py-2 pr-9 rounded-lg text-sm truncate"
+                          style={{ color: colors.foreground }}
+                        >
+                          <span className="block truncate">{chat.title}</span>
+                          {formatChatDate(chat.updated_at || chat.created_at) && (
+                            <span
+                              className="block text-xs mt-0.5"
+                              style={{ color: colors.muted }}
+                            >
+                              {formatChatDate(chat.updated_at || chat.created_at)}
+                            </span>
+                          )}
+                        </button>
+                        {onDeleteChat && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              // Quick confirm — plain browser prompt keeps this
+                              // in one file. Swap for a toast/modal later.
+                              if (window.confirm(`Delete "${chat.title}"?`)) {
+                                onDeleteChat(chat.id);
+                              }
+                            }}
+                            aria-label="Delete chat"
+                            className="absolute right-1.5 top-1/2 -translate-y-1/2 p-1.5 rounded-md opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity hover:bg-red-500/15"
+                            style={{ color: colors.muted }}
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
                         )}
-                      </button>
+                      </div>
                     ))
                   ) : (
                     <p className="px-3 py-2 text-sm" style={{ color: colors.muted }}>

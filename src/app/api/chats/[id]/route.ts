@@ -36,3 +36,29 @@ export async function PATCH(
     return NextResponse.json({ error: 'Failed to update chat' }, { status: 500 });
   }
 }
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const authHeader = request.headers.get('authorization');
+  if (!authHeader) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+  const { id } = await params;
+  if (!id) {
+    return NextResponse.json({ error: 'Chat id required' }, { status: 400 });
+  }
+  try {
+    const res = await fetch(getBackendUrl(`/chats/${id}`), {
+      method: 'DELETE',
+      headers: { Authorization: authHeader },
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) return NextResponse.json(data, { status: res.status });
+    return NextResponse.json(data);
+  } catch (e) {
+    console.error('[Chats] DELETE error', e);
+    return NextResponse.json({ error: 'Failed to delete chat' }, { status: 500 });
+  }
+}
