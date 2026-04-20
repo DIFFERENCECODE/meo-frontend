@@ -372,7 +372,57 @@ export function ChatPanel({
                     className="prose prose-sm max-w-none leading-relaxed"
                     style={{ color: `${colors.foreground}e6` }}
                   >
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
+                      // Tailwind's `prose` styles tables but leaves
+                      // borders near-invisible in dark mode. Explicit
+                      // component overrides give us a consistent look
+                      // regardless of the surrounding typography class:
+                      // rounded card, visible column separators, zebra
+                      // rows, bold header. Also wraps in overflow-x-auto
+                      // so wide tables don't clip on narrow panels.
+                      components={{
+                        table: ({ node, ...props }) => (
+                          <div className="my-3 overflow-x-auto rounded-lg border" style={{ borderColor: colors.cardBorder }}>
+                            <table className="min-w-full text-sm border-collapse" {...props} />
+                          </div>
+                        ),
+                        thead: ({ node, ...props }) => (
+                          <thead style={{ backgroundColor: `${colors.card}b0` }} {...props} />
+                        ),
+                        tr: ({ node, ...props }) => (
+                          <tr className="border-t" style={{ borderColor: `${colors.cardBorder}80` }} {...props} />
+                        ),
+                        th: ({ node, ...props }) => (
+                          <th
+                            className="px-3 py-2 text-left font-semibold text-xs uppercase tracking-wide"
+                            style={{ color: colors.foreground }}
+                            {...props}
+                          />
+                        ),
+                        td: ({ node, ...props }) => (
+                          <td className="px-3 py-2 align-top" style={{ color: colors.foreground }} {...props} />
+                        ),
+                        code: ({ node, className, ...props }) => (
+                          // Inline code — the prose class gives it a
+                          // background that clashes with the bubble; use
+                          // a lighter chip tied to the theme instead.
+                          <code
+                            className={className || ''}
+                            style={{
+                              backgroundColor: `${colors.primary}20`,
+                              color: colors.foreground,
+                              padding: '0.1rem 0.35rem',
+                              borderRadius: '0.25rem',
+                              fontSize: '0.85em',
+                            }}
+                            {...props}
+                          />
+                        ),
+                      }}
+                    >
+                      {msg.content}
+                    </ReactMarkdown>
                   </div>
                 </div>
               )}
