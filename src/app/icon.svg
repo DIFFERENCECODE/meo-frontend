@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!--
+    MeO app icon. Rounded-square dark background with the metabolic
+    droplet mark, mirroring the in-app logo. Next.js 16 auto-generates
+    the right favicon / apple-touch-icon sizes from this single SVG.
+  -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0f3e2f"/>
+      <stop offset="100%" stop-color="#08241c"/>
+    </linearGradient>
+    <linearGradient id="drop" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#b7f178"/>
+      <stop offset="100%" stop-color="#5cbf3f"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" ry="14" fill="url(#bg)"/>
+  <!-- Droplet: pointed top, circular bottom, teardrop tangent math. -->
+  <path
+    d="M32 10
+       C32 10, 18 26, 18 38
+       A14 14 0 0 0 46 38
+       C46 26, 32 10, 32 10 Z"
+    fill="url(#drop)"
+  />
+  <!-- Highlight -->
+  <ellipse cx="26" cy="32" rx="3" ry="5" fill="#ffffff" opacity="0.35"/>
+</svg>

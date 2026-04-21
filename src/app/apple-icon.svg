@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180">
+  <!--
+    iOS home-screen icon. Same visual language as icon.svg, scaled up.
+    Apple doesn't accept SVG for apple-touch-icon on older Safari, but
+    Next.js auto-generates a PNG export from this SVG at build time.
+  -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0f3e2f"/>
+      <stop offset="100%" stop-color="#08241c"/>
+    </linearGradient>
+    <linearGradient id="drop" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#b7f178"/>
+      <stop offset="100%" stop-color="#5cbf3f"/>
+    </linearGradient>
+  </defs>
+  <rect width="180" height="180" rx="40" ry="40" fill="url(#bg)"/>
+  <path
+    d="M90 30
+       C90 30, 50 75, 50 110
+       A40 40 0 0 0 130 110
+       C130 75, 90 30, 90 30 Z"
+    fill="url(#drop)"
+  />
+  <ellipse cx="72" cy="92" rx="8" ry="14" fill="#ffffff" opacity="0.35"/>
+</svg>
