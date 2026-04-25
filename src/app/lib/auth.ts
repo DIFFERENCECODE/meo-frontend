@@ -23,6 +23,23 @@ export function getGoogleLoginUrl(): string {
   return `https://${COGNITO_DOMAIN}/oauth2/authorize?${params.toString()}`;
 }
 
+// Apple federation goes through Cognito's Hosted UI exactly like Google.
+// `identity_provider=SignInWithApple` is the canonical name Cognito uses
+// for an Apple IdP — this string matches the IdP name configured in the
+// Cognito User Pool console (Apple Developer Services ID is wired up
+// there, not here). Once Apple is enabled as a federated IdP at the
+// Cognito layer, this URL just works.
+export function getAppleLoginUrl(): string {
+  const params = new URLSearchParams({
+    client_id: CLIENT_ID,
+    response_type: 'code',
+    scope: 'openid email profile',
+    redirect_uri: REDIRECT_URI,
+    identity_provider: 'SignInWithApple',
+  });
+  return `https://${COGNITO_DOMAIN}/oauth2/authorize?${params.toString()}`;
+}
+
 export async function exchangeCodeForTokens(code: string) {
   const res = await fetch('/api/auth/token', {
     method: 'POST',

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useTheme } from '@/theme/ThemeProvider';
-import { getGoogleLoginUrl } from '@/app/lib/auth';
+import { getGoogleLoginUrl, getAppleLoginUrl } from '@/app/lib/auth';
 
 interface LandingPageProps {
   onSignIn: () => void;
@@ -14,6 +14,10 @@ export default function LandingPage({ onSignIn, isExchanging = false }: LandingP
 
   const handleGoogleSignIn = () => {
     window.location.href = getGoogleLoginUrl();
+  };
+
+  const handleAppleSignIn = () => {
+    window.location.href = getAppleLoginUrl();
   };
 
   return (
@@ -68,6 +72,27 @@ export default function LandingPage({ onSignIn, isExchanging = false }: LandingP
             <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
           </svg>
           {isExchanging ? 'Signing you in...' : 'Continue with Google'}
+        </button>
+
+        {/* Apple sign-in routes through Cognito's Hosted UI just like
+            Google — IdP wiring lives in the User Pool console. */}
+        <button
+          onClick={handleAppleSignIn}
+          disabled={isExchanging}
+          className="w-full rounded-lg py-3 px-6 text-base font-semibold disabled:opacity-70 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-3 mb-3"
+          style={{
+            background: '#000000',
+            color: '#ffffff',
+            border: '1px solid #000000',
+          }}
+        >
+          {/* Apple's logo guidelines require the glyph to be on a solid
+              background; the plain SVG below is the standard simplified
+              Apple mark used by Sign in with Apple buttons. */}
+          <svg width="16" height="18" viewBox="0 0 16 18" fill="#ffffff">
+            <path d="M13.527 13.847c-.245.572-.535 1.099-.871 1.583-.458.66-.832 1.117-1.121 1.371-.448.413-.928.625-1.442.638-.369 0-.814-.105-1.331-.318-.519-.213-.996-.318-1.432-.318-.456 0-.946.105-1.471.318-.526.213-.95.324-1.275.336-.493.022-.985-.196-1.475-.656-.314-.276-.704-.748-1.171-1.418-.5-.713-.911-1.539-1.234-2.481C.41 11.917.247 10.985.247 10.084c0-1.032.223-1.922.671-2.667.351-.6.819-1.073 1.405-1.42.585-.347 1.218-.524 1.9-.535.391 0 .904.121 1.541.359.635.239 1.043.36 1.222.36.135 0 .587-.142 1.354-.425.726-.262 1.339-.371 1.84-.328 1.358.11 2.379.645 3.057 1.611-1.214.736-1.815 1.768-1.803 3.094.011 1.033.387 1.892 1.124 2.575.334.317.708.563 1.123.738-.09.262-.184.512-.284.752zM10.59.36c0 .77-.281 1.49-.84 2.155-.675.792-1.491 1.249-2.376 1.177-.011-.092-.018-.189-.018-.291 0-.74.323-1.532.895-2.179.286-.328.65-.6 1.092-.819.441-.214.858-.333 1.25-.353.011.103.017.207.017.31z"/>
+          </svg>
+          {isExchanging ? 'Signing you in...' : 'Continue with Apple'}
         </button>
 
         <div className="flex items-center gap-3 my-4">
