@@ -1,10 +1,10 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useTheme } from '@/theme/ThemeProvider';
 import { getIdToken } from '@/app/lib/auth';
 import { useDebounce } from '@/lib/hooks';
-import { Search, Trash2, UserCog, Zap, X } from 'lucide-react';
+import { Search, Trash2, UserCog, Zap, X, Download, ArrowUp, ArrowDown } from 'lucide-react';
 
 interface User {
   cognito_sub: string;
@@ -18,6 +18,12 @@ interface User {
   metabolic_goals: string[];
 }
 
+// Column keys driving sort. Kept in sync with the table headers below
+// so clicking a header is enough to switch sort target — no separate
+// dropdown needed.
+type SortKey = 'email' | 'name' | 'role' | 'meterbolic_userid' | 'vendor_id' | 'created_at';
+type SortDir = 'asc' | 'desc';
+
 export default function UsersPage() {
   const { colors } = useTheme();
   const [users, setUsers] = useState<User[]>([]);
@@ -27,9 +33,13 @@ export default function UsersPage() {
   const [editRole, setEditRole] = useState('');
   const [editVendor, setEditVendor] = useState('');
   const [saving, setSaving] = useState(false);
+  // Default to created_at DESC so the freshest signups land at the top —
+  // matches the dashboard's "Recent Signups" panel ordering.
+  const [sortKey, setSortKey] = useState<SortKey>('created_at');
+  const [sortDir, setSortDir] = useState<SortDir>('desc');
+  const [roleFilter, setRoleFilter] = useState<string>('all');
 
   const token = getIdToken();
-  const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
   const fetchUsers = useCallback(() => {
     if (!token) return;
@@ -43,13 +53,69 @@ export default function UsersPage() {
   useEffect(() => { fetchUsers(); }, [fetchUsers]);
 
   const debouncedSearch = useDebounce(search, 300);
-  const filtered = users.filter(
-    (u) =>
-      (u.email || '').toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-      (u.name || '').toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-      (u.meterbolic_userid || '').toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-      (u.role || '').toLowerCase().includes(debouncedSearch.toLowerCase())
-  );
+
+  // Sort + filter pipeline. Filter first (cheaper), then sort.
+  const filtered = useMemo(() => {
+    const q = debouncedSearch.toLowerCase();
+    const matched = users.filter((u) => {
+      if (roleFilter !== 'all' && u.role !== roleFilter) return false;
+      if (!q) return true;
+      return (
+        (u.email || '').toLowerCase().includes(q) ||
+        (u.name || '').toLowerCase().includes(q) ||
+        (u.meterbolic_userid || '').toLowerCase().includes(q) ||
+        (u.role || '').toLowerCase().includes(q)
+      );
+    });
+    const dir = sortDir === 'asc' ? 1 : -1;
+    return [...matched].sort((a, b) => {
+      const av = (a[sortKey] ?? '') as string;
+      const bv = (b[sortKey] ?? '') as string;
+      // created_at sorts as date; everything else as case-insensitive string.
+      if (sortKey === 'created_at') {
+        return (new Date(av).getTime() - new Date(bv).getTime()) * dir;
+      }
+      return av.toLowerCase().localeCompare(bv.toLowerCase()) * dir;
+    });
+  }, [users, debouncedSearch, sortKey, sortDir, roleFilter]);
+
+  const toggleSort = (key: SortKey) => {
+    if (sortKey === key) {
+      setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setSortKey(key);
+      // First click on a fresh column: descending for date, ascending
+      // for everything else (alphabetical readability default).
+      setSortDir(key === 'created_at' ? 'desc' : 'asc');
+    }
+  };
+
+  // CSV export of the *currently filtered + sorted* set, so the file
+  // matches what the admin sees on screen. RFC 4180 quoting: wrap every
+  // field in double quotes and escape embedded quotes by doubling.
+  const exportCsv = () => {
+    const headers = ['email', 'name', 'role', 'meterbolic_userid', 'vendor_id', 'created_at', 'cognito_sub'];
+    const escape = (v: unknown): string => {
+      const s = v == null ? '' : String(v);
+      return `"${s.replace(/"/g, '""')}"`;
+    };
+    const lines = [
+      headers.join(','),
+      ...filtered.map((u) =>
+        [u.email, u.name, u.role, u.meterbolic_userid, u.vendor_id, u.created_at, u.cognito_sub]
+          .map(escape).join(','),
+      ),
+    ];
+    const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `meo-users-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
 
   const handleEdit = (user: User) => {
     setEditingUser(user);
@@ -90,26 +156,66 @@ export default function UsersPage() {
     fetchUsers();
   };
 
+  // Sort-key map for the header row. Headers without a matching key
+  // (e.g. "Actions") are rendered non-clickable.
+  const HEADERS: Array<{ label: string; key?: SortKey }> = [
+    { label: 'Email', key: 'email' },
+    { label: 'Name', key: 'name' },
+    { label: 'Role', key: 'role' },
+    { label: 'Meterbolic ID', key: 'meterbolic_userid' },
+    { label: 'Vendor', key: 'vendor_id' },
+    { label: 'Created', key: 'created_at' },
+    { label: 'Actions' },
+  ];
+
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold" style={{ color: colors.foreground }}>User Management</h1>
-          <p className="text-sm" style={{ color: colors.muted }}>{users.length} total users</p>
+          <p className="text-sm" style={{ color: colors.muted }}>
+            {filtered.length === users.length
+              ? `${users.length} total users`
+              : `${filtered.length} of ${users.length} users`}
+          </p>
         </div>
+        <button
+          onClick={exportCsv}
+          disabled={filtered.length === 0}
+          className="flex items-center gap-2 px-4 py-2 rounded-lg border text-sm font-medium hover:opacity-90 disabled:opacity-50"
+          style={{ backgroundColor: colors.card, borderColor: colors.cardBorder, color: colors.foreground }}
+          title="Export visible users to CSV"
+        >
+          <Download className="h-4 w-4" />
+          Export CSV
+        </button>
       </div>
 
-      {/* Search */}
-      <div className="relative mb-6">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: colors.muted }} />
-        <input
-          type="text"
-          placeholder="Search by email, name, role, or Meterbolic ID..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full pl-10 pr-4 py-2.5 rounded-lg border text-sm"
+      {/* Search + role filter */}
+      <div className="flex items-center gap-3 mb-6">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: colors.muted }} />
+          <input
+            type="text"
+            placeholder="Search by email, name, role, or Meterbolic ID..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full pl-10 pr-4 py-2.5 rounded-lg border text-sm"
+            style={{ backgroundColor: colors.card, borderColor: colors.cardBorder, color: colors.foreground }}
+          />
+        </div>
+        <select
+          value={roleFilter}
+          onChange={(e) => setRoleFilter(e.target.value)}
+          className="rounded-lg px-3 py-2.5 border text-sm"
           style={{ backgroundColor: colors.card, borderColor: colors.cardBorder, color: colors.foreground }}
-        />
+          aria-label="Filter by role"
+        >
+          <option value="all">All roles</option>
+          {['demo', 'patient', 'clinician', 'practitioner', 'admin'].map((r) => (
+            <option key={r} value={r}>{r}</option>
+          ))}
+        </select>
       </div>
 
       {/* Table */}
@@ -118,11 +224,26 @@ export default function UsersPage() {
           <table className="w-full text-sm">
             <thead>
               <tr style={{ borderBottom: `1px solid ${colors.cardBorder}` }}>
-                {['Email', 'Name', 'Role', 'Meterbolic ID', 'Vendor', 'Created', 'Actions'].map((h) => (
-                  <th key={h} className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: colors.muted }}>
-                    {h}
-                  </th>
-                ))}
+                {HEADERS.map((h) => {
+                  const sortable = !!h.key;
+                  const isActive = sortable && sortKey === h.key;
+                  return (
+                    <th
+                      key={h.label}
+                      onClick={sortable ? () => toggleSort(h.key as SortKey) : undefined}
+                      className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider select-none ${sortable ? 'cursor-pointer hover:opacity-80' : ''}`}
+                      style={{ color: isActive ? colors.foreground : colors.muted }}
+                    >
+                      <span className="inline-flex items-center gap-1">
+                        {h.label}
+                        {isActive && (sortDir === 'asc'
+                          ? <ArrowUp className="h-3 w-3" />
+                          : <ArrowDown className="h-3 w-3" />
+                        )}
+                      </span>
+                    </th>
+                  );
+                })}
               </tr>
             </thead>
             <tbody>
