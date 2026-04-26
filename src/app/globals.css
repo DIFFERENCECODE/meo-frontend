@@ -103,10 +103,19 @@
 @theme inline {
   /* Cabinet Grotesk is the platform-wide brand face (mirrors the
      marketing landing page on shop.meterbolic.com). Loaded via the
-     Fontshare <link> in src/app/layout.tsx's <head>. Geist + system
-     stack stay in the cascade as fallbacks while Fontshare loads or
-     if it's unreachable. */
+     Fontshare <link> in src/app/layout.tsx's <head>.
+
+     --font-sans and --font-serif BOTH point at Cabinet Grotesk so
+     the platform reads as a single typographic family when the
+     font loads. The fallback chains differ by intent:
+       - sans:  falls back to Geist / system-ui (clean modern sans)
+       - serif: falls back to Iowan Old Style / Georgia (warm serif)
+     Headings (h1/h2) reference --font-serif so when Fontshare is
+     slow or blocked they degrade to a real serif rather than a
+     system sans — same graceful-fallback behaviour the marketing
+     landing page has. */
   --font-sans: "Cabinet Grotesk", var(--font-geist-sans, ui-sans-serif), system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-serif: "Cabinet Grotesk", "Iowan Old Style", Georgia, "Times New Roman", serif;
   --font-mono: var(--font-geist-mono, ui-monospace, monospace);
 
   --color-background: var(--background);
@@ -159,10 +168,17 @@
        Times-style serif on h1/h2 etc. */
     font-family: var(--font-sans);
   }
-  /* Headings explicitly inherit Cabinet Grotesk too. Without these
-     rules the user-agent stylesheet sets h1/h2 to a serif font on
-     some browsers (notably Safari) before Tailwind's reset kicks in. */
-  h1, h2, h3, h4, h5, h6 {
+  /* Headings split — same pattern as the marketing landing page.
+     h1/h2 reference --font-serif so they render Cabinet Grotesk
+     when Fontshare loads, and a system serif (Iowan Old Style /
+     Georgia) as graceful fallback otherwise. h3-h5 use --font-sans
+     for tight readability when the font cascades down to system. */
+  h1, h2 {
+    font-family: var(--font-serif);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  h3, h4, h5, h6 {
     font-family: var(--font-sans);
     letter-spacing: -0.01em;
   }
