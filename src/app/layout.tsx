@@ -5,14 +5,21 @@ import { ThemeProvider } from "@/theme/ThemeProvider";
 import { LanguageProvider } from "@/i18n/LanguageContext";
 import "./globals.css";
 
+// Cabinet Grotesk is the primary face shared with the marketing
+// landing page (shop.meterbolic.com) so brand typography is
+// consistent across web app + landing + iOS/Android apps. Loaded
+// from Fontshare via a <link> in <head> below; Geist stays as a
+// fallback in case Fontshare is unreachable.
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
+  display: "swap",
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -105,6 +112,18 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        {/* Cabinet Grotesk — Fontshare CDN. Preconnect first so the
+            TLS handshake is paid for once, then the stylesheet
+            request is fast. Mirrors the marketing landing page's
+            font setup for cross-property typographic consistency. */}
+        <link rel="preconnect" href="https://api.fontshare.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://cdn.fontshare.com" crossOrigin="anonymous" />
+        <link
+          rel="stylesheet"
+          href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@400,500,700,800&display=swap"
+        />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         style={{ margin: 0, padding: 0, height: "100vh" }}

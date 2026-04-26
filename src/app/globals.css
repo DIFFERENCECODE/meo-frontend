@@ -101,7 +101,12 @@
 }
 
 @theme inline {
-  --font-sans: var(--font-geist-sans, ui-sans-serif, system-ui, sans-serif);
+  /* Cabinet Grotesk is the platform-wide brand face (mirrors the
+     marketing landing page on shop.meterbolic.com). Loaded via the
+     Fontshare <link> in src/app/layout.tsx's <head>. Geist + system
+     stack stay in the cascade as fallbacks while Fontshare loads or
+     if it's unreachable. */
+  --font-sans: "Cabinet Grotesk", var(--font-geist-sans, ui-sans-serif), system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-mono: var(--font-geist-mono, ui-monospace, monospace);
 
   --color-background: var(--background);
@@ -148,6 +153,18 @@
   }
   body {
     @apply bg-background text-foreground antialiased;
+    /* Set the resolved font-family on body (not html) so the
+       --font-sans variable resolves at body scope. Inheritance carries
+       it down to every descendant, overriding the browser's default
+       Times-style serif on h1/h2 etc. */
+    font-family: var(--font-sans);
+  }
+  /* Headings explicitly inherit Cabinet Grotesk too. Without these
+     rules the user-agent stylesheet sets h1/h2 to a serif font on
+     some browsers (notably Safari) before Tailwind's reset kicks in. */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-sans);
+    letter-spacing: -0.01em;
   }
 }
 
@@ -363,7 +380,7 @@ html {
   color: rgba(255, 255, 255, 0.92);
   font-size: 15px;
   line-height: 1.7;
-  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-family: var(--font-sans);
 }
 
 .medical-markdown > *:first-child {
