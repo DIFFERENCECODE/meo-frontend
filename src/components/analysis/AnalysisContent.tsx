@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { BarChart3 } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { BarChart3, Download, Loader2 } from 'lucide-react';
 import { useTheme } from '@/theme/ThemeProvider';
 import ReactECharts from 'echarts-for-react';
 import type { EChartsOption } from 'echarts';
 import { getValidIdToken } from '@/app/lib/auth';
 import { ScoreGauges } from './ScoreGauges';
+import type { ReportProfile, ReportScores, ReportMeasurement } from '@/lib/report';
 
 // Types
 interface GraphDataPoint {
@@ -101,6 +102,7 @@ function RiskScoreGauge({ score }: { score: number }) {
 export function AnalysisContent({ graphData: graphDataProp }: AnalysisContentProps) {
   const { theme } = useTheme();
   const [fetchedGraphData, setFetchedGraphData] = useState<GraphDataPoint[] | null>(null);
+  const [downloading, setDownloading] = useState(false);
 
   // Self-fetch user data so the page is always correct, regardless of
   // whether a chat-driven graph_data payload populated MeOApp state.
@@ -201,6 +203,82 @@ export function AnalysisContent({ graphData: graphDataProp }: AnalysisContentPro
     ? Math.min(100, Math.max(0, Math.round(insulinComponent + recoveryComponent)))
     : 0;
 
+  const handleDownloadReport = useCallback(async () => {
+    setDownloading(true);
+    try {
+      const token = await getValidIdToken();
+      if (!token) return;
+
+      const [profileRes, userDataRes, sessionsRes] = await Promise.all([
+        fetch('/api/profile',    { headers: { Authorization: `Bearer ${token}` } }),
+        fetch('/api/user-data',  { headers: { Authorization: `Bearer ${token}` } }),
+        fetch('/api/scores/sessions', { headers: { Authorization: `Bearer ${token}` }, cache: 'no-store' }),
+      ]);
+
+      const profileData  = profileRes.ok  ? await profileRes.json()  : null;
+      const userData     = userDataRes.ok ? await userDataRes.json()  : null;
+      const sessionsData = sessionsRes.ok ? await sessionsRes.json()  : null;
+
+      // Build report profile
+      const reportProfile: ReportProfile = {
+        name:             profileData?.name ?? null,
+        email:            profileData?.email ?? '',
+        metabolic_goals:  profileData?.metabolic_goals ?? [],
+      };
+
+      // Build deduplicated measurements (same logic as profile page)
+      type RawMeasurement = { time: string; name: string; unit: string; value: number };
+      const rawMeasurements: RawMeasurement[] = Array.isArray(userData?.measurements)
+        ? userData.measurements
+        : [];
+      const seen = new Set<string>();
+      const reportMeasurements: ReportMeasurement[] = rawMeasurements
+        .filter((m) => !(['mg/dl', 'pMol', 'pounds', 'inch', 'µIU/ml'].includes(m.unit)))
+        .sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())
+        .filter((m) => {
+          const k = `${m.time}|${m.name}|${m.unit}`;
+          if (seen.has(k)) return false;
+          seen.add(k);
+          return true;
+        });
+
+      // Fetch scores for the most recent session
+      let reportScores: ReportScores | null = null;
+      const sessions: Array<{ measurementSeries: string }> = Array.isArray(sessionsData?.sessions)
+        ? sessionsData.sessions
+        : [];
+      if (sessions.length > 0) {
+        const latestSeries = sessions[0].measurementSeries;
+        const scoresRes = await fetch(
+          `/api/scores?series=${encodeURIComponent(latestSeries)}`,
+          { headers: { Authorization: `Bearer ${token}` }, cache: 'no-store' },
+        );
+        if (scoresRes.ok) {
+          const sd = await scoresRes.json();
+          reportScores = {
+            measurementSeries: sd.measurementSeries ?? null,
+            bas: sd.bas?.value ?? null,
+            vat: sd.vat?.value ?? null,
+          };
+        }
+      }
+
+      // Dynamic import keeps jsPDF out of the initial bundle
+      const { generateMetabolicReportPDF } = await import('@/lib/report');
+      generateMetabolicReportPDF(reportProfile, reportMeasurements, reportScores, {
+        peakGlucose,
+        peakInsulin,
+        recoveryTime,
+        riskScore,
+        hasRealData,
+      });
+    } catch (err) {
+      console.error('[report] PDF generation failed', err);
+    } finally {
+      setDownloading(false);
+    }
+  }, [peakGlucose, peakInsulin, recoveryTime, riskScore, hasRealData]);
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -212,6 +290,20 @@ export function AnalysisContent({ graphData: graphDataProp }: AnalysisContentPro
           <p className="text-sm" style={{ color: theme.colors.muted }}>
             Based on your latest data
           </p>
+          <button
+            onClick={handleDownloadReport}
+            disabled={downloading}
+            className="mt-3 flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all disabled:opacity-60"
+            style={{
+              backgroundColor: theme.colors.primary,
+              color: theme.colors.primaryForeground,
+            }}
+          >
+            {downloading
+              ? <Loader2 className="h-4 w-4 animate-spin" />
+              : <Download className="h-4 w-4" />}
+            {downloading ? 'Generating…' : 'Download Report'}
+          </button>
         </div>
         <div className="flex items-center gap-4">
           <div className="text-right">
