@@ -1,25 +1,28 @@
 /**
- * Metabolic Report PDF generator.
+ * Metabolic Report — full PDF generator.
  *
- * Color palette
- * ─────────────
- * Brand (from product_landing_page MarketingLandingPage.tsx `C` object):
- *   bgDeep   #143730  — page background
- *   bgCard   #1e463c  — card / section panels
- *   border   #2d5548  — dividers  (≈ rgba(255,255,255,0.10) on #1c4a40)
- *   primary  #a4d65e  — lime-green accent, values, highlights
- *   fg       #ffffff  — body text
- *   muted    #8ab5a0  — labels, secondary text
- *   danger   #f59e0b  — amber warning
+ * Brand palette  ← product_landing_page MarketingLandingPage.tsx `C` object
+ * Graph colours  ← Grafana panel overrides (named-colour → hex table below)
+ * Gauge colours  ← Grafana threshold steps (exact JSON values from dashboards)
  *
- * Graph series (from Grafana panel overrides):
- *   Glucose  #FADE2A  — "yellow" (Grafana fixedColor for Glucose FASTING)
- *   Insulin  #37872D  — "semi-dark-green" (Grafana fixedColor for Insulin POSTPRANDIAL)
+ * Grafana named-colour hex map (used verbatim from Grafana source):
+ *   green            #73BF69    dark-green     #37872D
+ *   semi-dark-green  #56A64B    light-green    #96D98D
+ *   yellow           #FADE2A    dark-yellow    #E0B400
+ *   orange           #FF9830    dark-orange    #E0752D
+ *   red              #F2495C    dark-red       #C4162A
  *
- * Score thresholds (from ScoreGauges.tsx, which mirrors Grafana gauges):
- *   BAS  green#22c55e → #EAB839@57.6 → #f97316@70 → #ef4444@80
- *   VAT  green#22c55e → #EAB839@1200
+ * BAS gauge thresholds (from 🔶 Biological Age Score.json):
+ *   green @ 0 → #EAB839 @ 57.6 → orange @ 70 → red @ 80   (min 21, max 85, unit Age)
+ *
+ * VAT gauge thresholds (from 🔶 Biological Age Score.json):
+ *   green @ 0 → #EAB839 @ 1200                             (min 0, max 2400, unit g)
+ *
+ * Kraft series colours (from timeseries panel overrides):
+ *   Glucose  → yellow         #FADE2A
+ *   Insulin  → semi-dark-green #56A64B
  */
+
 import { jsPDF } from 'jspdf';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -29,20 +32,17 @@ export interface ReportProfile {
   email: string;
   metabolic_goals?: string[];
 }
-
 export interface ReportMeasurement {
   time: string;
   name: string;
   value: number;
   unit: string;
 }
-
 export interface ReportScores {
   measurementSeries: string | null;
   bas: number | null;
   vat: number | null;
 }
-
 export interface ReportKraftMetrics {
   peakGlucose: number;
   peakInsulin: number;
@@ -51,70 +51,445 @@ export interface ReportKraftMetrics {
   hasRealData: boolean;
 }
 
-// ─── Brand palette (RGB triples) ─────────────────────────────────────────────
+// ─── Brand palette ────────────────────────────────────────────────────────────
 
-const BG_DEEP:    [number, number, number] = [20,  55,  48];   // #143730
-const BG_CARD:    [number, number, number] = [30,  70,  60];   // #1e463c
-const BG_HEADER:  [number, number, number] = [10,  30,  24];   // #0a1e18 (darker strip)
-const BORDER:     [number, number, number] = [45,  85,  72];   // #2d5548
-const PRIMARY:    [number, number, number] = [164, 214, 94];   // #a4d65e  lime
-const PRIMARY_FG: [number, number, number] = [26,  58,  42];   // #1a3a2a  dark on lime
-const FG:         [number, number, number] = [255, 255, 255];
-const MUTED:      [number, number, number] = [138, 181, 160];  // #8ab5a0
-const DANGER:     [number, number, number] = [245, 158, 11];   // #f59e0b
+const BG_DEEP    = '#143730';
+const BG_CARD    = '#1e463c';
+const BG_HEADER  = '#0a1e18';
+const BORDER     = '#2d5548';
+const PRIMARY    = '#a4d65e';   // lime-green
+const PRIMARY_FG = '#1a3a2a';
+const FG         = '#ffffff';
+const MUTED      = '#8ab5a0';
+
+// Grafana gauge threshold colours
+const G_GREEN    = '#73BF69';
+const G_YELLOW   = '#EAB839';
+const G_ORANGE   = '#FF9830';
+const G_RED      = '#F2495C';
 
 // Grafana series colours
-const GLUCOSE_COLOR: [number, number, number] = [250, 222, 42];  // #FADE2A
-const INSULIN_COLOR: [number, number, number] = [55,  135, 45];  // #37872D
+const GLUCOSE_HEX = '#FADE2A';   // yellow
+const INSULIN_HEX = '#56A64B';   // semi-dark-green
 
-// Grafana / ScoreGauges threshold colours
-const T_GREEN:  [number, number, number] = [34,  197, 94];   // #22c55e
-const T_YELLOW: [number, number, number] = [234, 184, 57];   // #EAB839
-const T_ORANGE: [number, number, number] = [249, 115, 22];   // #f97316
-const T_RED:    [number, number, number] = [239, 68,  68];   // #ef4444
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function basColor(bas: number): [number, number, number] {
-  if (bas >= 80)   return T_RED;
-  if (bas >= 70)   return T_ORANGE;
-  if (bas >= 57.6) return T_YELLOW;
-  return T_GREEN;
+// Helper: hex string → [r, g, b]
+function hex(h: string): [number, number, number] {
+  const c = h.replace('#', '');
+  return [parseInt(c.slice(0,2),16), parseInt(c.slice(2,4),16), parseInt(c.slice(4,6),16)];
 }
 
-function vatColor(vat: number): [number, number, number] {
-  return vat >= 1200 ? T_YELLOW : T_GREEN;
+// ─── Gauge segments type ──────────────────────────────────────────────────────
+
+interface Seg { from: number; to: number; color: string; }
+
+// ─── Clinical analysis ────────────────────────────────────────────────────────
+
+interface Analysis {
+  statusLabel: string;
+  statusColor: string;
+  headline: string;
+  detail: string;
+  tips: string[];
 }
 
-function riskColor(score: number): [number, number, number] {
-  if (score >= 70) return T_RED;
-  if (score >= 50) return T_ORANGE;
-  return T_GREEN;
+function basAnalysis(v: number): Analysis {
+  if (v < 57.6) return {
+    statusLabel: 'Healthy', statusColor: G_GREEN,
+    headline: 'Your biological age is within the healthy range.',
+    detail: 'Your Kraft Age Score indicates that your metabolic function is well-preserved relative to your chronological age. This reflects good glucose and insulin regulation.',
+    tips: [
+      'Continue regular metabolic testing (every 6–12 months).',
+      'Maintain a balanced diet low in refined carbohydrates.',
+      'Prioritise resistance training and 150+ min/week of aerobic activity.',
+      'Protect sleep quality — 7–9 hours supports metabolic health.',
+    ],
+  };
+  if (v < 70) return {
+    statusLabel: 'Elevated', statusColor: G_YELLOW,
+    headline: 'Early metabolic stress detected.',
+    detail: 'Your biological age score is above the healthy threshold, suggesting the body may be ageing faster metabolically than chronologically. Early intervention is the most effective approach.',
+    tips: [
+      'Reduce refined carbohydrates, sugar, and ultra-processed foods.',
+      'Add resistance training 3× per week to improve insulin sensitivity.',
+      'Consider fasting protocols (16:8 time-restricted eating).',
+      'Request a fasting insulin panel from your therapist.',
+      'Re-test within 3–6 months to track progress.',
+    ],
+  };
+  if (v < 80) return {
+    statusLabel: 'High', statusColor: G_ORANGE,
+    headline: 'Significant metabolic dysfunction present.',
+    detail: 'Your Kraft Age Score indicates accelerated biological ageing. This is often associated with chronic hyperinsulinemia, impaired glucose metabolism, or elevated visceral adiposity.',
+    tips: [
+      'Consult your metabolic health therapist promptly.',
+      'Consider a low-glycaemic or therapeutic ketogenic diet.',
+      'Request a comprehensive hormone and metabolic panel.',
+      'Structured supervised exercise programme recommended.',
+      'Prioritise stress reduction and sleep optimisation.',
+    ],
+  };
+  return {
+    statusLabel: 'Critical', statusColor: G_RED,
+    headline: 'Critically elevated — immediate action required.',
+    detail: 'Your biological age score is critically high, indicating severe metabolic dysfunction. Without intervention, this trajectory significantly increases cardiometabolic disease risk.',
+    tips: [
+      'Seek clinical review immediately.',
+      'Full metabolic, hormonal, and cardiovascular workup needed.',
+      'Therapeutic dietary and lifestyle intervention required under supervision.',
+      'Consider referral to an endocrinologist or metabolic specialist.',
+    ],
+  };
 }
 
-function drawBar(
+function vatAnalysis(v: number): Analysis {
+  if (v < 1200) return {
+    statusLabel: 'Healthy', statusColor: G_GREEN,
+    headline: 'Visceral fat within healthy limits.',
+    detail: 'Your KRAFT Deep Fat Score is in the healthy range. Visceral adipose tissue is well-managed, which is strongly associated with lower cardiometabolic risk.',
+    tips: [
+      'Maintain current lifestyle and dietary habits.',
+      'Continue regular metabolic testing.',
+      'Monitor trends over time — even small increases warrant attention.',
+    ],
+  };
+  return {
+    statusLabel: 'Elevated', statusColor: G_YELLOW,
+    headline: 'Excess visceral adiposity detected.',
+    detail: 'Your deep fat score is elevated. Visceral fat is metabolically active, releasing inflammatory cytokines that drive insulin resistance, cardiovascular disease, and accelerated ageing.',
+    tips: [
+      'Reduce refined carbohydrates and added sugar significantly.',
+      'Add 150+ min/week of moderate cardiovascular exercise.',
+      'Incorporate strength training — muscle tissue reduces visceral fat.',
+      'Consider time-restricted eating (16:8) to reduce fasting insulin.',
+      'Prioritise 7–9 hours of quality sleep nightly.',
+      'Manage chronic stress — cortisol drives visceral fat accumulation.',
+    ],
+  };
+}
+
+function riskAnalysis(risk: number, peakGlucose: number, peakInsulin: number): Analysis {
+  const glucoseHigh = peakGlucose >= 7.8;
+  const insulinHigh = peakInsulin >= 40;
+
+  if (risk < 50) return {
+    statusLabel: 'Low Risk', statusColor: G_GREEN,
+    headline: 'Healthy Kraft curve pattern.',
+    detail: `Your glucose (peak ${peakGlucose} mMol) and insulin (peak ${peakInsulin} µIU/mL) dynamics during the test are within normal parameters, indicating healthy metabolic flexibility and insulin sensitivity.`,
+    tips: [
+      'Maintain your current dietary and exercise habits.',
+      'Continue metabolic testing annually to track any changes.',
+      'Support insulin sensitivity with adequate sleep and stress management.',
+    ],
+  };
+  if (risk < 70) return {
+    statusLabel: 'Elevated', statusColor: G_ORANGE,
+    headline: 'Impaired metabolic response detected.',
+    detail: `Your Kraft curve shows ${glucoseHigh ? `elevated peak glucose (${peakGlucose} mMol, threshold 7.8)` : `normal glucose`}${insulinHigh ? ` and elevated peak insulin (${peakInsulin} µIU/mL, threshold 40 µIU/mL)` : ''}, suggesting developing insulin resistance.`,
+    tips: [
+      'Reduce post-meal glucose spikes: lower carbohydrate load per meal.',
+      'Add a 10–15 min walk after meals to improve glucose clearance.',
+      'Increase dietary fibre (vegetables, legumes, nuts).',
+      'Consider targeted supplementation: berberine, magnesium glycinate.',
+      'Discuss dietary adjustments with your metabolic health therapist.',
+    ],
+  };
+  return {
+    statusLabel: 'High Risk', statusColor: G_RED,
+    headline: 'Significant insulin resistance pattern.',
+    detail: `Your Kraft curve is consistent with marked insulin resistance. Peak glucose ${peakGlucose} mMol and peak insulin ${peakInsulin} µIU/mL indicate the pancreas is overcompensating to manage glucose, a key driver of metabolic disease.`,
+    tips: [
+      'Clinical review is strongly recommended.',
+      'Adopt a low-carbohydrate or therapeutic ketogenic diet.',
+      'Structured resistance and aerobic exercise programme (supervised).',
+      'Consider extended fasting protocols under clinical supervision.',
+      'Request HbA1c, fasting insulin, HOMA-IR, and lipid panel.',
+      'Discuss medication review if applicable with your GP.',
+    ],
+  };
+}
+
+// ─── Canvas speedometer gauge ─────────────────────────────────────────────────
+//
+// Gauge arc: clockwise from 150° (8 o'clock, lower-left) to 30° (4 o'clock, lower-right)
+// = 240° total sweep.  Canvas 0° = East (3 o'clock), positive = clockwise.
+//
+// Angle mapping:
+//   fraction f  →  canvas degrees = 150 + f * 240
+//   value v     →  f = (v - min) / (max - min)
+
+function drawSpeedometer(opts: {
+  value: number;
+  min: number;
+  max: number;
+  segs: Seg[];
+  title: string;
+  unitSuffix: string;
+  decimals: number;
+  accentColor: string;
+  size?: number;
+}): HTMLCanvasElement {
+  const { value, min, max, segs, title, unitSuffix, decimals, accentColor, size = 440 } = opts;
+
+  const canvas = document.createElement('canvas');
+  const W = size;
+  const H = Math.round(size * 0.68);
+  canvas.width = W;
+  canvas.height = H;
+  const ctx = canvas.getContext('2d')!;
+
+  // Background
+  ctx.fillStyle = BG_CARD;
+  ctx.fillRect(0, 0, W, H);
+
+  const cx = W / 2;
+  const cy = H * 0.82;
+  const R  = W * 0.355;
+  const TW = R * 0.20;   // track width
+
+  const deg = (d: number) => d * Math.PI / 180;
+  const START = 150;     // canvas degrees, lower-left
+  const SWEEP = 240;     // total span
+
+  const valToDeg = (v: number) =>
+    START + Math.max(0, Math.min(1, (v - min) / (max - min))) * SWEEP;
+
+  // ── Track background ──────────────────────────────────────────────────────
+  ctx.beginPath();
+  ctx.arc(cx, cy, R, deg(START), deg(START + SWEEP), false);
+  ctx.lineWidth = TW;
+  ctx.strokeStyle = 'rgba(255,255,255,0.07)';
+  ctx.lineCap = 'butt';
+  ctx.stroke();
+
+  // ── Threshold segments ────────────────────────────────────────────────────
+  for (const seg of segs) {
+    const sa = deg(valToDeg(Math.max(seg.from, min)));
+    const ea = deg(valToDeg(Math.min(seg.to,  max)));
+    if (sa >= ea) continue;
+    ctx.beginPath();
+    ctx.arc(cx, cy, R, sa, ea, false);
+    ctx.lineWidth = TW;
+    ctx.strokeStyle = seg.color;
+    ctx.lineCap = 'butt';
+    ctx.stroke();
+  }
+
+  // ── Value-fill highlight (thin inner ring up to current value) ────────────
+  const fraction = Math.max(0, Math.min(1, (value - min) / (max - min)));
+  if (fraction > 0) {
+    ctx.beginPath();
+    ctx.arc(cx, cy, R - TW * 0.55, deg(START), deg(START + fraction * SWEEP), false);
+    ctx.lineWidth = TW * 0.18;
+    ctx.strokeStyle = 'rgba(255,255,255,0.20)';
+    ctx.lineCap = 'round';
+    ctx.stroke();
+  }
+
+  // ── End-cap dots at min and max ────────────────────────────────────────────
+  const dotR = TW * 0.35;
+  const minX = cx + Math.cos(deg(START))          * R;
+  const minY = cy + Math.sin(deg(START))          * R;
+  const maxX = cx + Math.cos(deg(START + SWEEP))  * R;
+  const maxY = cy + Math.sin(deg(START + SWEEP))  * R;
+  ctx.fillStyle = 'rgba(255,255,255,0.25)';
+  ctx.beginPath(); ctx.arc(minX, minY, dotR, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(maxX, maxY, dotR, 0, Math.PI * 2); ctx.fill();
+
+  // ── Needle ────────────────────────────────────────────────────────────────
+  const needleAngle = deg(valToDeg(value));
+  const nLen = R * 0.80;
+  const nx = cx + Math.cos(needleAngle) * nLen;
+  const ny = cy + Math.sin(needleAngle) * nLen;
+  const baseLen = TW * 0.45;
+  const perpAngle = needleAngle + Math.PI / 2;
+  const bx = Math.cos(perpAngle) * baseLen;
+  const by = Math.sin(perpAngle) * baseLen;
+
+  // Shadow
+  ctx.beginPath();
+  ctx.moveTo(cx + bx * 0.6, cy + by * 0.6);
+  ctx.lineTo(nx + bx * 0.1, ny + by * 0.1);
+  ctx.lineWidth = W * 0.012;
+  ctx.strokeStyle = 'rgba(0,0,0,0.4)';
+  ctx.lineCap = 'round';
+  ctx.stroke();
+
+  // Needle body
+  ctx.beginPath();
+  ctx.moveTo(cx - bx, cy - by);
+  ctx.lineTo(nx, ny);
+  ctx.lineTo(cx + bx, cy + by);
+  ctx.closePath();
+  ctx.fillStyle = FG;
+  ctx.fill();
+
+  // Pivot cap
+  ctx.beginPath();
+  ctx.arc(cx, cy, TW * 0.55, 0, Math.PI * 2);
+  ctx.fillStyle = BG_HEADER;
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(cx, cy, TW * 0.28, 0, Math.PI * 2);
+  ctx.fillStyle = FG;
+  ctx.fill();
+
+  // ── Value label ───────────────────────────────────────────────────────────
+  const valStr = value.toFixed(decimals);
+  const valFs = Math.round(W * 0.115);
+  ctx.font = `bold ${valFs}px -apple-system, system-ui, sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.fillStyle = accentColor;
+  ctx.fillText(valStr, cx, cy - R * 0.40);
+
+  const unitFs = Math.round(W * 0.062);
+  ctx.font = `${unitFs}px -apple-system, system-ui, sans-serif`;
+  ctx.fillStyle = MUTED;
+  ctx.fillText(unitSuffix, cx, cy - R * 0.40 + unitFs * 1.4);
+
+  // ── Scale labels at arc ends ──────────────────────────────────────────────
+  const scalFs = Math.round(W * 0.055);
+  ctx.font = `${scalFs}px -apple-system, system-ui, sans-serif`;
+  ctx.fillStyle = 'rgba(255,255,255,0.35)';
+  ctx.textAlign = 'right';
+  ctx.fillText(String(min), minX - dotR * 1.4, minY + scalFs * 0.4);
+  ctx.textAlign = 'left';
+  ctx.fillText(String(max), maxX + dotR * 1.4, maxY + scalFs * 0.4);
+
+  // ── Title ─────────────────────────────────────────────────────────────────
+  const titleFs = Math.round(W * 0.072);
+  ctx.font = `bold ${titleFs}px -apple-system, system-ui, sans-serif`;
+  ctx.fillStyle = FG;
+  ctx.textAlign = 'center';
+  ctx.fillText(title, cx, titleFs * 1.2);
+
+  return canvas;
+}
+
+// ─── PDF layout helpers ───────────────────────────────────────────────────────
+
+const PW = 210, PH = 297, ML = 16, MR = 16;
+const INNER = PW - ML - MR;
+
+function fillBg(doc: jsPDF) {
+  doc.setFillColor(...hex(BG_DEEP));
+  doc.rect(0, 0, PW, PH, 'F');
+}
+
+function sectionLabel(doc: jsPDF, text: string, y: number) {
+  doc.setFontSize(7);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(...hex(MUTED));
+  doc.text(text.toUpperCase(), ML, y);
+}
+
+function rule(doc: jsPDF, y: number): number {
+  doc.setDrawColor(...hex(BORDER));
+  doc.setLineWidth(0.25);
+  doc.line(ML, y, PW - MR, y);
+  return y + 5;
+}
+
+function statusPill(doc: jsPDF, label: string, color: string, x: number, y: number) {
+  const [r, g, b] = hex(color);
+  doc.setFontSize(7.5);
+  doc.setFont('helvetica', 'bold');
+  const tw = (doc.getStringUnitWidth(label) * 7.5) / doc.internal.scaleFactor + 8;
+  doc.setFillColor(r, g, b, 0.18);
+  doc.setDrawColor(r, g, b);
+  doc.setLineWidth(0.4);
+  doc.roundedRect(x, y - 4, tw, 5.5, 1.5, 1.5, 'FD');
+  doc.setTextColor(r, g, b);
+  doc.text(label, x + 4, y);
+  return x + tw + 4;
+}
+
+/** Wrap text and return updated y */
+function wrappedText(
   doc: jsPDF,
-  x: number, y: number,
-  width: number, height: number,
-  fraction: number,
-  filledColor: [number, number, number],
-) {
-  doc.setFillColor(...BORDER);
-  doc.roundedRect(x, y, width, height, height / 2, height / 2, 'F');
-  const fillW = Math.max(height, Math.min(width, fraction * width));
-  doc.setFillColor(...filledColor);
-  doc.roundedRect(x, y, fillW, height, height / 2, height / 2, 'F');
+  text: string,
+  x: number,
+  y: number,
+  maxW: number,
+  size: number,
+  color: string,
+  bold = false,
+): number {
+  doc.setFontSize(size);
+  doc.setFont('helvetica', bold ? 'bold' : 'normal');
+  doc.setTextColor(...hex(color));
+  const lines = doc.splitTextToSize(text, maxW) as string[];
+  doc.text(lines, x, y);
+  return y + lines.length * (size * 0.4);
 }
 
-function dot(doc: jsPDF, cx: number, cy: number, r: number, c: [number, number, number]) {
-  doc.setFillColor(...c);
-  doc.circle(cx, cy, r, 'F');
-}
+/** Draw analysis card next to / below a gauge. Returns new y. */
+function analysisCard(
+  doc: jsPDF,
+  analysis: Analysis,
+  x: number,
+  y: number,
+  w: number,
+): number {
+  const pad = 4;
+  let cy = y + pad + 5;
 
-/** Fill every page's background with the brand deep-green. */
-function fillPageBg(doc: jsPDF, pw: number, ph: number) {
-  doc.setFillColor(...BG_DEEP);
-  doc.rect(0, 0, pw, ph, 'F');
+  // Status pill
+  statusPill(doc, analysis.statusLabel, analysis.statusColor, x + pad, cy);
+  cy += 7;
+
+  // Headline
+  cy = wrappedText(doc, analysis.headline, x + pad, cy, w - pad * 2, 9.5, FG, true) + 2;
+
+  // Detail
+  cy = wrappedText(doc, analysis.detail, x + pad, cy, w - pad * 2, 8, MUTED) + 3;
+
+  // Tips
+  doc.setFontSize(7.5);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(...hex(PRIMARY));
+  doc.text('RECOMMENDATIONS', x + pad, cy);
+  cy += 5;
+
+  for (const tip of analysis.tips) {
+    doc.setFontSize(7.5);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(...hex(FG));
+    // Bullet dot
+    doc.setFillColor(...hex(PRIMARY));
+    doc.circle(x + pad + 1.5, cy - 1.2, 0.9, 'F');
+    const lines = doc.splitTextToSize(tip, w - pad * 2 - 5) as string[];
+    doc.text(lines, x + pad + 5, cy);
+    cy += lines.length * 3.5 + 1.5;
+  }
+
+  const cardH = cy - y + pad;
+  // Draw card background (behind content) — re-draw
+  doc.setFillColor(...hex(BG_CARD));
+  doc.roundedRect(x, y, w, cardH, 2, 2, 'F');
+
+  // Left accent bar
+  doc.setFillColor(...hex(analysis.statusColor));
+  doc.rect(x, y, 2, cardH, 'F');
+
+  // Re-draw content on top
+  cy = y + pad + 5;
+  statusPill(doc, analysis.statusLabel, analysis.statusColor, x + pad + 2, cy);
+  cy += 7;
+  cy = wrappedText(doc, analysis.headline, x + pad + 2, cy, w - pad * 2 - 2, 9.5, FG, true) + 2;
+  cy = wrappedText(doc, analysis.detail, x + pad + 2, cy, w - pad * 2 - 2, 8, MUTED) + 3;
+  doc.setFontSize(7.5); doc.setFont('helvetica', 'bold'); doc.setTextColor(...hex(PRIMARY));
+  doc.text('RECOMMENDATIONS', x + pad + 2, cy);
+  cy += 5;
+  for (const tip of analysis.tips) {
+    doc.setFontSize(7.5); doc.setFont('helvetica', 'normal'); doc.setTextColor(...hex(FG));
+    doc.setFillColor(...hex(PRIMARY));
+    doc.circle(x + pad + 3.5, cy - 1.2, 0.9, 'F');
+    const lines = doc.splitTextToSize(tip, w - pad * 2 - 7) as string[];
+    doc.text(lines, x + pad + 7, cy);
+    cy += lines.length * 3.5 + 1.5;
+  }
+
+  return y + cardH + 5;
 }
 
 // ─── Main export ──────────────────────────────────────────────────────────────
@@ -126,376 +501,311 @@ export function generateMetabolicReportPDF(
   kraft: ReportKraftMetrics,
 ): void {
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+  fillBg(doc);
 
-  const PW = 210;
-  const PH = 297;
-  const ML = 18;
-  const MR = 18;
-  const INNER = PW - ML - MR;
+  const GAUGE_W = (INNER - 5) / 2;   // two side-by-side gauges
+  const GAUGE_H = GAUGE_W * 0.68;    // match canvas aspect ratio
 
-  // ── Page 1 background ──────────────────────────────────────────────────────
-  fillPageBg(doc, PW, PH);
+  const MINI_W  = (INNER - 5) / 2;
+  const MINI_H  = MINI_W * 0.68;
 
   let y = 0;
 
-  // ─── Utilities ───────────────────────────────────────────────────────────
+  // ─── Header ───────────────────────────────────────────────────────────────
+  doc.setFillColor(...hex(BG_HEADER));
+  doc.rect(0, 0, PW, 22, 'F');
 
-  const t = (
-    str: string,
-    x: number,
-    size: number,
-    color: [number, number, number],
-    opts?: { align?: 'left' | 'center' | 'right'; bold?: boolean },
-  ) => {
-    doc.setFontSize(size);
-    doc.setTextColor(...color);
-    doc.setFont('helvetica', opts?.bold ? 'bold' : 'normal');
-    doc.text(str, x, y, { align: opts?.align ?? 'left' });
-  };
+  doc.setFillColor(...hex(PRIMARY));
+  doc.roundedRect(ML, 4, 14, 14, 2.5, 2.5, 'F');
+  doc.setFontSize(10); doc.setFont('helvetica', 'bold');
+  doc.setTextColor(...hex(PRIMARY_FG));
+  doc.text('M', ML + 7, 13, { align: 'center' });
 
-  const rule = () => {
-    doc.setDrawColor(...BORDER);
-    doc.setLineWidth(0.25);
-    doc.line(ML, y, PW - MR, y);
-    y += 5;
-  };
+  doc.setFontSize(13); doc.setFont('helvetica', 'bold');
+  doc.setTextColor(...hex(PRIMARY));
+  doc.text('METERBOLIC', ML + 18, 13);
 
-  const label = (str: string, x = ML) => {
-    doc.setFontSize(7);
-    doc.setTextColor(...MUTED);
-    doc.setFont('helvetica', 'bold');
-    // Letter-spacing via individual chars is not natively supported —
-    // uppercase + small size achieves the same effect
-    doc.text(str.toUpperCase(), x, y);
-  };
-
-  // ─── Header bar ───────────────────────────────────────────────────────────
-
-  doc.setFillColor(...BG_HEADER);
-  doc.rect(0, 0, PW, 24, 'F');
-
-  // Lime badge
-  doc.setFillColor(...PRIMARY);
-  doc.roundedRect(ML, 5, 14, 14, 2.5, 2.5, 'F');
-  doc.setFontSize(10);
-  doc.setTextColor(...PRIMARY_FG);
-  doc.setFont('helvetica', 'bold');
-  doc.text('M', ML + 7, 14, { align: 'center' });
-
-  // Wordmark
-  doc.setFontSize(13);
-  doc.setTextColor(...PRIMARY);
-  doc.setFont('helvetica', 'bold');
-  doc.text('METERBOLIC', ML + 19, 14);
-
-  // Date (right-aligned)
-  doc.setFontSize(7.5);
-  doc.setFont('helvetica', 'normal');
-  doc.setTextColor(...MUTED);
+  doc.setFontSize(7.5); doc.setFont('helvetica', 'normal');
+  doc.setTextColor(...hex(MUTED));
   doc.text(
     `Generated ${new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}`,
-    PW - MR,
-    14,
-    { align: 'right' },
+    PW - MR, 13, { align: 'right' },
   );
 
-  y = 32;
+  y = 30;
 
-  // ─── Report title ─────────────────────────────────────────────────────────
-
-  t('Metabolic Health Report', ML, 17, FG, { bold: true });
+  // ─── Page title ───────────────────────────────────────────────────────────
+  doc.setFontSize(17); doc.setFont('helvetica', 'bold');
+  doc.setTextColor(...hex(FG));
+  doc.text('Metabolic Health Report', ML, y);
   y += 7;
-  rule();
+  y = rule(doc, y);
 
   // ─── Patient ──────────────────────────────────────────────────────────────
-
-  label('Patient');
+  sectionLabel(doc, 'Patient', y);
   y += 6;
 
-  const displayName = profile.name || profile.email;
-  t(displayName, ML, 13, FG, { bold: true });
-  y += 6;
-  t(profile.email, ML, 9, MUTED);
-  y += 6;
+  doc.setFontSize(12); doc.setFont('helvetica', 'bold'); doc.setTextColor(...hex(FG));
+  doc.text(profile.name || profile.email, ML, y);
+  y += 5;
+  doc.setFontSize(8.5); doc.setFont('helvetica', 'normal'); doc.setTextColor(...hex(MUTED));
+  doc.text(profile.email, ML, y);
+  y += 5;
 
-  if (profile.metabolic_goals && profile.metabolic_goals.length > 0) {
-    const wrapped = doc.setFontSize(8.5)
-      && doc.splitTextToSize('Goals: ' + profile.metabolic_goals.join(', '), INNER);
-    doc.setFontSize(8.5);
-    doc.setTextColor(...MUTED);
-    doc.setFont('helvetica', 'normal');
-    doc.text(wrapped, ML, y);
-    y += (wrapped.length as number) * 5;
+  if (profile.metabolic_goals?.length) {
+    y = wrappedText(doc, 'Goals: ' + profile.metabolic_goals.join(', '), ML, y, INNER, 8, MUTED) + 2;
   }
+  y += 3;
+  y = rule(doc, y);
 
-  y += 4;
-  rule();
-
-  // ─── Scores ───────────────────────────────────────────────────────────────
-
-  label('Metabolic Scores');
-  y += 7;
+  // ─── Metabolic Scores ─────────────────────────────────────────────────────
+  sectionLabel(doc, 'Metabolic Scores', y);
+  y += 6;
 
   if (scores && (scores.bas !== null || scores.vat !== null)) {
     if (scores.measurementSeries) {
-      // Pill tag for session
+      doc.setFontSize(7.5); doc.setFont('helvetica', 'bold'); doc.setTextColor(...hex(PRIMARY));
       const pillLabel = `Session: ${scores.measurementSeries}`;
-      const pillW = doc.setFontSize(7.5) || 0;
-      void pillW;
-      doc.setFontSize(7.5);
-      const tw = (doc.getStringUnitWidth(pillLabel) * 7.5) / doc.internal.scaleFactor + 6;
-      doc.setFillColor(...BG_CARD);
-      doc.roundedRect(ML, y - 4, tw, 6, 1.5, 1.5, 'F');
-      doc.setTextColor(...PRIMARY);
-      doc.setFont('helvetica', 'bold');
-      doc.text(pillLabel, ML + 3, y);
-      y += 8;
+      const pw2 = (doc.getStringUnitWidth(pillLabel) * 7.5) / doc.internal.scaleFactor + 8;
+      doc.setFillColor(...hex(BG_CARD));
+      doc.roundedRect(ML, y - 3.5, pw2, 5.5, 1.5, 1.5, 'F');
+      doc.text(pillLabel, ML + 4, y);
+      y += 7;
     }
 
-    // ── BAS gauge bar ────────────────────────────────────────────────────
+    const BAS_SEGS: Seg[] = [
+      { from: 21,   to: 57.6, color: G_GREEN },
+      { from: 57.6, to: 70,   color: G_YELLOW },
+      { from: 70,   to: 80,   color: G_ORANGE },
+      { from: 80,   to: 85,   color: G_RED },
+    ];
+    const VAT_SEGS: Seg[] = [
+      { from: 0,    to: 1200, color: G_GREEN },
+      { from: 1200, to: 2400, color: G_YELLOW },
+    ];
+
+    // Render BAS gauge (left)
     if (scores.bas !== null) {
-      const bColor = basColor(scores.bas);
-
-      // Card background
-      doc.setFillColor(...BG_CARD);
-      doc.roundedRect(ML, y, INNER, 22, 2, 2, 'F');
-
-      dot(doc, ML + 6, y + 6, 2.5, bColor);
-      t('Biological Age Score', ML + 11, 9.5, FG, { bold: true });
-      // Value right-aligned
-      doc.setFontSize(13);
-      doc.setTextColor(...bColor);
-      doc.setFont('helvetica', 'bold');
-      doc.text(`${scores.bas.toFixed(1)} Age`, PW - MR - 2, y + 8, { align: 'right' });
-
-      const basFrac = Math.max(0, Math.min(1, (scores.bas - 21) / (85 - 21)));
-      drawBar(doc, ML + 5, y + 13, INNER - 10, 4, basFrac, bColor);
-
-      // Scale labels
-      doc.setFontSize(6.5);
-      doc.setTextColor(...MUTED);
-      doc.setFont('helvetica', 'normal');
-      doc.text('21', ML + 5, y + 21);
-      doc.text('85', PW - MR - 5, y + 21, { align: 'right' });
-
-      y += 27;
+      const ba = basAnalysis(scores.bas);
+      const gCanvas = drawSpeedometer({
+        value: scores.bas, min: 21, max: 85, segs: BAS_SEGS,
+        title: 'Biological Age Score', unitSuffix: 'Age',
+        decimals: 1, accentColor: ba.statusColor, size: 440,
+      });
+      doc.addImage(gCanvas, 'PNG', ML, y, GAUGE_W, GAUGE_H);
     }
 
-    // ── VAT gauge bar ────────────────────────────────────────────────────
+    // Render VAT gauge (right)
     if (scores.vat !== null) {
-      const vColor = vatColor(scores.vat);
-
-      doc.setFillColor(...BG_CARD);
-      doc.roundedRect(ML, y, INNER, 22, 2, 2, 'F');
-
-      dot(doc, ML + 6, y + 6, 2.5, vColor);
-      t('KRAFT Deep Fat Score', ML + 11, 9.5, FG, { bold: true });
-      doc.setFontSize(13);
-      doc.setTextColor(...vColor);
-      doc.setFont('helvetica', 'bold');
-      doc.text(`${scores.vat.toFixed(0)} g`, PW - MR - 2, y + 8, { align: 'right' });
-
-      const vatFrac = Math.max(0, Math.min(1, scores.vat / 2400));
-      drawBar(doc, ML + 5, y + 13, INNER - 10, 4, vatFrac, vColor);
-
-      doc.setFontSize(6.5);
-      doc.setTextColor(...MUTED);
-      doc.setFont('helvetica', 'normal');
-      doc.text('0', ML + 5, y + 21);
-      doc.text('2400 g', PW - MR - 5, y + 21, { align: 'right' });
-
-      y += 27;
+      const va = vatAnalysis(scores.vat);
+      const gCanvas = drawSpeedometer({
+        value: scores.vat, min: 0, max: 2400, segs: VAT_SEGS,
+        title: 'KRAFT Deep Fat Score', unitSuffix: 'g',
+        decimals: 0, accentColor: va.statusColor, size: 440,
+      });
+      doc.addImage(gCanvas, 'PNG', ML + GAUGE_W + 5, y, GAUGE_W, GAUGE_H);
     }
+
+    y += GAUGE_H + 4;
+
+    // Analysis cards side by side
+    const analysisY = y;
+    let leftEnd = analysisY;
+    let rightEnd = analysisY;
+
+    if (scores.bas !== null) {
+      leftEnd = analysisCard(doc, basAnalysis(scores.bas), ML, analysisY, GAUGE_W);
+    }
+    if (scores.vat !== null) {
+      rightEnd = analysisCard(doc, vatAnalysis(scores.vat), ML + GAUGE_W + 5, analysisY, GAUGE_W);
+    }
+
+    y = Math.max(leftEnd, rightEnd) + 3;
   } else {
-    t('No scores available for this account.', ML, 9, MUTED);
+    doc.setFontSize(9); doc.setFont('helvetica', 'normal'); doc.setTextColor(...hex(MUTED));
+    doc.text('No score data available. Contact your therapist to capture your data.', ML, y);
     y += 10;
   }
 
-  y += 3;
-  rule();
+  y = rule(doc, y);
 
-  // ─── Kraft Curve ──────────────────────────────────────────────────────────
-
-  label('Kraft Curve Analysis');
-  y += 7;
+  // ─── Kraft Curve Analysis ─────────────────────────────────────────────────
+  sectionLabel(doc, 'Kraft Curve Analysis', y);
+  y += 6;
 
   if (kraft.hasRealData) {
-    const rColor = riskColor(kraft.riskScore);
-
-    // 4-metric grid (2 cols × 2 rows)
-    const colW = INNER / 2;
-    const ROW_H = 22;
-    const metrics: Array<{ label: string; value: string; color: [number, number, number] }> = [
-      { label: 'Peak Glucose', value: `${kraft.peakGlucose} mMol`,   color: GLUCOSE_COLOR },
-      { label: 'Peak Insulin', value: `${kraft.peakInsulin} µIU/mL`, color: INSULIN_COLOR },
-      { label: 'Recovery Time', value: kraft.recoveryTime,             color: PRIMARY },
-      { label: 'Risk Score',    value: `${kraft.riskScore} / 100`,    color: rColor },
+    const RISK_SEGS: Seg[] = [
+      { from: 0,  to: 50,  color: G_GREEN },
+      { from: 50, to: 70,  color: G_ORANGE },
+      { from: 70, to: 100, color: G_RED },
+    ];
+    const GLUCOSE_SEGS: Seg[] = [
+      { from: 0,    to: 7.8,  color: G_GREEN },
+      { from: 7.8,  to: 11.1, color: G_YELLOW },
+      { from: 11.1, to: 15,   color: G_RED },
+    ];
+    const INSULIN_SEGS: Seg[] = [
+      { from: 0,   to: 40,  color: G_GREEN },
+      { from: 40,  to: 100, color: G_YELLOW },
+      { from: 100, to: 150, color: G_RED },
     ];
 
-    metrics.forEach((m, i) => {
-      const col = i % 2;
-      const row = Math.floor(i / 2);
-      const mx = ML + col * colW;
-      const my = y + row * ROW_H;
+    const rAnalysis = riskAnalysis(kraft.riskScore, kraft.peakGlucose, kraft.peakInsulin);
 
-      doc.setFillColor(...BG_CARD);
-      doc.roundedRect(mx, my, colW - 3, ROW_H - 2, 2, 2, 'F');
-
-      doc.setFontSize(14);
-      doc.setFont('helvetica', 'bold');
-      doc.setTextColor(...m.color);
-      doc.text(m.value, mx + 5, my + 11);
-
-      doc.setFontSize(7.5);
-      doc.setFont('helvetica', 'normal');
-      doc.setTextColor(...MUTED);
-      doc.text(m.label, mx + 5, my + 17);
-    });
-
-    y += metrics.length / 2 * ROW_H + 4;
-
-    // Risk bar
-    doc.setFontSize(8);
-    doc.setTextColor(...MUTED);
-    doc.setFont('helvetica', 'normal');
-    doc.text('Risk', ML, y + 3.5);
-    drawBar(doc, ML + 9, y, INNER - 9, 5, kraft.riskScore / 100, rColor);
-    y += 11;
-
-    // Grafana series legend pill row
-    const pills: Array<{ label: string; color: [number, number, number] }> = [
-      { label: 'Glucose',  color: GLUCOSE_COLOR },
-      { label: 'Insulin',  color: INSULIN_COLOR },
-    ];
-    let px = ML;
-    for (const pill of pills) {
-      const lbl = pill.label;
-      doc.setFontSize(7.5);
-      const tw = (doc.getStringUnitWidth(lbl) * 7.5) / doc.internal.scaleFactor + 12;
-      doc.setFillColor(...BG_CARD);
-      doc.roundedRect(px, y, tw, 7, 1.5, 1.5, 'F');
-      doc.setFillColor(...pill.color);
-      doc.circle(px + 4, y + 3.5, 1.8, 'F');
-      doc.setTextColor(...FG);
-      doc.setFont('helvetica', 'normal');
-      doc.text(lbl, px + 8, y + 5);
-      px += tw + 4;
+    // Page break check before Risk gauge
+    if (y + GAUGE_H + 80 > PH - 14) {
+      doc.addPage(); fillBg(doc);
+      doc.setFillColor(...hex(BG_HEADER)); doc.rect(0, 0, PW, 10, 'F');
+      doc.setFontSize(7); doc.setFont('helvetica', 'bold');
+      doc.setTextColor(...hex(PRIMARY)); doc.text('METERBOLIC', ML, 7);
+      y = 18;
     }
-    y += 12;
+
+    // Risk score gauge — centered, slightly larger
+    const riskW = INNER * 0.6;
+    const riskH = riskW * 0.68;
+    const riskX = ML + (INNER - riskW) / 2;
+    const riskCanvas = drawSpeedometer({
+      value: kraft.riskScore, min: 0, max: 100, segs: RISK_SEGS,
+      title: 'Metabolic Risk Score', unitSuffix: '/ 100',
+      decimals: 0, accentColor: rAnalysis.statusColor, size: 500,
+    });
+    doc.addImage(riskCanvas, 'PNG', riskX, y, riskW, riskH);
+    y += riskH + 4;
+
+    y = analysisCard(doc, rAnalysis, ML, y, INNER) + 3;
+
+    // Page break before mini gauges
+    if (y + MINI_H + 20 > PH - 14) {
+      doc.addPage(); fillBg(doc);
+      doc.setFillColor(...hex(BG_HEADER)); doc.rect(0, 0, PW, 10, 'F');
+      doc.setFontSize(7); doc.setFont('helvetica', 'bold');
+      doc.setTextColor(...hex(PRIMARY)); doc.text('METERBOLIC', ML, 7);
+      y = 18;
+    }
+
+    // Glucose + Insulin mini gauges side by side
+    sectionLabel(doc, 'Kraft Curve — Biomarker Gauges', y);
+    y += 6;
+
+    const glucoseCanvas = drawSpeedometer({
+      value: Math.min(kraft.peakGlucose, 15), min: 0, max: 15, segs: GLUCOSE_SEGS,
+      title: 'Peak Glucose', unitSuffix: 'mMol',
+      decimals: 1, accentColor: GLUCOSE_HEX, size: 380,
+    });
+    const insulinCanvas = drawSpeedometer({
+      value: Math.min(kraft.peakInsulin, 150), min: 0, max: 150, segs: INSULIN_SEGS,
+      title: 'Peak Insulin', unitSuffix: 'µIU/mL',
+      decimals: 1, accentColor: INSULIN_HEX, size: 380,
+    });
+    doc.addImage(glucoseCanvas, 'PNG', ML, y, MINI_W, MINI_H);
+    doc.addImage(insulinCanvas, 'PNG', ML + MINI_W + 5, y, MINI_W, MINI_H);
+    y += MINI_H + 3;
+
+    // Recovery time tile
+    doc.setFillColor(...hex(BG_CARD));
+    doc.roundedRect(ML, y, INNER, 14, 2, 2, 'F');
+    doc.setFontSize(8); doc.setFont('helvetica', 'normal'); doc.setTextColor(...hex(MUTED));
+    doc.text('Glucose Recovery Time', ML + 5, y + 6);
+    doc.setFontSize(13); doc.setFont('helvetica', 'bold'); doc.setTextColor(...hex(PRIMARY));
+    doc.text(kraft.recoveryTime, ML + 5, y + 12);
+    y += 19;
 
   } else {
-    t('No Kraft curve data. Upload test results via the Personalise flow.', ML, 9, MUTED);
+    doc.setFontSize(9); doc.setFont('helvetica', 'normal'); doc.setTextColor(...hex(MUTED));
+    doc.text('No Kraft curve data available. Use the Personalise flow to upload your test results.', ML, y);
     y += 10;
   }
 
-  y += 2;
-  rule();
+  y = rule(doc, y);
 
   // ─── Measurements table ───────────────────────────────────────────────────
 
-  label('Measurements');
-  y += 7;
-
-  if (measurements.length === 0) {
-    t('No measurements found.', ML, 9, MUTED);
-    y += 10;
-  } else {
+  const drawTableHeader = (doc: jsPDF, ty: number): number => {
     const cols = [
       { label: 'Date',    x: ML,        w: 30 },
       { label: 'Analyte', x: ML + 30,   w: 45 },
-      { label: 'Value',   x: ML + 75,   w: 28 },
-      { label: 'Unit',    x: ML + 103,  w: 35 },
+      { label: 'Value',   x: ML + 75,   w: 25 },
+      { label: 'Unit',    x: ML + 100,  w: 32 },
     ];
+    doc.setFillColor(14, 42, 34);
+    doc.rect(ML, ty - 4.5, INNER, 8, 'F');
+    cols.forEach((c) => {
+      doc.setFontSize(6.5); doc.setFont('helvetica', 'bold'); doc.setTextColor(...hex(MUTED));
+      doc.text(c.label.toUpperCase(), c.x + 2, ty);
+    });
+    return ty + 5;
+  };
 
-    const drawTableHeader = () => {
-      doc.setFillColor(14, 42, 34);
-      doc.rect(ML, y - 4.5, INNER, 8, 'F');
-      cols.forEach((c) => {
-        doc.setFontSize(6.5);
-        doc.setFont('helvetica', 'bold');
-        doc.setTextColor(...MUTED);
-        doc.text(c.label.toUpperCase(), c.x + 2, y);
-      });
-      y += 5;
-    };
+  if (measurements.length > 0) {
+    // Page break if needed
+    if (y + 20 > PH - 14) {
+      doc.addPage(); fillBg(doc);
+      doc.setFillColor(...hex(BG_HEADER)); doc.rect(0, 0, PW, 10, 'F');
+      doc.setFontSize(7); doc.setFont('helvetica', 'bold');
+      doc.setTextColor(...hex(PRIMARY)); doc.text('METERBOLIC', ML, 7);
+      y = 18;
+    }
 
-    drawTableHeader();
+    sectionLabel(doc, 'Measurement History', y);
+    y += 7;
+    y = drawTableHeader(doc, y);
 
     const ROW_H = 7;
+    const cols2 = [ML, ML + 30, ML + 75, ML + 100];
 
-    measurements.forEach((m, i) => {
-      if (y + ROW_H > PH - 18) {
-        // Footer on current page then new page
-        doc.setFillColor(...BG_HEADER);
-        doc.rect(0, PH - 12, PW, 12, 'F');
-        doc.setFontSize(6.5);
-        doc.setTextColor(...MUTED);
-        doc.setFont('helvetica', 'normal');
-        doc.text('METERBOLIC — Metabolic Health Platform', ML, PH - 5);
-        const pg = doc.getCurrentPageInfo().pageNumber;
-        doc.text(`Page ${pg}`, PW - MR, PH - 5, { align: 'right' });
-
-        doc.addPage();
-        fillPageBg(doc, PW, PH);
-
-        // Slim header strip on continuation pages
-        doc.setFillColor(...BG_HEADER);
-        doc.rect(0, 0, PW, 10, 'F');
-        doc.setFontSize(7.5);
-        doc.setTextColor(...PRIMARY);
-        doc.setFont('helvetica', 'bold');
-        doc.text('METERBOLIC', ML, 7);
-
+    for (let i = 0; i < measurements.length; i++) {
+      if (y + ROW_H > PH - 14) {
+        // Footer
+        addFooter(doc, doc.getCurrentPageInfo().pageNumber, -1);
+        doc.addPage(); fillBg(doc);
+        doc.setFillColor(...hex(BG_HEADER)); doc.rect(0, 0, PW, 10, 'F');
+        doc.setFontSize(7); doc.setFont('helvetica', 'bold');
+        doc.setTextColor(...hex(PRIMARY)); doc.text('METERBOLIC', ML, 7);
         y = 18;
-        drawTableHeader();
+        y = drawTableHeader(doc, y);
       }
 
       if (i % 2 === 0) {
-        doc.setFillColor(25, 60, 50);
-        doc.rect(ML, y - 4.5, INNER, ROW_H, 'F');
+        doc.setFillColor(25, 60, 50); doc.rect(ML, y - 4.5, INNER, ROW_H, 'F');
       }
 
+      const m = measurements[i];
       const row = [
         new Date(m.time).toLocaleDateString('en-GB'),
         m.name,
         typeof m.value === 'number' ? m.value.toFixed(2) : String(m.value),
         m.unit,
       ];
-
       row.forEach((val, ci) => {
+        const c: string = ci === 1 ? FG : ci === 2 ? PRIMARY : MUTED;
         doc.setFontSize(8);
         doc.setFont('helvetica', ci === 1 ? 'bold' : 'normal');
-        // Analyte name in white, value in lime, others in muted
-        const color: [number, number, number] =
-          ci === 1 ? FG : ci === 2 ? PRIMARY : MUTED;
-        doc.setTextColor(...color);
-        doc.text(val, cols[ci].x + 2, y);
+        doc.setTextColor(...hex(c));
+        doc.text(val, cols2[ci] + 2, y);
       });
-
       y += ROW_H;
-    });
+    }
   }
 
   // ─── Footer on every page ─────────────────────────────────────────────────
-
   const total = doc.getNumberOfPages();
   for (let p = 1; p <= total; p++) {
     doc.setPage(p);
-    doc.setFillColor(...BG_HEADER);
-    doc.rect(0, PH - 12, PW, 12, 'F');
-    doc.setFontSize(6.5);
-    doc.setFont('helvetica', 'normal');
-    doc.setTextColor(...MUTED);
-    doc.text('METERBOLIC — Metabolic Health Platform', ML, PH - 5);
-    doc.text(`Page ${p} of ${total}`, PW - MR, PH - 5, { align: 'right' });
-    doc.text(
-      'For informational purposes only — not a substitute for medical advice.',
-      PW / 2, PH - 5,
-      { align: 'center' },
-    );
+    addFooter(doc, p, total);
   }
 
-  // ─── Save ─────────────────────────────────────────────────────────────────
-
   doc.save(`meterbolic-report-${new Date().toISOString().slice(0, 10)}.pdf`);
+}
+
+function addFooter(doc: jsPDF, page: number, total: number) {
+  doc.setFillColor(...hex(BG_HEADER));
+  doc.rect(0, PH - 12, PW, 12, 'F');
+  doc.setFontSize(6.5); doc.setFont('helvetica', 'normal'); doc.setTextColor(...hex(MUTED));
+  doc.text('METERBOLIC — Metabolic Health Platform', ML, PH - 5);
+  if (total > 0) doc.text(`Page ${page} of ${total}`, PW - MR, PH - 5, { align: 'right' });
+  doc.text(
+    'For informational purposes only — not a substitute for medical advice.',
+    PW / 2, PH - 5, { align: 'center' },
+  );
 }
