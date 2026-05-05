@@ -411,12 +411,11 @@ export default function ProfilePage() {
                     }}
                   >
                     <div className="flex items-center gap-3 min-w-0">
-                      <div
-                        className="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm flex-shrink-0"
-                        style={{ backgroundColor: b.therapistAvatarColor + '25', color: b.therapistAvatarColor }}
-                      >
-                        {b.therapistAvatar}
-                      </div>
+                      <img
+                        src={b.therapistImage || `https://ui-avatars.com/api/?name=${encodeURIComponent(b.therapistName)}&background=random`}
+                        alt={b.therapistName}
+                        className="w-10 h-10 rounded-xl object-cover flex-shrink-0"
+                      />
                       <div className="min-w-0">
                         <p className="font-semibold text-sm truncate" style={{ color: colors.foreground }}>{b.therapistName}</p>
                         <p className="text-xs" style={{ color: colors.muted }}>{b.day} · {b.slot} · {b.sessionLength} min · £{b.price}</p>

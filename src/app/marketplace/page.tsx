@@ -64,12 +64,11 @@ function BookingModal({ therapist, onClose }: BookingModalProps) {
         {/* Modal header */}
         <div className="flex items-center justify-between px-5 pt-5 pb-3">
           <div className="flex items-center gap-3">
-            <div
-              className="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm flex-shrink-0"
-              style={{ backgroundColor: therapist.avatarColor + '30', color: therapist.avatarColor }}
-            >
-              {therapist.avatar}
-            </div>
+            <img
+              src={therapist.image}
+              alt={therapist.name}
+              className="w-10 h-10 rounded-xl object-cover flex-shrink-0"
+            />
             <div>
               <p className="font-bold text-sm" style={{ color: colors.foreground }}>{therapist.name}</p>
               <p className="text-xs" style={{ color: colors.muted }}>£{therapist.pricePerSession} · {therapist.sessionLength} min</p>
@@ -170,6 +169,7 @@ function BookingModal({ therapist, onClose }: BookingModalProps) {
                 saveBooking({
                   therapistId: therapist.id,
                   therapistName: therapist.name,
+                  therapistImage: therapist.image,
                   therapistAvatar: therapist.avatar,
                   therapistAvatarColor: therapist.avatarColor,
                   day,
@@ -308,12 +308,11 @@ function AIChatPanel({
                     style={{ backgroundColor: colors.background, border: `1px solid ${colors.cardBorder}` }}
                   >
                     <div className="flex items-center gap-2 min-w-0">
-                      <div
-                        className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold flex-shrink-0"
-                        style={{ backgroundColor: t.avatarColor + '30', color: t.avatarColor }}
-                      >
-                        {t.avatar}
-                      </div>
+                      <img
+                        src={t.image}
+                        alt={t.name}
+                        className="w-8 h-8 rounded-lg object-cover flex-shrink-0"
+                      />
                       <div className="min-w-0">
                         <p className="text-xs font-semibold truncate" style={{ color: colors.foreground }}>{t.name}</p>
                         <p className="text-xs" style={{ color: colors.muted }}>£{t.pricePerSession} · {t.nextAvailable}</p>
@@ -392,12 +391,11 @@ function TherapistCard({ therapist, onBook }: { therapist: Therapist; onBook: ()
     >
       {/* Avatar + name + price */}
       <div className="flex items-start gap-3">
-        <div
-          className="w-14 h-14 rounded-2xl flex items-center justify-center font-bold text-lg flex-shrink-0"
-          style={{ backgroundColor: therapist.avatarColor + '25', color: therapist.avatarColor }}
-        >
-          {therapist.avatar}
-        </div>
+        <img
+          src={therapist.image}
+          alt={therapist.name}
+          className="w-14 h-14 rounded-2xl object-cover flex-shrink-0"
+        />
         <div className="flex-1 min-w-0">
           <p className="font-bold text-sm leading-snug" style={{ color: colors.foreground }}>{therapist.name}</p>
           <p className="text-xs mt-0.5 line-clamp-2" style={{ color: colors.muted }}>{therapist.title}</p>

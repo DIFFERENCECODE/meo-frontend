@@ -2,6 +2,7 @@ export interface BookingRecord {
   id: string;
   therapistId: string;
   therapistName: string;
+  therapistImage: string;
   therapistAvatar: string;
   therapistAvatarColor: string;
   day: string;

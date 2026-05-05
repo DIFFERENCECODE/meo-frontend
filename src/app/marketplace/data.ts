@@ -12,6 +12,7 @@ export interface Therapist {
   pricePerSession: number;
   sessionLength: number;
   nextAvailable: string;
+  image: string;
   avatar: string;
   avatarColor: string;
   tags: string[];
@@ -34,6 +35,7 @@ export const THERAPISTS: Therapist[] = [
     pricePerSession: 120,
     sessionLength: 60,
     nextAvailable: 'Tomorrow',
+    image: 'https://randomuser.me/api/portraits/women/44.jpg',
     avatar: 'SO',
     avatarColor: '#22c55e',
     tags: ['Kraft Protocol', 'Low-Carb', 'Fasting'],
@@ -54,6 +56,7 @@ export const THERAPISTS: Therapist[] = [
     pricePerSession: 150,
     sessionLength: 60,
     nextAvailable: 'Today 4pm',
+    image: 'https://randomuser.me/api/portraits/men/32.jpg',
     avatar: 'JW',
     avatarColor: '#a3e635',
     tags: ['BAS Optimisation', 'Longevity', 'Hormones'],
@@ -74,6 +77,7 @@ export const THERAPISTS: Therapist[] = [
     pricePerSession: 95,
     sessionLength: 50,
     nextAvailable: 'Thu 10am',
+    image: 'https://randomuser.me/api/portraits/women/68.jpg',
     avatar: 'PS',
     avatarColor: '#facc15',
     tags: ['Behaviour Change', 'METS-IR', 'Mindful Eating'],
@@ -94,6 +98,7 @@ export const THERAPISTS: Therapist[] = [
     pricePerSession: 85,
     sessionLength: 45,
     nextAvailable: 'Fri 2pm',
+    image: 'https://randomuser.me/api/portraits/men/55.jpg',
     avatar: 'TG',
     avatarColor: '#f97316',
     tags: ['Exercise', 'CGM', 'Body Composition'],
@@ -116,6 +121,7 @@ export const THERAPISTS: Therapist[] = [
     pricePerSession: 90,
     sessionLength: 50,
     nextAvailable: 'Today 5pm',
+    image: 'https://randomuser.me/api/portraits/women/90.jpg',
     avatar: 'AN',
     avatarColor: '#8b5cf6',
     tags: ['Depression', 'Anxiety', 'CBT', 'Talk Therapy'],
@@ -136,6 +142,7 @@ export const THERAPISTS: Therapist[] = [
     pricePerSession: 130,
     sessionLength: 60,
     nextAvailable: 'Wed 11am',
+    image: 'https://randomuser.me/api/portraits/men/41.jpg',
     avatar: 'DH',
     avatarColor: '#06b6d4',
     tags: ['Trauma', 'PTSD', 'OCD', 'EMDR', 'CBT'],
@@ -156,6 +163,7 @@ export const THERAPISTS: Therapist[] = [
     pricePerSession: 80,
     sessionLength: 50,
     nextAvailable: 'Tomorrow 9am',
+    image: 'https://randomuser.me/api/portraits/women/79.jpg',
     avatar: 'LR',
     avatarColor: '#ec4899',
     tags: ['Grief', 'Mindfulness', 'Relationships', 'Loss'],

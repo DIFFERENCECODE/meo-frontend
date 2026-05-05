@@ -112,6 +112,7 @@ function BookingModal({ therapist, onClose }: { therapist: Therapist; onClose: (
                 saveBooking({
                   therapistId: therapist.id,
                   therapistName: therapist.name,
+                  therapistImage: therapist.image,
                   therapistAvatar: therapist.avatar,
                   therapistAvatarColor: therapist.avatarColor,
                   day,
@@ -173,12 +174,11 @@ export default function TherapistDetailPage() {
           style={{ backgroundColor: colors.card, border: `1px solid ${colors.cardBorder}` }}
         >
           <div className="flex items-start gap-5">
-            <div
-              className="w-20 h-20 rounded-2xl flex items-center justify-center font-bold text-2xl flex-shrink-0"
-              style={{ backgroundColor: therapist.avatarColor + '25', color: therapist.avatarColor }}
-            >
-              {therapist.avatar}
-            </div>
+            <img
+              src={therapist.image}
+              alt={therapist.name}
+              className="w-20 h-20 rounded-2xl object-cover flex-shrink-0"
+            />
             <div className="flex-1 min-w-0">
               <h1 className="text-2xl font-bold" style={{ color: colors.foreground }}>{therapist.name}</h1>
               <p className="text-sm mt-0.5" style={{ color: colors.muted }}>{therapist.title}</p>
