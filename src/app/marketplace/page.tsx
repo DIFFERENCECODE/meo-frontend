@@ -8,7 +8,7 @@ import {
   X, Calendar, Clock, Star, CheckCircle2,
   ChevronLeft, ChevronRight, Sparkles, Send, Search,
 } from 'lucide-react';
-import { THERAPISTS, SLOTS, SLOT_DAYS, matchTherapists, type Therapist } from './data';
+import { THERAPISTS, SLOTS, SLOT_DAYS, matchTherapists, isOutOfScope, type Therapist } from './data';
 import { saveBooking } from './bookings';
 
 // ─── Booking modal ────────────────────────────────────────────────────────────
@@ -225,17 +225,24 @@ function AIChatPanel({
     setMsgs((prev) => [...prev, { role: 'user', text: q }]);
     setTyping(true);
     setTimeout(() => {
-      const matches = matchTherapists(q);
       let reply: string;
-      if (matches.length === 0) {
-        reply = "I wasn't able to find a specific match for that — but all our therapists work with general metabolic health. You can browse the cards above or try rephrasing (e.g. 'weight loss', 'insulin resistance', 'biological age').";
+      let matches: Therapist[] = [];
+
+      if (isOutOfScope(q)) {
+        reply = "I'm really sorry to hear you're going through a difficult time. The therapists on this platform specialise in metabolic and nutritional health, so I'm not able to connect you with a mental health professional here.\n\nPlease reach out to someone who can truly help:\n• **Samaritans** (UK): 116 123 — free, 24/7\n• **Mind**: 0300 123 3393\n• **Crisis Text Line**: Text HELLO to 85258\n\nYou don't have to face this alone. 💙";
       } else {
-        const top = matches[0];
-        const names = matches.slice(0, 2).map((t) => t.name).join(' and ');
-        reply = `Based on what you've shared, I'd recommend ${names}. ${top.name} specialises in ${top.specialties.slice(0, 2).join(' and ')} — ${top.bio}`;
+        matches = matchTherapists(q);
+        if (matches.length === 0) {
+          reply = "I couldn't find a specific match for that. Our therapists focus on metabolic health — try describing a physical goal such as 'lower insulin resistance', 'reduce visceral fat', 'improve biological age score', or 'optimise exercise metabolism'.";
+        } else {
+          const top = matches[0];
+          const names = matches.slice(0, 2).map((t) => t.name).join(' and ');
+          reply = `Based on what you've shared, I'd recommend **${names}**. ${top.name} specialises in ${top.specialties.slice(0, 2).join(' and ')} — ${top.bio}`;
+        }
       }
+
       setTyping(false);
-      setMsgs((prev) => [...prev, { role: 'ai', text: reply, matches: matches.slice(0, 2) }]);
+      setMsgs((prev) => [...prev, { role: 'ai', text: reply, matches }]);
     }, 900);
   };
 
@@ -268,13 +275,25 @@ function AIChatPanel({
           <div key={i}>
             <div className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
               <div
-                className="max-w-[85%] rounded-2xl px-3 py-2 text-sm"
+                className="max-w-[85%] rounded-2xl px-3 py-2 text-sm leading-relaxed"
                 style={{
                   backgroundColor: m.role === 'user' ? colors.primary : colors.accent,
                   color: m.role === 'user' ? colors.primaryForeground : colors.foreground,
                 }}
               >
-                {m.text}
+                {m.text.split('\n').map((line, li) => {
+                  const parts = line.split(/\*\*(.+?)\*\*/g);
+                  return (
+                    <span key={li}>
+                      {parts.map((part, pi) =>
+                        pi % 2 === 1
+                          ? <strong key={pi}>{part}</strong>
+                          : part,
+                      )}
+                      {li < m.text.split('\n').length - 1 && <br />}
+                    </span>
+                  );
+                })}
               </div>
             </div>
             {m.matches && m.matches.length > 0 && (

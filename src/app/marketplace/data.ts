@@ -106,7 +106,16 @@ export const SLOTS: Record<string, string[]> = {
 };
 export const SLOT_DAYS = Object.keys(SLOTS);
 
-// Simple keyword → therapist match for the AI recommender
+// Topics that are outside the scope of metabolic/nutritional therapists.
+// Returns true when the query is about mental health, crisis, or emotional distress
+// so the AI can give a compassionate redirect instead of a wrong match.
+export function isOutOfScope(query: string): boolean {
+  return /mental.?(health|disorder|illness)|depression|depressed|suicid|self.?harm|psychi|psycholog|counsell?or|therapist.*talk|talk.*therapist|anxiety.*(disorder|attack|panic)|panic.?attack|bipolar|schizophren|eating.?disorder|anorexia|bulimia|ptsd|trauma|grief|bereav|lonely|loneliness|crisis|emergency|help.?me.?(please|now)|please.*help|feel.*hopeless|hopeless|feel.*empty|want to die|kill myself|harm myself|mental breakdown|nervous breakdown/.test(query.toLowerCase());
+}
+
+// Simple keyword → therapist match for the AI recommender.
+// Requires a minimum score of 3 so generic word overlap alone cannot
+// produce a false match (prevents "mental disorder" → Priya).
 export function matchTherapists(query: string): Therapist[] {
   const q = query.toLowerCase();
   const scores: Record<string, number> = {};
@@ -118,34 +127,34 @@ export function matchTherapists(query: string): Therapist[] {
       ...t.approach, ...t.conditions,
     ].join(' ').toLowerCase();
 
-    const keywords: Record<string, string[]> = {
-      [t.id]: [],
-    };
     if (q.match(/insulin|diabetes|blood.?sugar|glucose|kraft/)) {
       if (t.id === 'sarah-okonkwo') score += 5;
       if (t.id === 'tom-gallagher') score += 3;
     }
-    if (q.match(/age|ageing|aging|longevity|biological age|bas|anti.?age/)) {
+    if (q.match(/age|ageing|aging|longevity|biological.?age|bas\b|anti.?age/)) {
       if (t.id === 'james-whitfield') score += 5;
     }
-    if (q.match(/stress|anxiety|habit|lifestyle|fat|weight|visceral|mets/)) {
+    if (q.match(/\bstress\b|\banxiety\b|habit|lifestyle|\bfat\b|\bweight\b|visceral|mets.?ir/)) {
       if (t.id === 'priya-sharma') score += 5;
     }
-    if (q.match(/exercise|gym|sport|cgm|body.?comp|muscle|training/)) {
+    if (q.match(/exercise|gym|sport|\bcgm\b|body.?comp|muscle|training|fitness/)) {
       if (t.id === 'tom-gallagher') score += 5;
     }
-    if (q.match(/gut|hormone|thyroid|menopause/)) {
+    if (q.match(/gut|hormone|thyroid|menopause|pcos/)) {
       if (t.id === 'james-whitfield') score += 4;
       if (t.id === 'priya-sharma') score += 2;
     }
+    if (q.match(/metabolic|metabolism|kraft|insulin/)) {
+      if (t.id === 'sarah-okonkwo') score += 3;
+    }
 
-    // Generic word overlap
+    // Generic word overlap — minor boost only, not enough to win alone
     for (const word of q.split(/\s+/)) {
-      if (word.length > 3 && searchText.includes(word)) score += 1;
+      if (word.length > 4 && searchText.includes(word)) score += 0.5;
     }
     scores[t.id] = score;
   }
   return [...THERAPISTS]
     .sort((a, b) => (scores[b.id] ?? 0) - (scores[a.id] ?? 0))
-    .filter((t) => (scores[t.id] ?? 0) > 0);
+    .filter((t) => (scores[t.id] ?? 0) >= 3);
 }
