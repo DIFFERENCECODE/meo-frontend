@@ -145,7 +145,17 @@ function GaugeCard({
           splitNumber: stops.length,
           progress: { show: false },
           itemStyle: { color: pointerColor },
-          pointer: { show: false },
+          pointer: {
+            show: true,
+            length: '60%',
+            width: 6,
+            itemStyle: { color: pointerColor },
+          },
+          anchor: {
+            show: true,
+            size: 12,
+            itemStyle: { color: pointerColor, borderColor: '#1f2937', borderWidth: 2 },
+          },
           axisLine: {
             lineStyle: {
               width: 18,
@@ -169,7 +179,6 @@ function GaugeCard({
               return t ? String(t[0]) : '';
             },
           },
-          anchor: { show: false },
           title: { show: false },
           detail: {
             valueAnimation: true,
