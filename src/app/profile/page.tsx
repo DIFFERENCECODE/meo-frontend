@@ -7,6 +7,7 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { AppShell } from '@/components/layout/AppShell';
 import { getIdToken } from '@/app/lib/auth';
 import { getForgotPasswordUrl } from '@/app/lib/auth';
+import { getBookings, cancelBooking, type BookingRecord } from '@/app/marketplace/bookings';
 
 interface ProfileData {
   cognito_sub: string;
@@ -38,6 +39,10 @@ export default function ProfilePage() {
   const [measurements, setMeasurements] = useState<Measurement[]>([]);
   const [measLoading, setMeasLoading] = useState(false);
   const [subscription, setSubscription] = useState<{ plan: string; status: string; currentPeriodEnd?: number; cancelAtPeriodEnd?: boolean } | null>(null);
+  const [bookings, setBookings] = useState<BookingRecord[]>([]);
+
+  // Load bookings from localStorage on mount
+  useEffect(() => { setBookings(getBookings()); }, []);
 
   // Single useEffect — no router dependency to prevent re-renders
   const hasLoaded = React.useRef(false);
@@ -376,6 +381,73 @@ export default function ProfilePage() {
               >
                 Upgrade Plan
               </a>
+            )}
+          </div>
+
+          {/* Therapy Sessions */}
+          <div className="mt-6 pt-6 border-t" style={{ borderColor: colors.cardBorder }}>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-bold" style={{ color: colors.foreground }}>Therapy Sessions</h2>
+              <Link
+                href="/marketplace"
+                className="text-xs px-3 py-1.5 rounded-lg font-medium transition-colors"
+                style={{ backgroundColor: colors.primary, color: colors.primaryForeground }}
+              >
+                Book a session
+              </Link>
+            </div>
+            {bookings.length === 0 ? (
+              <p className="text-sm" style={{ color: colors.muted }}>No sessions booked yet.</p>
+            ) : (
+              <div className="space-y-3">
+                {bookings.map((b) => (
+                  <div
+                    key={b.id}
+                    className="rounded-xl p-4 flex items-center justify-between gap-3"
+                    style={{
+                      backgroundColor: colors.accent,
+                      border: `1px solid ${colors.cardBorder}`,
+                      opacity: b.status === 'cancelled' ? 0.5 : 1,
+                    }}
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div
+                        className="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm flex-shrink-0"
+                        style={{ backgroundColor: b.therapistAvatarColor + '25', color: b.therapistAvatarColor }}
+                      >
+                        {b.therapistAvatar}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="font-semibold text-sm truncate" style={{ color: colors.foreground }}>{b.therapistName}</p>
+                        <p className="text-xs" style={{ color: colors.muted }}>{b.day} · {b.slot} · {b.sessionLength} min · £{b.price}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      <span
+                        className="text-xs px-2 py-0.5 rounded-full font-medium"
+                        style={{
+                          backgroundColor: b.status === 'upcoming' ? colors.primary + '20' : '#ef444420',
+                          color: b.status === 'upcoming' ? colors.primary : '#ef4444',
+                        }}
+                      >
+                        {b.status === 'upcoming' ? 'Upcoming' : 'Cancelled'}
+                      </span>
+                      {b.status === 'upcoming' && (
+                        <button
+                          onClick={() => {
+                            cancelBooking(b.id);
+                            setBookings(getBookings());
+                          }}
+                          className="text-xs px-2 py-0.5 rounded-full transition-colors hover:opacity-80"
+                          style={{ backgroundColor: '#ef444415', color: '#ef4444', border: '1px solid #ef444430' }}
+                        >
+                          Cancel
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
             )}
           </div>
 
