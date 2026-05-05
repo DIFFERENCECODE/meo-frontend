@@ -7,7 +7,8 @@ import ReactECharts from 'echarts-for-react';
 import type { EChartsOption } from 'echarts';
 import { getValidIdToken } from '@/app/lib/auth';
 import { ScoreGauges } from './ScoreGauges';
-import type { ReportProfile, ReportScores, ReportMeasurement } from '@/lib/report';
+import { BASProgressChart } from './BASProgressChart';
+import type { ReportProfile, ReportScores, ReportMeasurement, ReportHistoryPoint } from '@/lib/report';
 
 // Types
 interface GraphDataPoint {
@@ -209,15 +210,17 @@ export function AnalysisContent({ graphData: graphDataProp }: AnalysisContentPro
       const token = await getValidIdToken();
       if (!token) return;
 
-      const [profileRes, userDataRes, sessionsRes] = await Promise.all([
+      const [profileRes, userDataRes, sessionsRes, historyRes] = await Promise.all([
         fetch('/api/profile',    { headers: { Authorization: `Bearer ${token}` } }),
         fetch('/api/user-data',  { headers: { Authorization: `Bearer ${token}` } }),
         fetch('/api/scores/sessions', { headers: { Authorization: `Bearer ${token}` }, cache: 'no-store' }),
+        fetch('/api/scores/history',  { headers: { Authorization: `Bearer ${token}` }, cache: 'no-store' }),
       ]);
 
       const profileData  = profileRes.ok  ? await profileRes.json()  : null;
       const userData     = userDataRes.ok ? await userDataRes.json()  : null;
       const sessionsData = sessionsRes.ok ? await sessionsRes.json()  : null;
+      const historyData  = historyRes.ok  ? await historyRes.json()   : null;
 
       // Build report profile
       const reportProfile: ReportProfile = {
@@ -263,6 +266,10 @@ export function AnalysisContent({ graphData: graphDataProp }: AnalysisContentPro
         }
       }
 
+      const reportHistory: ReportHistoryPoint[] = (historyData?.points ?? [])
+        .filter((p: { bas: number | null }) => p.bas !== null)
+        .map((p: { time: number; bas: number }) => ({ time: p.time, bas: p.bas }));
+
       // Dynamic import keeps jsPDF out of the initial bundle
       const { generateMetabolicReportPDF } = await import('@/lib/report');
       generateMetabolicReportPDF(reportProfile, reportMeasurements, reportScores, {
@@ -271,7 +278,7 @@ export function AnalysisContent({ graphData: graphDataProp }: AnalysisContentPro
         recoveryTime,
         riskScore,
         hasRealData,
-      });
+      }, reportHistory);
     } catch (err) {
       console.error('[report] PDF generation failed', err);
     } finally {
@@ -320,6 +327,10 @@ export function AnalysisContent({ graphData: graphDataProp }: AnalysisContentPro
           Self-contained: fetches sessions + scores from /api/scores/*
           and mirrors the exact Grafana panel thresholds, colors, ranges. */}
       <ScoreGauges />
+
+      {/* BAS progress over time — mirrors Grafana's second BAS dashboard.
+          Fetches all sessions and plots each BAS value chronologically. */}
+      <BASProgressChart />
 
 
       {/* Kraft Curve Card */}

@@ -50,6 +50,10 @@ export interface ReportKraftMetrics {
   riskScore: number;
   hasRealData: boolean;
 }
+export interface ReportHistoryPoint {
+  time: number;       // epoch ms
+  bas: number;
+}
 
 // ─── Brand palette ────────────────────────────────────────────────────────────
 
@@ -492,6 +496,136 @@ function analysisCard(
   return y + cardH + 5;
 }
 
+// ─── BAS progress line chart (canvas) ─────────────────────────────────────────
+//
+// Mirrors the Grafana "Biological Age Score" time-series panel.
+// Lime-green line (#a3e635) with circle markers, yellow mean line,
+// subtle area fill, grid lines.
+
+function drawProgressChart(points: ReportHistoryPoint[]): HTMLCanvasElement {
+  const W = 880, H = 320;
+  const PAD_L = 60, PAD_R = 20, PAD_T = 30, PAD_B = 50;
+  const PW2 = W - PAD_L - PAD_R;
+  const PH2 = H - PAD_T - PAD_B;
+
+  const canvas = document.createElement('canvas');
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d')!;
+
+  // Background
+  ctx.fillStyle = BG_CARD;
+  ctx.fillRect(0, 0, W, H);
+
+  // Title
+  const titleFs = 22;
+  ctx.font = `bold ${titleFs}px -apple-system, system-ui, sans-serif`;
+  ctx.textAlign = 'left';
+  ctx.fillStyle = FG;
+  ctx.fillText('Biological Age Score — Progress', PAD_L, 22);
+
+  if (points.length === 0) {
+    ctx.font = '18px -apple-system, system-ui, sans-serif';
+    ctx.fillStyle = MUTED;
+    ctx.textAlign = 'center';
+    ctx.fillText('No session data available', W / 2, H / 2);
+    return canvas;
+  }
+
+  // Data range
+  const basValues = points.map((p) => p.bas);
+  const rawMin = Math.min(...basValues);
+  const rawMax = Math.max(...basValues);
+  const yMin = Math.floor(rawMin - 2);
+  const yMax = Math.ceil(rawMax + 2);
+  const yRange = yMax - yMin || 1;
+  const mean = basValues.reduce((s, v) => s + v, 0) / basValues.length;
+
+  const toX = (i: number) => PAD_L + (i / Math.max(points.length - 1, 1)) * PW2;
+  const toY = (v: number) => PAD_T + PH2 - ((v - yMin) / yRange) * PH2;
+
+  // Grid lines (horizontal, 5 ticks)
+  const gridSteps = 5;
+  for (let i = 0; i <= gridSteps; i++) {
+    const v = yMin + (yRange / gridSteps) * i;
+    const gy = toY(v);
+    ctx.beginPath();
+    ctx.moveTo(PAD_L, gy); ctx.lineTo(W - PAD_R, gy);
+    ctx.strokeStyle = 'rgba(255,255,255,0.07)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    // Y label
+    ctx.font = '14px -apple-system, system-ui, sans-serif';
+    ctx.fillStyle = MUTED;
+    ctx.textAlign = 'right';
+    ctx.fillText(v.toFixed(1), PAD_L - 6, gy + 4);
+  }
+
+  // Mean reference line
+  const meanY = toY(mean);
+  ctx.beginPath();
+  ctx.setLineDash([8, 5]);
+  ctx.moveTo(PAD_L, meanY); ctx.lineTo(W - PAD_R, meanY);
+  ctx.strokeStyle = '#facc15';
+  ctx.lineWidth = 1.5;
+  ctx.globalAlpha = 0.7;
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.globalAlpha = 1;
+  ctx.font = 'bold 13px -apple-system, system-ui, sans-serif';
+  ctx.fillStyle = '#facc15';
+  ctx.textAlign = 'left';
+  ctx.fillText(`Mean ${mean.toFixed(1)}`, W - PAD_R + 2, meanY + 4);
+
+  // Area fill
+  ctx.beginPath();
+  ctx.moveTo(toX(0), toY(points[0].bas));
+  for (let i = 1; i < points.length; i++) ctx.lineTo(toX(i), toY(points[i].bas));
+  ctx.lineTo(toX(points.length - 1), PAD_T + PH2);
+  ctx.lineTo(toX(0), PAD_T + PH2);
+  ctx.closePath();
+  const grad = ctx.createLinearGradient(0, PAD_T, 0, PAD_T + PH2);
+  grad.addColorStop(0, 'rgba(163,230,53,0.18)');
+  grad.addColorStop(1, 'rgba(163,230,53,0)');
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // Line
+  ctx.beginPath();
+  ctx.moveTo(toX(0), toY(points[0].bas));
+  for (let i = 1; i < points.length; i++) ctx.lineTo(toX(i), toY(points[i].bas));
+  ctx.strokeStyle = '#a3e635';
+  ctx.lineWidth = 3;
+  ctx.lineJoin = 'round';
+  ctx.stroke();
+
+  // Dots + x labels
+  points.forEach((p, i) => {
+    const px = toX(i), py = toY(p.bas);
+    ctx.beginPath();
+    ctx.arc(px, py, 7, 0, Math.PI * 2);
+    ctx.fillStyle = '#a3e635';
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(px, py, 4, 0, Math.PI * 2);
+    ctx.fillStyle = BG_CARD;
+    ctx.fill();
+
+    // Value label above dot
+    ctx.font = 'bold 13px -apple-system, system-ui, sans-serif';
+    ctx.fillStyle = FG;
+    ctx.textAlign = 'center';
+    ctx.fillText(p.bas.toFixed(1), px, py - 12);
+
+    // X axis date label
+    const label = new Date(p.time).toLocaleDateString('en-GB', { month: 'short', year: '2-digit' });
+    ctx.font = '13px -apple-system, system-ui, sans-serif';
+    ctx.fillStyle = MUTED;
+    ctx.fillText(label, px, H - 10);
+  });
+
+  return canvas;
+}
+
 // ─── Main export ──────────────────────────────────────────────────────────────
 
 export function generateMetabolicReportPDF(
@@ -499,6 +633,7 @@ export function generateMetabolicReportPDF(
   measurements: ReportMeasurement[],
   scores: ReportScores | null,
   kraft: ReportKraftMetrics,
+  history: ReportHistoryPoint[] = [],
 ): void {
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
   fillBg(doc);
@@ -628,6 +763,29 @@ export function generateMetabolicReportPDF(
   }
 
   y = rule(doc, y);
+
+  // ─── BAS Progress Chart ───────────────────────────────────────────────────
+  if (history.length > 0) {
+    sectionLabel(doc, 'Biological Age Score — Progress Over Time', y);
+    y += 6;
+
+    const CHART_W = INNER;
+    const CHART_H = CHART_W * (320 / 880);   // match canvas aspect ratio
+
+    if (y + CHART_H + 10 > PH - 14) {
+      doc.addPage(); fillBg(doc);
+      doc.setFillColor(...hex(BG_HEADER)); doc.rect(0, 0, PW, 10, 'F');
+      doc.setFontSize(7); doc.setFont('helvetica', 'bold');
+      doc.setTextColor(...hex(PRIMARY)); doc.text('METERBOLIC', ML, 7);
+      y = 18;
+    }
+
+    const chartCanvas = drawProgressChart(history);
+    doc.addImage(chartCanvas, 'PNG', ML, y, CHART_W, CHART_H);
+    y += CHART_H + 5;
+
+    y = rule(doc, y);
+  }
 
   // ─── Kraft Curve Analysis ─────────────────────────────────────────────────
   sectionLabel(doc, 'Kraft Curve Analysis', y);

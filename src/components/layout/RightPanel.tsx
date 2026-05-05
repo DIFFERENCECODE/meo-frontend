@@ -171,7 +171,7 @@ export function RightPanel({
               >
                 <div>
                   <h2 className="font-bold text-lg" style={{ color: theme.colors.foreground }}>
-                    {isPractitionerMode ? 'Practitioner Workspace' : showAnalysis ? 'Metabolic Analysis' : showSolution ? 'Recommended Support' : 'Details'}
+                    {isPractitionerMode ? 'Practitioner Workspace' : showAnalysis ? 'Metabolic Analysis' : showSolution ? 'Recommended Support' : analysisContent ? 'My Dashboard' : 'Details'}
                   </h2>
                   <p className="text-xs mt-0.5" style={{ color: theme.colors.muted }}>
                     {isPractitionerMode
@@ -228,6 +228,10 @@ export function RightPanel({
                       </p>
                     )}
                   </div>
+                ) : analysisContent ? (
+                  // Default view: always show the analysis dashboard when
+                  // the panel is open and no special mode is active.
+                  <div className="space-y-6">{analysisContent}</div>
                 ) : (
                   <div className="flex flex-col items-center justify-center h-full text-center">
                     <div className="p-4 rounded-full mb-4" style={{ backgroundColor: theme.colors.accent }}>
