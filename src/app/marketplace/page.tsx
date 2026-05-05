@@ -201,9 +201,15 @@ const AI_INTRO: ChatMsg = {
   text: "Hi! I'm your Meo AI assistant. Tell me about your health goals or concerns and I'll match you with the right therapist. For example: 'I want to lower my biological age' or 'I have insulin resistance'.",
 };
 
-function AIChatPanel({ onBook, onClose }: { onBook: (t: Therapist) => void; onClose: () => void }) {
+function AIChatPanel({
+  onBook, onClose, msgs, setMsgs,
+}: {
+  onBook: (t: Therapist) => void;
+  onClose: () => void;
+  msgs: ChatMsg[];
+  setMsgs: React.Dispatch<React.SetStateAction<ChatMsg[]>>;
+}) {
   const { colors } = useTheme();
-  const [msgs, setMsgs] = useState<ChatMsg[]>([AI_INTRO]);
   const [input, setInput] = useState('');
   const [typing, setTyping] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -449,6 +455,7 @@ export default function MarketplacePage() {
   const [filter, setFilter] = useState<string>('All');
   const [search, setSearch] = useState('');
   const [showAI, setShowAI] = useState(false);
+  const [aiMsgs, setAiMsgs] = useState<ChatMsg[]>([AI_INTRO]);
 
   const specialtyFilters = ['All', 'Metabolic Health', 'Insulin Resistance', 'Biological Age Optimisation', 'Lifestyle Medicine'];
 
@@ -571,6 +578,8 @@ export default function MarketplacePage() {
         <AIChatPanel
           onBook={(t) => { setShowAI(false); setBookingFor(t); }}
           onClose={() => setShowAI(false)}
+          msgs={aiMsgs}
+          setMsgs={setAiMsgs}
         />
       )}
     </AppShell>
