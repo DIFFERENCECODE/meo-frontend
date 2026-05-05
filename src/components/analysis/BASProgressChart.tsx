@@ -103,7 +103,7 @@ export function BASProgressChart() {
     return {
       backgroundColor: 'transparent',
       animation: true,
-      grid: { top: 24, right: 20, bottom: 40, left: 48, containLabel: false },
+      grid: { top: 36, right: 20, bottom: 40, left: 48, containLabel: false },
       tooltip: {
         trigger: 'axis',
         backgroundColor: colors.card,
@@ -140,9 +140,20 @@ export function BASProgressChart() {
           smooth: 0.35,
           showSymbol: true,
           symbol: 'circle',
-          symbolSize: 9,
+          symbolSize: 10,
           lineStyle: { color: LINE_COLOR, width: 2.5 },
           itemStyle: { color: LINE_COLOR, borderWidth: 2, borderColor: LINE_COLOR },
+          label: {
+            show: true,
+            position: 'top' as const,
+            formatter: (p: unknown) => {
+              const v = (p as { value: number }).value;
+              return typeof v === 'number' ? v.toFixed(1) : '';
+            },
+            color: LINE_COLOR,
+            fontSize: 11,
+            fontWeight: 'bold',
+          },
           areaStyle: {
             color: {
               type: 'linear',
