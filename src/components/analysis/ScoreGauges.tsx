@@ -365,11 +365,7 @@ export function ScoreGauges() {
       {/* Two gauges stacked — Bio Age on top, Deep Fat Score below,
           matching the PDF page 4 layout. */}
       <GaugeCard
-        title={
-          scores?.measurementSeries
-            ? `Biological Age Score ${scores.measurementSeries}`
-            : 'Biological Age Score'
-        }
+        title="Biological Age Score"
         value={sessionsLoading ? null : basValue}
         min={BAS_MIN}
         max={BAS_MAX}
@@ -387,11 +383,7 @@ export function ScoreGauges() {
       />
 
       <GaugeCard
-        title={
-          scores?.measurementSeries
-            ? `KRAFT Deep Fat Score ${scores.measurementSeries}`
-            : 'KRAFT Deep Fat Score'
-        }
+        title="KRAFT Deep Fat Score"
         value={sessionsLoading ? null : vatValue}
         min={VAT_MIN}
         max={VAT_MAX}
