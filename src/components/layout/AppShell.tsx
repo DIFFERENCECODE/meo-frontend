@@ -18,7 +18,7 @@ interface AppShellProps {
  * open with the same navigation as the main chat view.
  */
 export function AppShell({ children, className }: AppShellProps) {
-  const { theme } = useTheme();
+  const { theme, isLeftPanelOpen } = useTheme();
   const router = useRouter();
   const [chats, setChats] = useState<ChatListItem[]>([]);
 
@@ -69,7 +69,10 @@ export function AppShell({ children, className }: AppShellProps) {
         }}
       />
       <motion.main
-        className="flex-1 flex flex-col h-full overflow-auto relative"
+        className={cn(
+          'flex-1 flex flex-col h-full overflow-auto relative',
+          !isLeftPanelOpen ? 'pt-14 md:pt-0' : '',
+        )}
         layout
         transition={{ duration: 0.3, ease: 'easeInOut' }}
       >

@@ -80,7 +80,7 @@ function Logo({
         )}
         style={{ color: colors.foreground }}
       >
-        {vendor === 'eos' ? 'MeO for Eos' : 'Me'}
+        {vendor === 'eos' ? 'MeO for Eos' : 'Meo'}
       </span>
       {vendor === 'meterbolic' && (
         <BloodDroplet 
