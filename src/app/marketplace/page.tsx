@@ -8,7 +8,7 @@ import {
   X, Calendar, Clock, Star, CheckCircle2,
   ChevronLeft, ChevronRight, Sparkles, Send, Search,
 } from 'lucide-react';
-import { THERAPISTS, SLOTS, SLOT_DAYS, matchTherapists, isOutOfScope, type Therapist } from './data';
+import { THERAPISTS, SLOTS, SLOT_DAYS, matchTherapists, isCrisis, isMentalHealthQuery, type Therapist } from './data';
 import { saveBooking } from './bookings';
 
 // ─── Booking modal ────────────────────────────────────────────────────────────
@@ -228,12 +228,15 @@ function AIChatPanel({
       let reply: string;
       let matches: Therapist[] = [];
 
-      if (isOutOfScope(q)) {
-        reply = "I'm really sorry to hear you're going through a difficult time. The therapists on this platform specialise in metabolic and nutritional health, so I'm not able to connect you with a mental health professional here.\n\nPlease reach out to someone who can truly help:\n• **Samaritans** (UK): 116 123 — free, 24/7\n• **Mind**: 0300 123 3393\n• **Crisis Text Line**: Text HELLO to 85258\n\nYou don't have to face this alone. 💙";
+      if (isCrisis(q)) {
+        reply = "I'm really concerned about what you've shared. Please reach out immediately to someone who can help:\n\n• **Samaritans** (UK): 116 123 — free, 24/7\n• **Crisis Text Line**: Text HELLO to 85258\n• **Emergency**: Call 999\n\nYou don't have to face this alone. 💙";
       } else {
         matches = matchTherapists(q);
         if (matches.length === 0) {
-          reply = "I couldn't find a specific match for that. Our therapists focus on metabolic health — try describing a physical goal such as 'lower insulin resistance', 'reduce visceral fat', 'improve biological age score', or 'optimise exercise metabolism'.";
+          const hint = isMentalHealthQuery(q)
+            ? "Try describing your concern more specifically — e.g. 'I feel depressed', 'I have anxiety', 'dealing with grief', or 'trauma support'."
+            : "Try describing a specific goal — e.g. 'lower insulin resistance', 'reduce visceral fat', 'improve biological age', or 'help with anxiety'.";
+          reply = `I couldn't find a specific match for that. ${hint}`;
         } else {
           const top = matches[0];
           const names = matches.slice(0, 2).map((t) => t.name).join(' and ');
@@ -476,12 +479,27 @@ export default function MarketplacePage() {
   const [showAI, setShowAI] = useState(false);
   const [aiMsgs, setAiMsgs] = useState<ChatMsg[]>([AI_INTRO]);
 
-  const specialtyFilters = ['All', 'Metabolic Health', 'Insulin Resistance', 'Biological Age Optimisation', 'Lifestyle Medicine'];
+  const specialtyFilters = ['All', 'Metabolic Health', 'Mental Health', 'Insulin Resistance', 'Biological Age Optimisation', 'Lifestyle Medicine', 'Anxiety', 'Depression', 'Grief & Loss'];
 
   const filtered = THERAPISTS.filter((t) => {
-    const matchesFilter = filter === 'All' || t.specialties.includes(filter);
+    let matchesFilter: boolean;
+    if (filter === 'All') {
+      matchesFilter = true;
+    } else if (filter === 'Mental Health') {
+      matchesFilter = t.category === 'mental-health';
+    } else {
+      const f = filter.toLowerCase();
+      matchesFilter =
+        t.specialties.some((s) => s.toLowerCase().includes(f)) ||
+        t.conditions.some((c) => c.toLowerCase().includes(f));
+    }
     const q = search.toLowerCase().trim();
-    const matchesSearch = !q || t.name.toLowerCase().includes(q) || t.title.toLowerCase().includes(q) || t.specialties.some((s) => s.toLowerCase().includes(q));
+    const matchesSearch =
+      !q ||
+      t.name.toLowerCase().includes(q) ||
+      t.title.toLowerCase().includes(q) ||
+      t.specialties.some((s) => s.toLowerCase().includes(q)) ||
+      t.conditions.some((c) => c.toLowerCase().includes(q));
     return matchesFilter && matchesSearch;
   });
 
@@ -554,17 +572,15 @@ export default function MarketplacePage() {
           </div>
         </div>
 
-        {/* Cards — horizontal scroll row */}
+        {/* Cards — vertical on mobile, grid on larger screens */}
         {filtered.length === 0 ? (
           <p className="py-12 text-center text-sm" style={{ color: colors.muted }}>
             No therapists match your search. Try a different name or specialty.
           </p>
         ) : (
-          <div className="flex gap-5 overflow-x-auto pb-4 -mx-5 px-5 snap-x snap-mandatory">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
             {filtered.map((t) => (
-              <div key={t.id} className="flex-shrink-0 w-80 snap-start">
-                <TherapistCard therapist={t} onBook={() => setBookingFor(t)} />
-              </div>
+              <TherapistCard key={t.id} therapist={t} onBook={() => setBookingFor(t)} />
             ))}
           </div>
         )}

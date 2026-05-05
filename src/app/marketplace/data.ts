@@ -2,6 +2,7 @@ export interface Therapist {
   id: string;
   name: string;
   title: string;
+  category: 'metabolic' | 'mental-health' | 'lifestyle';
   specialties: string[];
   credentials: string[];
   bio: string;
@@ -23,6 +24,7 @@ export const THERAPISTS: Therapist[] = [
     id: 'sarah-okonkwo',
     name: 'Sarah Okonkwo',
     title: 'BANT Registered Nutritional Therapist',
+    category: 'metabolic',
     specialties: ['Metabolic Health', 'Insulin Resistance', 'Weight Management'],
     credentials: ['BANT', 'CNHC', 'mBANT'],
     bio: 'Specialising in metabolic dysfunction and insulin resistance for over 8 years. Works with clients to reverse type 2 diabetes risk through targeted nutrition and lifestyle protocols.',
@@ -42,6 +44,7 @@ export const THERAPISTS: Therapist[] = [
     id: 'james-whitfield',
     name: 'James Whitfield',
     title: 'Functional Medicine Practitioner',
+    category: 'metabolic',
     specialties: ['Biological Age Optimisation', 'Gut Health', 'Hormonal Balance'],
     credentials: ['IFMCP', 'BANT', 'BSc Nutritional Medicine'],
     bio: 'Functional medicine approach to ageing and metabolic health. Interprets Kraft test results and BAS scores in the context of full-body systems to build personalised protocols.',
@@ -61,6 +64,7 @@ export const THERAPISTS: Therapist[] = [
     id: 'priya-sharma',
     name: 'Priya Sharma',
     title: 'Clinical Nutritionist & Health Coach',
+    category: 'lifestyle',
     specialties: ['Visceral Fat Reduction', 'Lifestyle Medicine', 'Stress & Metabolism'],
     credentials: ['ANutr', 'CNHC', 'MSc Clinical Nutrition'],
     bio: 'Combines clinical nutrition with behaviour change coaching. Helps clients understand their metabolic data and build sustainable habits that stick long-term.',
@@ -80,6 +84,7 @@ export const THERAPISTS: Therapist[] = [
     id: 'tom-gallagher',
     name: 'Tom Gallagher',
     title: 'Metabolic Health Coach',
+    category: 'metabolic',
     specialties: ['Exercise Metabolism', 'CGM Interpretation', 'Body Composition'],
     credentials: ['MSc Sports Nutrition', 'BANT', 'CSCS'],
     bio: 'Bridges the gap between exercise science and metabolic health. Specialises in interpreting continuous glucose data alongside Kraft results to optimise body composition.',
@@ -95,6 +100,68 @@ export const THERAPISTS: Therapist[] = [
     approach: ['Exercise Prescription', 'CGM Data Analysis', 'Strength Training', 'Zone 2 Training'],
     conditions: ['Body Composition', 'Athletic Performance', 'Metabolic Inflexibility', 'Blood Sugar Variability', 'Obesity'],
   },
+
+  // ─── Mental Health ───────────────────────────────────────────────────────────
+  {
+    id: 'amara-nwosu',
+    name: 'Amara Nwosu',
+    title: 'BACP Accredited Psychotherapist & Counsellor',
+    category: 'mental-health',
+    specialties: ['Depression', 'Anxiety', 'Mental Health & Wellbeing'],
+    credentials: ['BACP', 'UKCP', 'MSc Psychotherapy'],
+    bio: 'Integrative psychotherapist specialising in depression, anxiety, and emotional wellbeing. Creates a safe, non-judgemental space to explore your thoughts and feelings at your own pace.',
+    longBio: 'Amara holds an MSc in Psychotherapy and Counselling from the University of Manchester and is accredited by both BACP and UKCP. She works integratively, drawing from person-centred, CBT, and psychodynamic approaches to tailor every session to the individual. Amara has particular experience supporting people through depression, generalised anxiety, relationship difficulties, and life transitions. She is committed to providing a warm, culturally sensitive space and works with clients from diverse backgrounds. Amara offers both short-term (6–12 session) and long-term therapeutic work depending on client needs.',
+    rating: 4.9,
+    reviews: 187,
+    pricePerSession: 90,
+    sessionLength: 50,
+    nextAvailable: 'Today 5pm',
+    avatar: 'AN',
+    avatarColor: '#8b5cf6',
+    tags: ['Depression', 'Anxiety', 'CBT', 'Talk Therapy'],
+    approach: ['Integrative Psychotherapy', 'Cognitive Behavioural Therapy', 'Person-Centred', 'Psychodynamic'],
+    conditions: ['Depression', 'Anxiety', 'Stress', 'Relationship Issues', 'Life Transitions', 'Low Self-Esteem'],
+  },
+  {
+    id: 'daniel-hayes',
+    name: 'Daniel Hayes',
+    title: 'Clinical Psychologist & CBT Therapist',
+    category: 'mental-health',
+    specialties: ['Anxiety Disorders', 'Trauma & PTSD', 'OCD'],
+    credentials: ['HCPC', 'BPS', 'DClinPsy'],
+    bio: 'Clinical psychologist with a Doctorate in Clinical Psychology. Specialises in trauma, OCD, and anxiety disorders using evidence-based approaches including CBT and EMDR.',
+    longBio: 'Daniel completed his Doctorate in Clinical Psychology (DClinPsy) at University College London and is registered with the Health and Care Professions Council (HCPC). He has over 10 years of NHS and private practice experience working with complex trauma, PTSD, OCD, and anxiety disorders. Daniel is trained in EMDR (Eye Movement Desensitisation and Reprocessing), a highly effective trauma-focused therapy, as well as Schema Therapy and high-intensity CBT. He works with clients to identify the root patterns driving their difficulties and build lasting psychological resilience.',
+    rating: 4.8,
+    reviews: 134,
+    pricePerSession: 130,
+    sessionLength: 60,
+    nextAvailable: 'Wed 11am',
+    avatar: 'DH',
+    avatarColor: '#06b6d4',
+    tags: ['Trauma', 'PTSD', 'OCD', 'EMDR', 'CBT'],
+    approach: ['Cognitive Behavioural Therapy', 'EMDR', 'Schema Therapy', 'Trauma-Focused'],
+    conditions: ['PTSD', 'OCD', 'Panic Disorder', 'Social Anxiety', 'Trauma', 'Phobias'],
+  },
+  {
+    id: 'leila-rashid',
+    name: 'Leila Rashid',
+    title: 'Counsellor & Mindfulness-Based Therapist',
+    category: 'mental-health',
+    specialties: ['Grief & Loss', 'Relationship Therapy', 'Mindfulness & Wellbeing'],
+    credentials: ['BACP', 'MBCT Certified', 'BSc Psychology'],
+    bio: 'Compassionate counsellor specialising in grief, life transitions, and relationship challenges. Uses mindfulness-based approaches to help clients find clarity and rebuild emotional resilience.',
+    longBio: 'Leila holds a BSc in Psychology and a postgraduate diploma in Counselling and Psychotherapy, and is a fully accredited BACP member. She is certified in Mindfulness-Based Cognitive Therapy (MBCT) and integrates mindfulness practice throughout her therapeutic work. Leila specialises in supporting people through grief and bereavement, relationship breakdown, divorce, loneliness, and major life changes. She believes that therapy works best when it feels like a genuine human connection — her sessions are described by clients as warm, grounding, and deeply practical.',
+    rating: 4.9,
+    reviews: 203,
+    pricePerSession: 80,
+    sessionLength: 50,
+    nextAvailable: 'Tomorrow 9am',
+    avatar: 'LR',
+    avatarColor: '#ec4899',
+    tags: ['Grief', 'Mindfulness', 'Relationships', 'Loss'],
+    approach: ['Mindfulness-Based Cognitive Therapy', 'Person-Centred', 'Acceptance & Commitment Therapy', 'Grief Counselling'],
+    conditions: ['Grief', 'Bereavement', 'Loneliness', 'Relationship Breakdown', 'Divorce', 'Life Transitions', 'Low Mood'],
+  },
 ];
 
 export const SLOTS: Record<string, string[]> = {
@@ -106,35 +173,42 @@ export const SLOTS: Record<string, string[]> = {
 };
 export const SLOT_DAYS = Object.keys(SLOTS);
 
-// Words/phrases that indicate a mental health query outside our scope.
-// Uses a word-list check so spacing variations can't cause false negatives.
+// Only true crisis phrases warrant an emergency redirect.
+// All other mental health queries are matched to our mental health therapists.
+const CRISIS_TERMS = [
+  'suicide', 'suicidal', 'kill myself', 'want to die', 'end my life',
+  'self harm', 'self-harm', 'hurt myself', 'harm myself',
+];
+
+export function isCrisis(query: string): boolean {
+  const q = query.toLowerCase();
+  return CRISIS_TERMS.some((term) => q.includes(term));
+}
+
+// Terms that indicate a mental health (non-metabolic) query.
 const MENTAL_HEALTH_TERMS = [
   'mental health', 'mental disorder', 'mental illness', 'mental issue',
   'mental breakdown', 'nervous breakdown', 'mentally',
   'depression', 'depressed', 'depressive',
-  'anxiety disorder', 'panic attack', 'panic disorder',
+  'anxiety disorder', 'anxiety', 'panic attack', 'panic disorder',
   'bipolar', 'schizophreni', 'psychosis', 'psychotic',
-  'psychiatr', 'psycholog', 'counsellor', 'counselor', 'therapist for',
-  'ptsd', 'post traumatic', 'trauma', 'traumati',
-  'suicide', 'suicidal', 'self harm', 'self-harm', 'hurt myself',
-  'want to die', 'kill myself', 'end my life',
+  'psychiatr', 'psycholog', 'counsellor', 'counselor',
+  'ptsd', 'post traumatic', 'trauma',
   'eating disorder', 'anorexia', 'bulimia', 'binge eating',
   'grief', 'bereavement', 'bereaved',
   'feel hopeless', 'feel empty', 'feel worthless', 'feel numb',
-  'lonely', 'loneliness', 'isolat',
-  'talk to someone', 'talk with someone', 'someone to talk',
+  'lonely', 'loneliness',
+  'talk to someone', 'talk with someone', 'someone to talk', 'connect me',
   'emotional support', 'emotional distress', 'emotional help',
-  'mental support', 'mind health',
+  'mental support', 'low mood', 'mood disorder',
 ];
 
-export function isOutOfScope(query: string): boolean {
+export function isMentalHealthQuery(query: string): boolean {
   const q = query.toLowerCase();
   return MENTAL_HEALTH_TERMS.some((term) => q.includes(term));
 }
 
-// Simple keyword → therapist match for the AI recommender.
-// Requires a minimum score of 3 so generic word overlap alone cannot
-// produce a false match (prevents "mental disorder" → Priya).
+// Keyword → therapist match. Requires score ≥ 3 to prevent false positives.
 export function matchTherapists(query: string): Therapist[] {
   const q = query.toLowerCase();
   const scores: Record<string, number> = {};
@@ -146,6 +220,7 @@ export function matchTherapists(query: string): Therapist[] {
       ...t.approach, ...t.conditions,
     ].join(' ').toLowerCase();
 
+    // ── Metabolic ──
     if (q.match(/insulin|diabetes|blood.?sugar|glucose|kraft/)) {
       if (t.id === 'sarah-okonkwo') score += 5;
       if (t.id === 'tom-gallagher') score += 3;
@@ -153,7 +228,7 @@ export function matchTherapists(query: string): Therapist[] {
     if (q.match(/age|ageing|aging|longevity|biological.?age|bas\b|anti.?age/)) {
       if (t.id === 'james-whitfield') score += 5;
     }
-    if (q.match(/\bstress\b|\banxiety\b|habit|lifestyle|\bfat\b|\bweight\b|visceral|mets.?ir/)) {
+    if (q.match(/\bfat\b|\bweight\b|visceral|mets.?ir|lifestyle/)) {
       if (t.id === 'priya-sharma') score += 5;
     }
     if (q.match(/exercise|gym|sport|\bcgm\b|body.?comp|muscle|training|fitness/)) {
@@ -163,11 +238,35 @@ export function matchTherapists(query: string): Therapist[] {
       if (t.id === 'james-whitfield') score += 4;
       if (t.id === 'priya-sharma') score += 2;
     }
-    if (q.match(/metabolic|metabolism|kraft|insulin/)) {
+    if (q.match(/metabolic|metabolism/)) {
       if (t.id === 'sarah-okonkwo') score += 3;
     }
 
-    // Generic word overlap — minor boost only, not enough to win alone
+    // ── Mental health ──
+    if (q.match(/depress|low mood|sadness|hopeless|empty|worthless/)) {
+      if (t.id === 'amara-nwosu') score += 5;
+      if (t.id === 'leila-rashid') score += 3;
+    }
+    if (q.match(/anxiet|panic|ocd|trauma|ptsd|phobia/)) {
+      if (t.id === 'daniel-hayes') score += 5;
+      if (t.id === 'amara-nwosu') score += 3;
+    }
+    if (q.match(/grief|bereavement|loss|lonely|loneliness|relationship|divorce/)) {
+      if (t.id === 'leila-rashid') score += 5;
+      if (t.id === 'amara-nwosu') score += 2;
+    }
+    if (q.match(/mental.{0,15}(health|disorder|illness|issue|support)|connect.*someone|talk.*someone|someone.*talk|counsell|psycholog|psychiatr/)) {
+      if (t.id === 'amara-nwosu') score += 5;
+      if (t.id === 'daniel-hayes') score += 4;
+      if (t.id === 'leila-rashid') score += 4;
+    }
+    if (q.match(/mindful|wellbeing|well.being|stress|burnout/)) {
+      if (t.id === 'leila-rashid') score += 4;
+      if (t.id === 'amara-nwosu') score += 3;
+      if (t.id === 'priya-sharma') score += 3;
+    }
+
+    // Generic word overlap — minor boost, not enough to win alone
     for (const word of q.split(/\s+/)) {
       if (word.length > 4 && searchText.includes(word)) score += 0.5;
     }
