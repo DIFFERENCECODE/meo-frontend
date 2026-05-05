@@ -106,11 +106,30 @@ export const SLOTS: Record<string, string[]> = {
 };
 export const SLOT_DAYS = Object.keys(SLOTS);
 
-// Topics that are outside the scope of metabolic/nutritional therapists.
-// Returns true when the query is about mental health, crisis, or emotional distress
-// so the AI can give a compassionate redirect instead of a wrong match.
+// Words/phrases that indicate a mental health query outside our scope.
+// Uses a word-list check so spacing variations can't cause false negatives.
+const MENTAL_HEALTH_TERMS = [
+  'mental health', 'mental disorder', 'mental illness', 'mental issue',
+  'mental breakdown', 'nervous breakdown', 'mentally',
+  'depression', 'depressed', 'depressive',
+  'anxiety disorder', 'panic attack', 'panic disorder',
+  'bipolar', 'schizophreni', 'psychosis', 'psychotic',
+  'psychiatr', 'psycholog', 'counsellor', 'counselor', 'therapist for',
+  'ptsd', 'post traumatic', 'trauma', 'traumati',
+  'suicide', 'suicidal', 'self harm', 'self-harm', 'hurt myself',
+  'want to die', 'kill myself', 'end my life',
+  'eating disorder', 'anorexia', 'bulimia', 'binge eating',
+  'grief', 'bereavement', 'bereaved',
+  'feel hopeless', 'feel empty', 'feel worthless', 'feel numb',
+  'lonely', 'loneliness', 'isolat',
+  'talk to someone', 'talk with someone', 'someone to talk',
+  'emotional support', 'emotional distress', 'emotional help',
+  'mental support', 'mind health',
+];
+
 export function isOutOfScope(query: string): boolean {
-  return /mental.?(health|disorder|illness)|depression|depressed|suicid|self.?harm|psychi|psycholog|counsell?or|therapist.*talk|talk.*therapist|anxiety.*(disorder|attack|panic)|panic.?attack|bipolar|schizophren|eating.?disorder|anorexia|bulimia|ptsd|trauma|grief|bereav|lonely|loneliness|crisis|emergency|help.?me.?(please|now)|please.*help|feel.*hopeless|hopeless|feel.*empty|want to die|kill myself|harm myself|mental breakdown|nervous breakdown/.test(query.toLowerCase());
+  const q = query.toLowerCase();
+  return MENTAL_HEALTH_TERMS.some((term) => q.includes(term));
 }
 
 // Simple keyword → therapist match for the AI recommender.
