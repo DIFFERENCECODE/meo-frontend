@@ -19,7 +19,7 @@ interface AppShellProps {
  * open with the same navigation as the main chat view.
  */
 export function AppShell({ children, className }: AppShellProps) {
-  const { theme, isLeftPanelOpen } = useTheme();
+  const { theme, colors, isLeftPanelOpen } = useTheme();
   const router = useRouter();
   const [chats, setChats] = useState<ChatListItem[]>([]);
 
@@ -36,7 +36,7 @@ export function AppShell({ children, className }: AppShellProps) {
     <div
       className={cn('h-screen w-screen flex overflow-hidden', className)}
       style={{
-        background: `linear-gradient(180deg, ${theme.colors.backgroundGradientStart} 0%, ${theme.colors.backgroundGradientMid} 40%, ${theme.colors.backgroundGradientEnd} 100%)`,
+        background: `linear-gradient(180deg, ${colors.backgroundGradientStart} 0%, ${colors.backgroundGradientMid} 40%, ${colors.backgroundGradientEnd} 100%)`,
       }}
     >
       <LeftPanel

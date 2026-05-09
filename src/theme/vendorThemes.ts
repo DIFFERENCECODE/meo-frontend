@@ -87,31 +87,31 @@ export const meterbolicTheme: VendorTheme = {
     chartSecondary: '#f97316',
     chartTertiary: '#a4d65e',
   },
-  // Dark mode - Gemini/GPT style (dark gray)
+  // Dark mode - Deep teal (darker version of light mode palette)
   darkColors: {
     primary: '#a4d65e',
     primaryHover: '#8bc34a',
-    primaryForeground: '#1a1a1a',
-    
-    background: '#1a1a1a',
-    backgroundGradientStart: '#1a1a1a',
-    backgroundGradientMid: '#1a1a1a',
-    backgroundGradientEnd: '#1a1a1a',
-    
-    card: '#2f2f2f',
-    cardHover: '#3a3a3a',
-    cardBorder: 'rgba(255, 255, 255, 0.1)',
-    
-    foreground: '#e3e3e3',
-    muted: 'rgba(255, 255, 255, 0.5)',
-    
+    primaryForeground: '#0e2020',
+
+    background: '#0e2020',
+    backgroundGradientStart: '#0e2020',
+    backgroundGradientMid: '#122828',
+    backgroundGradientEnd: '#163030',
+
+    card: 'rgba(25, 50, 50, 0.9)',
+    cardHover: 'rgba(32, 62, 62, 0.95)',
+    cardBorder: 'rgba(255, 255, 255, 0.12)',
+
+    foreground: '#e8f5e8',
+    muted: 'rgba(232, 245, 232, 0.55)',
+
     accent: 'rgba(164, 214, 94, 0.15)',
     accentHover: 'rgba(164, 214, 94, 0.25)',
-    
+
     success: '#22c55e',
     warning: '#f97316',
     error: '#ef4444',
-    
+
     chartPrimary: '#3b82f6',
     chartSecondary: '#f97316',
     chartTertiary: '#a4d65e',

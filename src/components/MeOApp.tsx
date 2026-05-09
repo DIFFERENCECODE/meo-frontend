@@ -19,7 +19,7 @@ export type { Message };
 
 // Inner component that uses the theme context
 function MeOAppInner() {
-  const { theme, mode, setRightPanelOpen, setVendor, setUserRole } = useTheme();
+  const { theme, colors, mode, setRightPanelOpen, setVendor, setUserRole } = useTheme();
 
   // Chat state
   const [isActive, setIsActive] = useState(false);
@@ -530,12 +530,12 @@ function MeOAppInner() {
   // Show loading screen while checking auth (prevents flash of landing page on refresh)
   if (!authChecked) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: theme.colors.background }}>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: colors.background }}>
         <div className="text-center">
-          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full animate-spin" style={{ background: theme.colors.primary }}>
-            <span className="text-2xl font-bold" style={{ color: theme.colors.primaryForeground }}>M</span>
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full animate-spin" style={{ background: colors.primary }}>
+            <span className="text-2xl font-bold" style={{ color: colors.primaryForeground }}>M</span>
           </div>
-          <p className="text-sm animate-pulse" style={{ color: theme.colors.muted }}>Loading...</p>
+          <p className="text-sm animate-pulse" style={{ color: colors.muted }}>Loading...</p>
         </div>
       </div>
     );
