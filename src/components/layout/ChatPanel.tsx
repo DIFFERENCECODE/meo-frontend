@@ -405,15 +405,17 @@ export function ChatPanel({
           the iOS status bar when installed as a PWA. */}
       <div
         className={cn(
-          'py-4 pr-16 border-b flex items-center justify-between gap-3',
-          isLeftPanelOpen ? 'px-4' : 'pl-28 pr-16',
+          'py-4 pr-16 border-b flex items-center gap-3',
+          isLeftPanelOpen ? 'pl-4 justify-between' : 'justify-end',
         )}
         style={{
           borderColor: colors.cardBorder,
           paddingTop: 'max(1rem, env(safe-area-inset-top))',
         }}
       >
-        <Logo size="small" onClick={onRefresh} vendor={vendor} />
+        {isLeftPanelOpen && (
+          <Logo size="small" onClick={onRefresh} vendor={vendor} />
+        )}
         <div className="flex items-center gap-2 flex-shrink-0">
           <div
             className="px-3 py-1.5 rounded-full text-xs font-medium border whitespace-nowrap"
