@@ -122,12 +122,12 @@ interface FieldProps {
 
 function Field({ label, required, children, hint }: FieldProps) {
   return (
-    <div className="flex flex-col gap-1.5">
-      <label className="text-sm font-medium" style={{ color: 'rgba(255,255,255,0.85)' }}>
+    <div className="flex flex-col gap-2">
+      <label className="text-sm font-medium leading-tight" style={{ color: 'rgba(255,255,255,0.85)' }}>
         {label}{required && <span className="ml-0.5" style={{ color: '#a4d65e' }}>*</span>}
       </label>
       {children}
-      {hint && <p className="text-xs" style={{ color: 'rgba(255,255,255,0.45)' }}>{hint}</p>}
+      {hint && <p className="text-xs leading-snug" style={{ color: 'rgba(255,255,255,0.45)' }}>{hint}</p>}
     </div>
   );
 }
@@ -142,11 +142,12 @@ function TextInput({ value, onChange, placeholder, type = 'text', disabled }: {
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
       disabled={disabled}
-      className="w-full px-3 py-2.5 rounded-lg text-sm outline-none transition-all"
+      className="w-full px-3 py-3 rounded-lg outline-none transition-all"
       style={{
         background: 'rgba(255,255,255,0.07)',
         border: '1px solid rgba(255,255,255,0.15)',
         color: '#fff',
+        fontSize: '16px', // prevent iOS zoom
       }}
       onFocus={(e) => {
         e.currentTarget.style.borderColor = 'rgba(164,214,94,0.6)';
@@ -169,11 +170,12 @@ function TextArea({ value, onChange, placeholder, rows = 3 }: {
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
       rows={rows}
-      className="w-full px-3 py-2.5 rounded-lg text-sm outline-none transition-all resize-none"
+      className="w-full px-3 py-3 rounded-lg outline-none transition-all resize-none"
       style={{
         background: 'rgba(255,255,255,0.07)',
         border: '1px solid rgba(255,255,255,0.15)',
         color: '#fff',
+        fontSize: '16px', // prevent iOS zoom
       }}
       onFocus={(e) => {
         e.currentTarget.style.borderColor = 'rgba(164,214,94,0.6)';
@@ -194,11 +196,12 @@ function SelectInput({ value, onChange, options, placeholder }: {
     <select
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="w-full px-3 py-2.5 rounded-lg text-sm outline-none transition-all appearance-none"
+      className="w-full px-3 py-3 rounded-lg outline-none transition-all appearance-none"
       style={{
         background: 'rgba(255,255,255,0.07)',
         border: '1px solid rgba(255,255,255,0.15)',
         color: value ? '#fff' : 'rgba(255,255,255,0.4)',
+        fontSize: '16px', // prevent iOS zoom
       }}
     >
       {placeholder && <option value="">{placeholder}</option>}
@@ -273,13 +276,13 @@ function RatingScale({ value, onChange, label }: {
   return (
     <div className="flex flex-col gap-2">
       {label && <span className="text-xs" style={{ color: 'rgba(255,255,255,0.5)' }}>{label}</span>}
-      <div className="flex gap-2">
+      <div className="flex gap-2 sm:gap-3">
         {[1, 2, 3, 4, 5].map((n) => (
           <button
             key={n}
             type="button"
             onClick={() => onChange(n)}
-            className="w-10 h-10 rounded-full text-sm font-semibold transition-all"
+            className="flex-1 sm:flex-none sm:w-12 h-12 rounded-full text-sm font-semibold transition-all"
             style={{
               background: value === n ? '#a4d65e' : 'rgba(255,255,255,0.07)',
               border: `2px solid ${value === n ? '#a4d65e' : 'rgba(255,255,255,0.15)'}`,
@@ -299,7 +302,7 @@ function RatingScale({ value, onChange, label }: {
 function Step1({ data, update }: { data: OnboardingData; update: (k: keyof OnboardingData, v: any) => void }) {
   return (
     <div className="flex flex-col gap-5">
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
         <Field label="First Name" required>
           <TextInput value={data.firstName} onChange={(v) => update('firstName', v)} placeholder="Jane" />
         </Field>
@@ -307,7 +310,7 @@ function Step1({ data, update }: { data: OnboardingData; update: (k: keyof Onboa
           <TextInput value={data.lastName} onChange={(v) => update('lastName', v)} placeholder="Smith" />
         </Field>
       </div>
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
         <Field label="Date of Birth" required>
           <TextInput type="date" value={data.dob} onChange={(v) => update('dob', v)} />
         </Field>
@@ -322,7 +325,7 @@ function Step1({ data, update }: { data: OnboardingData; update: (k: keyof Onboa
       <Field label="Occupation">
         <TextInput value={data.occupation} onChange={(v) => update('occupation', v)} placeholder="e.g. Software engineer" />
       </Field>
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
         <Field label="Postcode" required>
           <TextInput value={data.postcode} onChange={(v) => update('postcode', v)} placeholder="e.g. SW1A 1AA" />
         </Field>
@@ -330,7 +333,7 @@ function Step1({ data, update }: { data: OnboardingData; update: (k: keyof Onboa
           <TextInput value={data.city} onChange={(v) => update('city', v)} placeholder="e.g. London" />
         </Field>
       </div>
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
         <Field label="Phone" required>
           <TextInput type="tel" value={data.phone} onChange={(v) => update('phone', v)} placeholder="+44 7700 900000" />
         </Field>
@@ -345,7 +348,7 @@ function Step1({ data, update }: { data: OnboardingData; update: (k: keyof Onboa
 function Step2({ data, update }: { data: OnboardingData; update: (k: keyof OnboardingData, v: any) => void }) {
   return (
     <div className="flex flex-col gap-5">
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-3 gap-2 sm:gap-4">
         <Field label="Weight (kg)">
           <TextInput type="number" value={data.weightKg} onChange={(v) => update('weightKg', v)} placeholder="75" />
         </Field>
@@ -497,7 +500,7 @@ function Step5({ data, update }: { data: OnboardingData; update: (k: keyof Onboa
 function Step6({ data, update }: { data: OnboardingData; update: (k: keyof OnboardingData, v: any) => void }) {
   return (
     <div className="flex flex-col gap-5">
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
         <Field label="Referred by">
           <SelectInput
             value={data.referredBy} onChange={(v) => update('referredBy', v)}
@@ -704,19 +707,20 @@ export default function OnboardingPage() {
       }}
     >
       {/* Header */}
-      <div className="flex items-center justify-between px-6 py-4 flex-shrink-0">
-        <div className="flex items-center gap-2">
-          <span className="text-xl font-bold" style={{ color: colors.primary }}>
-            {theme.header}
-          </span>
-        </div>
+      <div
+        className="flex items-center justify-between px-4 sm:px-6 flex-shrink-0"
+        style={{ paddingTop: 'max(1rem, env(safe-area-inset-top))', paddingBottom: '0.75rem' }}
+      >
+        <span className="text-lg font-bold" style={{ color: colors.primary }}>
+          {theme.header}
+        </span>
         <span className="text-xs" style={{ color: 'rgba(255,255,255,0.45)' }}>
           Step {step + 1} of {STEP_TITLES.length}
         </span>
       </div>
 
       {/* Progress bar */}
-      <div className="px-6 flex-shrink-0">
+      <div className="px-4 sm:px-6 flex-shrink-0">
         <div className="h-1 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.1)' }}>
           <motion.div
             className="h-full rounded-full"
@@ -730,8 +734,8 @@ export default function OnboardingPage() {
           {STEP_TITLES.map((t, i) => (
             <span
               key={i}
-              className="text-xs hidden sm:block"
-              style={{ color: i === step ? colors.primary : i < step ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.25)' }}
+              className="hidden sm:block"
+              style={{ color: i === step ? colors.primary : i < step ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.25)', fontSize: '11px' }}
             >
               {t}
             </span>
@@ -739,18 +743,19 @@ export default function OnboardingPage() {
         </div>
       </div>
 
-      {/* Form card */}
-      <div className="flex-1 overflow-y-auto px-4 py-4">
+      {/* Form card — full-width on mobile, max-w-2xl + padded on sm+ */}
+      <div className="flex-1 overflow-y-auto py-3 sm:py-5 sm:px-4">
         <div
-          className="max-w-2xl mx-auto rounded-2xl overflow-hidden"
+          className="mx-auto sm:rounded-2xl overflow-hidden"
           style={{
             background: colors.card,
             border: `1px solid ${colors.cardBorder}`,
+            maxWidth: '42rem',
           }}
         >
           {/* Step title */}
-          <div className="px-6 pt-6 pb-4">
-            <h1 className="text-xl font-semibold" style={{ color: '#fff' }}>
+          <div className="px-4 sm:px-6 pt-5 pb-3">
+            <h1 className="text-lg sm:text-xl font-semibold" style={{ color: '#fff' }}>
               {STEP_TITLES[step]}
             </h1>
             <p className="text-sm mt-1" style={{ color: 'rgba(255,255,255,0.5)' }}>
@@ -763,19 +768,19 @@ export default function OnboardingPage() {
             </p>
           </div>
 
-          <div className="px-6 pb-2">
+          <div className="px-4 sm:px-6 pb-2">
             <div className="h-px" style={{ background: 'rgba(255,255,255,0.07)' }} />
           </div>
 
           {/* Animated step content */}
-          <div className="px-6 pb-6 overflow-hidden">
+          <div className="px-4 sm:px-6 pb-5 overflow-hidden">
             <AnimatePresence mode="wait" initial={false}>
               <motion.div
                 key={step}
-                initial={{ opacity: 0, x: direction > 0 ? 40 : -40 }}
+                initial={{ opacity: 0, x: direction > 0 ? 30 : -30 }}
                 animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: direction > 0 ? -40 : 40 }}
-                transition={{ duration: 0.25, ease: 'easeInOut' }}
+                exit={{ opacity: 0, x: direction > 0 ? -30 : 30 }}
+                transition={{ duration: 0.2, ease: 'easeInOut' }}
               >
                 {stepComponents[step]}
               </motion.div>
@@ -784,22 +789,25 @@ export default function OnboardingPage() {
 
           {/* Error message */}
           {error && (
-            <div className="mx-6 mb-4 px-4 py-3 rounded-lg text-sm" style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', color: '#fca5a5' }}>
+            <div className="mx-4 sm:mx-6 mb-4 px-4 py-3 rounded-lg text-sm" style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', color: '#fca5a5' }}>
               {error}
             </div>
           )}
 
           {/* Navigation */}
-          <div className="px-6 pb-6 flex items-center justify-between gap-4">
+          <div
+            className="px-4 sm:px-6 flex items-center justify-between gap-4"
+            style={{ paddingBottom: 'max(1.25rem, env(safe-area-inset-bottom))' }}
+          >
             <button
               type="button"
               onClick={goBack}
-              disabled={step === 0}
-              className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-sm font-medium transition-all"
+              className="flex items-center gap-1.5 px-4 py-3 rounded-lg text-sm font-medium transition-all min-w-[80px]"
               style={{
                 background: step === 0 ? 'transparent' : 'rgba(255,255,255,0.07)',
                 border: `1px solid ${step === 0 ? 'transparent' : 'rgba(255,255,255,0.15)'}`,
                 color: step === 0 ? 'transparent' : 'rgba(255,255,255,0.7)',
+                pointerEvents: step === 0 ? 'none' : 'auto',
               }}
             >
               <ChevronLeft size={16} />
@@ -810,7 +818,7 @@ export default function OnboardingPage() {
               type="button"
               onClick={goNext}
               disabled={submitting}
-              className="flex items-center gap-1.5 px-6 py-2.5 rounded-lg text-sm font-semibold transition-all"
+              className="flex items-center gap-1.5 px-6 py-3 rounded-lg text-sm font-semibold transition-all"
               style={{
                 background: colors.primary,
                 color: colors.primaryForeground,
