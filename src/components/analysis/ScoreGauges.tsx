@@ -147,7 +147,7 @@ function GaugeCard({
           itemStyle: { color: pointerColor },
           pointer: {
             show: true,
-            length: '60%',
+            length: '50%',
             width: 6,
             itemStyle: { color: pointerColor },
           },
@@ -169,7 +169,7 @@ function GaugeCard({
             lineStyle: { color: '#9ca3af', width: 2 },
           },
           axisLabel: {
-            distance: -42,
+            distance: -20,
             color: '#d1d5db',
             fontSize: 11,
             formatter: (val: number) => {
@@ -243,6 +243,7 @@ export function ScoreGauges() {
   const [sessionsLoading, setSessionsLoading] = useState(true);
   const [scoresLoading, setScoresLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [missingAnalytes, setMissingAnalytes] = useState<string[]>([]);
 
   // Fetch the user's sessions on mount. Empty list is a valid state.
   useEffect(() => {
@@ -269,7 +270,25 @@ export function ScoreGauges() {
         if (cancelled) return;
         const list = Array.isArray(data?.sessions) ? data.sessions : [];
         setSessions(list);
-        if (list.length > 0) setSelectedSeries(list[0].measurementSeries);
+        if (list.length > 0) {
+          setSelectedSeries(list[0].measurementSeries);
+        } else {
+          // No sessions yet — fetch missing analytes to guide the user
+          try {
+            const statusRes = await fetch('/api/indices/status', {
+              headers: { Authorization: `Bearer ${token}` },
+              cache: 'no-store',
+            });
+            if (statusRes.ok) {
+              const statusData = await statusRes.json();
+              const raw: string[] = Array.isArray(statusData?.missing) ? statusData.missing : [];
+              // Filter out the "all good" success message and trim noise
+              setMissingAnalytes(raw.filter((m) => !m.startsWith('✅')));
+            }
+          } catch {
+            // Silent — missing-analytes is best-effort
+          }
+        }
       } catch (e: unknown) {
         if (!cancelled) setError(e instanceof Error ? e.message : 'Network error');
       } finally {
@@ -368,6 +387,29 @@ export function ScoreGauges() {
           }}
         >
           {error}
+        </div>
+      )}
+
+      {/* Missing measurements banner — shown only when there are no sessions yet */}
+      {!sessionsLoading && sessionCount === 0 && missingAnalytes.length > 0 && (
+        <div
+          className="rounded-xl border p-4 text-sm space-y-2"
+          style={{
+            backgroundColor: theme.colors.card,
+            borderColor: theme.colors.cardBorder,
+          }}
+        >
+          <p className="font-semibold" style={{ color: theme.colors.foreground }}>
+            Missing measurements for your score
+          </p>
+          <ul className="space-y-1 list-none">
+            {missingAnalytes.map((m, i) => (
+              <li key={i} className="flex items-start gap-2" style={{ color: theme.colors.muted }}>
+                <span style={{ color: '#f97316' }}>•</span>
+                {m}
+              </li>
+            ))}
+          </ul>
         </div>
       )}
 
