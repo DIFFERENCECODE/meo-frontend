@@ -404,7 +404,10 @@ export function ChatPanel({
           paddingTop: env(safe-area-inset-top) pushes the header below
           the iOS status bar when installed as a PWA. */}
       <div
-        className="px-4 pr-16 py-4 border-b flex items-center justify-between gap-3"
+        className={cn(
+          'py-4 pr-16 border-b flex items-center justify-between gap-3',
+          isLeftPanelOpen ? 'px-4' : 'pl-28 pr-16',
+        )}
         style={{
           borderColor: colors.cardBorder,
           paddingTop: 'max(1rem, env(safe-area-inset-top))',
