@@ -6,6 +6,7 @@ import { motion } from 'motion/react';
 import { useTheme } from '@/theme/ThemeProvider';
 import { LeftPanel, ChatListItem } from './LeftPanel';
 import { apiFetch, getIdToken } from '@/app/lib/auth';
+import { ProfileMenu } from './ProfileMenu';
 import { cn } from '@/lib/utils';
 
 interface AppShellProps {
@@ -76,6 +77,13 @@ export function AppShell({ children, className }: AppShellProps) {
         layout
         transition={{ duration: 0.3, ease: 'easeInOut' }}
       >
+        {/* Profile avatar — always top-right, above all content */}
+        <div
+          className="fixed top-0 right-0 z-50 p-3"
+          style={{ paddingTop: 'max(0.75rem, env(safe-area-inset-top))' }}
+        >
+          <ProfileMenu />
+        </div>
         {children}
       </motion.main>
     </div>

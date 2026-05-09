@@ -12,6 +12,7 @@ import { ThinkingTrace, type TraceStep } from '@/components/chat/ThinkingTrace';
 import { LanguagePicker, type SupportedLang, getLangMeta } from '@/components/layout/LanguagePicker';
 import useVoiceInput from '@/hooks/useVoiceInput';
 import { useTranslation } from '@/i18n/LanguageContext';
+import { ProfileMenu } from '@/components/layout/ProfileMenu';
 
 // Types
 export type Message = {
@@ -410,15 +411,18 @@ export function ChatPanel({
         }}
       >
         <Logo size="small" onClick={onRefresh} vendor={vendor} />
-        <div
-          className="px-3 py-1.5 rounded-full text-xs font-medium border whitespace-nowrap flex-shrink-0"
-          style={{
-            backgroundColor: `${colors.primary}20`,
-            borderColor: `${colors.primary}40`,
-            color: colors.primary,
-          }}
-        >
-          {t('chat.limited_preview')}
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <div
+            className="px-3 py-1.5 rounded-full text-xs font-medium border whitespace-nowrap"
+            style={{
+              backgroundColor: `${colors.primary}20`,
+              borderColor: `${colors.primary}40`,
+              color: colors.primary,
+            }}
+          >
+            {t('chat.limited_preview')}
+          </div>
+          <ProfileMenu />
         </div>
       </div>
 

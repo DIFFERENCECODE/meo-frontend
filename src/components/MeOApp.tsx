@@ -12,6 +12,7 @@ import { SolutionContent } from '@/components/solution/SolutionContent';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { getLoginUrl, getLogoutUrl, exchangeCodeForTokens, storeIdToken, getIdToken, clearIdToken, getSubFromIdToken, storeRefreshToken, getValidIdToken, apiFetch } from '@/app/lib/auth';
 import LandingPage from '@/components/LandingPage';
+import { ProfileMenu } from '@/components/layout/ProfileMenu';
 
 // Types re-exported from chat panel
 export type { Message };
@@ -588,14 +589,6 @@ function MeOAppInner() {
         }
       }}
     >
-      <div className="flex justify-end mt-4 mb-4 pr-20 gap-2">
-        <button
-          onClick={handleLogout}
-          className="rounded-full border border-emerald-500 px-6 py-2 text-sm font-semibold text-emerald-500 hover:bg-emerald-500/10 shadow-md"
-        >
-          Log out
-        </button>
-      </div>
       <ChatPanel
         messages={messages}
         input={input}
