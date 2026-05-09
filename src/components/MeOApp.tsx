@@ -2,6 +2,7 @@
 
 import React, { useState, useCallback, useEffect } from 'react';
 import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
 import { ThemeProvider, useTheme } from '@/theme/ThemeProvider';
 import { ThreePanelLayout } from '@/components/layout/ThreePanelLayout';
 import { ChatPanel, Message } from '@/components/layout/ChatPanel';
@@ -20,6 +21,7 @@ export type { Message };
 // Inner component that uses the theme context
 function MeOAppInner() {
   const { theme, colors, mode, setRightPanelOpen, setVendor, setUserRole } = useTheme();
+  const router = useRouter();
 
   // Chat state
   const [isActive, setIsActive] = useState(false);
@@ -548,6 +550,18 @@ function MeOAppInner() {
         onSignIn={handleLogin}
         isExchanging={isExchanging}
       />
+    );
+  }
+
+  // Redirect to onboarding if not yet completed
+  if (typeof window !== 'undefined' && !localStorage.getItem('meo_onboarding_v1')) {
+    router.push('/onboarding');
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: colors.background }}>
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full animate-spin" style={{ background: colors.primary }}>
+          <span className="text-2xl font-bold" style={{ color: colors.primaryForeground }}>M</span>
+        </div>
+      </div>
     );
   }
 
