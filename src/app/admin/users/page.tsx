@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useTheme } from '@/theme/ThemeProvider';
 import { getIdToken } from '@/app/lib/auth';
 import { useDebounce } from '@/lib/hooks';
-import { Search, Trash2, UserCog, Zap, X, Download, ArrowUp, ArrowDown } from 'lucide-react';
+import { Search, Trash2, UserCog, Zap, X, Download, ArrowUp, ArrowDown, CheckCircle2, XCircle, ChevronDown, ChevronUp, Stethoscope } from 'lucide-react';
 
 interface User {
   cognito_sub: string;
@@ -38,6 +38,7 @@ export default function UsersPage() {
   const [sortKey, setSortKey] = useState<SortKey>('created_at');
   const [sortDir, setSortDir] = useState<SortDir>('desc');
   const [roleFilter, setRoleFilter] = useState<string>('all');
+  const [expandedApp, setExpandedApp] = useState<string | null>(null);
 
   const token = getIdToken();
 
@@ -145,6 +146,17 @@ export default function UsersPage() {
     fetchUsers();
   };
 
+  const handleClinicianDecision = async (sub: string, approve: boolean) => {
+    if (!token) return;
+    const newRole = approve ? 'clinician' : 'demo';
+    await fetch(`/api/admin/users/${sub}`, {
+      method: 'PUT',
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ role: newRole }),
+    });
+    fetchUsers();
+  };
+
   const handleProvision = async (sub: string) => {
     if (!token) return;
     const res = await fetch(`/api/admin/users/${sub}/provision`, {
@@ -191,6 +203,83 @@ export default function UsersPage() {
         </button>
       </div>
 
+      {/* Pending clinician applications */}
+      {users.filter((u) => u.role === 'clinician_pending').length > 0 && (
+        <div className="mb-6 rounded-xl overflow-hidden" style={{ border: '1px solid rgba(245,158,11,0.3)', background: 'rgba(245,158,11,0.06)' }}>
+          <div className="px-4 py-3 flex items-center gap-2 border-b" style={{ borderColor: 'rgba(245,158,11,0.2)' }}>
+            <Stethoscope className="h-4 w-4" style={{ color: '#f59e0b' }} />
+            <span className="text-sm font-semibold" style={{ color: '#f59e0b' }}>
+              Pending Clinician Applications — {users.filter((u) => u.role === 'clinician_pending').length}
+            </span>
+          </div>
+          <div className="divide-y" style={{ borderColor: 'rgba(245,158,11,0.15)' }}>
+            {users.filter((u) => u.role === 'clinician_pending').map((u) => {
+              const app = (u as any).clinician_application ?? {};
+              const isOpen = expandedApp === u.cognito_sub;
+              return (
+                <div key={u.cognito_sub}>
+                  <div className="px-4 py-3 flex items-center gap-3">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium" style={{ color: colors.foreground }}>{u.name || app.fullName || 'Unknown'}</p>
+                      <p className="text-xs truncate" style={{ color: colors.muted }}>
+                        {u.email} · {app.profBody || 'No registration body'} · {app.clinicName || 'No clinic'}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      <button
+                        onClick={() => setExpandedApp(isOpen ? null : u.cognito_sub)}
+                        className="text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1"
+                        style={{ background: 'rgba(255,255,255,0.07)', color: colors.muted }}
+                      >
+                        {isOpen ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+                        {isOpen ? 'Less' : 'View'}
+                      </button>
+                      <button
+                        onClick={() => handleClinicianDecision(u.cognito_sub, true)}
+                        className="text-xs px-3 py-1.5 rounded-lg flex items-center gap-1.5 font-semibold"
+                        style={{ background: 'rgba(34,197,94,0.15)', color: '#22c55e' }}
+                      >
+                        <CheckCircle2 className="h-3.5 w-3.5" /> Approve
+                      </button>
+                      <button
+                        onClick={() => handleClinicianDecision(u.cognito_sub, false)}
+                        className="text-xs px-3 py-1.5 rounded-lg flex items-center gap-1.5"
+                        style={{ background: 'rgba(239,68,68,0.1)', color: '#f87171' }}
+                      >
+                        <XCircle className="h-3.5 w-3.5" /> Reject
+                      </button>
+                    </div>
+                  </div>
+                  {isOpen && app.bio && (
+                    <div className="px-4 pb-3 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                      {[
+                        { label: 'Registration', value: `${app.profBody} — ${app.regNumber}` },
+                        { label: 'Specialties', value: (app.specialties ?? []).join(', ') || '—' },
+                        { label: 'Clinic', value: `${app.clinicName}${app.clinicAddress ? `, ${app.clinicAddress}` : ''}` },
+                        { label: 'Website', value: app.website || '—' },
+                      ].map(({ label, value }) => (
+                        <div key={label} className="rounded-lg p-2.5" style={{ background: 'rgba(255,255,255,0.05)' }}>
+                          <p style={{ color: colors.muted }}>{label}</p>
+                          <p className="mt-0.5 font-medium" style={{ color: colors.foreground }}>{value}</p>
+                        </div>
+                      ))}
+                      <div className="sm:col-span-2 rounded-lg p-2.5" style={{ background: 'rgba(255,255,255,0.05)' }}>
+                        <p style={{ color: colors.muted }}>Professional Bio</p>
+                        <p className="mt-0.5" style={{ color: colors.foreground }}>{app.bio}</p>
+                      </div>
+                      <div className="sm:col-span-2 rounded-lg p-2.5" style={{ background: 'rgba(255,255,255,0.05)' }}>
+                        <p style={{ color: colors.muted }}>Why Meterbolic</p>
+                        <p className="mt-0.5" style={{ color: colors.foreground }}>{app.reasonForJoining}</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* Search + role filter */}
       <div className="flex items-center gap-3 mb-6">
         <div className="relative flex-1">
@@ -212,7 +301,7 @@ export default function UsersPage() {
           aria-label="Filter by role"
         >
           <option value="all">All roles</option>
-          {['demo', 'patient', 'clinician', 'practitioner', 'admin'].map((r) => (
+          {['demo', 'patient', 'clinician', 'clinician_pending', 'practitioner', 'admin'].map((r) => (
             <option key={r} value={r}>{r}</option>
           ))}
         </select>
@@ -314,7 +403,7 @@ export default function UsersPage() {
               className="w-full rounded-lg px-3 py-2 border mb-4 text-sm"
               style={{ backgroundColor: colors.background, borderColor: colors.cardBorder, color: colors.foreground }}
             >
-              {['demo', 'patient', 'clinician', 'practitioner', 'admin'].map((r) => (
+              {['demo', 'patient', 'clinician', 'clinician_pending', 'practitioner', 'admin'].map((r) => (
                 <option key={r} value={r}>{r}</option>
               ))}
             </select>

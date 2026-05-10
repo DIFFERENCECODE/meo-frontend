@@ -42,6 +42,8 @@ function MeOAppInner() {
   });
   const [isExchanging, setIsExchanging] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
+  const [profileRole, setProfileRole] = useState<string | null>(null);
+  const [profileLoaded, setProfileLoaded] = useState(false);
   // Sidebar: list of user's chats and current conversation
   const [chats, setChats] = useState<ChatListItem[]>([]);
   const [currentChatId, setCurrentChatId] = useState<string | null>(null);
@@ -150,25 +152,23 @@ function MeOAppInner() {
     return () => clearInterval(intervalId);
   }, [idToken]);
 
-  // When signed in, load profile and sync vendor from backend.
-  // apiFetch handles token refresh and redirects to Cognito Hosted UI on
-  // auth failure, so we don't need to hand-roll bearer headers or check
-  // for 401 here — a still-401 response means the tab is already
-  // navigating away to login and this effect will be cancelled.
+  // When signed in, load profile and sync vendor/role from backend.
   useEffect(() => {
-    if (!idToken) return;
+    if (!idToken) { setProfileLoaded(true); return; }
     (async () => {
       try {
         const res = await apiFetch('/api/profile');
-        if (!res.ok) return;
+        if (!res.ok) { setProfileLoaded(true); return; }
         const data = await res.json();
         if (data?.vendor_id && (data.vendor_id === 'meterbolic' || data.vendor_id === 'eos')) {
           setVendor(data.vendor_id);
         }
         if (data?.role) {
           setUserRole(data.role);
+          setProfileRole(data.role);
         }
       } catch {}
+      setProfileLoaded(true);
     })();
   }, [idToken]);
 
@@ -553,7 +553,58 @@ function MeOAppInner() {
     );
   }
 
-  // Redirect to onboarding if not yet completed
+  // Wait for profile to load before routing by role
+  if (!profileLoaded) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: colors.background }}>
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full animate-spin" style={{ background: colors.primary }}>
+          <span className="text-2xl font-bold" style={{ color: colors.primaryForeground }}>M</span>
+        </div>
+      </div>
+    );
+  }
+
+  // Clinician application under review
+  if (profileRole === 'clinician_pending') {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4" style={{ background: colors.background }}>
+        <div className="max-w-sm w-full text-center space-y-5 rounded-2xl p-8"
+          style={{ background: colors.card, border: `1px solid ${colors.cardBorder}` }}>
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full"
+            style={{ background: `${colors.primary}18` }}>
+            <span className="text-3xl">⏳</span>
+          </div>
+          <div>
+            <h2 className="text-lg font-bold" style={{ color: colors.foreground }}>Application Under Review</h2>
+            <p className="text-sm mt-2" style={{ color: colors.muted }}>
+              Your clinician registration is being reviewed by our team. We'll email you within 1–2 business days once approved.
+            </p>
+          </div>
+          <button
+            onClick={handleLogout}
+            className="w-full py-2.5 rounded-xl text-sm font-medium"
+            style={{ background: 'rgba(255,255,255,0.07)', border: `1px solid ${colors.cardBorder}`, color: colors.muted }}
+          >
+            Sign Out
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Approved clinician → redirect to clinician portal
+  if (profileRole === 'clinician') {
+    router.replace('/clinician');
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: colors.background }}>
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full animate-spin" style={{ background: colors.primary }}>
+          <span className="text-2xl font-bold" style={{ color: colors.primaryForeground }}>M</span>
+        </div>
+      </div>
+    );
+  }
+
+  // Redirect to onboarding if not yet completed (patients only)
   if (typeof window !== 'undefined' && !localStorage.getItem('meo_onboarding_v1')) {
     router.push('/onboarding');
     return (
