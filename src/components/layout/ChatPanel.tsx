@@ -13,6 +13,7 @@ import { LanguagePicker, type SupportedLang, getLangMeta } from '@/components/la
 import useVoiceInput from '@/hooks/useVoiceInput';
 import { useTranslation } from '@/i18n/LanguageContext';
 import { ProfileMenu } from '@/components/layout/ProfileMenu';
+import SuggestionTicker from '@/components/layout/SuggestionTicker';
 
 // Types
 export type Message = {
@@ -543,6 +544,7 @@ export function ChatPanel({
       {/* Footer Input */}
       <div className="p-4 border-t" style={{ borderColor: colors.cardBorder }}>
         <div className="max-w-3xl mx-auto">
+          <SuggestionTicker onSelect={(q) => onSendMessage(undefined, q)} />
           <form onSubmit={onSendMessage} className="relative">
             <textarea
               ref={textareaRef}
