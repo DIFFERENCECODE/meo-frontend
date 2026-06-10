@@ -14,7 +14,7 @@ const LIBRARY_ITEMS: LibraryItem[] = [
     type: 'book',
     description:
       'Challenges the myth that weight equals health. Explains visceral fat, the TOFI phenomenon, and why the Biological Age Score reveals what BMI cannot.',
-    downloadPath: '/docs/TheThinGuideToFat_MarinaYoung_book.pdf',
+    viewUrl: 'https://docs.google.com/viewer?url=https%3A%2F%2Fassets.meterbolic.com%2Fdocs%2FTheThinGuideToFat_MarinaYoung_book.pdf&embedded=true',
     suggestedPrompts: [
       'What is the Thin Guide to Fat about?',
       'What is visceral fat and why does it matter?',
@@ -29,7 +29,7 @@ const LIBRARY_ITEMS: LibraryItem[] = [
     type: 'guide',
     description:
       'Step-by-step instructions for measuring your BAS at home: fasting blood glucose, lipid panel, and anthropometrics — with interpretation of your result.',
-    downloadPath: null,
+    viewUrl: null,
     suggestedPrompts: [
       'What is the Biological Age Score?',
       'How do I measure my Biological Age Score at home?',
@@ -45,7 +45,7 @@ type LibraryItem = {
   author: string;
   type: 'book' | 'guide';
   description: string;
-  downloadPath: string | null;
+  viewUrl: string | null;
   suggestedPrompts: string[];
 };
 
@@ -206,10 +206,10 @@ export default function LibraryPanel({ onClose, onAskMeO }: LibraryPanelProps) {
                     </div>
                   </div>
 
-                  {/* View PDF button (opens inline viewer) */}
-                  {item.downloadPath && (
+                  {/* View PDF button (opens inline viewer — no download) */}
+                  {item.viewUrl && (
                     <button
-                      onClick={() => setViewingPdf(item.downloadPath)}
+                      onClick={() => setViewingPdf(item.viewUrl)}
                       className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-medium transition-colors w-full justify-center"
                       style={{
                         backgroundColor: `${colors.primary}20`,
