@@ -3,9 +3,21 @@
 import React, { useRef, useState } from 'react';
 import { useTheme } from '@/theme/ThemeProvider';
 
-const SUGGESTIONS = [
-  'What is a Biological Age Score?',
-  'How can I determine my biological age?',
+// ── Induction prompts — shown to new/demo users during onboarding phase ──────
+// These map directly to the four induction content items:
+//   1. What is BAS          2. How to Measure BAS
+//   3. Thin Guide to Fat    4. CTA to Buy the Meter
+const INDUCTION_SUGGESTIONS = [
+  'What is the Biological Age Score?',
+  'How do I measure my Biological Age Score at home?',
+  'What is the Thin Guide to Fat?',
+  'How do I get the Meterbolic Meter?',
+  'What is the Deep Fat Score?',
+  'How does MeO calculate my biological age?',
+];
+
+// ── General prompts — shown to all users regardless of phase ─────────────────
+const GENERAL_SUGGESTIONS = [
   'Why do I feel tired after eating?',
   'What does my glucose pattern mean?',
   'How can I improve my metabolic score?',
@@ -16,17 +28,25 @@ const SUGGESTIONS = [
   'What is hyperinsulinaemia?',
 ];
 
-// Duplicate the list so the marquee loops seamlessly
-const TICKER_ITEMS = [...SUGGESTIONS, ...SUGGESTIONS];
-
 interface SuggestionTickerProps {
   onSelect: (question: string) => void;
+  /** 'induction' shows onboarding prompts first; 'general' shows standard prompts. */
+  phase?: 'induction' | 'general';
 }
 
-export default function SuggestionTicker({ onSelect }: SuggestionTickerProps) {
+export default function SuggestionTicker({ onSelect, phase = 'general' }: SuggestionTickerProps) {
   const { colors } = useTheme();
   const [paused, setPaused] = useState(false);
   const trackRef = useRef<HTMLDivElement>(null);
+
+  // Induction phase: lead with induction prompts, tail with general
+  // General phase: general prompts only
+  const base = phase === 'induction'
+    ? [...INDUCTION_SUGGESTIONS, ...GENERAL_SUGGESTIONS]
+    : GENERAL_SUGGESTIONS;
+
+  // Duplicate so the marquee loops seamlessly
+  const TICKER_ITEMS = [...base, ...base];
 
   return (
     <div
@@ -56,7 +76,7 @@ export default function SuggestionTicker({ onSelect }: SuggestionTickerProps) {
         ref={trackRef}
         className="flex items-center gap-2 absolute whitespace-nowrap"
         style={{
-          animation: `meo-ticker 40s linear infinite`,
+          animation: `meo-ticker 70s linear infinite`,
           animationPlayState: paused ? 'paused' : 'running',
         }}
       >

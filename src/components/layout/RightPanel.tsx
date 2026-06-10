@@ -2,7 +2,7 @@
 
 import React, { useState, useCallback } from 'react';
 import { X, PanelRightClose, PanelRight, Loader2 } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion } from 'motion/react';
 import { useTheme } from '@/theme/ThemeProvider';
 import { getIdToken } from '@/app/lib/auth';
 import { cn } from '@/lib/utils';
@@ -112,56 +112,21 @@ export function RightPanel({
   const isPractitionerMode = mode === 'practitioner' && !showAnalysis && !showSolution;
   const shouldShow = isRightPanelOpen || showAnalysis || showSolution;
 
+  // ThreePanelLayout controls whether this component is in the DOM.
+  // It renders as a plain in-flow panel — no fixed positioning or
+  // self-managed width. The Group/Panel in ThreePanelLayout handles sizing.
   return (
     <>
-      <AnimatePresence>
-        {!isRightPanelOpen && !showAnalysis && !showSolution && (
-          <motion.button
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 20 }}
-            transition={{ duration: 0.2 }}
-            onClick={toggleRightPanel}
-            className="fixed right-4 z-50 p-3 rounded-xl backdrop-blur border shadow-lg hover:scale-105 transition-transform"
-            style={{
-              // Stack below the iOS status bar on PWA, and leave normal
-              // top-4 spacing on desktop. env() falls back to 1rem.
-              top: 'max(1rem, env(safe-area-inset-top))',
-              backgroundColor: theme.colors.card,
-              borderColor: theme.colors.cardBorder,
-            }}
-            aria-label="Open right panel"
-          >
-            <PanelRight className="h-5 w-5" style={{ color: theme.colors.foreground }} />
-          </motion.button>
+      <motion.aside
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.2 }}
+        className={cn(
+          'h-full flex flex-col overflow-hidden border-l',
+          className
         )}
-      </AnimatePresence>
-
-      <AnimatePresence>
-        {shouldShow && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="md:hidden fixed inset-0 z-[55]"
-              style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
-              onClick={handleClose}
-            />
-            <motion.aside
-              initial={{ x: '100%', opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              exit={{ x: '100%', opacity: 0 }}
-              transition={{ duration: 0.3, ease: 'easeInOut' }}
-              className={cn(
-                'h-screen flex flex-col overflow-hidden z-[60]',
-                'fixed md:relative right-0 top-0',
-                'border-l shadow-xl md:shadow-none',
-                'w-full md:w-[450px] lg:w-[500px]',
-                className
-              )}
-              style={{ backgroundColor: theme.colors.background, borderColor: theme.colors.cardBorder }}
-            >
+        style={{ backgroundColor: theme.colors.background, borderColor: theme.colors.cardBorder }}
+      >
               <div
                 className="flex items-center justify-between p-4 border-b"
                 style={{
@@ -241,10 +206,7 @@ export function RightPanel({
                   </div>
                 )}
               </div>
-            </motion.aside>
-          </>
-        )}
-      </AnimatePresence>
+      </motion.aside>
     </>
   );
 }

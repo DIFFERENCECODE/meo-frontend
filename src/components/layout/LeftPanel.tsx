@@ -15,6 +15,7 @@ import {
   Sparkles,
   Trash2,
   ShoppingBag,
+  BookOpen,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -48,6 +49,7 @@ interface LeftPanelProps {
    *  a stack of Skeleton rows so the sidebar never collapses to
    *  "No chats yet" during the load race. */
   chatsLoading?: boolean;
+  onLibraryOpen?: () => void;
   className?: string;
 }
 
@@ -67,7 +69,7 @@ function formatChatDate(created_at?: string | null): string {
   }
 }
 
-export function LeftPanel({ onNewChat, onSettingsClick, chats, currentChatId, onSelectChat, onDeleteChat, chatsLoading, className }: LeftPanelProps) {
+export function LeftPanel({ onNewChat, onSettingsClick, chats, currentChatId, onSelectChat, onDeleteChat, chatsLoading, onLibraryOpen, className }: LeftPanelProps) {
   const { isLeftPanelOpen, toggleLeftPanel, isRightPanelOpen, theme, colors, colorMode, toggleColorMode } = useTheme();
   const { t } = useTranslation();
   const [showSettings, setShowSettings] = useState(false);
@@ -167,6 +169,21 @@ export function LeftPanel({ onNewChat, onSettingsClick, chats, currentChatId, on
                   <SquarePen className="h-5 w-5" />
                   <span className="font-medium">{t('sidebar.new_chat')}</span>
                 </button>
+              </div>
+
+              {/* Free plan · Upgrade */}
+              <div className="px-3 pb-1">
+                <a
+                  href="https://www.meterbolic.com/pricing"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border w-fit text-xs transition-colors hover:bg-white/5 no-underline"
+                  style={{ borderColor: colors.cardBorder }}
+                >
+                  <span style={{ color: colors.muted }}>Free plan</span>
+                  <span style={{ color: colors.muted }}>·</span>
+                  <span className="font-medium" style={{ color: colors.primary }}>Upgrade</span>
+                </a>
               </div>
 
               {/* Chats Section */}
@@ -286,6 +303,14 @@ export function LeftPanel({ onNewChat, onSettingsClick, chats, currentChatId, on
                 <div className="px-2 pb-1">
                   <LanguagePicker compact showLabelWhenCompact />
                 </div>
+                <button
+                  onClick={onLibraryOpen}
+                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors hover:bg-white/5"
+                  style={{ color: colors.muted }}
+                >
+                  <BookOpen className="h-5 w-5" />
+                  <span>Library</span>
+                </button>
                 <Link
                   href="/personalize"
                   className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors hover:bg-white/5"
