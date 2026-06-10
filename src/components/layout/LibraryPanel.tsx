@@ -14,7 +14,7 @@ const LIBRARY_ITEMS: LibraryItem[] = [
     type: 'book',
     description:
       'Challenges the myth that weight equals health. Explains visceral fat, the TOFI phenomenon, and why the Biological Age Score reveals what BMI cannot.',
-    viewUrl: 'https://docs.google.com/viewer?url=https%3A%2F%2Fassets.meterbolic.com%2Fdocs%2FTheThinGuideToFat_MarinaYoung_book.pdf&embedded=true',
+    viewUrl: null,
     suggestedPrompts: [
       'What is the Thin Guide to Fat about?',
       'What is visceral fat and why does it matter?',
