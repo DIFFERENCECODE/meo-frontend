@@ -16,6 +16,7 @@ import {
   Trash2,
   ShoppingBag,
   BookOpen,
+  Stethoscope,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -69,7 +70,7 @@ function formatChatDate(created_at?: string | null): string {
   }
 }
 
-export function LeftPanel({ onNewChat, onSettingsClick, chats, currentChatId, onSelectChat, onDeleteChat, chatsLoading, onLibraryOpen, className }: LeftPanelProps) {
+export function LeftPanel({ onNewChat, onSettingsClick, chats, currentChatId, onSelectChat, onDeleteChat, chatsLoading, onLibraryOpen, onStartTour, className }: LeftPanelProps & { onStartTour?: () => void }) {
   const { isLeftPanelOpen, toggleLeftPanel, isRightPanelOpen, theme, colors, colorMode, toggleColorMode } = useTheme();
   const { t } = useTranslation();
   const [showSettings, setShowSettings] = useState(false);
@@ -159,6 +160,7 @@ export function LeftPanel({ onNewChat, onSettingsClick, chats, currentChatId, on
               {/* New Chat Button - Gemini style */}
               <div className="px-3 py-2">
                 <button
+                  data-tour="new-chat"
                   onClick={onNewChat}
                   className="flex items-center gap-3 w-full px-4 py-3 rounded-full border transition-colors hover:bg-white/5"
                   style={{
@@ -278,16 +280,6 @@ export function LeftPanel({ onNewChat, onSettingsClick, chats, currentChatId, on
                     </p>
                     <ModeToggle />
                   </div>
-                  <div className="px-3">
-                    <Link
-                      href="/marketplace"
-                      className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors hover:bg-white/5"
-                      style={{ color: colors.muted }}
-                    >
-                      <ShoppingBag className="h-5 w-5" />
-                      <span>Marketplace</span>
-                    </Link>
-                  </div>
                 </div>
               </div>
 
@@ -304,6 +296,7 @@ export function LeftPanel({ onNewChat, onSettingsClick, chats, currentChatId, on
                   <LanguagePicker compact showLabelWhenCompact />
                 </div>
                 <button
+                  data-tour="library-nav"
                   onClick={onLibraryOpen}
                   className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors hover:bg-white/5"
                   style={{ color: colors.muted }}
@@ -312,6 +305,24 @@ export function LeftPanel({ onNewChat, onSettingsClick, chats, currentChatId, on
                   <span>Library</span>
                 </button>
                 <Link
+                  data-tour="marketplace-nav"
+                  href="/marketplace"
+                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors hover:bg-white/5"
+                  style={{ color: colors.muted }}
+                >
+                  <ShoppingBag className="h-5 w-5" />
+                  <span>Marketplace</span>
+                </Link>
+                <Link
+                  href="/clinician"
+                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors hover:bg-white/5"
+                  style={{ color: colors.muted }}
+                >
+                  <Stethoscope className="h-5 w-5" />
+                  <span>Clinician</span>
+                </Link>
+                <Link
+                  data-tour="personalize-nav"
                   href="/personalize"
                   className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors hover:bg-white/5"
                   style={{ color: colors.muted }}
@@ -320,6 +331,7 @@ export function LeftPanel({ onNewChat, onSettingsClick, chats, currentChatId, on
                   <span>{t('sidebar.personalize')}</span>
                 </Link>
                 <Link
+                  data-tour="activity-nav"
                   href="/activity"
                   className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors hover:bg-white/5"
                   style={{ color: colors.muted }}
@@ -365,6 +377,16 @@ export function LeftPanel({ onNewChat, onSettingsClick, chats, currentChatId, on
                           <CreditCard className="h-4 w-4" />
                           <span>Subscription</span>
                         </Link>
+                        {onStartTour && (
+                          <button
+                            onClick={() => { setShowSettings(false); onStartTour(); }}
+                            className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors hover:bg-white/5"
+                            style={{ color: colors.foreground }}
+                          >
+                            <span>🗺️</span>
+                            <span>Take the tour</span>
+                          </button>
+                        )}
                         <button
                           onClick={toggleColorMode}
                           className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors hover:bg-white/5"

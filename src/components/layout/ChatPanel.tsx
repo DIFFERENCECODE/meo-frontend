@@ -83,7 +83,7 @@ function Logo({
         )}
         style={{ color: colors.foreground }}
       >
-        {vendor === 'eos' ? 'MeO for Eos' : 'Meo'}
+        {vendor === 'eos' ? 'MeO for Eos' : 'MeO'}
       </span>
       {vendor === 'meterbolic' && (
         <BloodDroplet 
@@ -683,6 +683,7 @@ export function ChatPanel({
           <form onSubmit={onSendMessage} className="relative">
             <textarea
               ref={textareaRef}
+              data-tour="chat-input"
               placeholder={t('chat.placeholder_followup')}
               dir={language === 'ar' ? 'rtl' : 'ltr'}
               className="w-full py-3 pl-4 pr-28 rounded-xl backdrop-blur border focus:outline-none focus:ring-2 resize-none overflow-hidden min-h-[48px] max-h-[200px]"

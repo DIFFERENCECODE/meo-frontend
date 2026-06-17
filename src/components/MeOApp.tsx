@@ -16,6 +16,8 @@ import LandingPage from '@/components/LandingPage';
 import { ProfileMenu } from '@/components/layout/ProfileMenu';
 import { ProtocolPanel, BAS_STATES, type BASState } from '@/components/layout/ProtocolPanel';
 import { AnimatePresence } from 'motion/react';
+import { ProductTour } from '@/components/tour/ProductTour';
+import { useTour } from '@/hooks/useTour';
 
 // Types re-exported from chat panel
 export type { Message };
@@ -23,6 +25,7 @@ export type { Message };
 // Inner component that uses the theme context
 function MeOAppInner() {
   const { theme, colors, mode, setRightPanelOpen, setVendor, setUserRole } = useTheme();
+  const { run: tourRun, markSeen: markTourSeen, resetTour } = useTour();
   const router = useRouter();
 
   // Chat state
@@ -637,12 +640,15 @@ function MeOAppInner() {
 
   // Signed in: show full app.
   return (
+    <>
+    <ProductTour run={tourRun} onFinish={markTourSeen} />
     <ThreePanelLayout
       viewMode={viewMode}
       analysisContent={<ErrorBoundary name="Analysis"><AnalysisContent graphData={graphData} /></ErrorBoundary>}
       solutionContent={<ErrorBoundary name="Solutions"><SolutionContent vendors={vendorCards} /></ErrorBoundary>}
       onCloseRightPanel={() => setViewMode('response')}
       onLibraryOpen={() => setIsLibraryOpen(true)}
+      onStartTour={resetTour}
       onNewChat={handleNewChat}
       chats={chats}
       chatsLoading={chatsLoading}
@@ -701,6 +707,7 @@ function MeOAppInner() {
         </AnimatePresence>
       </div>
     </ThreePanelLayout>
+    </>
   );
 }
 

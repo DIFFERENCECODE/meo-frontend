@@ -51,25 +51,14 @@ export default function SuggestionTicker({ onSelect, phase = 'general' }: Sugges
   return (
     <div
       className="relative w-full overflow-hidden mb-2"
-      style={{ height: 36 }}
+      style={{
+        height: 36,
+        WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 15%, black 85%, transparent 100%)',
+        maskImage: 'linear-gradient(to right, transparent 0%, black 15%, black 85%, transparent 100%)',
+      }}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
-      {/* Left fade mask */}
-      <div
-        className="absolute left-0 top-0 h-full w-10 z-10 pointer-events-none"
-        style={{
-          background: `linear-gradient(to right, ${colors.background}, transparent)`,
-        }}
-      />
-
-      {/* Right fade mask */}
-      <div
-        className="absolute right-0 top-0 h-full w-10 z-10 pointer-events-none"
-        style={{
-          background: `linear-gradient(to left, ${colors.background}, transparent)`,
-        }}
-      />
 
       {/* Scrolling track */}
       <div

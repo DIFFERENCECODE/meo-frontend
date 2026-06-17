@@ -16,6 +16,7 @@ interface ThreePanelLayoutProps {
   onSettingsClick?: () => void;
   onCloseRightPanel?: () => void;
   onLibraryOpen?: () => void;
+  onStartTour?: () => void;
   chats?: ChatListItem[];
   currentChatId?: string | null;
   onSelectChat?: (id: string) => void;
@@ -33,6 +34,7 @@ export function ThreePanelLayout({
   onSettingsClick,
   onCloseRightPanel,
   onLibraryOpen,
+  onStartTour,
   chats,
   currentChatId,
   onSelectChat,
@@ -94,6 +96,7 @@ export function ThreePanelLayout({
         onNewChat={onNewChat}
         onSettingsClick={onSettingsClick}
         onLibraryOpen={onLibraryOpen}
+        onStartTour={onStartTour}
         chats={chats}
         currentChatId={currentChatId}
         onSelectChat={onSelectChat}
