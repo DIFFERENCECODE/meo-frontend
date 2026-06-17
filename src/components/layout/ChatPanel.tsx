@@ -88,7 +88,7 @@ function Logo({
       {vendor === 'meterbolic' && (
         <BloodDroplet 
           className={cn(
-            size === 'large' ? "w-10 h-10 mt-1" : "w-5 h-5"
+            size === 'large' ? "w-10 h-10" : "w-5 h-5"
           )}
           style={{ color: colors.primary }}
         />

@@ -16,12 +16,10 @@ import {
   Trash2,
   ShoppingBag,
   BookOpen,
-  Stethoscope,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useTheme } from '@/theme/ThemeProvider';
 import { VendorToggle } from '@/components/vendor/VendorToggle';
-import { ModeToggle } from '@/components/mode/ModeToggle';
 import { SkeletonChatRow } from '@/components/Skeleton';
 import { LanguagePicker } from '@/components/layout/LanguagePicker';
 import { useTranslation } from '@/i18n/LanguageContext';
@@ -260,26 +258,15 @@ export function LeftPanel({ onNewChat, onSettingsClick, chats, currentChatId, on
                   )}
                 </div>
 
-                {/* Vendor/Mode Toggles - Collapsible section */}
-                <div className="mt-6 space-y-4">
-                  <div className="px-3">
-                    <p 
-                      className="text-xs font-medium uppercase tracking-wider mb-2"
-                      style={{ color: colors.muted }}
-                    >
-                      Vendor
-                    </p>
-                    <VendorToggle />
-                  </div>
-                  <div className="px-3">
-                    <p
-                      className="text-xs font-medium uppercase tracking-wider mb-2"
-                      style={{ color: colors.muted }}
-                    >
-                      Mode
-                    </p>
-                    <ModeToggle />
-                  </div>
+                {/* Vendor Toggle */}
+                <div className="mt-6 px-3">
+                  <p
+                    className="text-xs font-medium uppercase tracking-wider mb-2"
+                    style={{ color: colors.muted }}
+                  >
+                    Vendor
+                  </p>
+                  <VendorToggle />
                 </div>
               </div>
 
@@ -313,14 +300,9 @@ export function LeftPanel({ onNewChat, onSettingsClick, chats, currentChatId, on
                   <ShoppingBag className="h-5 w-5" />
                   <span>Marketplace</span>
                 </Link>
-                <Link
-                  href="/clinician"
-                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors hover:bg-white/5"
-                  style={{ color: colors.muted }}
-                >
-                  <Stethoscope className="h-5 w-5" />
-                  <span>Clinician</span>
-                </Link>
+                <div className="px-1 py-1">
+                  <VendorToggle className="w-full" />
+                </div>
                 <Link
                   data-tour="personalize-nav"
                   href="/personalize"
