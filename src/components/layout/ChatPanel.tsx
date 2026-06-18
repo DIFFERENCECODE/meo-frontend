@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Send, Plus, SlidersHorizontal, FlaskConical, ChevronDown, Mic, BookOpen, PanelRight } from 'lucide-react';
+import { Send, Plus, SlidersHorizontal, FlaskConical, ChevronDown, Mic, BookOpen, PanelRight, Share2 } from 'lucide-react';
 import { useTheme } from '@/theme/ThemeProvider';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -130,6 +130,9 @@ interface ChatPanelProps {
   className?: string;
   /** True on the user's very first session — used to show induction prompts. */
   isNewUser?: boolean;
+  /** Id of the currently open chat. When present, the Share button in the
+   *  header builds a public, read-only link (/share/<id>) to this chat. */
+  chatId?: string | null;
   /** Externally controlled library open state (driven by LeftPanel Library button). */
   isLibraryOpen?: boolean;
   onLibraryOpen?: () => void;
@@ -148,6 +151,7 @@ export function ChatPanel({
   onLanguageChange,
   className,
   isNewUser = false,
+  chatId,
   isLibraryOpen: externalLibraryOpen,
   onLibraryOpen: externalOpenLibrary,
   onLibraryClose: externalCloseLibrary,
@@ -278,6 +282,34 @@ export function ChatPanel({
     }
   };
 
+  // Share the current chat via a public, read-only link. Prefers the
+  // native Web Share sheet (so the user can fire it off to WhatsApp,
+  // Messages, X, etc. on supporting devices/browsers) and falls back to
+  // copying the link to the clipboard everywhere else.
+  const handleShare = useCallback(async () => {
+    if (!chatId) return;
+    const url = `${window.location.origin}/share/${chatId}`;
+    const shareData = { title: 'MeO chat', text: t('share.text'), url };
+
+    if (typeof navigator !== 'undefined' && typeof navigator.share === 'function') {
+      try {
+        await navigator.share(shareData);
+        return;
+      } catch (err) {
+        // User dismissed the share sheet — do nothing. Any other error
+        // (e.g. NotAllowedError) falls through to the clipboard path.
+        if (err instanceof DOMException && err.name === 'AbortError') return;
+      }
+    }
+
+    try {
+      await navigator.clipboard.writeText(url);
+      toast.success(t('share.copied'));
+    } catch {
+      toast.error(t('share.failed'));
+    }
+  }, [chatId, t]);
+
 
   // Initial state - centered search view
   if (!isActive) {
@@ -299,7 +331,7 @@ export function ChatPanel({
               <Logo size="large" onClick={onRefresh} vendor={vendor} />
             </div>
             <p style={{ color: colors.muted }} className="text-lg">
-              {theme.tagline}
+              {t('home.tagline')}
             </p>
           </div>
 
@@ -316,7 +348,7 @@ export function ChatPanel({
               <form onSubmit={onSendMessage}>
                 <input
                   type="text"
-                  placeholder="Ask a question about metabolic health..."
+                  placeholder={t('chat.placeholder_main')}
                   className="w-full h-14 text-base px-5 bg-transparent focus:outline-none"
                   style={{ color: colors.foreground }}
                   value={input}
@@ -343,7 +375,7 @@ export function ChatPanel({
                       style={{ color: colors.muted }}
                     >
                       <SlidersHorizontal className="h-4 w-4" />
-                      <span className="text-sm">Tools</span>
+                      <span className="text-sm">{t('chat.tools')}</span>
                     </button>
                     
                     <AnimatePresence>
@@ -438,17 +470,17 @@ export function ChatPanel({
                 <div className="flex-1 p-5 flex flex-col gap-3">
                   <div>
                     <p className="font-semibold text-sm leading-snug" style={{ color: colors.foreground }}>
-                      Measure what matters
+                      {t('home.measure_title')}
                     </p>
                     <p className="text-xs mt-1.5 leading-relaxed" style={{ color: colors.muted }}>
-                      Lab-grade lipid meter. Biological Age Score at home. 20 test strips included — no clinic visit needed.
+                      {t('home.measure_desc')}
                     </p>
                   </div>
                   <div
                     className="self-start px-4 py-2 rounded-lg text-xs font-medium"
                     style={{ backgroundColor: `${colors.primary}20`, color: colors.primary }}
                   >
-                    Get the Meter →
+                    {t('home.get_meter')}
                   </div>
                 </div>
 
@@ -540,6 +572,20 @@ export function ChatPanel({
           <Logo size="small" onClick={onRefresh} vendor={vendor} />
         )}
         <div className="flex items-center gap-2 flex-shrink-0">
+          {/* Share button — builds a public read-only link to this chat
+              and invokes the native share sheet / clipboard copy. Shown
+              only once the chat is persisted (has an id). */}
+          {chatId && (
+            <button
+              onClick={handleShare}
+              className="p-2 rounded-full transition-colors hover:bg-white/10"
+              style={{ color: colors.muted }}
+              aria-label={t('share.aria')}
+              title={t('share.title')}
+            >
+              <Share2 className="h-4 w-4" />
+            </button>
+          )}
           {/* Library button */}
           <button
             onClick={openLibrary}

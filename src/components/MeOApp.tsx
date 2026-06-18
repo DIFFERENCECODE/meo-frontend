@@ -686,6 +686,7 @@ function MeOAppInner() {
           language={language}
           onLanguageChange={setLanguage}
           isNewUser={isNewUser}
+          chatId={currentChatId}
           isLibraryOpen={isLibraryOpen}
           onLibraryOpen={() => setIsLibraryOpen(true)}
           onLibraryClose={() => setIsLibraryOpen(false)}
