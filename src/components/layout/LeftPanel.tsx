@@ -16,10 +16,12 @@ import {
   Trash2,
   ShoppingBag,
   BookOpen,
+  Store,
+  ChevronDown,
+  Check,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useTheme } from '@/theme/ThemeProvider';
-import { VendorToggle } from '@/components/vendor/VendorToggle';
 import { SkeletonChatRow } from '@/components/Skeleton';
 import { LanguagePicker } from '@/components/layout/LanguagePicker';
 import { useTranslation } from '@/i18n/LanguageContext';
@@ -69,9 +71,10 @@ function formatChatDate(created_at?: string | null): string {
 }
 
 export function LeftPanel({ onNewChat, onSettingsClick, chats, currentChatId, onSelectChat, onDeleteChat, chatsLoading, onLibraryOpen, onStartTour, className }: LeftPanelProps & { onStartTour?: () => void }) {
-  const { isLeftPanelOpen, toggleLeftPanel, isRightPanelOpen, theme, colors, colorMode, toggleColorMode } = useTheme();
+  const { isLeftPanelOpen, toggleLeftPanel, isRightPanelOpen, theme, colors, colorMode, toggleColorMode, vendor, setVendor } = useTheme();
   const { t } = useTranslation();
   const [showSettings, setShowSettings] = useState(false);
+  const [showVendorPicker, setShowVendorPicker] = useState(false);
 
   return (
     <>
@@ -258,16 +261,6 @@ export function LeftPanel({ onNewChat, onSettingsClick, chats, currentChatId, on
                   )}
                 </div>
 
-                {/* Vendor Toggle */}
-                <div className="mt-6 px-3">
-                  <p
-                    className="text-xs font-medium uppercase tracking-wider mb-2"
-                    style={{ color: colors.muted }}
-                  >
-                    Vendor
-                  </p>
-                  <VendorToggle />
-                </div>
               </div>
 
               {/* Footer - Activity, Language & Settings */}
@@ -300,8 +293,55 @@ export function LeftPanel({ onNewChat, onSettingsClick, chats, currentChatId, on
                   <ShoppingBag className="h-5 w-5" />
                   <span>Marketplace</span>
                 </Link>
-                <div className="px-1 py-1">
-                  <VendorToggle className="w-full" />
+                {/* Vendor switcher — click to toggle between Meterbolic and Eos */}
+                <div className="relative">
+                  <button
+                    data-tour="vendor-nav"
+                    onClick={() => setShowVendorPicker(!showVendorPicker)}
+                    className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm transition-colors hover:bg-white/5"
+                    style={{ color: colors.muted }}
+                  >
+                    <span className="flex items-center gap-3">
+                      <Store className="h-5 w-5" />
+                      <span>Vendor</span>
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <span className="text-xs" style={{ color: colors.primary }}>
+                        {vendor === 'eos' ? 'Eos' : 'Meterbolic'}
+                      </span>
+                      <ChevronDown
+                        className="h-3.5 w-3.5 transition-transform"
+                        style={{ transform: showVendorPicker ? 'rotate(180deg)' : 'rotate(0deg)' }}
+                      />
+                    </span>
+                  </button>
+                  <AnimatePresence>
+                    {showVendorPicker && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        className="overflow-hidden"
+                      >
+                        <div
+                          className="mx-2 mb-1 p-1 rounded-lg space-y-0.5"
+                          style={{ backgroundColor: colors.accent }}
+                        >
+                          {(['meterbolic', 'eos'] as const).map((v) => (
+                            <button
+                              key={v}
+                              onClick={() => { setVendor(v); setShowVendorPicker(false); }}
+                              className="w-full flex items-center justify-between px-3 py-2 rounded-md text-sm transition-colors hover:bg-white/5"
+                              style={{ color: colors.foreground }}
+                            >
+                              <span>{v === 'eos' ? 'Eos' : 'Meterbolic'}</span>
+                              {vendor === v && <Check className="h-3.5 w-3.5" style={{ color: colors.primary }} />}
+                            </button>
+                          ))}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
                 <Link
                   data-tour="personalize-nav"
