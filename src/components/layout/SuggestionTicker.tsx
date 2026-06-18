@@ -60,7 +60,7 @@ export default function SuggestionTicker({ onSelect, phase = 'general' }: Sugges
         ref={trackRef}
         className="flex items-center gap-2 absolute whitespace-nowrap"
         style={{
-          animation: `meo-ticker 70s linear infinite`,
+          animation: `meo-ticker 35s linear infinite`,
           animationPlayState: paused ? 'paused' : 'running',
         }}
       >
