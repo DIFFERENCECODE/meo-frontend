@@ -18,14 +18,9 @@ const INDUCTION_SUGGESTIONS = [
 
 // ── General prompts — shown to all users regardless of phase ─────────────────
 const GENERAL_SUGGESTIONS = [
-  'Why do I feel tired after eating?',
-  'What does my glucose pattern mean?',
   'How can I improve my metabolic score?',
   'What is insulin resistance?',
   'What is the Kraft test?',
-  'How does fasting affect my metabolic health?',
-  'Which practitioners can help with gut health?',
-  'What is hyperinsulinaemia?',
 ];
 
 interface SuggestionTickerProps {
