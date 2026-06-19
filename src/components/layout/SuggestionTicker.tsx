@@ -11,7 +11,7 @@ const INDUCTION_SUGGESTIONS = [
   'What is the Biological Age Score?',
   'How do I measure my Biological Age Score at home?',
   'What is the Thin Guide to Fat?',
-  'How do I get the Meterbolic Meter?',
+  'Describe my metabolic data',
   'What is the Deep Fat Score?',
   'How does MeO calculate my biological age?',
 ];

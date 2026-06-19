@@ -551,6 +551,20 @@ function MeOAppInner() {
     window.location.reload();
   }, []);
 
+  // After /personalise submits data, it redirects to /?newChat=1.
+  // This effect fires once profile is loaded, creates a fresh chat,
+  // cleans the URL, and shows a toast so the user knows to ask MeO about their data.
+  useEffect(() => {
+    if (!profileLoaded || !idToken) return;
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('newChat') !== '1') return;
+    window.history.replaceState({}, '', '/');
+    handleNewChat().then(() => {
+      toast.success('Your data is in — ask MeO what it means.', { duration: 5000 });
+    });
+  }, [profileLoaded, idToken]);
+
   // Show loading screen while checking auth (prevents flash of landing page on refresh)
   if (!authChecked) {
     return (
