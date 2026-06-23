@@ -396,23 +396,22 @@ export function ChatPanel({
                       the `user_language` field we send to chatbot-rag. */}
                   <LanguagePicker value={language} onChange={onLanguageChange} compact />
 
-                  {/* Mic button — toggles Web Speech API dictation in the
-                      selected language. Hidden when the browser has no
-                      SpeechRecognition support (Firefox, older Safari). */}
-                  {voiceSupported && (
-                    <button
-                      type="button"
-                      onClick={toggleVoice}
-                      aria-label={listening ? t('voice.stop') : t('voice.start')}
-                      className="p-2 rounded-full transition-colors hover:bg-white/10"
-                      style={{
-                        color: listening ? colors.primary : colors.muted,
-                        backgroundColor: listening ? `${colors.primary}20` : undefined,
-                      }}
-                    >
-                      <Mic className={`h-5 w-5 ${listening ? 'animate-pulse' : ''}`} />
-                    </button>
-                  )}
+                  {/* Mic button — always rendered; greyed + tooltip when browser lacks support */}
+                  <button
+                    type="button"
+                    onClick={voiceSupported ? toggleVoice : undefined}
+                    aria-label={listening ? t('voice.stop') : t('voice.start')}
+                    title={voiceSupported ? (listening ? 'Stop listening' : 'Voice input') : 'Voice input not supported in this browser'}
+                    className="p-2 rounded-full transition-colors hover:bg-white/10"
+                    style={{
+                      color: listening ? colors.primary : colors.muted,
+                      backgroundColor: listening ? `${colors.primary}20` : undefined,
+                      opacity: voiceSupported ? 1 : 0.35,
+                      cursor: voiceSupported ? 'pointer' : 'not-allowed',
+                    }}
+                  >
+                    <Mic className={`h-5 w-5 ${listening ? 'animate-pulse' : ''}`} />
+                  </button>
                 </div>
               </div>
             </div>
@@ -699,20 +698,22 @@ export function ChatPanel({
             />
             <div className="absolute right-2 bottom-2 flex items-center gap-1">
               <LanguagePicker value={language} onChange={onLanguageChange} compact />
-              {voiceSupported && (
-                <button
-                  type="button"
-                  onClick={toggleVoice}
-                  aria-label={listening ? t('voice.stop') : t('voice.start')}
-                  className="h-10 w-10 flex items-center justify-center rounded-lg transition-colors hover:bg-white/10"
-                  style={{
-                    color: listening ? colors.primary : colors.muted,
-                    backgroundColor: listening ? `${colors.primary}20` : undefined,
-                  }}
-                >
-                  <Mic className={`h-4 w-4 ${listening ? 'animate-pulse' : ''}`} />
-                </button>
-              )}
+              {/* Mic always rendered; disabled visually when browser lacks SpeechRecognition */}
+              <button
+                type="button"
+                onClick={voiceSupported ? toggleVoice : undefined}
+                aria-label={listening ? t('voice.stop') : t('voice.start')}
+                title={voiceSupported ? (listening ? 'Stop listening' : 'Voice input') : 'Voice input not supported in this browser'}
+                className="h-10 w-10 flex items-center justify-center rounded-lg transition-colors hover:bg-white/10"
+                style={{
+                  color: listening ? colors.primary : colors.muted,
+                  backgroundColor: listening ? `${colors.primary}20` : undefined,
+                  opacity: voiceSupported ? 1 : 0.35,
+                  cursor: voiceSupported ? 'pointer' : 'not-allowed',
+                }}
+              >
+                <Mic className={`h-4 w-4 ${listening ? 'animate-pulse' : ''}`} />
+              </button>
               <button
                 type="submit"
                 className="h-10 w-10 flex items-center justify-center rounded-lg transition-colors"

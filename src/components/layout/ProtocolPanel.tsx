@@ -1,7 +1,18 @@
 'use client';
 
 import React, { useState } from 'react';
-import { X, CheckCircle2, Circle, ChevronRight, FlaskConical, Droplets, Ruler, Activity } from 'lucide-react';
+import Link from 'next/link';
+import {
+  X,
+  CheckCircle2,
+  ChevronRight,
+  FlaskConical,
+  Droplets,
+  Ruler,
+  Activity,
+  Copy,
+  ArrowRight,
+} from 'lucide-react';
 import { useTheme } from '@/theme/ThemeProvider';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -16,7 +27,6 @@ export const BAS_STATES = [
 
 export type BASState = typeof BAS_STATES[number];
 
-// Progress steps shown in the top bar (excludes fasting confirm — it's a gate)
 const STEPS = [
   { id: 'bas_glucose_reading',   label: 'Glucose',      icon: Droplets },
   { id: 'bas_lipid_reading',     label: 'Lipids',       icon: FlaskConical },
@@ -28,7 +38,22 @@ function stepIndex(state: string): number {
   return STEPS.findIndex((s) => s.id === state);
 }
 
-// ── Sub-components per state ──────────────────────────────────────────────────
+// ── Collected data shape ───────────────────────────────────────────────────────
+interface CollectedData {
+  glucose?: string;
+  glucoseUnit?: 'mmol' | 'mgdl';
+  tc?: string;
+  tg?: string;
+  hdl?: string;
+  ldl?: string;
+  age?: string;
+  sex?: string;
+  weight?: string;
+  height?: string;
+  waist?: string;
+}
+
+// ── Sub-components ─────────────────────────────────────────────────────────────
 
 function FastingConfirm({ onSubmit, colors }: { onSubmit: (msg: string) => void; colors: any }) {
   const [confirmed, setConfirmed] = useState<boolean | null>(null);
@@ -83,7 +108,15 @@ function FastingConfirm({ onSubmit, colors }: { onSubmit: (msg: string) => void;
   );
 }
 
-function GlucoseReading({ onSubmit, colors }: { onSubmit: (msg: string) => void; colors: any }) {
+function GlucoseReading({
+  onSubmit,
+  onData,
+  colors,
+}: {
+  onSubmit: (msg: string) => void;
+  onData: (patch: Partial<CollectedData>) => void;
+  colors: any;
+}) {
   const [value, setValue] = useState('');
   const [unit, setUnit] = useState<'mmol' | 'mgdl'>('mmol');
   const num = parseFloat(value);
@@ -144,7 +177,10 @@ function GlucoseReading({ onSubmit, colors }: { onSubmit: (msg: string) => void;
 
       <button
         disabled={!value || isNaN(num)}
-        onClick={() => onSubmit(`My fasting blood glucose reading is ${value} ${unit === 'mmol' ? 'mmol/L' : 'mg/dL'}.`)}
+        onClick={() => {
+          onData({ glucose: value, glucoseUnit: unit });
+          onSubmit(`My fasting blood glucose reading is ${value} ${unit === 'mmol' ? 'mmol/L' : 'mg/dL'}.`);
+        }}
         className="py-3 rounded-xl text-sm font-medium transition-all flex items-center justify-center gap-2 mt-auto disabled:opacity-40"
         style={{ backgroundColor: colors.primary, color: colors.primaryForeground }}
       >
@@ -154,16 +190,26 @@ function GlucoseReading({ onSubmit, colors }: { onSubmit: (msg: string) => void;
   );
 }
 
-function LipidReading({ onSubmit, colors }: { onSubmit: (msg: string) => void; colors: any }) {
+function LipidReading({
+  onSubmit,
+  onData,
+  colors,
+}: {
+  onSubmit: (msg: string) => void;
+  onData: (patch: Partial<CollectedData>) => void;
+  colors: any;
+}) {
+  const [tc, setTc] = useState('');
   const [tg, setTg] = useState('');
   const [hdl, setHdl] = useState('');
   const [ldl, setLdl] = useState('');
   const ready = tg && hdl && ldl;
 
   const fields = [
-    { label: 'Triglycerides (TG)', hint: 'normal < 1.7 mmol/L', value: tg, set: setTg },
-    { label: 'HDL Cholesterol',    hint: 'men > 1.0, women > 1.3 mmol/L', value: hdl, set: setHdl },
-    { label: 'LDL Cholesterol',    hint: 'normal < 3.0 mmol/L', value: ldl, set: setLdl },
+    { label: 'Total Cholesterol (TC)', hint: 'normal < 5.2 mmol/L', value: tc, set: setTc, optional: true },
+    { label: 'Triglycerides (TG)',     hint: 'normal < 1.7 mmol/L',  value: tg, set: setTg, optional: false },
+    { label: 'HDL Cholesterol',        hint: 'men > 1.0, women > 1.3 mmol/L', value: hdl, set: setHdl, optional: false },
+    { label: 'LDL Cholesterol',        hint: 'normal < 3.0 mmol/L',  value: ldl, set: setLdl, optional: false },
   ];
 
   return (
@@ -172,7 +218,10 @@ function LipidReading({ onSubmit, colors }: { onSubmit: (msg: string) => void; c
 
       {fields.map((f) => (
         <div key={f.label}>
-          <label className="text-xs font-medium mb-1 block" style={{ color: colors.muted }}>{f.label}</label>
+          <label className="text-xs font-medium mb-1 block" style={{ color: colors.muted }}>
+            {f.label}
+            {f.optional && <span className="ml-1 opacity-60">(if available)</span>}
+          </label>
           <input
             type="number"
             step="0.01"
@@ -188,9 +237,16 @@ function LipidReading({ onSubmit, colors }: { onSubmit: (msg: string) => void; c
 
       <button
         disabled={!ready}
-        onClick={() => onSubmit(
-          `My lipid panel results are: Triglycerides ${tg} mmol/L, HDL ${hdl} mmol/L, LDL ${ldl} mmol/L.`
-        )}
+        onClick={() => {
+          onData({ tc: tc || undefined, tg, hdl, ldl });
+          const parts = [
+            tc ? `Total Cholesterol ${tc} mmol/L` : '',
+            `Triglycerides ${tg} mmol/L`,
+            `HDL ${hdl} mmol/L`,
+            `LDL ${ldl} mmol/L`,
+          ].filter(Boolean).join(', ');
+          onSubmit(`My lipid panel results are: ${parts}.`);
+        }}
         className="py-3 rounded-xl text-sm font-medium transition-all flex items-center justify-center gap-2 mt-auto disabled:opacity-40"
         style={{ backgroundColor: colors.primary, color: colors.primaryForeground }}
       >
@@ -200,7 +256,15 @@ function LipidReading({ onSubmit, colors }: { onSubmit: (msg: string) => void; c
   );
 }
 
-function Anthropometrics({ onSubmit, colors }: { onSubmit: (msg: string) => void; colors: any }) {
+function Anthropometrics({
+  onSubmit,
+  onData,
+  colors,
+}: {
+  onSubmit: (msg: string) => void;
+  onData: (patch: Partial<CollectedData>) => void;
+  colors: any;
+}) {
   const [age, setAge] = useState('');
   const [sex, setSex] = useState<'male' | 'female' | ''>('');
   const [weight, setWeight] = useState('');
@@ -259,9 +323,10 @@ function Anthropometrics({ onSubmit, colors }: { onSubmit: (msg: string) => void
 
       <button
         disabled={!ready}
-        onClick={() => onSubmit(
-          `My measurements: Age ${age} years, Sex ${sex}, Weight ${weight} kg, Height ${height} cm, Waist ${waist} cm.`
-        )}
+        onClick={() => {
+          onData({ age, sex, weight, height, waist });
+          onSubmit(`My measurements: Age ${age} years, Sex ${sex}, Weight ${weight} kg, Height ${height} cm, Waist ${waist} cm.`);
+        }}
         className="py-3 rounded-xl text-sm font-medium transition-all flex items-center justify-center gap-2 mt-auto disabled:opacity-40"
         style={{ backgroundColor: colors.primary, color: colors.primaryForeground }}
       >
@@ -271,28 +336,144 @@ function Anthropometrics({ onSubmit, colors }: { onSubmit: (msg: string) => void
   );
 }
 
-function BASComplete({ onViewResults, colors }: { onViewResults: () => void; colors: any }) {
+function BASComplete({
+  onViewResults,
+  colors,
+  data,
+}: {
+  onViewResults: () => void;
+  colors: any;
+  data: CollectedData;
+}) {
+  const [copied, setCopied] = useState(false);
+  const today = new Date().toISOString().slice(0, 10);
+
+  // Convert glucose to mmol if entered in mg/dL
+  const glucoseMmol = data.glucose
+    ? data.glucoseUnit === 'mgdl'
+      ? (parseFloat(data.glucose) / 18).toFixed(1)
+      : data.glucose
+    : '';
+
+  const formattedText = [
+    `Date: ${today}`,
+    '',
+    'DEMOGRAPHICS',
+    data.age   ? `Age ${data.age} years` : '',
+    data.sex   ? `Sex ${data.sex.charAt(0).toUpperCase() + data.sex.slice(1)}` : '',
+    '',
+    'BIOMETRICS',
+    data.weight ? `Weight ${data.weight} kg` : '',
+    data.height ? `Height ${data.height} cm` : '',
+    data.waist  ? `Waist ${data.waist} cm` : '',
+    '',
+    'FASTING',
+    glucoseMmol          ? `Glucose ${glucoseMmol}` : '',
+    data.tc              ? `Total Cholesterol ${data.tc}` : '',
+    data.hdl             ? `HDL ${data.hdl}` : '',
+    data.ldl             ? `LDL ${data.ldl}` : '',
+    data.tg              ? `Triglycerides ${data.tg}` : '',
+  ].filter((l) => l !== undefined).join('\n');
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(formattedText);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    } catch {
+      // Fallback for older browsers
+      const el = document.createElement('textarea');
+      el.value = formattedText;
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand('copy');
+      document.body.removeChild(el);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    }
+  };
+
   return (
-    <div className="flex flex-col items-center justify-center gap-6 h-full text-center">
+    <div className="flex flex-col gap-5 h-full overflow-y-auto">
+      {/* Header */}
+      <div className="flex items-center gap-3">
+        <div
+          className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
+          style={{ backgroundColor: `${colors.primary}20` }}
+        >
+          <CheckCircle2 className="h-5 w-5" style={{ color: colors.primary }} />
+        </div>
+        <div>
+          <p className="font-semibold text-sm" style={{ color: colors.foreground }}>
+            BAS Measurement Complete
+          </p>
+          <p className="text-xs mt-0.5 leading-relaxed" style={{ color: colors.muted }}>
+            Copy your data and paste it into Personalise to save your results.
+          </p>
+        </div>
+      </div>
+
+      {/* Paste-ready block */}
       <div
-        className="w-20 h-20 rounded-full flex items-center justify-center"
-        style={{ backgroundColor: `${colors.primary}20` }}
+        className="rounded-xl border overflow-hidden"
+        style={{ borderColor: colors.cardBorder }}
       >
-        <Activity className="h-10 w-10" style={{ color: colors.primary }} />
+        <div
+          className="flex items-center justify-between px-3 py-2 border-b"
+          style={{ borderColor: colors.cardBorder, backgroundColor: colors.card }}
+        >
+          <span className="text-xs font-medium uppercase tracking-wider" style={{ color: colors.muted }}>
+            Paste-ready format
+          </span>
+          <button
+            onClick={handleCopy}
+            className="flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-lg transition-all"
+            style={{
+              color: copied ? colors.primary : colors.muted,
+              backgroundColor: copied ? `${colors.primary}18` : `${colors.cardBorder}40`,
+              border: `1px solid ${copied ? colors.primary + '50' : 'transparent'}`,
+            }}
+          >
+            {copied ? (
+              <><CheckCircle2 className="h-3 w-3" /> Copied!</>
+            ) : (
+              <><Copy className="h-3 w-3" /> Copy</>
+            )}
+          </button>
+        </div>
+        <pre
+          className="text-xs p-4 whitespace-pre font-mono leading-relaxed overflow-x-auto"
+          style={{ backgroundColor: colors.background, color: colors.foreground }}
+        >
+          {formattedText}
+        </pre>
       </div>
-      <div>
-        <p className="font-semibold text-base" style={{ color: colors.foreground }}>Test complete</p>
-        <p className="text-xs mt-2 leading-relaxed" style={{ color: colors.muted }}>
-          Your Biological Age Score and Deep Fat Score have been calculated. Check the chat for your results and what they mean.
-        </p>
-      </div>
-      <button
-        onClick={onViewResults}
-        className="px-6 py-3 rounded-xl text-sm font-medium"
-        style={{ backgroundColor: colors.primary, color: colors.primaryForeground }}
+
+      {/* Instructions */}
+      <div
+        className="rounded-xl p-3 text-xs leading-relaxed"
+        style={{ backgroundColor: `${colors.primary}10`, color: colors.muted }}
       >
-        View results in chat
-      </button>
+        <strong style={{ color: colors.foreground }}>Next step:</strong> Click "Go to Personalise", select "Paste / Free text", paste the copied text, then click "Parse with AI" to store your results permanently.
+      </div>
+
+      {/* CTAs */}
+      <div className="flex gap-3 mt-auto">
+        <button
+          onClick={onViewResults}
+          className="flex-1 py-2.5 rounded-xl text-sm font-medium border transition-all"
+          style={{ borderColor: colors.cardBorder, color: colors.muted }}
+        >
+          View chat
+        </button>
+        <Link
+          href="/personalize"
+          className="flex-1 py-2.5 rounded-xl text-sm font-medium text-center flex items-center justify-center gap-2 transition-all hover:opacity-90"
+          style={{ backgroundColor: colors.primary, color: colors.primaryForeground }}
+        >
+          Go to Personalise <ArrowRight className="h-4 w-4" />
+        </Link>
+      </div>
     </div>
   );
 }
@@ -336,8 +517,11 @@ const GUIDANCE: Record<string, { title: string; body: React.ReactNode }> = {
           <li>Prick your finger again (or reuse the same drop within 30 seconds)</li>
           <li>Apply blood to the strip</li>
           <li>Do not move the meter — wait 3 minutes</li>
-          <li>The meter will show TG, HDL, then LDL in sequence — write all three down before entering</li>
+          <li>The meter will show TG, HDL, LDL in sequence — write all values down before entering</li>
         </ol>
+        <div className="mt-4 p-3 rounded-lg text-xs" style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}>
+          If your meter also shows Total Cholesterol (TC), enter it too — it improves accuracy.
+        </div>
       </>
     ),
   },
@@ -352,7 +536,7 @@ const GUIDANCE: Record<string, { title: string; body: React.ReactNode }> = {
     ),
   },
   bas_complete: {
-    title: 'Biological Age Score',
+    title: 'Your Results',
     body: (
       <>
         <p>Your BAS is a composite score combining fasting glucose, your lipid panel, and an estimate of visceral fat from your measurements.</p>
@@ -360,7 +544,7 @@ const GUIDANCE: Record<string, { title: string; body: React.ReactNode }> = {
           <li><strong>BAS lower than your age</strong> — metabolically younger than your years</li>
           <li><strong>BAS higher than your age</strong> — room to improve; MeO will explain the levers</li>
         </ul>
-        <p className="mt-3">The Target Score shows what's achievable with diet, exercise, and sleep changes — typically within 3–6 months.</p>
+        <p className="mt-3">Copy your data and paste it into Personalise to store it permanently and unlock your Analysis tab.</p>
       </>
     ),
   },
@@ -379,18 +563,23 @@ export function ProtocolPanel({ protocolState, onSubmit, onExit }: ProtocolPanel
   const guidance = GUIDANCE[protocolState];
   const activeStep = stepIndex(protocolState);
 
+  // Accumulate readings as the user progresses through the protocol.
+  const [collectedData, setCollectedData] = useState<CollectedData>({});
+  const mergeData = (patch: Partial<CollectedData>) =>
+    setCollectedData((prev) => ({ ...prev, ...patch }));
+
   function renderRightPane() {
     switch (protocolState) {
       case 'bas_fasting_confirmed':
         return <FastingConfirm onSubmit={onSubmit} colors={colors} />;
       case 'bas_glucose_reading':
-        return <GlucoseReading onSubmit={onSubmit} colors={colors} />;
+        return <GlucoseReading onSubmit={onSubmit} onData={mergeData} colors={colors} />;
       case 'bas_lipid_reading':
-        return <LipidReading onSubmit={onSubmit} colors={colors} />;
+        return <LipidReading onSubmit={onSubmit} onData={mergeData} colors={colors} />;
       case 'bas_anthropometrics':
-        return <Anthropometrics onSubmit={onSubmit} colors={colors} />;
+        return <Anthropometrics onSubmit={onSubmit} onData={mergeData} colors={colors} />;
       case 'bas_complete':
-        return <BASComplete onViewResults={onExit} colors={colors} />;
+        return <BASComplete onViewResults={onExit} colors={colors} data={collectedData} />;
       default:
         return null;
     }
@@ -452,7 +641,7 @@ export function ProtocolPanel({ protocolState, onSubmit, onExit }: ProtocolPanel
           })}
         </div>
 
-        <div className="w-20" />{/* spacer to balance the exit button */}
+        <div className="w-20" />
       </div>
 
       {/* Two-pane body */}
