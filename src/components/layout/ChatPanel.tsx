@@ -27,6 +27,48 @@ export type Message = {
   steps?: TraceStep[];
 };
 
+// ── Inline tooltip wrapper ────────────────────────────────────────────────────
+// Appears below (header icons) or above (footer/toolbar icons) on hover.
+// Pure CSS — no portal, no library.
+function Tip({
+  label,
+  children,
+  position = 'bottom',
+}: {
+  label: string;
+  children: React.ReactNode;
+  position?: 'bottom' | 'top';
+}) {
+  const { colors } = useTheme();
+  const positionClasses =
+    position === 'bottom'
+      ? 'top-full mt-2 translate-y-1 group-hover:translate-y-0'
+      : 'bottom-full mb-2 -translate-y-1 group-hover:translate-y-0';
+  return (
+    <div className="relative group flex items-center justify-center">
+      {children}
+      <span
+        className={cn(
+          'pointer-events-none absolute left-1/2 -translate-x-1/2 px-2.5 py-1 rounded-lg whitespace-nowrap',
+          'opacity-0 group-hover:opacity-100 transition-all duration-150 z-[9999]',
+          positionClasses,
+        )}
+        style={{
+          backgroundColor: colors.card,
+          color: colors.foreground,
+          border: `1px solid ${colors.cardBorder}`,
+          boxShadow: '0 4px 14px rgba(0,0,0,0.25)',
+          fontSize: 11,
+          fontWeight: 500,
+          letterSpacing: '0.01em',
+        }}
+      >
+        {label}
+      </span>
+    </div>
+  );
+}
+
 // Blood Droplet SVG Component
 function BloodDroplet({ className, style }: { className?: string; style?: React.CSSProperties }) {
   return (
@@ -392,26 +434,26 @@ export function ChatPanel({
                 </div>
 
                 <div className="flex items-center gap-2">
-                  {/* Language picker — drives both voice locale and
-                      the `user_language` field we send to chatbot-rag. */}
-                  <LanguagePicker value={language} onChange={onLanguageChange} compact />
+                  <Tip label="Language" position="top">
+                    <LanguagePicker value={language} onChange={onLanguageChange} compact />
+                  </Tip>
 
-                  {/* Mic button — always rendered; greyed + tooltip when browser lacks support */}
-                  <button
-                    type="button"
-                    onClick={voiceSupported ? toggleVoice : undefined}
-                    aria-label={listening ? t('voice.stop') : t('voice.start')}
-                    title={voiceSupported ? (listening ? 'Stop listening' : 'Voice input') : 'Voice input not supported in this browser'}
-                    className="p-2 rounded-full transition-colors hover:bg-white/10"
-                    style={{
-                      color: listening ? colors.primary : colors.muted,
-                      backgroundColor: listening ? `${colors.primary}20` : undefined,
-                      opacity: voiceSupported ? 1 : 0.35,
-                      cursor: voiceSupported ? 'pointer' : 'not-allowed',
-                    }}
-                  >
-                    <Mic className={`h-5 w-5 ${listening ? 'animate-pulse' : ''}`} />
-                  </button>
+                  <Tip label={voiceSupported ? (listening ? 'Stop listening' : 'Voice input') : 'Not supported'} position="top">
+                    <button
+                      type="button"
+                      onClick={voiceSupported ? toggleVoice : undefined}
+                      aria-label={listening ? t('voice.stop') : t('voice.start')}
+                      className="p-2 rounded-full transition-colors hover:bg-white/10"
+                      style={{
+                        color: listening ? colors.primary : colors.muted,
+                        backgroundColor: listening ? `${colors.primary}20` : undefined,
+                        opacity: voiceSupported ? 1 : 0.35,
+                        cursor: voiceSupported ? 'pointer' : 'not-allowed',
+                      }}
+                    >
+                      <Mic className={`h-5 w-5 ${listening ? 'animate-pulse' : ''}`} />
+                    </button>
+                  </Tip>
                 </div>
               </div>
             </div>
@@ -539,26 +581,26 @@ export function ChatPanel({
           <Logo size="small" onClick={onRefresh} vendor={vendor} />
         )}
         <div className="flex items-center gap-2 flex-shrink-0">
-          {/* Library button */}
-          <button
-            onClick={openLibrary}
-            className="p-2 rounded-full transition-colors hover:bg-white/10"
-            style={{ color: isLibraryOpen ? colors.primary : colors.muted }}
-            aria-label="Open MeO Library"
-            title="MeO Library"
-          >
-            <BookOpen className="h-4 w-4" />
-          </button>
-          {/* Data viz / right panel toggle */}
-          <button
-            onClick={toggleRightPanel}
-            className="p-2 rounded-full transition-colors hover:bg-white/10"
-            style={{ color: isRightPanelOpen ? colors.primary : colors.muted }}
-            aria-label={isRightPanelOpen ? 'Close data panel' : 'Open data panel'}
-            title="Data & Insights"
-          >
-            <PanelRight className="h-4 w-4" />
-          </button>
+          <Tip label="Library" position="bottom">
+            <button
+              onClick={openLibrary}
+              className="p-2 rounded-full transition-colors hover:bg-white/10"
+              style={{ color: isLibraryOpen ? colors.primary : colors.muted }}
+              aria-label="Open MeO Library"
+            >
+              <BookOpen className="h-4 w-4" />
+            </button>
+          </Tip>
+          <Tip label="Metabolic data" position="bottom">
+            <button
+              onClick={toggleRightPanel}
+              className="p-2 rounded-full transition-colors hover:bg-white/10"
+              style={{ color: isRightPanelOpen ? colors.primary : colors.muted }}
+              aria-label={isRightPanelOpen ? 'Close data panel' : 'Open data panel'}
+            >
+              <PanelRight className="h-4 w-4" />
+            </button>
+          </Tip>
           <div
             className="px-3 py-1.5 rounded-full text-xs font-medium border whitespace-nowrap"
             style={{
@@ -697,23 +739,25 @@ export function ChatPanel({
               rows={1}
             />
             <div className="absolute right-2 bottom-2 flex items-center gap-1">
-              <LanguagePicker value={language} onChange={onLanguageChange} compact />
-              {/* Mic always rendered; disabled visually when browser lacks SpeechRecognition */}
-              <button
-                type="button"
-                onClick={voiceSupported ? toggleVoice : undefined}
-                aria-label={listening ? t('voice.stop') : t('voice.start')}
-                title={voiceSupported ? (listening ? 'Stop listening' : 'Voice input') : 'Voice input not supported in this browser'}
-                className="h-10 w-10 flex items-center justify-center rounded-lg transition-colors hover:bg-white/10"
-                style={{
-                  color: listening ? colors.primary : colors.muted,
-                  backgroundColor: listening ? `${colors.primary}20` : undefined,
-                  opacity: voiceSupported ? 1 : 0.35,
-                  cursor: voiceSupported ? 'pointer' : 'not-allowed',
-                }}
-              >
-                <Mic className={`h-4 w-4 ${listening ? 'animate-pulse' : ''}`} />
-              </button>
+              <Tip label="Language" position="top">
+                <LanguagePicker value={language} onChange={onLanguageChange} compact />
+              </Tip>
+              <Tip label={voiceSupported ? (listening ? 'Stop listening' : 'Voice input') : 'Not supported'} position="top">
+                <button
+                  type="button"
+                  onClick={voiceSupported ? toggleVoice : undefined}
+                  aria-label={listening ? t('voice.stop') : t('voice.start')}
+                  className="h-10 w-10 flex items-center justify-center rounded-lg transition-colors hover:bg-white/10"
+                  style={{
+                    color: listening ? colors.primary : colors.muted,
+                    backgroundColor: listening ? `${colors.primary}20` : undefined,
+                    opacity: voiceSupported ? 1 : 0.35,
+                    cursor: voiceSupported ? 'pointer' : 'not-allowed',
+                  }}
+                >
+                  <Mic className={`h-4 w-4 ${listening ? 'animate-pulse' : ''}`} />
+                </button>
+              </Tip>
               <button
                 type="submit"
                 className="h-10 w-10 flex items-center justify-center rounded-lg transition-colors"
