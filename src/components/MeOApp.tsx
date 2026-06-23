@@ -14,7 +14,9 @@ import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { getLoginUrl, getLogoutUrl, exchangeCodeForTokens, storeIdToken, getIdToken, clearIdToken, getSubFromIdToken, storeRefreshToken, getValidIdToken, apiFetch } from '@/app/lib/auth';
 import LandingPage from '@/components/LandingPage';
 import { ProfileMenu } from '@/components/layout/ProfileMenu';
-import { ProtocolPanel, BAS_STATES, type BASState } from '@/components/layout/ProtocolPanel';
+import { ProtocolPanel, BAS_STATES, KRAFT_STATES } from '@/components/layout/ProtocolPanel';
+
+const ALL_PROTOCOL_STATES = [...BAS_STATES, ...KRAFT_STATES] as readonly string[];
 import { AnimatePresence } from 'motion/react';
 import { ProductTour } from '@/components/tour/ProductTour';
 import { useTour } from '@/hooks/useTour';
@@ -60,7 +62,7 @@ function MeOAppInner() {
 
   // Protocol mode — set from backend's done event protocol_state field
   const [protocolState, setProtocolState] = useState<string | null>(null);
-  const isProtocolActive = protocolState !== null && (BAS_STATES as readonly string[]).includes(protocolState);
+  const isProtocolActive = protocolState !== null && ALL_PROTOCOL_STATES.includes(protocolState);
 
   // Graph data state — populated from chat's retrieved_sources for the
   // Kraft curve. Bio Age metrics are no longer derived here: the Analysis
@@ -390,12 +392,10 @@ function MeOAppInner() {
             finalSteps = Array.isArray(payload.steps) ? payload.steps : undefined;
             if (payload.user_role) setUserRole(payload.user_role);
             if (payload.is_new_user !== undefined) setIsNewUser(Boolean(payload.is_new_user));
-            if (payload.protocol_state && (BAS_STATES as readonly string[]).includes(payload.protocol_state)) {
+            if (payload.protocol_state && ALL_PROTOCOL_STATES.includes(payload.protocol_state)) {
               setProtocolState(payload.protocol_state);
-            } else if (payload.protocol_state === 'idle' || payload.protocol_state === 'bas_complete') {
-              // bas_complete: keep showing panel until user exits; idle: clear it
-              if (payload.protocol_state === 'bas_complete') setProtocolState('bas_complete');
-              else setProtocolState(null);
+            } else if (payload.protocol_state === 'idle') {
+              setProtocolState(null);
             }
           } else if (payload.phase === 'error') {
             console.error('[stream] upstream error', payload.message);

@@ -25,17 +25,40 @@ export const BAS_STATES = [
   'bas_complete',
 ] as const;
 
-export type BASState = typeof BAS_STATES[number];
+export const KRAFT_STATES = [
+  'fasting',
+  'drink_consumed',
+  'post_drink',
+  'complete',
+] as const;
 
-const STEPS = [
+export type BASState = typeof BAS_STATES[number];
+export type KraftState = typeof KRAFT_STATES[number];
+
+const BAS_STEPS = [
   { id: 'bas_glucose_reading',   label: 'Glucose',      icon: Droplets },
   { id: 'bas_lipid_reading',     label: 'Lipids',       icon: FlaskConical },
   { id: 'bas_anthropometrics',   label: 'Measurements', icon: Ruler },
   { id: 'bas_complete',          label: 'Score',        icon: Activity },
 ];
 
+const KRAFT_STEPS = [
+  { id: 'fasting',       label: 'Fasting',     icon: Droplets },
+  { id: 'drink_consumed', label: 'Glucose drink', icon: FlaskConical },
+  { id: 'post_drink',   label: 'Post-drink',  icon: Activity },
+  { id: 'complete',     label: 'Complete',    icon: CheckCircle2 },
+];
+
+function isKraftState(state: string): boolean {
+  return (KRAFT_STATES as readonly string[]).includes(state);
+}
+
+function activeSteps(state: string) {
+  return isKraftState(state) ? KRAFT_STEPS : BAS_STEPS;
+}
+
 function stepIndex(state: string): number {
-  return STEPS.findIndex((s) => s.id === state);
+  return activeSteps(state).findIndex((s) => s.id === state);
 }
 
 // ── Collected data shape ───────────────────────────────────────────────────────
@@ -478,9 +501,124 @@ function BASComplete({
   );
 }
 
+// ── Kraft step component — instruction card + single confirm button ───────────
+function KraftStep({
+  confirmLabel,
+  onSubmit,
+  colors,
+}: {
+  confirmLabel: string;
+  onSubmit: (msg: string) => void;
+  colors: any;
+}) {
+  return (
+    <div className="flex flex-col gap-5 h-full">
+      <p className="text-sm leading-relaxed" style={{ color: colors.muted }}>
+        Follow the instructions on the left panel, then tap the button below when you're ready to continue.
+      </p>
+      <button
+        onClick={() => onSubmit('done')}
+        className="py-3 rounded-xl text-sm font-medium transition-all flex items-center justify-center gap-2 mt-auto"
+        style={{ backgroundColor: colors.primary, color: colors.primaryForeground }}
+      >
+        {confirmLabel} <ChevronRight className="h-4 w-4" />
+      </button>
+    </div>
+  );
+}
+
+function KraftComplete({ onExit, colors }: { onExit: () => void; colors: any }) {
+  return (
+    <div className="flex flex-col gap-5 h-full">
+      <div className="flex items-center gap-3">
+        <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: `${colors.primary}20` }}>
+          <CheckCircle2 className="h-5 w-5" style={{ color: colors.primary }} />
+        </div>
+        <div>
+          <p className="font-semibold text-sm" style={{ color: colors.foreground }}>Kraft Test Complete</p>
+          <p className="text-xs mt-0.5" style={{ color: colors.muted }}>Your readings have been sent for analysis.</p>
+        </div>
+      </div>
+      <div className="rounded-xl p-3 text-xs leading-relaxed" style={{ backgroundColor: `${colors.primary}10`, color: colors.muted }}>
+        <strong style={{ color: colors.foreground }}>Next step:</strong> MeO will fetch your results from the Meterbolic platform. Check the Analysis tab for your Kraft curve and metabolic score.
+      </div>
+      <button
+        onClick={onExit}
+        className="py-3 rounded-xl text-sm font-medium border mt-auto"
+        style={{ borderColor: colors.cardBorder, color: colors.muted }}
+      >
+        Return to chat
+      </button>
+    </div>
+  );
+}
+
 // ── Guidance copy per state ───────────────────────────────────────────────────
 
 const GUIDANCE: Record<string, { title: string; body: React.ReactNode }> = {
+  // Kraft states
+  fasting: {
+    title: 'Step 1 — Confirm Your Fast',
+    body: (
+      <>
+        <p>The Kraft Metabolic Test measures how your body handles glucose over 2 hours. Fasting is essential for an accurate baseline.</p>
+        <p className="mt-3"><strong>You'll need:</strong></p>
+        <ul className="mt-2 space-y-1 list-disc list-inside">
+          <li>A 3-hour window with no food or strenuous exercise</li>
+          <li>Your Meterbolic glucose drink, ready to consume</li>
+          <li>The Meterbolic app open to log readings</li>
+        </ul>
+        <p className="mt-3">Once confirmed, take your fasting glucose reading in the Meterbolic app.</p>
+      </>
+    ),
+  },
+  drink_consumed: {
+    title: 'Step 2 — Consume the Glucose Drink',
+    body: (
+      <>
+        <p>After logging your fasting reading:</p>
+        <ol className="mt-3 space-y-2 list-decimal list-inside">
+          <li>Drink the entire glucose solution within 5 minutes</li>
+          <li>Note the exact time you finished drinking</li>
+          <li>Stay seated or lightly active — no strenuous exercise</li>
+          <li>Do not eat or drink anything other than water</li>
+        </ol>
+        <div className="mt-4 p-3 rounded-lg text-xs" style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}>
+          The 2-hour clock starts when you finish the drink.
+        </div>
+      </>
+    ),
+  },
+  post_drink: {
+    title: 'Step 3 — Post-Drink Reading (120 min)',
+    body: (
+      <>
+        <p>It has been 120 minutes since your glucose drink. Now take your post-drink glucose reading.</p>
+        <ol className="mt-3 space-y-2 list-decimal list-inside">
+          <li>Wash and dry your hands</li>
+          <li>Prick the side of your fingertip</li>
+          <li>Log the reading in the Meterbolic app</li>
+        </ol>
+        <div className="mt-4 p-3 rounded-lg text-xs" style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}>
+          This is the final reading. Once logged, your test is complete.
+        </div>
+      </>
+    ),
+  },
+  complete: {
+    title: 'Test Complete',
+    body: (
+      <>
+        <p>All readings have been captured. Your Kraft curve is being generated from your fasting and post-drink glucose values.</p>
+        <ul className="mt-3 space-y-2">
+          <li><strong>Pattern 0</strong> — Normal insulin response</li>
+          <li><strong>Pattern I–IV</strong> — Varying degrees of hyperinsulinaemia</li>
+          <li><strong>Pattern V</strong> — Severe insulin dysfunction</li>
+        </ul>
+        <p className="mt-3">Results will appear in your Analysis tab once the platform processes them.</p>
+      </>
+    ),
+  },
   bas_fasting_confirmed: {
     title: 'Step 0 — Confirm Your Fast',
     body: (
@@ -570,6 +708,7 @@ export function ProtocolPanel({ protocolState, onSubmit, onExit }: ProtocolPanel
 
   function renderRightPane() {
     switch (protocolState) {
+      // BAS states
       case 'bas_fasting_confirmed':
         return <FastingConfirm onSubmit={onSubmit} colors={colors} />;
       case 'bas_glucose_reading':
@@ -580,6 +719,15 @@ export function ProtocolPanel({ protocolState, onSubmit, onExit }: ProtocolPanel
         return <Anthropometrics onSubmit={onSubmit} onData={mergeData} colors={colors} />;
       case 'bas_complete':
         return <BASComplete onViewResults={onExit} colors={colors} data={collectedData} />;
+      // Kraft states — simple confirm-and-advance
+      case 'fasting':
+        return <KraftStep confirmLabel="Fasting confirmed, taking reading now" onSubmit={onSubmit} colors={colors} />;
+      case 'drink_consumed':
+        return <KraftStep confirmLabel="Glucose drink consumed" onSubmit={onSubmit} colors={colors} />;
+      case 'post_drink':
+        return <KraftStep confirmLabel="Post-drink reading logged" onSubmit={onSubmit} colors={colors} />;
+      case 'complete':
+        return <KraftComplete onExit={onExit} colors={colors} />;
       default:
         return null;
     }
@@ -610,7 +758,7 @@ export function ProtocolPanel({ protocolState, onSubmit, onExit }: ProtocolPanel
 
         {/* Step progress */}
         <div className="flex items-center gap-1">
-          {STEPS.map((step, i) => {
+          {activeSteps(protocolState).map((step, i) => {
             const done = i < activeStep;
             const active = i === activeStep;
             return (
