@@ -40,7 +40,7 @@ export function ProfileMenu() {
 
   const handleSignOut = () => {
     clearIdToken();
-    window.location.href = getLogoutUrl();
+    window.location.replace(window.location.origin);
   };
 
   return (

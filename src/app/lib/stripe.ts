@@ -62,6 +62,19 @@ export const PLANS = {
     messagesPerDay: -1,
     price: 99,
   },
+  clinician: {
+    name: 'Clinician',
+    priceId: process.env.STRIPE_CLINICIAN_PRICE_ID || '',
+    features: [
+      'Full Clinician Portal access',
+      'Patient metabolic data & chat history',
+      'Listings, bookings & session management',
+      'Clinical summaries & AI insights',
+      'Custom branding & white-label (coming soon)',
+    ],
+    messagesPerDay: -1,
+    price: 99,
+  },
 } as const;
 
 export type PlanId = keyof typeof PLANS;

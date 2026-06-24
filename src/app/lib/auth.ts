@@ -274,3 +274,15 @@ export function getSubFromIdToken(idToken: string): string | null {
   }
 }
 
+/** Decode JWT payload without verification (client-side only). Returns email claim. */
+export function getEmailFromIdToken(idToken: string): string | null {
+  try {
+    const parts = idToken.split('.');
+    if (parts.length !== 3) return null;
+    const payload = JSON.parse(atob(parts[1]));
+    return payload.email ?? null;
+  } catch {
+    return null;
+  }
+}
+

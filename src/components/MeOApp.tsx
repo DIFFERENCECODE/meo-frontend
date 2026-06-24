@@ -88,17 +88,17 @@ function MeOAppInner() {
     }));
   };
 
-  const handleLogin = () => {
-    const url = getLoginUrl();
-    if (typeof window !== 'undefined') {
-      window.location.href = url;
-    }
+  const handleAuthenticated = (token: string, refreshToken: string) => {
+    storeIdToken(token);
+    if (refreshToken) storeRefreshToken(refreshToken);
+    setIdToken(token);
+    setAuthChecked(true);
   };
 
   const handleLogout = () => {
     clearIdToken();
     setIdToken(null);
-    window.location.href = getLogoutUrl();
+    window.location.replace(window.location.origin);
   };
 
   // On mount, capture ?code=... from Cognito redirect and exchange for tokens.
@@ -547,7 +547,7 @@ function MeOAppInner() {
   if (!idToken) {
     return (
       <LandingPage
-        onSignIn={handleLogin}
+        onAuthenticated={handleAuthenticated}
         isExchanging={isExchanging}
       />
     );
@@ -564,22 +564,43 @@ function MeOAppInner() {
     );
   }
 
-  // Clinician application under review
+  // Clinician application pending payment
   if (profileRole === 'clinician_pending') {
+    const handleSubscribeNow = async () => {
+      try {
+        const res = await apiFetch('/api/stripe/checkout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ planId: 'clinician' }),
+        });
+        if (!res.ok) throw new Error('checkout failed');
+        const { url } = await res.json();
+        if (url) window.location.href = url;
+      } catch {
+        // fall through — user will try again
+      }
+    };
     return (
       <div className="min-h-screen flex items-center justify-center p-4" style={{ background: colors.background }}>
         <div className="max-w-sm w-full text-center space-y-5 rounded-2xl p-8"
           style={{ background: colors.card, border: `1px solid ${colors.cardBorder}` }}>
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full"
             style={{ background: `${colors.primary}18` }}>
-            <span className="text-3xl">⏳</span>
+            <span className="text-3xl">🩺</span>
           </div>
           <div>
-            <h2 className="text-lg font-bold" style={{ color: colors.foreground }}>Application Under Review</h2>
+            <h2 className="text-lg font-bold" style={{ color: colors.foreground }}>One step left</h2>
             <p className="text-sm mt-2" style={{ color: colors.muted }}>
-              Your clinician registration is being reviewed by our team. We'll email you within 1–2 business days once approved.
+              Your application has been received. Complete your £99/month subscription to unlock the Clinician Portal instantly.
             </p>
           </div>
+          <button
+            onClick={handleSubscribeNow}
+            className="w-full py-3 rounded-xl text-sm font-semibold"
+            style={{ background: colors.primary, color: colors.primaryForeground }}
+          >
+            Subscribe & Activate — £99/month
+          </button>
           <button
             onClick={handleLogout}
             className="w-full py-2.5 rounded-xl text-sm font-medium"

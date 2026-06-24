@@ -58,10 +58,32 @@ const PLANS: Plan[] = [
   },
 ];
 
+const UTM_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'] as const;
+
 export default function PricingPage() {
   const { colors } = useTheme();
   const [currentPlan, setCurrentPlan] = useState<string>('free');
   const [loading, setLoading] = useState<string | null>(null);
+  const [utmParams, setUtmParams] = useState<Record<string, string>>({});
+
+  // Capture UTM params from URL on mount, fall back to sessionStorage
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const found: Record<string, string> = {};
+    for (const key of UTM_KEYS) {
+      const val = params.get(key);
+      if (val) found[key] = val;
+    }
+    if (Object.keys(found).length === 0) {
+      try {
+        const stored = sessionStorage.getItem('meo_utm');
+        if (stored) Object.assign(found, JSON.parse(stored));
+      } catch {}
+    } else {
+      try { sessionStorage.setItem('meo_utm', JSON.stringify(found)); } catch {}
+    }
+    if (Object.keys(found).length > 0) setUtmParams(found);
+  }, []);
 
   useEffect(() => {
     const token = getIdToken();
@@ -94,7 +116,7 @@ export default function PricingPage() {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ planId }),
+        body: JSON.stringify({ planId, ...utmParams }),
       });
 
       const data = await res.json();
@@ -136,8 +158,8 @@ export default function PricingPage() {
 
   return (
     <AppShell>
-      <div className="flex-1 p-6 overflow-auto" style={{ background: colors.background }}>
-        <div className="max-w-5xl mx-auto">
+      <div className="flex-1 overflow-auto" style={{ background: 'transparent' }}>
+        <div className="max-w-4xl mx-auto px-6 py-8">
           <Link href="/" className="inline-block mb-6 text-sm underline" style={{ color: colors.primary }}>
             &larr; Back to MeO
           </Link>

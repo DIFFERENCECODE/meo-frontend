@@ -8,6 +8,7 @@ import { AppShell } from '@/components/layout/AppShell';
 import { getIdToken } from '@/app/lib/auth';
 import { getForgotPasswordUrl } from '@/app/lib/auth';
 import { getBookings, cancelBooking, type BookingRecord } from '@/app/marketplace/bookings';
+import { buildCalendarEvent, googleCalendarUrl, outlookCalendarUrl, downloadICS } from '@/app/marketplace/calendar';
 
 interface ProfileData {
   cognito_sub: string;
@@ -40,6 +41,7 @@ export default function ProfilePage() {
   const [measLoading, setMeasLoading] = useState(false);
   const [subscription, setSubscription] = useState<{ plan: string; status: string; currentPeriodEnd?: number; cancelAtPeriodEnd?: boolean } | null>(null);
   const [bookings, setBookings] = useState<BookingRecord[]>([]);
+  const [calendarOpen, setCalendarOpen] = useState<string | null>(null);
 
   // Load bookings from localStorage on mount
   useEffect(() => { setBookings(getBookings()); }, []);
@@ -179,8 +181,8 @@ export default function ProfilePage() {
 
   return (
     <AppShell>
-      <div className="flex-1 p-6 overflow-auto">
-        <div className="max-w-lg mx-auto">
+      <div className="flex-1 overflow-auto" style={{ background: 'transparent' }}>
+        <div className="max-w-4xl mx-auto px-6 py-8">
           <Link href="/" className="inline-block mb-6 text-sm underline" style={{ color: colors.primary }}>
             ← Back to MeO
           </Link>
@@ -400,52 +402,102 @@ export default function ProfilePage() {
               <p className="text-sm" style={{ color: colors.muted }}>No sessions booked yet.</p>
             ) : (
               <div className="space-y-3">
-                {bookings.map((b) => (
-                  <div
-                    key={b.id}
-                    className="rounded-xl p-4 flex items-center justify-between gap-3"
-                    style={{
-                      backgroundColor: colors.accent,
-                      border: `1px solid ${colors.cardBorder}`,
-                      opacity: b.status === 'cancelled' ? 0.5 : 1,
-                    }}
-                  >
-                    <div className="flex items-center gap-3 min-w-0">
-                      <img
-                        src={b.therapistImage || `https://ui-avatars.com/api/?name=${encodeURIComponent(b.therapistName)}&background=random`}
-                        alt={b.therapistName}
-                        className="w-10 h-10 rounded-xl object-cover flex-shrink-0"
-                      />
-                      <div className="min-w-0">
-                        <p className="font-semibold text-sm truncate" style={{ color: colors.foreground }}>{b.therapistName}</p>
-                        <p className="text-xs" style={{ color: colors.muted }}>{b.day} · {b.slot} · {b.sessionLength} min · £{b.price}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2 flex-shrink-0">
-                      <span
-                        className="text-xs px-2 py-0.5 rounded-full font-medium"
-                        style={{
-                          backgroundColor: b.status === 'upcoming' ? colors.primary + '20' : '#ef444420',
-                          color: b.status === 'upcoming' ? colors.primary : '#ef4444',
-                        }}
+                {bookings.map((b) => {
+                  const ev = b.status === 'upcoming'
+                    ? buildCalendarEvent(b.therapistName, b.day, b.slot, b.sessionLength, b.note || undefined)
+                    : null;
+                  return (
+                    <div
+                      key={b.id}
+                      className="rounded-xl overflow-hidden"
+                      style={{
+                        border: `1px solid ${colors.cardBorder}`,
+                        opacity: b.status === 'cancelled' ? 0.5 : 1,
+                      }}
+                    >
+                      <div
+                        className="p-4 flex items-center justify-between gap-3"
+                        style={{ backgroundColor: colors.accent }}
                       >
-                        {b.status === 'upcoming' ? 'Upcoming' : 'Cancelled'}
-                      </span>
-                      {b.status === 'upcoming' && (
-                        <button
-                          onClick={() => {
-                            cancelBooking(b.id);
-                            setBookings(getBookings());
-                          }}
-                          className="text-xs px-2 py-0.5 rounded-full transition-colors hover:opacity-80"
-                          style={{ backgroundColor: '#ef444415', color: '#ef4444', border: '1px solid #ef444430' }}
+                        <div className="flex items-center gap-3 min-w-0">
+                          <img
+                            src={b.therapistImage || `https://ui-avatars.com/api/?name=${encodeURIComponent(b.therapistName)}&background=random`}
+                            alt={b.therapistName}
+                            className="w-10 h-10 rounded-xl object-cover flex-shrink-0"
+                          />
+                          <div className="min-w-0">
+                            <p className="font-semibold text-sm truncate" style={{ color: colors.foreground }}>{b.therapistName}</p>
+                            <p className="text-xs" style={{ color: colors.muted }}>{b.day} · {b.slot} · {b.sessionLength} min · £{b.price}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          <span
+                            className="text-xs px-2 py-0.5 rounded-full font-medium"
+                            style={{
+                              backgroundColor: b.status === 'upcoming' ? colors.primary + '20' : '#ef444420',
+                              color: b.status === 'upcoming' ? colors.primary : '#ef4444',
+                            }}
+                          >
+                            {b.status === 'upcoming' ? 'Upcoming' : 'Cancelled'}
+                          </span>
+                          {b.status === 'upcoming' && (
+                            <>
+                              <button
+                                onClick={() => setCalendarOpen(calendarOpen === b.id ? null : b.id)}
+                                className="text-xs px-2 py-0.5 rounded-full transition-colors hover:opacity-80"
+                                style={{ backgroundColor: colors.primary + '20', color: colors.primary, border: `1px solid ${colors.primary}30` }}
+                              >
+                                + Calendar
+                              </button>
+                              <button
+                                onClick={() => {
+                                  cancelBooking(b.id);
+                                  setBookings(getBookings());
+                                }}
+                                className="text-xs px-2 py-0.5 rounded-full transition-colors hover:opacity-80"
+                                style={{ backgroundColor: '#ef444415', color: '#ef4444', border: '1px solid #ef444430' }}
+                              >
+                                Cancel
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                      {calendarOpen === b.id && ev && (
+                        <div
+                          className="px-4 py-3 flex flex-wrap gap-2"
+                          style={{ backgroundColor: colors.background, borderTop: `1px solid ${colors.cardBorder}` }}
                         >
-                          Cancel
-                        </button>
+                          <a
+                            href={googleCalendarUrl(ev)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all hover:opacity-80"
+                            style={{ backgroundColor: colors.accent, color: colors.foreground, border: `1px solid ${colors.cardBorder}` }}
+                          >
+                            Google Calendar
+                          </a>
+                          <button
+                            onClick={() => downloadICS(ev)}
+                            className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all hover:opacity-80"
+                            style={{ backgroundColor: colors.accent, color: colors.foreground, border: `1px solid ${colors.cardBorder}` }}
+                          >
+                            Apple Calendar (.ics)
+                          </button>
+                          <a
+                            href={outlookCalendarUrl(ev)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all hover:opacity-80"
+                            style={{ backgroundColor: colors.accent, color: colors.foreground, border: `1px solid ${colors.cardBorder}` }}
+                          >
+                            Outlook
+                          </a>
+                        </div>
                       )}
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>

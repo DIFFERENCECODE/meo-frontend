@@ -10,6 +10,8 @@ import {
 } from 'lucide-react';
 import { THERAPISTS, SLOTS, SLOT_DAYS, matchTherapists, isCrisis, isMentalHealthQuery, type Therapist } from './data';
 import { saveBooking } from './bookings';
+import { buildCalendarEvent, googleCalendarUrl, outlookCalendarUrl, downloadICS } from './calendar';
+import { getIdToken, getEmailFromIdToken } from '@/app/lib/auth';
 
 // ─── Booking modal ────────────────────────────────────────────────────────────
 
@@ -29,6 +31,7 @@ function BookingModal({ therapist, onClose }: BookingModalProps) {
   const slots = SLOTS[day] ?? [];
 
   if (confirmed) {
+    const ev = buildCalendarEvent(therapist.name, day, selectedSlot!, therapist.sessionLength, note);
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
         <div
@@ -41,8 +44,42 @@ function BookingModal({ therapist, onClose }: BookingModalProps) {
             Your session with <strong style={{ color: colors.foreground }}>{therapist.name}</strong> on{' '}
             <strong style={{ color: colors.foreground }}>{day}</strong> at{' '}
             <strong style={{ color: colors.foreground }}>{selectedSlot}</strong> is confirmed.
-            You'll receive a calendar invite shortly.
           </p>
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wide mb-2.5" style={{ color: colors.muted }}>
+              Add to Calendar
+            </p>
+            <div className="flex flex-col gap-2">
+              <a
+                href={googleCalendarUrl(ev)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full py-2.5 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 transition-all hover:opacity-80"
+                style={{ backgroundColor: colors.accent, color: colors.foreground, border: `1px solid ${colors.cardBorder}` }}
+              >
+                <Calendar className="h-4 w-4" />
+                Google Calendar
+              </a>
+              <button
+                onClick={() => downloadICS(ev)}
+                className="w-full py-2.5 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 transition-all hover:opacity-80"
+                style={{ backgroundColor: colors.accent, color: colors.foreground, border: `1px solid ${colors.cardBorder}` }}
+              >
+                <Calendar className="h-4 w-4" />
+                Apple Calendar (.ics)
+              </button>
+              <a
+                href={outlookCalendarUrl(ev)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full py-2.5 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 transition-all hover:opacity-80"
+                style={{ backgroundColor: colors.accent, color: colors.foreground, border: `1px solid ${colors.cardBorder}` }}
+              >
+                <Calendar className="h-4 w-4" />
+                Outlook Calendar
+              </a>
+            </div>
+          </div>
           <button
             onClick={onClose}
             className="w-full py-3 rounded-xl font-semibold text-sm"
@@ -164,7 +201,7 @@ function BookingModal({ therapist, onClose }: BookingModalProps) {
 
           <button
             disabled={!selectedSlot}
-            onClick={() => {
+            onClick={async () => {
               if (selectedSlot) {
                 saveBooking({
                   therapistId: therapist.id,
@@ -178,6 +215,22 @@ function BookingModal({ therapist, onClose }: BookingModalProps) {
                   sessionLength: therapist.sessionLength,
                   note,
                 });
+                const token = getIdToken();
+                const email = token ? getEmailFromIdToken(token) : null;
+                if (email) {
+                  fetch('/api/marketplace/book', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      userEmail: email,
+                      therapistName: therapist.name,
+                      day,
+                      slot: selectedSlot,
+                      sessionLength: therapist.sessionLength,
+                      price: therapist.pricePerSession,
+                    }),
+                  }).catch(() => {});
+                }
               }
               setConfirmed(true);
             }}

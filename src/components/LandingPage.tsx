@@ -1,132 +1,334 @@
 'use client';
 
-import React from 'react';
-import { useTheme } from '@/theme/ThemeProvider';
-import { getGoogleLoginUrl, getAppleLoginUrl } from '@/app/lib/auth';
+import React, { useState, useEffect, FormEvent } from 'react';
+import { Activity, ArrowRight, Loader2, ArrowLeft, Mail } from 'lucide-react';
+import { getGoogleLoginUrl } from '@/app/lib/auth';
+
+const TESTIMONIALS = [
+  {
+    quote: "Meterbolic gives me a window into my patients' metabolic health between sessions — it's become central to how I manage insulin resistance cases.",
+    name: 'Dr. Sarah Mitchell',
+    role: 'Functional Medicine Practitioner, London',
+  },
+  {
+    quote: "The Kraft curve visualisation has changed how I explain metabolic dysfunction to patients. A tool every BANT nutritionist should have.",
+    name: "James O'Brien",
+    role: 'Registered Nutritional Therapist, Manchester',
+  },
+  {
+    quote: "I finally have the data to back up lifestyle prescriptions. Patients can see their own patterns and it drives engagement like nothing else.",
+    name: 'Dr. Priya Nair',
+    role: 'GP Partner, Birmingham',
+  },
+];
 
 interface LandingPageProps {
-  onSignIn: () => void;
+  onAuthenticated: (idToken: string, refreshToken: string) => void;
   isExchanging?: boolean;
 }
 
-export default function LandingPage({ onSignIn, isExchanging = false }: LandingPageProps) {
-  const { colors } = useTheme();
+type Screen = 'email' | 'otp';
 
-  const handleGoogleSignIn = () => {
-    window.location.href = getGoogleLoginUrl();
+export default function LandingPage({ onAuthenticated, isExchanging = false }: LandingPageProps) {
+  const [screen, setScreen]   = useState<Screen>('email');
+  const [email, setEmail]     = useState('');
+  const [otp, setOtp]         = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError]     = useState('');
+  const [tIdx, setTIdx] = useState(0);
+  useEffect(() => {
+    setTIdx(Math.floor(Math.random() * TESTIMONIALS.length));
+  }, []);
+  const t = TESTIMONIALS[tIdx];
+
+  const sendOtp = async (e: FormEvent) => {
+    e.preventDefault();
+    setError('');
+    const trimmed = email.trim().toLowerCase();
+    if (!trimmed || !trimmed.includes('@')) { setError('Please enter a valid email address.'); return; }
+    setLoading(true);
+    try {
+      const res = await fetch('/api/auth/otp/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: trimmed }),
+      });
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({}));
+        setError(d.detail || 'Failed to send code. Please try again.');
+        return;
+      }
+      setScreen('otp');
+    } catch {
+      setError('Network error. Please check your connection.');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleAppleSignIn = () => {
-    window.location.href = getAppleLoginUrl();
+  const verifyOtp = async (e: FormEvent) => {
+    e.preventDefault();
+    setError('');
+    if (otp.trim().length !== 6) { setError('Please enter the 6-digit code.'); return; }
+    setLoading(true);
+    try {
+      const res = await fetch('/api/auth/otp/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim().toLowerCase(), otp: otp.trim() }),
+      });
+      const d = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setError(d.detail || 'Invalid code. Please try again.');
+        return;
+      }
+      onAuthenticated(d.idToken, d.refreshToken || '');
+    } catch {
+      setError('Network error. Please check your connection.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const inputStyle: React.CSSProperties = {
+    borderColor: '#d1d5db', color: '#111827', fontSize: '16px',
   };
 
   return (
-    <div
-      className="min-h-screen flex items-center justify-center p-6 transition-colors"
-      style={{ background: colors.background }}
-    >
+    <div className="min-h-screen flex flex-col lg:flex-row">
+      {/* ── Left panel ─────────────────────────────────────────────── */}
+      <div className="flex flex-col w-full lg:w-[460px] xl:w-[500px] flex-shrink-0 bg-white px-8 sm:px-12 lg:px-14 py-10 justify-between min-h-screen lg:min-h-0">
+        {/* Logo */}
+        <div className="flex items-center gap-2">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg" style={{ background: '#1a3a3a' }}>
+            <Activity className="h-4 w-4" style={{ color: '#a4d65e' }} />
+          </div>
+          <span className="text-base font-bold tracking-tight" style={{ color: '#1a3a3a' }}>Meterbolic</span>
+        </div>
+
+        {/* Form area */}
+        <div className="flex-1 flex flex-col justify-center py-10 max-w-sm">
+          {isExchanging ? (
+            <div className="flex flex-col items-center gap-4 py-12">
+              <Loader2 className="h-10 w-10 animate-spin" style={{ color: '#1a3a3a' }} />
+              <p className="text-sm font-medium" style={{ color: '#374151' }}>Signing you in…</p>
+            </div>
+
+          ) : screen === 'email' ? (
+            <>
+              <h1 className="text-[1.75rem] font-bold leading-tight" style={{ color: '#111827' }}>
+                Welcome to MeO
+              </h1>
+              <p className="mt-2 text-sm" style={{ color: '#6b7280' }}>
+                Sign in or create a free account to get started.
+              </p>
+
+              {/* Social buttons */}
+              <div className="mt-8 flex flex-col gap-3">
+                <button
+                  onClick={() => { window.location.href = getGoogleLoginUrl(); }}
+                  className="w-full flex items-center justify-center gap-3 rounded-lg py-2.5 px-4 text-sm font-semibold transition-colors hover:bg-gray-50"
+                  style={{ border: '1px solid #d1d5db', color: '#111827', background: '#ffffff' }}
+                >
+                  <svg width="18" height="18" viewBox="0 0 48 48">
+                    <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+                    <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+                    <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+                    <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+                  </svg>
+                  Continue with Google
+                </button>
+
+              </div>
+
+              {/* Divider */}
+              <div className="flex items-center gap-3 my-5">
+                <div className="flex-1 h-px" style={{ background: '#e5e7eb' }} />
+                <span className="text-xs" style={{ color: '#9ca3af' }}>or continue with email</span>
+                <div className="flex-1 h-px" style={{ background: '#e5e7eb' }} />
+              </div>
+
+              <form onSubmit={sendOtp} className="flex flex-col gap-3">
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="you@example.com"
+                  autoFocus
+                  className="w-full rounded-lg border px-3.5 py-2.5 text-sm outline-none transition-colors"
+                  style={inputStyle}
+                  onFocus={(e) => (e.currentTarget.style.borderColor = '#a4d65e')}
+                  onBlur={(e) => (e.currentTarget.style.borderColor = '#d1d5db')}
+                />
+                {error && <p className="text-xs" style={{ color: '#ef4444' }}>{error}</p>}
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full flex items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-60"
+                  style={{ background: '#1a3a3a', color: '#ffffff' }}
+                >
+                  {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <>Continue <ArrowRight className="h-4 w-4" /></>}
+                </button>
+              </form>
+
+              <p className="mt-5 text-xs text-center" style={{ color: '#9ca3af' }}>
+                Are you a clinician?{' '}
+                <a href="/register/clinician" className="underline hover:text-gray-600" style={{ color: '#6b7280' }}>
+                  Register your practice
+                </a>
+              </p>
+            </>
+
+          ) : (
+            <>
+              <button
+                onClick={() => { setScreen('email'); setOtp(''); setError(''); }}
+                className="flex items-center gap-1.5 mb-8 text-xs font-medium hover:opacity-70 transition-opacity"
+                style={{ color: '#6b7280' }}
+              >
+                <ArrowLeft className="h-3.5 w-3.5" /> Back
+              </button>
+
+              <div className="flex h-12 w-12 items-center justify-center rounded-full mb-5" style={{ background: '#f0fdf4' }}>
+                <Mail className="h-5 w-5" style={{ color: '#16a34a' }} />
+              </div>
+
+              <h1 className="text-[1.75rem] font-bold leading-tight" style={{ color: '#111827' }}>
+                Check your email
+              </h1>
+              <p className="mt-2 text-sm" style={{ color: '#6b7280' }}>
+                We sent a 6-digit code to <span className="font-medium" style={{ color: '#111827' }}>{email}</span>
+              </p>
+
+              <form onSubmit={verifyOtp} className="mt-8 flex flex-col gap-3">
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]{6}"
+                  maxLength={6}
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
+                  placeholder="000000"
+                  autoFocus
+                  suppressHydrationWarning
+                  className="w-full rounded-lg border px-3.5 py-3 text-2xl font-bold tracking-[0.4em] text-center outline-none transition-colors"
+                  style={{ borderColor: '#d1d5db', color: '#111827' }}
+                  onFocus={(e) => (e.currentTarget.style.borderColor = '#a4d65e')}
+                  onBlur={(e) => (e.currentTarget.style.borderColor = '#d1d5db')}
+                />
+                {error && <p className="text-xs text-center" style={{ color: '#ef4444' }}>{error}</p>}
+                <button
+                  type="submit"
+                  disabled={loading || otp.length < 6}
+                  className="w-full flex items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-60"
+                  style={{ background: '#1a3a3a', color: '#ffffff' }}
+                >
+                  {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <>Verify & sign in <ArrowRight className="h-4 w-4" /></>}
+                </button>
+              </form>
+
+              <p className="mt-4 text-xs text-center" style={{ color: '#9ca3af' }}>
+                Didn't receive it?{' '}
+                <button
+                  onClick={() => { setOtp(''); setError(''); setScreen('email'); }}
+                  className="underline hover:text-gray-600"
+                  style={{ color: '#6b7280' }}
+                >
+                  Try again
+                </button>
+              </p>
+            </>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="flex items-center justify-between text-xs" style={{ color: '#9ca3af' }}>
+          <span>© {new Date().getFullYear()} Meterbolic</span>
+          <div className="flex gap-4">
+            <a href="/privacy" className="hover:underline">Privacy</a>
+            <a href="/terms" className="hover:underline">Terms</a>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Right panel ────────────────────────────────────────────── */}
       <div
-        className="w-full max-w-md rounded-2xl p-10 shadow-xl text-center border transition-colors"
-        style={{
-          background: colors.card,
-          borderColor: colors.cardBorder,
-        }}
+        className="hidden lg:flex flex-1 flex-col justify-between p-12 xl:p-16 relative overflow-hidden"
+        style={{ background: 'linear-gradient(160deg, #1a3a3a 0%, #264545 45%, #2a5555 100%)' }}
       >
         <div
-          className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-full"
+          className="absolute inset-0 pointer-events-none"
           style={{
-            background: colors.primary,
-            color: colors.primaryForeground,
+            backgroundImage: `radial-gradient(circle at 70% 20%, rgba(164,214,94,0.08) 0%, transparent 50%),
+                               radial-gradient(circle at 20% 80%, rgba(164,214,94,0.05) 0%, transparent 40%)`,
           }}
-        >
-          <span className="text-2xl font-bold">M</span>
+        />
+        <div className="absolute -right-20 -top-20 h-72 w-72 rounded-full pointer-events-none" style={{ background: 'rgba(164,214,94,0.06)' }} />
+
+        <div className="relative z-10">
+          <div className="flex items-center gap-3">
+            <div
+              className="flex h-12 w-12 items-center justify-center rounded-xl"
+              style={{ background: 'rgba(164,214,94,0.15)', border: '1px solid rgba(164,214,94,0.3)' }}
+            >
+              <Activity className="h-6 w-6" style={{ color: '#a4d65e' }} />
+            </div>
+            <div>
+              <p className="text-lg font-bold" style={{ color: '#ffffff' }}>Meterbolic</p>
+              <p className="text-xs" style={{ color: 'rgba(255,255,255,0.5)' }}>Metabolic Health Intelligence</p>
+            </div>
+          </div>
+
+          <div className="mt-10 max-w-md">
+            <h2 className="text-3xl xl:text-4xl font-bold leading-snug" style={{ color: '#ffffff' }}>
+              Understand your<br />
+              <span style={{ color: '#a4d65e' }}>metabolic health</span><br />
+              like never before.
+            </h2>
+            <p className="mt-4 text-sm leading-relaxed" style={{ color: 'rgba(255,255,255,0.6)' }}>
+              Kraft curves, insulin patterns, bio-age insights — powered by your data and guided by AI.
+            </p>
+          </div>
         </div>
 
-        <h1
-          className="text-2xl font-bold mb-2"
-          style={{ color: colors.foreground }}
-        >
-          Welcome to MeO
-        </h1>
-        <p
-          className="text-sm mb-8"
-          style={{ color: colors.muted }}
-        >
-          Your personal metabolic health AI assistant. Sign in to continue.
-        </p>
-
-        <button
-          onClick={handleGoogleSignIn}
-          disabled={isExchanging}
-          className="w-full rounded-lg py-3 px-6 text-base font-semibold disabled:opacity-70 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-3 mb-3"
-          style={{
-            background: '#ffffff',
-            color: '#1f1f1f',
-            border: '1px solid #dadce0',
-          }}
-        >
-          <svg width="18" height="18" viewBox="0 0 48 48">
-            <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
-            <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
-            <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
-            <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
-          </svg>
-          {isExchanging ? 'Signing you in...' : 'Continue with Google'}
-        </button>
-
-        {/* Apple sign-in routes through Cognito's Hosted UI just like
-            Google — IdP wiring lives in the User Pool console. */}
-        <button
-          onClick={handleAppleSignIn}
-          disabled={isExchanging}
-          className="w-full rounded-lg py-3 px-6 text-base font-semibold disabled:opacity-70 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-3 mb-3"
-          style={{
-            background: '#000000',
-            color: '#ffffff',
-            border: '1px solid #000000',
-          }}
-        >
-          {/* Apple's logo guidelines require the glyph to be on a solid
-              background; the plain SVG below is the standard simplified
-              Apple mark used by Sign in with Apple buttons. */}
-          <svg width="16" height="18" viewBox="0 0 16 18" fill="#ffffff">
-            <path d="M13.527 13.847c-.245.572-.535 1.099-.871 1.583-.458.66-.832 1.117-1.121 1.371-.448.413-.928.625-1.442.638-.369 0-.814-.105-1.331-.318-.519-.213-.996-.318-1.432-.318-.456 0-.946.105-1.471.318-.526.213-.95.324-1.275.336-.493.022-.985-.196-1.475-.656-.314-.276-.704-.748-1.171-1.418-.5-.713-.911-1.539-1.234-2.481C.41 11.917.247 10.985.247 10.084c0-1.032.223-1.922.671-2.667.351-.6.819-1.073 1.405-1.42.585-.347 1.218-.524 1.9-.535.391 0 .904.121 1.541.359.635.239 1.043.36 1.222.36.135 0 .587-.142 1.354-.425.726-.262 1.339-.371 1.84-.328 1.358.11 2.379.645 3.057 1.611-1.214.736-1.815 1.768-1.803 3.094.011 1.033.387 1.892 1.124 2.575.334.317.708.563 1.123.738-.09.262-.184.512-.284.752zM10.59.36c0 .77-.281 1.49-.84 2.155-.675.792-1.491 1.249-2.376 1.177-.011-.092-.018-.189-.018-.291 0-.74.323-1.532.895-2.179.286-.328.65-.6 1.092-.819.441-.214.858-.333 1.25-.353.011.103.017.207.017.31z"/>
-          </svg>
-          {isExchanging ? 'Signing you in...' : 'Continue with Apple'}
-        </button>
-
-        <div className="flex items-center gap-3 my-4">
-          <div className="flex-1 h-px" style={{ background: colors.cardBorder }} />
-          <span className="text-xs" style={{ color: colors.muted }}>or</span>
-          <div className="flex-1 h-px" style={{ background: colors.cardBorder }} />
+        <div className="relative z-10 my-8 flex flex-col gap-3">
+          {[
+            { icon: '🧠', label: 'AI health coach available 24/7' },
+            { icon: '📊', label: 'Kraft curve & insulin resistance analysis' },
+            { icon: '🎯', label: 'Personalised metabolic protocol guidance' },
+            { icon: '🩺', label: 'Clinician-reviewed insights' },
+          ].map(({ icon, label }) => (
+            <div key={label} className="flex items-center gap-3">
+              <span className="text-base">{icon}</span>
+              <span className="text-sm" style={{ color: 'rgba(255,255,255,0.75)' }}>{label}</span>
+            </div>
+          ))}
         </div>
 
-        <button
-          onClick={onSignIn}
-          disabled={isExchanging}
-          className="w-full rounded-lg py-3 px-6 text-base font-semibold disabled:opacity-70 disabled:cursor-not-allowed transition-colors"
+        <div
+          className="relative z-10 rounded-2xl p-6"
           style={{
-            background: colors.primary,
-            color: colors.primaryForeground,
-          }}
-          onMouseOver={(e) => {
-            if (!isExchanging) {
-              e.currentTarget.style.background = colors.primaryHover;
-            }
-          }}
-          onMouseOut={(e) => {
-            e.currentTarget.style.background = colors.primary;
+            background: 'rgba(255,255,255,0.06)',
+            border: '1px solid rgba(255,255,255,0.1)',
+            backdropFilter: 'blur(12px)',
           }}
         >
-          Sign in with Email
-        </button>
-
-        <p
-          className="mt-8 text-xs"
-          style={{ color: colors.muted }}
-        >
-          MeO uses secure AWS Cognito authentication to protect your data.
-        </p>
+          <p className="text-sm leading-relaxed" style={{ color: 'rgba(255,255,255,0.85)' }}>
+            &ldquo;{t.quote}&rdquo;
+          </p>
+          <div className="mt-4 flex items-center gap-3">
+            <div
+              className="flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold flex-shrink-0"
+              style={{ background: '#a4d65e', color: '#1a3a3a' }}
+            >
+              {t.name.split(' ').map((n) => n[0]).slice(0, 2).join('')}
+            </div>
+            <div>
+              <p className="text-sm font-semibold" style={{ color: '#ffffff' }}>{t.name}</p>
+              <p className="text-xs" style={{ color: 'rgba(255,255,255,0.5)' }}>{t.role}</p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

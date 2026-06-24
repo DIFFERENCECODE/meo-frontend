@@ -12,6 +12,16 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const planId = body.planId as PlanId;
 
+    // Extract UTM attribution params forwarded from the pricing page
+    const UTM_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'] as const;
+    const utmMeta: Record<string, string> = {};
+    for (const key of UTM_KEYS) {
+      const val = body[key];
+      if (typeof val === 'string' && val.trim()) {
+        utmMeta[key] = val.trim().slice(0, 500);
+      }
+    }
+
     if (!planId || !PLANS[planId] || !PLANS[planId].priceId) {
       return NextResponse.json({ error: 'Invalid plan' }, { status: 400 });
     }
@@ -27,42 +37,32 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'No email in token' }, { status: 400 });
     }
 
-    // Find or create Stripe customer
-    const existing = await stripe.customers.list({ email, limit: 1 });
-    let customerId: string;
-
-    if (existing.data.length > 0) {
-      customerId = existing.data[0].id;
-    } else {
-      const customer = await stripe.customers.create({
-        email,
-        metadata: { cognito_sub: cognitoSub },
-      });
-      customerId = customer.id;
-    }
-
-    // Stripe Checkout success/cancel URLs must match a real origin.
-    // The header is normally set by the browser, but server-side or
-    // mobile callers may omit it — fall back to the live web app
-    // instead of localhost so test-mode purchases don't dead-end on a
-    // dev machine that isn't running.
+    // Look up Stripe customer by cognito_sub metadata — avoids matching old customers
+    // that may have subscriptions in a different currency (e.g. USD vs GBP).
     const origin = req.headers.get('origin') || 'https://app.meterbolic.com';
+
+    const search = await stripe.customers.search({
+      query: `metadata['cognito_sub']:'${cognitoSub}'`,
+      limit: 1,
+    });
+
+    const customerId = search.data.length > 0
+      ? search.data[0].id
+      : (await stripe.customers.create({ email, metadata: { cognito_sub: cognitoSub } })).id;
 
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       mode: 'subscription',
-      line_items: [
-        {
-          price: PLANS[planId].priceId!,
-          quantity: 1,
-        },
-      ],
-      success_url: `${origin}/?subscription=success`,
-      cancel_url: `${origin}/?subscription=cancelled`,
-      metadata: {
-        cognito_sub: cognitoSub,
-        plan_id: planId,
-      },
+      line_items: [{ price: PLANS[planId].priceId!, quantity: 1 }],
+      success_url: planId === 'clinician'
+        ? `${origin}/clinician?subscription=success`
+        : `${origin}/?subscription=success`,
+      cancel_url: planId === 'clinician'
+        ? `${origin}/register/clinician?subscription=cancelled`
+        : `${origin}/?subscription=cancelled`,
+      allow_promotion_codes: true,
+      metadata: { cognito_sub: cognitoSub, plan_id: planId, ...utmMeta },
+      subscription_data: { metadata: { cognito_sub: cognitoSub, plan_id: planId } },
     });
 
     return NextResponse.json({ url: session.url });
