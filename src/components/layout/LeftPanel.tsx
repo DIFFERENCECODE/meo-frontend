@@ -53,16 +53,16 @@ interface LeftPanelProps {
   className?: string;
 }
 
-function formatChatDate(created_at?: string | null): string {
+function formatChatDate(created_at?: string | null, t?: (k: string) => string): string {
   if (!created_at) return '';
   try {
     const d = new Date(created_at);
     const now = new Date();
     const isToday = d.toDateString() === now.toDateString();
-    if (isToday) return 'Today';
+    if (isToday) return t ? t('date.today') : 'Today';
     const yesterday = new Date(now);
     yesterday.setDate(yesterday.getDate() - 1);
-    if (d.toDateString() === yesterday.toDateString()) return 'Yesterday';
+    if (d.toDateString() === yesterday.toDateString()) return t ? t('date.yesterday') : 'Yesterday';
     return d.toLocaleDateString();
   } catch {
     return '';
@@ -180,9 +180,9 @@ export function LeftPanel({ onNewChat, onSettingsClick, chats, currentChatId, on
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border w-fit text-xs transition-colors hover:bg-white/5 no-underline"
                   style={{ borderColor: colors.cardBorder }}
                 >
-                  <span style={{ color: colors.muted }}>Free plan</span>
+                  <span style={{ color: colors.muted }}>{t('sidebar.free_plan')}</span>
                   <span style={{ color: colors.muted }}>·</span>
-                  <span className="font-medium" style={{ color: colors.primary }}>Upgrade</span>
+                  <span className="font-medium" style={{ color: colors.primary }}>{t('sidebar.upgrade')}</span>
                 </a>
               </div>
 
@@ -222,12 +222,12 @@ export function LeftPanel({ onNewChat, onSettingsClick, chats, currentChatId, on
                           style={{ color: colors.foreground }}
                         >
                           <span className="block truncate">{chat.title}</span>
-                          {formatChatDate(chat.updated_at || chat.created_at) && (
+                          {formatChatDate(chat.updated_at || chat.created_at, t) && (
                             <span
                               className="block text-xs mt-0.5"
                               style={{ color: colors.muted }}
                             >
-                              {formatChatDate(chat.updated_at || chat.created_at)}
+                              {formatChatDate(chat.updated_at || chat.created_at, t)}
                             </span>
                           )}
                         </button>
@@ -265,7 +265,7 @@ export function LeftPanel({ onNewChat, onSettingsClick, chats, currentChatId, on
                       className="text-xs font-medium uppercase tracking-wider mb-2"
                       style={{ color: colors.muted }}
                     >
-                      Vendor
+                      {t('sidebar.vendor')}
                     </p>
                     <VendorToggle />
                   </div>
@@ -274,7 +274,7 @@ export function LeftPanel({ onNewChat, onSettingsClick, chats, currentChatId, on
                       className="text-xs font-medium uppercase tracking-wider mb-2"
                       style={{ color: colors.muted }}
                     >
-                      Mode
+                      {t('sidebar.mode')}
                     </p>
                     <ModeToggle />
                   </div>
@@ -285,7 +285,7 @@ export function LeftPanel({ onNewChat, onSettingsClick, chats, currentChatId, on
                       style={{ color: colors.muted }}
                     >
                       <ShoppingBag className="h-5 w-5" />
-                      <span>Marketplace</span>
+                      <span>{t('sidebar.marketplace')}</span>
                     </Link>
                   </div>
                 </div>
@@ -309,7 +309,7 @@ export function LeftPanel({ onNewChat, onSettingsClick, chats, currentChatId, on
                   style={{ color: colors.muted }}
                 >
                   <BookOpen className="h-5 w-5" />
-                  <span>Library</span>
+                  <span>{t('sidebar.library')}</span>
                 </button>
                 <Link
                   href="/personalize"
@@ -355,7 +355,7 @@ export function LeftPanel({ onNewChat, onSettingsClick, chats, currentChatId, on
                           style={{ color: colors.foreground }}
                         >
                           <User className="h-4 w-4" />
-                          <span>Profile</span>
+                          <span>{t('sidebar.profile')}</span>
                         </Link>
                         <Link
                           href="/pricing"
@@ -363,7 +363,7 @@ export function LeftPanel({ onNewChat, onSettingsClick, chats, currentChatId, on
                           style={{ color: colors.foreground }}
                         >
                           <CreditCard className="h-4 w-4" />
-                          <span>Subscription</span>
+                          <span>{t('sidebar.subscription')}</span>
                         </Link>
                         <button
                           onClick={toggleColorMode}
@@ -376,7 +376,7 @@ export function LeftPanel({ onNewChat, onSettingsClick, chats, currentChatId, on
                             ) : (
                               <Sun className="h-4 w-4" />
                             )}
-                            <span>{colorMode === 'dark' ? 'Dark mode' : 'Light mode'}</span>
+                            <span>{colorMode === 'dark' ? t('sidebar.dark_mode') : t('sidebar.light_mode')}</span>
                           </span>
                           <span 
                             className="text-xs px-2 py-0.5 rounded"
@@ -385,7 +385,7 @@ export function LeftPanel({ onNewChat, onSettingsClick, chats, currentChatId, on
                               color: colors.primary 
                             }}
                           >
-                            {colorMode === 'dark' ? 'ON' : 'OFF'}
+                            {colorMode === 'dark' ? t('common.on') : t('common.off')}
                           </span>
                         </button>
                       </div>

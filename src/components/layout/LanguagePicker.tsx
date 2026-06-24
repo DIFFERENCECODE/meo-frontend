@@ -31,6 +31,7 @@ export const LANGUAGES: Array<{
   { code: 'ar', bcp47: 'ar-SA', nativeLabel: 'العربية', englishLabel: 'Arabic'  },
   { code: 'hi', bcp47: 'hi-IN', nativeLabel: 'हिन्दी',    englishLabel: 'Hindi'   },
   { code: 'nl', bcp47: 'nl-NL', nativeLabel: 'Nederlands', englishLabel: 'Dutch' },
+  { code: 'zh', bcp47: 'zh-CN', nativeLabel: '中文',       englishLabel: 'Chinese' },
 ];
 
 export function getLangMeta(code: SupportedLang) {

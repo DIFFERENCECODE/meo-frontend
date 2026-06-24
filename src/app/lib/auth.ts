@@ -74,13 +74,7 @@ export function getIdToken(): string | null {
 
 /** Cognito forgot-password URL (Hosted UI). */
 export function getForgotPasswordUrl(): string {
-  const params = new URLSearchParams({
-    client_id: CLIENT_ID,
-    response_type: 'code',
-    scope: 'openid email profile',
-    redirect_uri: REDIRECT_URI,
-  });
-  return `https://${COGNITO_DOMAIN}/forgotPassword?${params.toString()}`;
+  return '/forgot';
 }
 
 /** Cognito logout URL; redirects here to clear Cognito session, then back to app. */

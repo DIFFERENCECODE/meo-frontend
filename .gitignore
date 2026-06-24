@@ -57,3 +57,8 @@ Screenshots/
 # Context
 context.txt
 public/docs/*.pdf
+
+# secrets/junk (added by standardization)
+.env
+*.bak.customlogin
+start.sh

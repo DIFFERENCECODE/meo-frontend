@@ -16,7 +16,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { translations, interpolate } from './translations';
 
-export type SupportedLang = 'en' | 'ar' | 'hi' | 'nl';
+export type SupportedLang = 'en' | 'ar' | 'hi' | 'nl' | 'zh';
 
 const STORAGE_KEY = 'meo_chat_lang';
 const DEFAULT_LANG: SupportedLang = 'en';
@@ -35,12 +35,12 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const saved = window.localStorage.getItem(STORAGE_KEY) as SupportedLang | null;
-    if (saved && ['en', 'ar', 'hi', 'nl'].includes(saved)) _setLanguage(saved);
+    if (saved && ['en', 'ar', 'hi', 'nl', 'zh'].includes(saved)) _setLanguage(saved);
 
     // Also listen for cross-tab changes — picking a language in one
     // tab should update every other open tab without a reload.
     const onStorage = (e: StorageEvent) => {
-      if (e.key === STORAGE_KEY && e.newValue && ['en', 'ar', 'hi', 'nl'].includes(e.newValue)) {
+      if (e.key === STORAGE_KEY && e.newValue && ['en', 'ar', 'hi', 'nl', 'zh'].includes(e.newValue)) {
         _setLanguage(e.newValue as SupportedLang);
       }
     };

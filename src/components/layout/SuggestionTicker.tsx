@@ -2,31 +2,16 @@
 
 import React, { useRef, useState } from 'react';
 import { useTheme } from '@/theme/ThemeProvider';
+import { useTranslation } from '@/i18n/LanguageContext';
 
 // ── Induction prompts — shown to new/demo users during onboarding phase ──────
 // These map directly to the four induction content items:
 //   1. What is BAS          2. How to Measure BAS
 //   3. Thin Guide to Fat    4. CTA to Buy the Meter
-const INDUCTION_SUGGESTIONS = [
-  'What is the Biological Age Score?',
-  'How do I measure my Biological Age Score at home?',
-  'What is the Thin Guide to Fat?',
-  'How do I get the Meterbolic Meter?',
-  'What is the Deep Fat Score?',
-  'How does MeO calculate my biological age?',
-];
+const INDUCTION_SUGGESTIONS = ['suggest.ind1','suggest.ind2','suggest.ind3','suggest.ind4','suggest.ind5','suggest.ind6'];
 
 // ── General prompts — shown to all users regardless of phase ─────────────────
-const GENERAL_SUGGESTIONS = [
-  'Why do I feel tired after eating?',
-  'What does my glucose pattern mean?',
-  'How can I improve my metabolic score?',
-  'What is insulin resistance?',
-  'What is the Kraft test?',
-  'How does fasting affect my metabolic health?',
-  'Which practitioners can help with gut health?',
-  'What is hyperinsulinaemia?',
-];
+const GENERAL_SUGGESTIONS = ['suggest.gen1','suggest.gen2','suggest.gen3','suggest.gen4','suggest.gen5','suggest.gen6','suggest.gen7','suggest.gen8'];
 
 interface SuggestionTickerProps {
   onSelect: (question: string) => void;
@@ -36,14 +21,15 @@ interface SuggestionTickerProps {
 
 export default function SuggestionTicker({ onSelect, phase = 'general' }: SuggestionTickerProps) {
   const { colors } = useTheme();
+  const { t } = useTranslation();
   const [paused, setPaused] = useState(false);
   const trackRef = useRef<HTMLDivElement>(null);
 
   // Induction phase: lead with induction prompts, tail with general
   // General phase: general prompts only
-  const base = phase === 'induction'
+  const base = (phase === 'induction'
     ? [...INDUCTION_SUGGESTIONS, ...GENERAL_SUGGESTIONS]
-    : GENERAL_SUGGESTIONS;
+    : GENERAL_SUGGESTIONS).map((k) => t(k));
 
   // Duplicate so the marquee loops seamlessly
   const TICKER_ITEMS = [...base, ...base];
