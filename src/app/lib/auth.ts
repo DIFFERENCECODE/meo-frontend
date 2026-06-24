@@ -3,13 +3,10 @@ const CLIENT_ID = process.env.NEXT_PUBLIC_COGNITO_CLIENT_ID!;
 const REDIRECT_URI = process.env.NEXT_PUBLIC_COGNITO_REDIRECT_URI!;
 
 export function getLoginUrl(): string {
-  const params = new URLSearchParams({
-    client_id: CLIENT_ID,
-    response_type: 'code',
-    scope: 'openid email profile',
-    redirect_uri: REDIRECT_URI,
-  });
-  return `https://${COGNITO_DOMAIN}/login?${params.toString()}`;
+  // Self-hosted in-app login page (SCRUM-14) instead of the Cognito
+  // Hosted UI. Email/password auth posts to /api/auth/signin; social
+  // IdPs (Google/Apple) still federate through Cognito from there.
+  return '/login';
 }
 
 export function getGoogleLoginUrl(): string {
@@ -72,15 +69,9 @@ export function getIdToken(): string | null {
   return window.localStorage.getItem('meo_id_token');
 }
 
-/** Cognito forgot-password URL (Hosted UI). */
+/** In-app forgot-password page (SCRUM-14) instead of the Cognito Hosted UI. */
 export function getForgotPasswordUrl(): string {
-  const params = new URLSearchParams({
-    client_id: CLIENT_ID,
-    response_type: 'code',
-    scope: 'openid email profile',
-    redirect_uri: REDIRECT_URI,
-  });
-  return `https://${COGNITO_DOMAIN}/forgotPassword?${params.toString()}`;
+  return '/forgot';
 }
 
 /** Cognito logout URL; redirects here to clear Cognito session, then back to app. */
