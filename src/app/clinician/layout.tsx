@@ -4,10 +4,10 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useTheme } from '@/theme/ThemeProvider';
-import { getIdToken } from '@/app/lib/auth';
+import { getIdToken, clearIdToken, getLogoutUrl } from '@/app/lib/auth';
 import {
   LayoutDashboard, Users, ListChecks, CalendarDays,
-  ArrowLeft, Stethoscope, Menu, X,
+  ArrowLeft, Stethoscope, Menu, X, LogOut,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -89,7 +89,7 @@ export default function ClinicianLayout({ children }: { children: React.ReactNod
         })}
       </nav>
 
-      <div className="p-3 border-t" style={{ borderColor: colors.cardBorder }}>
+      <div className="p-3 border-t space-y-1" style={{ borderColor: colors.cardBorder }}>
         <Link
           href="/"
           className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all hover:opacity-80"
@@ -98,6 +98,14 @@ export default function ClinicianLayout({ children }: { children: React.ReactNod
           <ArrowLeft className="h-4 w-4" />
           Back to MeO
         </Link>
+        <button
+          onClick={() => { clearIdToken(); window.location.href = getLogoutUrl(); }}
+          className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all hover:opacity-80"
+          style={{ color: colors.muted }}
+        >
+          <LogOut className="h-4 w-4" />
+          Sign out
+        </button>
       </div>
     </>
   );
@@ -159,12 +167,20 @@ export default function ClinicianLayout({ children }: { children: React.ReactNod
               <ArrowLeft className="h-4 w-4" />
               Back to MeO
             </Link>
+            <button
+              onClick={() => { clearIdToken(); window.location.href = getLogoutUrl(); }}
+              className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-sm"
+              style={{ color: colors.muted }}
+            >
+              <LogOut className="h-4 w-4" />
+              Sign out
+            </button>
           </nav>
         </div>
       )}
 
       {/* Main content */}
-      <main className="flex-1 overflow-auto md:pt-0 pt-14">
+      <main className="flex-1 overflow-auto md:pt-0 pt-14 h-full">
         {children}
       </main>
     </div>

@@ -14,6 +14,12 @@ import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { getLoginUrl, getLogoutUrl, exchangeCodeForTokens, storeIdToken, getIdToken, clearIdToken, getSubFromIdToken, storeRefreshToken, getValidIdToken, apiFetch } from '@/app/lib/auth';
 import LandingPage from '@/components/LandingPage';
 import { ProfileMenu } from '@/components/layout/ProfileMenu';
+import { ProtocolPanel, BAS_STATES, KRAFT_STATES } from '@/components/layout/ProtocolPanel';
+
+const ALL_PROTOCOL_STATES = [...BAS_STATES, ...KRAFT_STATES] as readonly string[];
+import { AnimatePresence } from 'motion/react';
+import { ProductTour } from '@/components/tour/ProductTour';
+import { useTour } from '@/hooks/useTour';
 
 // Types re-exported from chat panel
 export type { Message };
@@ -21,6 +27,7 @@ export type { Message };
 // Inner component that uses the theme context
 function MeOAppInner() {
   const { theme, colors, mode, setRightPanelOpen, setVendor, setUserRole } = useTheme();
+  const { run: tourRun, markSeen: markTourSeen, resetTour } = useTour();
   const router = useRouter();
 
   // Chat state
@@ -44,11 +51,19 @@ function MeOAppInner() {
   const [authChecked, setAuthChecked] = useState(false);
   const [profileRole, setProfileRole] = useState<string | null>(null);
   const [profileLoaded, setProfileLoaded] = useState(false);
+  const [isNewUser, setIsNewUser] = useState(false);
   // Sidebar: list of user's chats and current conversation
   const [chats, setChats] = useState<ChatListItem[]>([]);
   const [currentChatId, setCurrentChatId] = useState<string | null>(null);
   const [chatsLoading, setChatsLoading] = useState(false);
   
+  // Library panel open state — shared between LeftPanel (button) and ChatPanel (drawer)
+  const [isLibraryOpen, setIsLibraryOpen] = useState(false);
+
+  // Protocol mode — set from backend's done event protocol_state field
+  const [protocolState, setProtocolState] = useState<string | null>(null);
+  const isProtocolActive = protocolState !== null && ALL_PROTOCOL_STATES.includes(protocolState);
+
   // Graph data state — populated from chat's retrieved_sources for the
   // Kraft curve. Bio Age metrics are no longer derived here: the Analysis
   // panel's ScoreGauges component fetches /api/scores/* directly.
@@ -375,6 +390,13 @@ function MeOAppInner() {
           } else if (payload.phase === 'done') {
             mode = payload.mode || null;
             finalSteps = Array.isArray(payload.steps) ? payload.steps : undefined;
+            if (payload.user_role) setUserRole(payload.user_role);
+            if (payload.is_new_user !== undefined) setIsNewUser(Boolean(payload.is_new_user));
+            if (payload.protocol_state && ALL_PROTOCOL_STATES.includes(payload.protocol_state)) {
+              setProtocolState(payload.protocol_state);
+            } else if (payload.protocol_state === 'idle') {
+              setProtocolState(null);
+            }
           } else if (payload.phase === 'error') {
             console.error('[stream] upstream error', payload.message);
           }
@@ -529,6 +551,20 @@ function MeOAppInner() {
     window.location.reload();
   }, []);
 
+  // After /personalise submits data, it redirects to /?newChat=1.
+  // This effect fires once profile is loaded, creates a fresh chat,
+  // cleans the URL, and shows a toast so the user knows to ask MeO about their data.
+  useEffect(() => {
+    if (!profileLoaded || !idToken) return;
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('newChat') !== '1') return;
+    window.history.replaceState({}, '', '/');
+    handleNewChat().then(() => {
+      toast.success('Your data is in — ask MeO what it means.', { duration: 5000 });
+    });
+  }, [profileLoaded, idToken]);
+
   // Show loading screen while checking auth (prevents flash of landing page on refresh)
   if (!authChecked) {
     return (
@@ -639,11 +675,15 @@ function MeOAppInner() {
 
   // Signed in: show full app.
   return (
+    <>
+    <ProductTour run={tourRun} onFinish={markTourSeen} />
     <ThreePanelLayout
       viewMode={viewMode}
       analysisContent={<ErrorBoundary name="Analysis"><AnalysisContent graphData={graphData} /></ErrorBoundary>}
       solutionContent={<ErrorBoundary name="Solutions"><SolutionContent vendors={vendorCards} /></ErrorBoundary>}
       onCloseRightPanel={() => setViewMode('response')}
+      onLibraryOpen={() => setIsLibraryOpen(true)}
+      onStartTour={resetTour}
       onNewChat={handleNewChat}
       chats={chats}
       chatsLoading={chatsLoading}
@@ -675,18 +715,34 @@ function MeOAppInner() {
         }
       }}
     >
-      <ChatPanel
-        messages={messages}
-        input={input}
-        loading={loading}
-        isActive={isActive}
-        onInputChange={setInput}
-        onSendMessage={handleSendMessage}
-        onRefresh={handleRefresh}
-        language={language}
-        onLanguageChange={setLanguage}
-      />
+      <div className="relative flex-1 flex flex-col h-full overflow-hidden">
+        <ChatPanel
+          messages={messages}
+          input={input}
+          loading={loading}
+          isActive={isActive}
+          onInputChange={setInput}
+          onSendMessage={handleSendMessage}
+          onRefresh={handleRefresh}
+          language={language}
+          onLanguageChange={setLanguage}
+          isNewUser={isNewUser}
+          isLibraryOpen={isLibraryOpen}
+          onLibraryOpen={() => setIsLibraryOpen(true)}
+          onLibraryClose={() => setIsLibraryOpen(false)}
+        />
+        <AnimatePresence>
+          {isProtocolActive && protocolState && (
+            <ProtocolPanel
+              protocolState={protocolState}
+              onSubmit={(msg) => handleSendMessage(undefined, msg)}
+              onExit={() => setProtocolState(null)}
+            />
+          )}
+        </AnimatePresence>
+      </div>
     </ThreePanelLayout>
+    </>
   );
 }
 

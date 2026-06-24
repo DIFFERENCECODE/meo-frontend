@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
-import { Send, Plus, SlidersHorizontal, FlaskConical, ChevronDown, Mic } from 'lucide-react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { Send, Plus, SlidersHorizontal, FlaskConical, ChevronDown, Mic, BookOpen, PanelRight } from 'lucide-react';
 import { useTheme } from '@/theme/ThemeProvider';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -13,6 +13,8 @@ import { LanguagePicker, type SupportedLang, getLangMeta } from '@/components/la
 import useVoiceInput from '@/hooks/useVoiceInput';
 import { useTranslation } from '@/i18n/LanguageContext';
 import { ProfileMenu } from '@/components/layout/ProfileMenu';
+import SuggestionTicker from '@/components/layout/SuggestionTicker';
+import LibraryPanel from '@/components/layout/LibraryPanel';
 
 // Types
 export type Message = {
@@ -24,6 +26,48 @@ export type Message = {
       /api/chat response and carried through MeOApp state. */
   steps?: TraceStep[];
 };
+
+// ── Inline tooltip wrapper ────────────────────────────────────────────────────
+// Appears below (header icons) or above (footer/toolbar icons) on hover.
+// Pure CSS — no portal, no library.
+function Tip({
+  label,
+  children,
+  position = 'bottom',
+}: {
+  label: string;
+  children: React.ReactNode;
+  position?: 'bottom' | 'top';
+}) {
+  const { colors } = useTheme();
+  const positionClasses =
+    position === 'bottom'
+      ? 'top-full mt-2 translate-y-1 group-hover:translate-y-0'
+      : 'bottom-full mb-2 -translate-y-1 group-hover:translate-y-0';
+  return (
+    <div className="relative group flex items-center justify-center">
+      {children}
+      <span
+        className={cn(
+          'pointer-events-none absolute left-1/2 -translate-x-1/2 px-2.5 py-1 rounded-lg whitespace-nowrap',
+          'opacity-0 group-hover:opacity-100 transition-all duration-150 z-[9999]',
+          positionClasses,
+        )}
+        style={{
+          backgroundColor: colors.card,
+          color: colors.foreground,
+          border: `1px solid ${colors.cardBorder}`,
+          boxShadow: '0 4px 14px rgba(0,0,0,0.25)',
+          fontSize: 11,
+          fontWeight: 500,
+          letterSpacing: '0.01em',
+        }}
+      >
+        {label}
+      </span>
+    </div>
+  );
+}
 
 // Blood Droplet SVG Component
 function BloodDroplet({ className, style }: { className?: string; style?: React.CSSProperties }) {
@@ -81,12 +125,12 @@ function Logo({
         )}
         style={{ color: colors.foreground }}
       >
-        {vendor === 'eos' ? 'MeO for Eos' : 'Meo'}
+        {vendor === 'eos' ? 'MeO for Eos' : 'MeO'}
       </span>
       {vendor === 'meterbolic' && (
         <BloodDroplet 
           className={cn(
-            size === 'large' ? "w-10 h-10 mt-1" : "w-5 h-5"
+            size === 'large' ? "w-10 h-10" : "w-5 h-5"
           )}
           style={{ color: colors.primary }}
         />
@@ -126,6 +170,12 @@ interface ChatPanelProps {
   language: SupportedLang;
   onLanguageChange: (lang: SupportedLang) => void;
   className?: string;
+  /** True on the user's very first session — used to show induction prompts. */
+  isNewUser?: boolean;
+  /** Externally controlled library open state (driven by LeftPanel Library button). */
+  isLibraryOpen?: boolean;
+  onLibraryOpen?: () => void;
+  onLibraryClose?: () => void;
 }
 
 export function ChatPanel({
@@ -139,12 +189,56 @@ export function ChatPanel({
   language,
   onLanguageChange,
   className,
+  isNewUser = false,
+  isLibraryOpen: externalLibraryOpen,
+  onLibraryOpen: externalOpenLibrary,
+  onLibraryClose: externalCloseLibrary,
 }: ChatPanelProps) {
-  const { theme, colors, vendor, isLeftPanelOpen, isRightPanelOpen } = useTheme();
+  const { theme, colors, vendor, isLeftPanelOpen, isRightPanelOpen, toggleRightPanel, userRole } = useTheme();
+
+  const stripPhaseTag = (s: string) => s.replace(/^\[[A-Z_]+\]\s*\n?/, '');
+
+  // Show induction prompts for new users or those still in demo (pre-activation) mode
+  const tickerPhase: 'induction' | 'general' =
+    (userRole === 'demo' || isNewUser) ? 'induction' : 'general';
   const { t } = useTranslation();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [isToolsOpen, setIsToolsOpen] = useState(false);
+  const [localLibraryOpen, setLocalLibraryOpen] = useState(false);
+
+  // Merge external (LeftPanel) and local (header button) open state
+  const isLibraryOpen = externalLibraryOpen ?? localLibraryOpen;
+  const openLibrary = () => { externalOpenLibrary ? externalOpenLibrary() : setLocalLibraryOpen(true); };
+  const closeLibrary = () => { externalCloseLibrary ? externalCloseLibrary() : setLocalLibraryOpen(false); };
+
+  // Library panel resize — same pointer-capture pattern as ThreePanelLayout.
+  const [libWidthPct, setLibWidthPct] = useState(28);
+  const libContainerRef = useRef<HTMLDivElement>(null);
+  const libDragRef = useRef<{ startX: number; startWidthPx: number } | null>(null);
+  const [libIsDragging, setLibIsDragging] = useState(false);
+
+  const onLibHandlePointerDown = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    e.currentTarget.setPointerCapture(e.pointerId);
+    if (!libContainerRef.current) return;
+    const w = libContainerRef.current.getBoundingClientRect().width;
+    libDragRef.current = { startX: e.clientX, startWidthPx: (libWidthPct / 100) * w };
+    setLibIsDragging(true);
+  }, [libWidthPct]);
+
+  const onLibHandlePointerMove = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    if (!libDragRef.current || !libContainerRef.current) return;
+    const w = libContainerRef.current.getBoundingClientRect().width;
+    const dx = libDragRef.current.startX - e.clientX;
+    const newPct = Math.min(45, Math.max(20, ((libDragRef.current.startWidthPx + dx) / w) * 100));
+    setLibWidthPct(newPct);
+  }, []);
+
+  const onLibHandlePointerUp = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    e.currentTarget.releasePointerCapture(e.pointerId);
+    libDragRef.current = null;
+    setLibIsDragging(false);
+  }, []);
 
   // Voice input — Web Speech API dictation. Each interim chunk overwrites
   // the "live transcript" portion of the input; each final chunk becomes
@@ -226,22 +320,20 @@ export function ChatPanel({
     }
   };
 
-  // Example queries for metabolic health
-  const exampleQueries = [
-    "Why do I feel tired after eating?",
-    "What does my glucose pattern mean?",
-    "How can I improve my metabolic score?",
-  ];
 
   // Initial state - centered search view
   if (!isActive) {
     return (
       <div
-        className={cn('flex-1 flex items-center justify-center p-4', className)}
+        ref={libContainerRef}
+        className={cn('flex-1 flex overflow-hidden', className)}
         style={{
           background: `linear-gradient(180deg, ${colors.backgroundGradientStart} 0%, ${colors.backgroundGradientMid} 40%, ${colors.backgroundGradientEnd} 100%)`,
         }}
       >
+        <div className="flex-1 min-w-0 flex flex-col p-4 overflow-auto">
+        {/* Centered main content */}
+        <div className="flex-1 flex items-center justify-center">
         <div className="w-full max-w-2xl mx-auto">
           {/* Logo & Title */}
           <div className="text-center mb-8">
@@ -342,49 +434,123 @@ export function ChatPanel({
                 </div>
 
                 <div className="flex items-center gap-2">
-                  {/* Language picker — drives both voice locale and
-                      the `user_language` field we send to chatbot-rag. */}
-                  <LanguagePicker value={language} onChange={onLanguageChange} compact />
+                  <Tip label="Language" position="top">
+                    <LanguagePicker value={language} onChange={onLanguageChange} compact />
+                  </Tip>
 
-                  {/* Mic button — toggles Web Speech API dictation in the
-                      selected language. Hidden when the browser has no
-                      SpeechRecognition support (Firefox, older Safari). */}
-                  {voiceSupported && (
+                  <Tip label={voiceSupported ? (listening ? 'Stop listening' : 'Voice input') : 'Not supported'} position="top">
                     <button
                       type="button"
-                      onClick={toggleVoice}
+                      onClick={voiceSupported ? toggleVoice : undefined}
                       aria-label={listening ? t('voice.stop') : t('voice.start')}
                       className="p-2 rounded-full transition-colors hover:bg-white/10"
                       style={{
                         color: listening ? colors.primary : colors.muted,
                         backgroundColor: listening ? `${colors.primary}20` : undefined,
+                        opacity: voiceSupported ? 1 : 0.35,
+                        cursor: voiceSupported ? 'pointer' : 'not-allowed',
                       }}
                     >
                       <Mic className={`h-5 w-5 ${listening ? 'animate-pulse' : ''}`} />
                     </button>
-                  )}
+                  </Tip>
                 </div>
               </div>
             </div>
 
-            {/* Example Queries - Replace action chips */}
-            <div className="flex flex-wrap gap-2 justify-center">
-              {exampleQueries.map((query, i) => (
-                <button
-                  key={i}
-                  onClick={() => handleActionClick(query)}
-                  className="px-4 py-2.5 rounded-full border transition-all text-sm hover:bg-white/5"
-                  style={{
-                    borderColor: colors.cardBorder,
-                    color: colors.foreground,
-                  }}
-                >
-                  {query}
-                </button>
-              ))}
-            </div>
+            {/* Scrolling suggestion ticker — same phase logic as the active chat footer */}
+            <SuggestionTicker onSelect={handleActionClick} phase={tickerPhase} />
           </div>
         </div>
+        </div>{/* end centered main content */}
+
+        {/* Lipid meter CTA card — pinned to bottom, induction phase only */}
+        {tickerPhase === 'induction' && (
+          <div className="w-full max-w-2xl mx-auto pb-4">
+            <a
+              href="https://www.meterbolic.com/pricing"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="no-underline block rounded-2xl border overflow-hidden transition-all hover:bg-white/5"
+              style={{ borderColor: colors.cardBorder, backgroundColor: colors.card }}
+            >
+              <div className="flex items-stretch">
+                {/* Left: text + CTA */}
+                <div className="flex-1 p-5 flex flex-col gap-3">
+                  <div>
+                    <p className="font-semibold text-sm leading-snug" style={{ color: colors.foreground }}>
+                      Measure what matters
+                    </p>
+                    <p className="text-xs mt-1.5 leading-relaxed" style={{ color: colors.muted }}>
+                      Lab-grade lipid meter. Biological Age Score at home. 20 test strips included — no clinic visit needed.
+                    </p>
+                  </div>
+                  <div
+                    className="self-start px-4 py-2 rounded-lg text-xs font-medium"
+                    style={{ backgroundColor: `${colors.primary}20`, color: colors.primary }}
+                  >
+                    Get the Meter →
+                  </div>
+                </div>
+
+                {/* Right: abstract visual */}
+                <div
+                  className="w-32 flex-shrink-0 flex items-center justify-center relative overflow-hidden"
+                  style={{ background: `linear-gradient(135deg, ${colors.primary}18 0%, ${colors.primary}08 100%)` }}
+                >
+                  <div
+                    className="absolute w-20 h-20 rounded-full blur-2xl opacity-40"
+                    style={{ backgroundColor: colors.primary }}
+                  />
+                  <svg viewBox="0 0 24 24" className="relative w-10 h-10 z-10" fill="currentColor" style={{ color: colors.primary }}>
+                    <path d="M12 2C12 2 5 10 5 15C5 19.4183 8.13401 23 12 23C15.866 23 19 19.4183 19 15C19 10 12 2 12 2Z" />
+                  </svg>
+                </div>
+              </div>
+            </a>
+          </div>
+        )}
+        </div>
+
+        <AnimatePresence initial={false}>
+          {isLibraryOpen && (
+            <>
+              <motion.div
+                key="lib-sep-idle"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.15 }}
+                className="w-4 h-full flex-shrink-0 flex items-center justify-center cursor-col-resize touch-none select-none group"
+                onPointerDown={onLibHandlePointerDown}
+                onPointerMove={onLibHandlePointerMove}
+                onPointerUp={onLibHandlePointerUp}
+              >
+                <div
+                  className="w-px h-full transition-colors group-hover:bg-white/30 group-active:bg-white/50"
+                  style={{ backgroundColor: `${colors.cardBorder}80` }}
+                />
+              </motion.div>
+              <motion.div
+                key="lib-panel-idle"
+                initial={{ width: 0, opacity: 0 }}
+                animate={{ width: `${libWidthPct}%`, opacity: 1 }}
+                exit={{ width: 0, opacity: 0 }}
+                transition={libIsDragging
+                  ? { duration: 0 }
+                  : { type: 'spring', stiffness: 400, damping: 38, mass: 0.8 }
+                }
+                className="h-full flex-shrink-0 overflow-hidden"
+                style={{ minWidth: 0 }}
+              >
+                <LibraryPanel
+                  onClose={closeLibrary}
+                  onAskMeO={(prompt) => { onSendMessage(undefined, prompt); }}
+                />
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>
       </div>
     );
   }
@@ -392,21 +558,19 @@ export function ChatPanel({
   // Active state - chat interface
   return (
     <div
-      className={cn('flex-1 flex flex-col h-full overflow-hidden', className)}
+      ref={libContainerRef}
+      className={cn('flex-1 h-full flex overflow-hidden', className)}
       style={{
         background: `linear-gradient(180deg, ${colors.backgroundGradientStart} 0%, ${colors.backgroundGradientMid} 40%, ${colors.backgroundGradientEnd} 100%)`,
       }}
     >
-      {/* Header.
-          pr-16 reserves space on the right for RightPanel's floating
-          toggle (fixed top-4 right-4), otherwise the "Limited Preview"
-          badge gets clipped by the panel icon on mobile.
-          paddingTop: env(safe-area-inset-top) pushes the header below
-          the iOS status bar when installed as a PWA. */}
+      <div className="flex-1 min-w-0 flex flex-col h-full overflow-hidden">
+
+      {/* Header — paddingTop pushes below the iOS status bar when installed as a PWA. */}
       <div
         className={cn(
-          'py-4 pr-16 border-b flex items-center gap-3',
-          isLeftPanelOpen ? 'pl-4 justify-between' : 'justify-end',
+          'py-4 px-4 border-b flex items-center gap-3',
+          isLeftPanelOpen ? 'justify-between' : 'justify-end',
         )}
         style={{
           borderColor: colors.cardBorder,
@@ -417,6 +581,26 @@ export function ChatPanel({
           <Logo size="small" onClick={onRefresh} vendor={vendor} />
         )}
         <div className="flex items-center gap-2 flex-shrink-0">
+          <Tip label="Library" position="bottom">
+            <button
+              onClick={openLibrary}
+              className="p-2 rounded-full transition-colors hover:bg-white/10"
+              style={{ color: isLibraryOpen ? colors.primary : colors.muted }}
+              aria-label="Open MeO Library"
+            >
+              <BookOpen className="h-4 w-4" />
+            </button>
+          </Tip>
+          <Tip label="Metabolic data" position="bottom">
+            <button
+              onClick={toggleRightPanel}
+              className="p-2 rounded-full transition-colors hover:bg-white/10"
+              style={{ color: isRightPanelOpen ? colors.primary : colors.muted }}
+              aria-label={isRightPanelOpen ? 'Close data panel' : 'Open data panel'}
+            >
+              <PanelRight className="h-4 w-4" />
+            </button>
+          </Tip>
           <div
             className="px-3 py-1.5 rounded-full text-xs font-medium border whitespace-nowrap"
             style={{
@@ -466,13 +650,6 @@ export function ChatPanel({
                   >
                     <ReactMarkdown
                       remarkPlugins={[remarkGfm]}
-                      // Tailwind's `prose` styles tables but leaves
-                      // borders near-invisible in dark mode. Explicit
-                      // component overrides give us a consistent look
-                      // regardless of the surrounding typography class:
-                      // rounded card, visible column separators, zebra
-                      // rows, bold header. Also wraps in overflow-x-auto
-                      // so wide tables don't clip on narrow panels.
                       components={{
                         table: ({ node, ...props }) => (
                           <div className="my-3 overflow-x-auto rounded-lg border" style={{ borderColor: colors.cardBorder }}>
@@ -513,7 +690,7 @@ export function ChatPanel({
                         ),
                       }}
                     >
-                      {msg.content}
+                      {stripPhaseTag(msg.content)}
                     </ReactMarkdown>
                   </div>
                 </div>
@@ -543,9 +720,11 @@ export function ChatPanel({
       {/* Footer Input */}
       <div className="p-4 border-t" style={{ borderColor: colors.cardBorder }}>
         <div className="max-w-3xl mx-auto">
+          <SuggestionTicker onSelect={(q) => onSendMessage(undefined, q)} phase={tickerPhase} />
           <form onSubmit={onSendMessage} className="relative">
             <textarea
               ref={textareaRef}
+              data-tour="chat-input"
               placeholder={t('chat.placeholder_followup')}
               dir={language === 'ar' ? 'rtl' : 'ltr'}
               className="w-full py-3 pl-4 pr-28 rounded-xl backdrop-blur border focus:outline-none focus:ring-2 resize-none overflow-hidden min-h-[48px] max-h-[200px]"
@@ -560,21 +739,25 @@ export function ChatPanel({
               rows={1}
             />
             <div className="absolute right-2 bottom-2 flex items-center gap-1">
-              <LanguagePicker value={language} onChange={onLanguageChange} compact />
-              {voiceSupported && (
+              <Tip label="Language" position="top">
+                <LanguagePicker value={language} onChange={onLanguageChange} compact />
+              </Tip>
+              <Tip label={voiceSupported ? (listening ? 'Stop listening' : 'Voice input') : 'Not supported'} position="top">
                 <button
                   type="button"
-                  onClick={toggleVoice}
+                  onClick={voiceSupported ? toggleVoice : undefined}
                   aria-label={listening ? t('voice.stop') : t('voice.start')}
                   className="h-10 w-10 flex items-center justify-center rounded-lg transition-colors hover:bg-white/10"
                   style={{
                     color: listening ? colors.primary : colors.muted,
                     backgroundColor: listening ? `${colors.primary}20` : undefined,
+                    opacity: voiceSupported ? 1 : 0.35,
+                    cursor: voiceSupported ? 'pointer' : 'not-allowed',
                   }}
                 >
                   <Mic className={`h-4 w-4 ${listening ? 'animate-pulse' : ''}`} />
                 </button>
-              )}
+              </Tip>
               <button
                 type="submit"
                 className="h-10 w-10 flex items-center justify-center rounded-lg transition-colors"
@@ -589,6 +772,47 @@ export function ChatPanel({
           </form>
         </div>
       </div>
+      </div>
+
+      <AnimatePresence initial={false}>
+        {isLibraryOpen && (
+          <>
+            <motion.div
+              key="lib-sep-active"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
+              className="w-4 h-full flex-shrink-0 flex items-center justify-center cursor-col-resize touch-none select-none group"
+              onPointerDown={onLibHandlePointerDown}
+              onPointerMove={onLibHandlePointerMove}
+              onPointerUp={onLibHandlePointerUp}
+            >
+              <div
+                className="w-px h-full transition-colors group-hover:bg-white/30 group-active:bg-white/50"
+                style={{ backgroundColor: `${colors.cardBorder}80` }}
+              />
+            </motion.div>
+            <motion.div
+              key="lib-panel-active"
+              initial={{ width: 0, opacity: 0 }}
+              animate={{ width: `${libWidthPct}%`, opacity: 1 }}
+              exit={{ width: 0, opacity: 0 }}
+              transition={libIsDragging
+                ? { duration: 0 }
+                : { type: 'spring', stiffness: 400, damping: 38, mass: 0.8 }
+              }
+              className="h-full flex-shrink-0 overflow-hidden"
+              style={{ minWidth: 0 }}
+            >
+              <LibraryPanel
+                onClose={closeLibrary}
+                onAskMeO={(prompt) => { onSendMessage(undefined, prompt); }}
+              />
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

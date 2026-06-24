@@ -5,7 +5,9 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
   ArrowLeft,
+  ArrowRight,
   Sparkles,
+  MessageSquare,
   Send,
   CheckCircle2,
   XCircle,
@@ -438,16 +440,37 @@ export default function PersonalizePage() {
 
           {success && (
             <div
-              className="mb-6 rounded-2xl p-4 border flex items-start gap-3"
+              className="mb-6 rounded-2xl p-6 border"
               style={{
-                background: `${colors.primary}15`,
-                borderColor: colors.primary + '40',
+                background: `${colors.primary}12`,
+                borderColor: colors.primary + '50',
               }}
             >
-              <CheckCircle2 className="h-5 w-5 shrink-0 mt-0.5" style={{ color: colors.primary }} />
-              <p className="text-sm" style={{ color: colors.foreground }}>
-                {success}
-              </p>
+              <div className="flex items-start gap-3 mb-5">
+                <div
+                  className="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
+                  style={{ background: `${colors.primary}25` }}
+                >
+                  <CheckCircle2 className="h-5 w-5" style={{ color: colors.primary }} />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold" style={{ color: colors.foreground }}>
+                    {success}
+                  </p>
+                  <p className="text-xs mt-1" style={{ color: colors.muted }}>
+                    Your measurements are saved. Start a new chat to ask MeO what they mean.
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => router.push('/?newChat=1')}
+                className="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-sm font-semibold transition-all hover:opacity-90 active:scale-[0.98]"
+                style={{ background: colors.primary, color: colors.primaryForeground }}
+              >
+                <MessageSquare className="h-4 w-4" />
+                Chat about my data
+                <ArrowRight className="h-4 w-4" />
+              </button>
             </div>
           )}
 

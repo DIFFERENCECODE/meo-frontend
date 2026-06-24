@@ -1,9 +1,10 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { useTheme } from '@/theme/ThemeProvider';
 import { getIdToken } from '@/app/lib/auth';
-import { Search, Users, ExternalLink, ChevronRight } from 'lucide-react';
+import { Search, Users, Sparkles, ChevronRight } from 'lucide-react';
 
 interface Patient {
   session_id: string;
@@ -131,7 +132,6 @@ export default function PatientsPage() {
   const [patients, setPatients] = useState<Patient[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
-  const [selected, setSelected] = useState<Patient | null>(null);
 
   useEffect(() => {
     const token = getIdToken();
@@ -202,10 +202,10 @@ export default function PatientsPage() {
             {filtered.map((p) => {
               const initials = (p.name || p.session_id).slice(0, 2).toUpperCase();
               return (
-                <button
+                <Link
                   key={p.session_id}
-                  onClick={() => setSelected(p)}
-                  className="w-full px-5 py-3.5 flex items-center gap-4 text-left transition-all hover:bg-white/5"
+                  href={`/clinician/patients/${p.session_id}`}
+                  className="flex items-center gap-4 px-5 py-3.5 transition-all hover:bg-white/5"
                 >
                   <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-xs font-bold"
                     style={{ background: `${colors.primary}25`, color: colors.primary }}>
@@ -223,16 +223,19 @@ export default function PatientsPage() {
                     style={{ background: `${colors.primary}18`, color: colors.primary }}>
                     {p.role}
                   </span>
-                  <span className="hidden sm:block text-xs flex-shrink-0" style={{ color: colors.muted }}>{p.vendor_id}</span>
+                  <div className="hidden sm:flex items-center gap-1.5 flex-shrink-0 text-xs"
+                    style={{ color: colors.muted }}>
+                    <Sparkles className="h-3 w-3" />
+                    Clinical AI
+                  </div>
                   <ChevronRight className="h-4 w-4 flex-shrink-0" style={{ color: colors.muted }} />
-                </button>
+                </Link>
               );
             })}
           </div>
         )}
       </div>
 
-      {selected && <PatientDrawer patient={selected} onClose={() => setSelected(null)} />}
     </div>
   );
 }
