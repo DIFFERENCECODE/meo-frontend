@@ -1,6 +1,14 @@
 const COGNITO_DOMAIN = process.env.NEXT_PUBLIC_COGNITO_DOMAIN!;
 const CLIENT_ID = process.env.NEXT_PUBLIC_COGNITO_CLIENT_ID!;
-const REDIRECT_URI = process.env.NEXT_PUBLIC_COGNITO_REDIRECT_URI!;
+
+// Always use the current origin so the bundle works on any domain without
+// a per-environment build. Falls back to the env var for SSR/test contexts
+// where window is unavailable.
+function getRedirectUri(): string {
+  if (typeof window !== 'undefined') return window.location.origin + '/';
+  return process.env.NEXT_PUBLIC_COGNITO_REDIRECT_URI || 'http://localhost:3000/';
+}
+const REDIRECT_URI = getRedirectUri();
 
 export function getLoginUrl(): string {
   const params = new URLSearchParams({
@@ -281,6 +289,23 @@ export function getEmailFromIdToken(idToken: string): string | null {
     if (parts.length !== 3) return null;
     const payload = JSON.parse(atob(parts[1]));
     return payload.email ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/** Decode JWT payload without verification (client-side only).
+ *  Returns the user's display name from standard OIDC claims,
+ *  falling back to email local-part if no name claims are present. */
+export function getNameFromIdToken(idToken: string): string | null {
+  try {
+    const parts = idToken.split('.');
+    if (parts.length !== 3) return null;
+    const p = JSON.parse(atob(parts[1]));
+    if (p.name) return p.name;
+    if (p.given_name || p.family_name) return [p.given_name, p.family_name].filter(Boolean).join(' ');
+    if (p.email) return p.email.split('@')[0];
+    return null;
   } catch {
     return null;
   }
