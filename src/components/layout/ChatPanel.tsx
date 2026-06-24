@@ -370,23 +370,27 @@ export function ChatPanel({
               <div className="flex items-center justify-between px-3 py-2">
                 <div className="flex items-center gap-1">
                   {/* Plus button */}
-                  <button
-                    className="p-2 rounded-full transition-colors hover:bg-white/10"
-                    style={{ color: colors.muted }}
-                  >
-                    <Plus className="h-5 w-5" />
-                  </button>
-                  
-                  {/* Tools dropdown */}
-                  <div className="relative">
+                  <Tip label="Not available yet" position="top">
                     <button
-                      onClick={() => setIsToolsOpen(!isToolsOpen)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors hover:bg-white/10"
+                      className="p-2 rounded-full transition-colors hover:bg-white/10"
                       style={{ color: colors.muted }}
                     >
-                      <SlidersHorizontal className="h-4 w-4" />
-                      <span className="text-sm">Tools</span>
+                      <Plus className="h-5 w-5" />
                     </button>
+                  </Tip>
+
+                  {/* Tools dropdown */}
+                  <div className="relative">
+                    <Tip label="Start guided Kraft / BAS test" position="top">
+                      <button
+                        onClick={() => setIsToolsOpen(!isToolsOpen)}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors hover:bg-white/10"
+                        style={{ color: colors.muted }}
+                      >
+                        <SlidersHorizontal className="h-4 w-4" />
+                        <span className="text-sm">Tools</span>
+                      </button>
+                    </Tip>
                     
                     <AnimatePresence>
                       {isToolsOpen && (
