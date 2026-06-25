@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { getValidIdToken } from '@/app/lib/auth';
 import {
   X,
   CheckCircle2,
@@ -369,7 +370,64 @@ function BASComplete({
   data: CollectedData;
 }) {
   const [copied, setCopied] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const today = new Date().toISOString().slice(0, 10);
+
+  // Auto-submit collected measurements to bang-api on mount
+  useEffect(() => {
+    const autoSubmit = async () => {
+      const token = await getValidIdToken();
+      if (!token) return;
+
+      const nowISO = new Date().toISOString();
+      const datePart = today.replace(/-/g, '');
+      const series = `${datePart}_protocol`;
+
+      const glucoseMmolValue = data.glucose
+        ? data.glucoseUnit === 'mgdl'
+          ? parseFloat(data.glucose) / 18
+          : parseFloat(data.glucose)
+        : null;
+
+      const items = [
+        data.age    ? { date: nowISO, measurementSeries: series, name: 'Age',              unit: 'years', value: parseFloat(data.age),    source: 'INCOMING', recordType: 'CLINICAL', subjectState: 'FASTING', canontimeofglucose: nowISO } : null,
+        data.sex    ? { date: nowISO, measurementSeries: series, name: 'Sex',              unit: data.sex === 'male' ? 'M' : 'F', value: data.sex === 'male' ? 1 : 0, source: 'INCOMING', recordType: 'CLINICAL', subjectState: 'FASTING', canontimeofglucose: nowISO } : null,
+        data.weight ? { date: nowISO, measurementSeries: series, name: 'Weight',           unit: 'kg',    value: parseFloat(data.weight),  source: 'INCOMING', recordType: 'CLINICAL', subjectState: 'FASTING', canontimeofglucose: nowISO } : null,
+        data.height ? { date: nowISO, measurementSeries: series, name: 'Height',           unit: 'cm',    value: parseFloat(data.height),  source: 'INCOMING', recordType: 'CLINICAL', subjectState: 'FASTING', canontimeofglucose: nowISO } : null,
+        data.waist  ? { date: nowISO, measurementSeries: series, name: 'Waist',            unit: 'cm',    value: parseFloat(data.waist),   source: 'INCOMING', recordType: 'CLINICAL', subjectState: 'FASTING', canontimeofglucose: nowISO } : null,
+        glucoseMmolValue !== null ? { date: nowISO, measurementSeries: series, name: 'Glucose',  unit: 'mMol', value: glucoseMmolValue,  source: 'INCOMING', recordType: 'CLINICAL', subjectState: 'FASTING', canontimeofglucose: nowISO } : null,
+        data.tc     ? { date: nowISO, measurementSeries: series, name: 'Total Cholesterol', unit: 'mMol', value: parseFloat(data.tc),    source: 'INCOMING', recordType: 'CLINICAL', subjectState: 'FASTING', canontimeofglucose: nowISO } : null,
+        data.hdl    ? { date: nowISO, measurementSeries: series, name: 'HDL',              unit: 'mMol', value: parseFloat(data.hdl),    source: 'INCOMING', recordType: 'CLINICAL', subjectState: 'FASTING', canontimeofglucose: nowISO } : null,
+        data.ldl    ? { date: nowISO, measurementSeries: series, name: 'LDL',              unit: 'mMol', value: parseFloat(data.ldl),    source: 'INCOMING', recordType: 'CLINICAL', subjectState: 'FASTING', canontimeofglucose: nowISO } : null,
+        data.tg     ? { date: nowISO, measurementSeries: series, name: 'Triglyceride',     unit: 'mMol', value: parseFloat(data.tg),    source: 'INCOMING', recordType: 'CLINICAL', subjectState: 'FASTING', canontimeofglucose: nowISO } : null,
+      ].filter(Boolean);
+
+      if (items.length === 0) return;
+
+      setSubmitStatus('submitting');
+      try {
+        const res = await fetch('/api/personalize/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ items }),
+        });
+        const json = await res.json();
+        if (!res.ok || json.error) {
+          setSubmitError(json.error || `Server returned ${res.status}`);
+          setSubmitStatus('error');
+        } else {
+          setSubmitStatus('success');
+        }
+      } catch (e: any) {
+        setSubmitError(e.message || 'Network error');
+        setSubmitStatus('error');
+      }
+    };
+    autoSubmit();
+  // Run once on mount
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Convert glucose to mmol if entered in mg/dL
   const glucoseMmol = data.glucose
@@ -431,10 +489,25 @@ function BASComplete({
             BAS Measurement Complete
           </p>
           <p className="text-xs mt-0.5 leading-relaxed" style={{ color: colors.muted }}>
-            Copy your data and paste it into Personalise to save your results.
+            {submitStatus === 'submitting' && 'Saving your results…'}
+            {submitStatus === 'success'    && 'Results saved to your profile.'}
+            {submitStatus === 'error'      && 'Auto-save failed — copy and paste below.'}
+            {submitStatus === 'idle'       && 'Copy your data and paste it into Personalise to save your results.'}
           </p>
         </div>
       </div>
+
+      {/* Auto-submit status banner */}
+      {submitStatus === 'success' && (
+        <div className="rounded-xl p-3 text-xs leading-relaxed" style={{ backgroundColor: `${colors.primary}15`, color: colors.primary, border: `1px solid ${colors.primary}30` }}>
+          Your measurements have been submitted automatically. Your BAS score will update shortly — you can close this panel and check your Analysis tab.
+        </div>
+      )}
+      {submitStatus === 'error' && (
+        <div className="rounded-xl p-3 text-xs leading-relaxed" style={{ backgroundColor: '#ef444420', color: '#ef4444', border: '1px solid #ef444440' }}>
+          Auto-save failed: {submitError}. Copy the block below and submit via Personalise.
+        </div>
+      )}
 
       {/* Paste-ready block */}
       <div
