@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useTheme } from '@/theme/ThemeProvider';
-import { getIdToken, clearIdToken, getLogoutUrl } from '@/app/lib/auth';
+import { getIdToken, clearIdToken, getLogoutUrl, getLoginUrl } from '@/app/lib/auth';
 import {
   LayoutDashboard, Users, ListChecks, CalendarDays,
   ArrowLeft, Stethoscope, Menu, X, LogOut,
@@ -24,23 +24,43 @@ export default function ClinicianLayout({ children }: { children: React.ReactNod
   const router = useRouter();
   const [authorized, setAuthorized] = useState(false);
   const [checking, setChecking] = useState(true);
+  const [denied, setDenied] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   useEffect(() => {
     const token = getIdToken();
-    if (!token) { router.replace('/'); return; }
+    // No token on this origin -> send to Cognito login (origin-aware redirect).
+    if (!token) { window.location.assign(getLoginUrl()); return; }
     fetch('/api/profile', { headers: { Authorization: `Bearer ${token}` } })
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
         if (!data || (data.role !== 'clinician' && data.role !== 'admin')) {
-          router.replace('/');
+          setDenied(true);            // signed in but not a clinician — show notice (don't loop)
           return;
         }
         setAuthorized(true);
       })
-      .catch(() => router.replace('/'))
+      .catch(() => setDenied(true))
       .finally(() => setChecking(false));
-  }, [router]);
+  }, []);
+
+  if (denied) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: colors.background }}>
+        <div className="text-center space-y-4 max-w-sm px-6">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full" style={{ background: `${colors.primary}20` }}>
+            <Stethoscope className="h-6 w-6" style={{ color: colors.primary }} />
+          </div>
+          <p className="text-base font-semibold" style={{ color: colors.foreground }}>No clinician access</p>
+          <p className="text-sm" style={{ color: colors.muted }}>This account isn’t registered as a clinician. Register below, or sign in with a clinician account.</p>
+          <div className="flex gap-2 justify-center">
+            <a href="/register" className="px-4 py-2 rounded-lg text-sm font-semibold" style={{ background: colors.primary, color: colors.primaryForeground }}>Register</a>
+            <button onClick={() => { clearIdToken(); window.location.assign(getLogoutUrl()); }} className="px-4 py-2 rounded-lg text-sm font-semibold border" style={{ borderColor: colors.cardBorder, color: colors.foreground }}>Switch account</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (checking || !authorized) {
     return (

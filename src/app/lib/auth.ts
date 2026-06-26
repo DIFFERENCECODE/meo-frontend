@@ -1,13 +1,19 @@
 const COGNITO_DOMAIN = process.env.NEXT_PUBLIC_COGNITO_DOMAIN!;
 const CLIENT_ID = process.env.NEXT_PUBLIC_COGNITO_CLIENT_ID!;
-const REDIRECT_URI = process.env.NEXT_PUBLIC_COGNITO_REDIRECT_URI!;
+const ENV_REDIRECT_URI = process.env.NEXT_PUBLIC_COGNITO_REDIRECT_URI!;
+// Origin-aware redirect so Cognito login works on ANY host (app.* and clinician.*),
+// not just the build-time env value. Must match a registered Cognito callback URL.
+function redirectUri(): string {
+  if (typeof window !== 'undefined') return window.location.origin;
+  return ENV_REDIRECT_URI;
+}
 
 export function getLoginUrl(): string {
   const params = new URLSearchParams({
     client_id: CLIENT_ID,
     response_type: 'code',
     scope: 'openid email profile',
-    redirect_uri: REDIRECT_URI,
+    redirect_uri: redirectUri(),
   });
   return `https://${COGNITO_DOMAIN}/login?${params.toString()}`;
 }
@@ -17,7 +23,7 @@ export function getGoogleLoginUrl(): string {
     client_id: CLIENT_ID,
     response_type: 'code',
     scope: 'openid email profile',
-    redirect_uri: REDIRECT_URI,
+    redirect_uri: redirectUri(),
     identity_provider: 'Google',
   });
   return `https://${COGNITO_DOMAIN}/oauth2/authorize?${params.toString()}`;
@@ -34,7 +40,7 @@ export function getAppleLoginUrl(): string {
     client_id: CLIENT_ID,
     response_type: 'code',
     scope: 'openid email profile',
-    redirect_uri: REDIRECT_URI,
+    redirect_uri: redirectUri(),
     identity_provider: 'SignInWithApple',
   });
   return `https://${COGNITO_DOMAIN}/oauth2/authorize?${params.toString()}`;
@@ -46,7 +52,7 @@ export async function exchangeCodeForTokens(code: string) {
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ code }),
+    body: JSON.stringify({ code, redirect_uri: redirectUri() }),
   });
 
   if (!res.ok) {
@@ -81,7 +87,7 @@ export function getForgotPasswordUrl(): string {
 export function getLogoutUrl(): string {
   const params = new URLSearchParams({
     client_id: CLIENT_ID,
-    logout_uri: REDIRECT_URI,
+    logout_uri: redirectUri(),
   });
   return `https://${COGNITO_DOMAIN}/logout?${params.toString()}`;
 }

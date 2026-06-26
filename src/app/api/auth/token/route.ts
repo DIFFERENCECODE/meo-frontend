@@ -8,7 +8,7 @@ const REDIRECT_URI = process.env.NEXT_PUBLIC_COGNITO_REDIRECT_URI!;
 export async function POST(request: NextRequest) {
   try {
     const json = await request.json();
-    const { code, refresh_token } = json;
+    const { code, refresh_token, redirect_uri } = json;
 
     if (!code && !refresh_token) {
       return NextResponse.json({ error: 'Missing code or refresh_token' }, { status: 400 });
@@ -28,7 +28,10 @@ export async function POST(request: NextRequest) {
       body = new URLSearchParams({
         grant_type: 'authorization_code',
         code,
-        redirect_uri: REDIRECT_URI,
+        // Must match the redirect_uri used in the authorize request. The client
+        // sends its current origin so this works on app.* and clinician.* alike.
+        // Cognito still validates it against the app client's registered callbacks.
+        redirect_uri: redirect_uri || REDIRECT_URI,
         client_id: CLIENT_ID,
       });
     }
