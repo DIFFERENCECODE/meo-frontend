@@ -61,7 +61,7 @@ export function ThreePanelLayout({
     viewMode === 'solution' ||
     mode === 'practitioner';
 
-  const isMobile = useIsMobile();
+  const isMobile = useIsMobile(1024);
   // On mobile there's no room for a side-by-side panel, so we don't auto-open it
   // for practitioner mode — it appears as a full-screen overlay only when the user
   // explicitly opens it or when there's analysis/solution content to show.
