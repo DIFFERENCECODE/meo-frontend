@@ -120,6 +120,19 @@ export function LeftPanel({
   const [railOverflow, setRailOverflow] = useState<'hidden' | 'visible'>('visible');
 
   return (
+    <>
+      {/* On phones the collapsed icon rail is hidden (it ate content width), so
+          show a floating menu button instead to open the drawer. */}
+      {!isLeftPanelOpen && (
+        <button
+          onClick={toggleLeftPanel}
+          className="md:hidden fixed top-3 left-3 z-30 p-2.5 rounded-lg shadow-md"
+          style={{ backgroundColor: colors.background, border: `1px solid ${colors.cardBorder}40` }}
+          aria-label="Open menu"
+        >
+          <Menu className="h-5 w-5" style={{ color: colors.foreground }} />
+        </button>
+      )}
     <AnimatePresence mode="wait" initial={false}>
       {isLeftPanelOpen ? (
         // ── Expanded panel ─────────────────────────────────────────────────
@@ -423,7 +436,7 @@ export function LeftPanel({
           onAnimationStart={() => setRailOverflow('hidden')}
           onAnimationComplete={() => setRailOverflow('visible')}
           className={cn(
-            'h-screen flex flex-col items-center z-50',
+            'h-screen hidden md:flex flex-col items-center z-50',
             'fixed md:relative left-0 top-0',
             railOverflow === 'hidden' ? 'overflow-hidden' : 'overflow-visible',
             className,
@@ -516,6 +529,7 @@ export function LeftPanel({
         </motion.aside>
       )}
     </AnimatePresence>
+    </>
   );
 }
 

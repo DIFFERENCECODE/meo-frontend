@@ -90,6 +90,11 @@ export function ThemeProvider({
     if (savedColor === 'light' || savedColor === 'dark') {
       setColorModeState(savedColor);
     }
+    // On phones, start with the left panel collapsed so it doesn't cover the
+    // content on load (it opens as a drawer via the floating menu button).
+    if (typeof window !== 'undefined' && window.matchMedia('(max-width: 767px)').matches) {
+      setLeftPanelOpen(false);
+    }
     setMounted(true);
   }, []);
 
