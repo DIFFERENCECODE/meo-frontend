@@ -120,12 +120,14 @@ export function AnalysisContent({ graphData: graphDataProp }: AnalysisContentPro
         if (!res.ok || cancelled) return;
         const data = await res.json();
 
-        // Build a deduped (time, analyte) → value map preferring canonical units.
-        type Row = { time: string; name: string; unit: string; value: number };
+        // Build a deduped (time, analyte, series) → value map preferring canonical units.
+        type Row = { time: string; name: string; unit: string; value: number; measurementSeries?: string };
         const rawMeasurements: Row[] = Array.isArray(data?.measurements) ? data.measurements : [];
         const byKey = new Map<string, Row>();
         for (const m of rawMeasurements) {
-          const key = `${m.time}|${m.name}`;
+          // Dedupe key includes series so rows from different series with the
+          // same timestamp don't clobber each other.
+          const key = `${m.measurementSeries ?? ''}|${m.time}|${m.name}`;
           const existing = byKey.get(key);
           const canonical = CANONICAL_UNITS[m.name];
           const isCanonical = canonical ? canonical.includes(m.unit) : true;
@@ -138,32 +140,75 @@ export function AnalysisContent({ graphData: graphDataProp }: AnalysisContentPro
         }
         const deduped = Array.from(byKey.values());
 
-        // Pair glucose/insulin into chart points by time. Sort by time
-        // ascending so the first point is the baseline reading.
-        const glucoseRows = deduped
-          .filter((m) => m.name === 'Glucose')
-          .sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime());
-        const insulinRows = deduped
-          .filter((m) => m.name === 'Insulin')
-          .sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime());
+        // Group by measurementSeries so we can find the best OGTT series.
+        // A "real" Kraft series has BOTH Glucose and Insulin at 3+ timepoints
+        // that are within 10 minutes of each other — i.e. it's a proper OGTT,
+        // not a one-off fasting BAS reading.
+        const bySeries = new Map<string, Row[]>();
+        for (const m of deduped) {
+          if (m.name !== 'Glucose' && m.name !== 'Insulin') continue;
+          const s = m.measurementSeries ?? '__none__';
+          if (!bySeries.has(s)) bySeries.set(s, []);
+          bySeries.get(s)!.push(m);
+        }
 
-        // Use whichever series has more points as the time axis;
-        // align the other series by nearest timestamp.
+        let bestSeries: string | null = null;
+        let bestPairs = 0;
+        for (const [series, rows] of bySeries) {
+          const gRows = rows.filter((r) => r.name === 'Glucose').sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime());
+          const iRows = rows.filter((r) => r.name === 'Insulin').sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime());
+          // Count timepoints that have both glucose and insulin within 10 min.
+          let pairs = 0;
+          for (const g of gRows) {
+            const gt = new Date(g.time).getTime();
+            const hasInsulin = iRows.some((i) => Math.abs(new Date(i.time).getTime() - gt) <= 10 * 60000);
+            if (hasInsulin) pairs++;
+          }
+          if (pairs > bestPairs) { bestPairs = pairs; bestSeries = series; }
+        }
+
+        // Fall back to any series with the most glucose points if no paired series found.
+        if (!bestSeries) {
+          let mostG = 0;
+          for (const [series, rows] of bySeries) {
+            const gCount = rows.filter((r) => r.name === 'Glucose').length;
+            if (gCount > mostG) { mostG = gCount; bestSeries = series; }
+          }
+        }
+
+        const rawSeriesRows = bestSeries ? (bySeries.get(bestSeries) ?? []) : deduped.filter((m) => m.name === 'Glucose' || m.name === 'Insulin');
+
+        // Clamp to first 130-minute OGTT window from the earliest reading in
+        // the series. This strips out BAS fasting readings done hours later on
+        // the same day that would otherwise appear as "+733m" etc. on the chart.
+        const seriesT0 = rawSeriesRows.length > 0
+          ? Math.min(...rawSeriesRows.map((r) => new Date(r.time).getTime()))
+          : 0;
+        const OGTT_WINDOW_MS = 130 * 60 * 1000; // 130 min — 10 min buffer past T120
+        const seriesRows = rawSeriesRows.filter((r) => new Date(r.time).getTime() - seriesT0 <= OGTT_WINDOW_MS);
+
+        const glucoseRows = seriesRows.filter((m) => m.name === 'Glucose').sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime());
+        const insulinRows = seriesRows.filter((m) => m.name === 'Insulin').sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime());
+
+        // Use whichever series has more timepoints as the axis; pair the other by nearest timestamp.
         const baseRows = glucoseRows.length >= insulinRows.length ? glucoseRows : insulinRows;
         const otherRows = baseRows === glucoseRows ? insulinRows : glucoseRows;
         const baseIsGlucose = baseRows === glucoseRows;
+        const t0ms = baseRows.length > 0 ? new Date(baseRows[0].time).getTime() : 0;
 
-        const points: GraphDataPoint[] = baseRows.map((r, i) => {
-          const t = new Date(r.time).getTime();
+        const points: GraphDataPoint[] = baseRows.map((r) => {
+          const tMs = new Date(r.time).getTime();
+          const minutesFromT0 = Math.round((tMs - t0ms) / 60000);
+          const label = minutesFromT0 === 0 ? '0' : `+${minutesFromT0}`;
           const matched = otherRows.reduce<{ row: Row | null; diff: number }>(
             (best, candidate) => {
-              const diff = Math.abs(new Date(candidate.time).getTime() - t);
+              const diff = Math.abs(new Date(candidate.time).getTime() - tMs);
               return !best.row || diff < best.diff ? { row: candidate, diff } : best;
             },
             { row: null, diff: Infinity },
           );
           return {
-            time: i === 0 ? '0hr' : `${(i * 0.5).toFixed(1)}hr`,
+            time: label,
             glucose: baseIsGlucose ? r.value : matched.row?.value ?? 0,
             insulin: baseIsGlucose ? matched.row?.value ?? 0 : r.value,
           };
