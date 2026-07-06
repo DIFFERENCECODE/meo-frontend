@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { useTheme } from '@/theme/ThemeProvider';
 import { motion, AnimatePresence } from 'motion/react';
+import { Layers, Droplet, Clock, ClipboardList, Info, Hand, TrendingDown, TrendingUp} from 'lucide-react';
 
 // ── State constants (mirror protocol_state_machine.py) ────────────────────────
 export const BAS_STATES = [
@@ -36,17 +37,17 @@ export type BASState = typeof BAS_STATES[number];
 export type KraftState = typeof KRAFT_STATES[number];
 
 const BAS_STEPS = [
-  { id: 'bas_glucose_reading',   label: 'Glucose',      icon: Droplets },
-  { id: 'bas_lipid_reading',     label: 'Lipids',       icon: FlaskConical },
-  { id: 'bas_anthropometrics',   label: 'Measurements', icon: Ruler },
-  { id: 'bas_complete',          label: 'Score',        icon: Activity },
+  { id: 'bas_glucose_reading', label: 'Glucose', icon: Droplets },
+  { id: 'bas_lipid_reading', label: 'Lipids', icon: FlaskConical },
+  { id: 'bas_anthropometrics', label: 'Measurements', icon: Ruler },
+  { id: 'bas_complete', label: 'Score', icon: Activity },
 ];
 
 const KRAFT_STEPS = [
-  { id: 'fasting',       label: 'Fasting',     icon: Droplets },
+  { id: 'fasting', label: 'Fasting', icon: Droplets },
   { id: 'drink_consumed', label: 'Glucose drink', icon: FlaskConical },
-  { id: 'post_drink',   label: 'Post-drink',  icon: Activity },
-  { id: 'complete',     label: 'Complete',    icon: CheckCircle2 },
+  { id: 'post_drink', label: 'Post-drink', icon: Activity },
+  { id: 'complete', label: 'Complete', icon: CheckCircle2 },
 ];
 
 function isKraftState(state: string): boolean {
@@ -230,9 +231,9 @@ function LipidReading({
 
   const fields = [
     { label: 'Total Cholesterol (TC)', hint: 'normal < 5.2 mmol/L', value: tc, set: setTc, optional: true },
-    { label: 'Triglycerides (TG)',     hint: 'normal < 1.7 mmol/L',  value: tg, set: setTg, optional: false },
-    { label: 'HDL Cholesterol',        hint: 'men > 1.0, women > 1.3 mmol/L', value: hdl, set: setHdl, optional: false },
-    { label: 'LDL Cholesterol',        hint: 'normal < 3.0 mmol/L',  value: ldl, set: setLdl, optional: false },
+    { label: 'Triglycerides (TG)', hint: 'normal < 1.7 mmol/L', value: tg, set: setTg, optional: false },
+    { label: 'HDL Cholesterol', hint: 'men > 1.0, women > 1.3 mmol/L', value: hdl, set: setHdl, optional: false },
+    { label: 'LDL Cholesterol', hint: 'normal < 3.0 mmol/L', value: ldl, set: setLdl, optional: false },
   ];
 
   return (
@@ -241,7 +242,7 @@ function LipidReading({
 
       {fields.map((f) => (
         <div key={f.label}>
-          <label className="text-xs font-medium mb-1 block" style={{ color: colors.muted }}>
+          <label className="text-xs font-large mb-1 block" style={{ color: colors.muted }}>
             {f.label}
             {f.optional && <span className="ml-1 opacity-60">(if available)</span>}
           </label>
@@ -250,11 +251,11 @@ function LipidReading({
             step="0.01"
             value={f.value}
             onChange={(e) => f.set(e.target.value)}
-            placeholder="0.00"
+            placeholder="0.00 mmol/L"
             className="w-full px-4 py-2.5 rounded-xl text-sm border bg-transparent focus:outline-none"
             style={{ borderColor: colors.cardBorder, color: colors.foreground }}
           />
-          <p className="text-xs mt-0.5" style={{ color: `${colors.muted}80` }}>{f.hint}</p>
+          <p className="text-xs mt-1" style={{ color: '#e8f1ef' }}>*{f.hint}</p>
         </div>
       ))}
 
@@ -339,7 +340,7 @@ function Anthropometrics({
           placeholder="Measure at navel level, breathe out naturally"
           className="w-full px-3 py-2.5 rounded-xl text-sm border bg-transparent focus:outline-none"
           style={{ borderColor: colors.cardBorder, color: colors.foreground }} />
-        <p className="text-xs mt-1" style={{ color: `${colors.muted}80` }}>
+        <p className="text-xs mt-1" style={{ color: colors.foreground }}>
           Tape around bare abdomen at navel height. Don't pull tight.
         </p>
       </div>
@@ -382,20 +383,20 @@ function BASComplete({
     `Date: ${today}`,
     '',
     'DEMOGRAPHICS',
-    data.age   ? `Age ${data.age} years` : '',
-    data.sex   ? `Sex ${data.sex.charAt(0).toUpperCase() + data.sex.slice(1)}` : '',
+    data.age ? `Age ${data.age} years` : '',
+    data.sex ? `Sex ${data.sex.charAt(0).toUpperCase() + data.sex.slice(1)}` : '',
     '',
     'BIOMETRICS',
     data.weight ? `Weight ${data.weight} kg` : '',
     data.height ? `Height ${data.height} cm` : '',
-    data.waist  ? `Waist ${data.waist} cm` : '',
+    data.waist ? `Waist ${data.waist} cm` : '',
     '',
     'FASTING',
-    glucoseMmol          ? `Glucose ${glucoseMmol}` : '',
-    data.tc              ? `Total Cholesterol ${data.tc}` : '',
-    data.hdl             ? `HDL ${data.hdl}` : '',
-    data.ldl             ? `LDL ${data.ldl}` : '',
-    data.tg              ? `Triglycerides ${data.tg}` : '',
+    glucoseMmol ? `Glucose ${glucoseMmol}` : '',
+    data.tc ? `Total Cholesterol ${data.tc}` : '',
+    data.hdl ? `HDL ${data.hdl}` : '',
+    data.ldl ? `LDL ${data.ldl}` : '',
+    data.tg ? `Triglycerides ${data.tg}` : '',
   ].filter((l) => l !== undefined).join('\n');
 
   const handleCopy = async () => {
@@ -624,68 +625,199 @@ const GUIDANCE: Record<string, { title: string; body: React.ReactNode }> = {
     body: (
       <>
         <p>Your glucose and lipid readings are only meaningful in a fasted state. Eating raises blood sugar and triglycerides for hours, which would make your BAS inaccurate.</p>
-        <p className="mt-3"><strong>What counts as fasting:</strong> Water is fine. Plain medication is fine. Everything else — food, coffee, juice, supplements — breaks the fast.</p>
+
+        <div className="flex gap-3 p-3 rounded-lg border border-emerald-400/20 bg-emerald-400/10">
+          <span className="shrink-0 w-7 h-7 rounded-full bg-white/10 flex items-center justify-center">
+            <Droplet size={15} className="text-emerald-400" />
+          </span>
+          <span className="text-sm pt-1.5">
+            <strong>What counts as fasting:</strong> Water is fine. Plain medication is fine. Everything else — food, coffee, juice, supplements — breaks the fast.
+          </span>
+        </div>
       </>
+
     ),
   },
+
+
   bas_glucose_reading: {
     title: 'Step 1 — Fasting Blood Glucose',
     body: (
       <>
-        <ol className="space-y-2 list-decimal list-inside">
-          <li>Wash and dry your hands</li>
-          <li>Insert the glucose strip into your meter</li>
-          <li>Prick the side of your fingertip with the lancet</li>
-          <li>Apply a small drop of blood to the strip</li>
-          <li>Wait for the reading — note the number</li>
+        <p className="text-xs text-white/40 mb-2">Setup</p>
+
+        <ol className="space-y-1">
+          <li className="flex gap-3 py-1.5">
+            <span className="shrink-0 w-7 h-7 rounded-full bg-white/5 flex items-center justify-center">
+              <Hand size={15} className="text-white/60" />
+            </span>
+            <span className="text-sm text-white/70 pt-1.5">Wash and dry your hands</span>
+          </li>
+
+          <li className="flex gap-3 py-1.5">
+            <span className="shrink-0 w-7 h-7 rounded-full bg-white/5 flex items-center justify-center">
+              <Layers size={15} className="text-white/60" />
+            </span>
+            <span className="text-sm text-white/70 pt-1.5">Insert the glucose strip into your meter</span>
+          </li>
+
+          <li className="flex gap-3 py-1.5">
+            <span className="shrink-0 w-7 h-7 rounded-full bg-white/5 flex items-center justify-center">
+              <Droplet size={15} className="text-white/60" />
+            </span>
+            <span className="text-sm text-white/70 pt-1.5">Prick the side of your fingertip with the lancet</span>
+          </li>
+
+          <li className="flex gap-3 py-1.5">
+            <span className="shrink-0 w-7 h-7 rounded-full bg-white/5 flex items-center justify-center">
+              <Droplets size={15} className="text-white/60" />
+            </span>
+            <span className="text-sm text-white/70 pt-1.5">Apply a small drop of blood to the strip</span>
+          </li>
         </ol>
-        <div className="mt-4 p-3 rounded-lg text-xs" style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}>
-          <strong>Normal fasting range:</strong> 3.9–5.5 mmol/L<br />
-          Above 5.6 mmol/L suggests impaired fasting glucose.
+
+        <div className="h-px bg-white/10 my-4" />
+
+        <p className="text-xs font-medium text-emerald-400 mb-2">Your turn — read the result</p>
+
+        <div className="flex gap-3 p-3 rounded-lg border border-emerald-400/20 bg-emerald-400/10">
+          <span className="shrink-0 w-7 h-7 rounded-full bg-white/10 flex items-center justify-center">
+            <Clock size={15} className="text-emerald-400" />
+          </span>
+          <span className="text-sm pt-1.5">Wait for the reading — note the number before entering it</span>
+        </div>
+
+        <div className="mt-3 flex gap-2 p-3 rounded-lg text-xs text-white/60" style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}>
+          <Info size={14} className="shrink-0 mt-0.5 text-white/40" />
+          <span>
+            <strong className="text-white/70">Normal fasting range:</strong> 3.9–5.5 mmol/L<br />
+            Above 5.6 mmol/L suggests impaired fasting glucose.
+          </span>
         </div>
       </>
     ),
   },
+
+
   bas_lipid_reading: {
     title: 'Step 2 — Lipid Panel',
     body: (
       <>
-        <ol className="space-y-2 list-decimal list-inside">
-          <li>Insert the lipid test strip into your meter</li>
-          <li>Prick your finger again (or reuse the same drop within 30 seconds)</li>
-          <li>Apply blood to the strip</li>
-          <li>Do not move the meter — wait 3 minutes</li>
-          <li>The meter will show TG, HDL, LDL in sequence — write all values down before entering</li>
+        <p className="text-xs text-white/40 mb-2">Setup</p>
+
+        <ol className="space-y-1">
+          <li className="flex gap-3 py-1.5">
+            <span className="shrink-0 w-7 h-7 rounded-full bg-white/5 flex items-center justify-center">
+              <Layers size={15} className="text-white/60" />
+            </span>
+            <span className="text-sm text-white/70 pt-1.5">Insert the lipid test strip into your meter</span>
+          </li>
+
+          <li className="flex gap-3 py-1.5">
+            <span className="shrink-0 w-7 h-7 rounded-full bg-white/5 flex items-center justify-center">
+              <Droplet size={15} className="text-white/60" />
+            </span>
+            <span className="text-sm text-white/70 pt-1.5">Prick your finger again (or reuse the same drop within 30 seconds)</span>
+          </li>
+
+          <li className="flex gap-3 py-1.5">
+            <span className="shrink-0 w-7 h-7 rounded-full bg-white/5 flex items-center justify-center">
+              <Droplets size={15} className="text-white/60" />
+            </span>
+            <span className="text-sm text-white/70 pt-1.5">Apply blood to the strip</span>
+          </li>
+
+          <li className="flex gap-3 py-1.5">
+            <span className="shrink-0 w-7 h-7 rounded-full bg-white/5 flex items-center justify-center">
+              <Clock size={15} className="text-white/60" />
+            </span>
+            <span className="text-sm text-white/70 pt-1.5">
+              Do not move the meter — <b>wait 3 minutes</b>
+            </span>
+          </li>
         </ol>
-        <div className="mt-4 p-3 rounded-lg text-xs" style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}>
-          If your meter also shows Total Cholesterol (TC), enter it too — it improves accuracy.
+
+        <div className="h-px bg-white/10 my-4" />
+
+        <p className="text-xs font-medium text-emerald-400 mb-2">Your turn — enter the results</p>
+
+        <div className="flex gap-3 p-3 rounded-lg border border-emerald-400/20 bg-emerald-400/10">
+          <span className="shrink-0 w-7 h-7 rounded-full bg-white/10 flex items-center justify-center">
+            <ClipboardList size={15} className="text-emerald-400" />
+          </span>
+          <span className="text-sm pt-1.5">
+            The meter will show TG, HDL, LDL in sequence — write all values down before entering
+          </span>
+        </div>
+
+        <div className="mt-3 flex gap-2 p-3 rounded-lg text-xs text-white/60" style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}>
+          <Info size={14} className="shrink-0 mt-0.5 text-white/40" />
+          <span>If your meter also shows Total Cholesterol (TC), enter it too — it improves accuracy.</span>
         </div>
       </>
     ),
   },
   bas_anthropometrics: {
-    title: 'Step 3 — Body Measurements',
-    body: (
-      <>
-        <p className="font-medium text-sm mb-2">How to measure your waist</p>
-        <p>Stand relaxed. Wrap a tape measure around your bare abdomen at navel height. Breathe out naturally — don't hold your breath or pull the tape tight. Read the number.</p>
-        <p className="mt-3">Height and weight can be from a recent measurement if you don't have scales handy.</p>
-      </>
-    ),
-  },
-  bas_complete: {
-    title: 'Your Results',
-    body: (
-      <>
-        <p>Your BAS is a composite score combining fasting glucose, your lipid panel, and an estimate of visceral fat from your measurements.</p>
-        <ul className="mt-3 space-y-2">
-          <li><strong>BAS lower than your age</strong> — metabolically younger than your years</li>
-          <li><strong>BAS higher than your age</strong> — room to improve; MeO will explain the levers</li>
-        </ul>
-        <p className="mt-3">Copy your data and paste it into Personalise to store it permanently and unlock your Analysis tab.</p>
-      </>
-    ),
-  },
+  title: 'Step 3 — Body Measurements',
+  body: (
+    <>
+      <div className="flex gap-3 p-3 rounded-xl bg-white/5">
+        <span className="shrink-0 w-9 h-9 rounded-full bg-emerald-400/10 flex items-center justify-center">
+          <Ruler size={18} className="text-emerald-400" />
+        </span>
+        <div>
+          <p className="text-sm font-medium mb-1.5">How to measure your waist</p>
+          <p className="text-sm text-white/70 leading-relaxed">
+            Stand relaxed. Wrap a tape measure around your bare abdomen at navel height.
+            Breathe out naturally — don't hold your breath or pull the tape tight. Read the number.
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-3 flex gap-2.5 pl-3 border-l-2 border-white/15">
+        <Info size={14} className="shrink-0 mt-0.5 text-white/40" />
+        <p className="text-xs text-white/60">
+          Height and weight can be from a recent measurement if you don't have scales handy.
+        </p>
+      </div>
+    </>
+  ),
+},
+
+
+bas_complete: {
+  title: 'Your Results',
+  body: (
+    <>
+      <p className="text-sm text-white/70 leading-relaxed">
+        Your BAS is a composite score combining fasting glucose, your lipid panel, and an estimate of visceral fat from your measurements.
+      </p>
+
+      <div className="grid grid-cols-2 gap-2.5 mt-4">
+        <div className="p-3 rounded-lg bg-emerald-400/10 border border-emerald-400/20">
+          <TrendingDown size={18} className="text-emerald-400" />
+          <p className="text-[13px] font-medium mt-2 mb-1 text-emerald-400">BAS lower than your age</p>
+          <p className="text-xs text-white/60">Metabolically younger than your years</p>
+        </div>
+
+        <div className="p-3 rounded-lg bg-amber-400/10 border border-amber-400/20">
+          <TrendingUp size={18} className="text-amber-400" />
+          <p className="text-[13px] font-medium mt-2 mb-1 text-amber-400">BAS higher than your age</p>
+          <p className="text-xs text-white/60">Room to improve — MeO will explain the levers</p>
+        </div>
+      </div>
+
+      <div className="mt-4 flex gap-3 p-3 rounded-lg bg-emerald-400/10 border border-emerald-400/20">
+        <span className="shrink-0 w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
+          <Copy size={15} className="text-emerald-400" />
+        </span>
+        <span className="text-sm pt-1.5">
+          Copy your data and paste it into Personalise to store it permanently and unlock your Analysis tab
+        </span>
+      </div>
+    </>
+  ),
+},
 };
 
 // ── Main ProtocolPanel ────────────────────────────────────────────────────────

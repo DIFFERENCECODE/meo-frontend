@@ -34,14 +34,61 @@ export async function POST(request: NextRequest) {
     ...(authHeader ? { Authorization: authHeader } : {}),
   };
 
+  let upstream: Response | null = null;
+
   // --- Attempt native SSE stream first ---
-  const upstream = await fetch(streamUrl, {
-    method: 'POST',
-    headers: { ...commonHeaders, Accept: 'text/event-stream' },
-    body,
-    // @ts-expect-error — Next.js extends fetch with `duplex` for streaming bodies
-    duplex: 'half',
-  });
+  try {
+    upstream = await fetch(streamUrl, {
+      method: 'POST',
+      headers: { ...commonHeaders, Accept: 'text/event-stream' },
+      body,
+      // @ts-expect-error — Next.js extends fetch with `duplex` for streaming bodies
+      duplex: 'half',
+    });
+  } catch (error) {
+    console.error('[Stream Proxy] Stream connection failed:', error);
+  }
+
+  if (!upstream) {
+    try {
+      const fallback = await fetch(chatUrl, {
+        method: 'POST',
+        headers: commonHeaders,
+        body,
+      });
+
+      if (!fallback.ok) {
+        const text = await fallback.text().catch(() => '');
+        return new Response(
+          JSON.stringify({ error: `Backend error: ${fallback.status}`, detail: text }),
+          { status: fallback.status || 500, headers: { 'Content-Type': 'application/json' } },
+        );
+      }
+
+      const json = await fallback.json() as {
+        response: string;
+        mode?: string;
+        steps?: unknown[];
+        retrieved_sources?: unknown[];
+      };
+
+      const chunks = [
+        sseEvent({ phase: 'content', delta: json.response ?? '' }),
+        sseEvent({ phase: 'done', mode: json.mode ?? 'response', steps: json.steps ?? [] }),
+      ];
+
+      return new Response(chunks.join(''), { status: 200, headers: SSE_HEADERS });
+    } catch (error) {
+      console.error('[Stream Proxy] Fallback request failed:', error);
+      return new Response(
+        JSON.stringify({
+          error: 'Backend unavailable',
+          detail: 'Unable to reach the chat backend. Set MEO_API_URL or start the backend service.',
+        }),
+        { status: 503, headers: { 'Content-Type': 'application/json' } },
+      );
+    }
+  }
 
   if (upstream.ok && upstream.body) {
     // Pipe the SSE stream straight through — no transformation, no buffering.

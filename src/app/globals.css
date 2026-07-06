@@ -182,6 +182,10 @@
     font-family: var(--font-sans);
     letter-spacing: -0.01em;
   }
+
+  p{
+    font-size: large;
+  }
 }
 
 /* Custom scrollbar for dark mode */
