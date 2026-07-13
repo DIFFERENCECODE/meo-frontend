@@ -16,6 +16,7 @@ interface User {
   role: string;
   vendor_id: string;
   metabolic_goals: string[];
+  account_tier?: string; // REQ 4: 'free' | 'paid' | 'admin'
 }
 
 // Column keys driving sort. Kept in sync with the table headers below
@@ -142,6 +143,23 @@ export default function UsersPage() {
     await fetch(`/api/admin/users/${sub}`, {
       method: 'DELETE',
       headers: { Authorization: `Bearer ${token}` },
+    });
+    fetchUsers();
+  };
+
+  // REQ 4 — convert Free <-> Paid. Server-side authorized + audited; the
+  // backend records who/when/from->to. Converting to Paid re-arms the BAS intro.
+  const handleConvert = async (user: User) => {
+    if (!token) return;
+    const toPaid = (user.account_tier || 'free') !== 'paid';
+    const target = toPaid ? 'paid' : 'free';
+    const verb = toPaid ? `Convert ${user.email} to PAID?` : `Revoke Paid (set Free) for ${user.email}?`;
+    if (!confirm(verb)) return;
+    const reason = window.prompt('Reason / note (optional):') || undefined;
+    await fetch(`/api/admin/users/${user.cognito_sub}/convert`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tier: target, reason }),
     });
     fetchUsers();
   };
@@ -373,6 +391,17 @@ export default function UsersPage() {
                             <Zap className="h-4 w-4" style={{ color: colors.warning }} />
                           </button>
                         )}
+                        <button
+                          onClick={() => handleConvert(user)}
+                          className="px-2 py-1 rounded text-xs font-semibold hover:opacity-80"
+                          style={{
+                            color: colors.background,
+                            backgroundColor: (user.account_tier === 'paid') ? colors.muted : colors.primary,
+                          }}
+                          title={user.account_tier === 'paid' ? 'Revoke Paid (set Free)' : 'Convert to Paid'}
+                        >
+                          {user.account_tier === 'paid' ? 'Revoke' : 'Make Paid'}
+                        </button>
                         <button onClick={() => handleDelete(user.cognito_sub)} className="p-1.5 rounded hover:opacity-80" title="Delete">
                           <Trash2 className="h-4 w-4" style={{ color: colors.error }} />
                         </button>
