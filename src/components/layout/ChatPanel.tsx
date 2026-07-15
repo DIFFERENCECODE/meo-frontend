@@ -482,7 +482,7 @@ export function ChatPanel({
                       Measure what matters
                     </p>
                     <p className="text-xs mt-1.5 leading-relaxed" style={{ color: colors.muted }}>
-                      Lab-grade lipid meter. Biological Age Score at home. 20 test strips included — no clinic visit needed.
+                      Lab-grade lipid meter. Biological Age Score at home. 10 test strips included — no clinic visit needed.
                     </p>
                   </div>
                   <div
