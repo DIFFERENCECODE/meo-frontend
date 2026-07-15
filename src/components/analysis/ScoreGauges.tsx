@@ -60,7 +60,9 @@ const BAS_MAX = 85;
 const VAT_MIN = 0;
 const VAT_MAX = 2400;
 
-const EMPTY_COPY = 'Please contact your therapist to capture data';
+const EMPTY_COPY_NO_DATA   = 'Complete your BAS or Kraft test to see your score here.';
+const EMPTY_COPY_NO_SCORES = 'Please contact your therapist to capture data';
+const EMPTY_COPY_RAW_SCORE = 'Score pending — complete a full BAS test (glucose, lipids, and measurements) to generate your biological age.';
 
 /**
  * Build the ECharts axisLine color segments.
@@ -334,8 +336,14 @@ export function ScoreGauges() {
     loadScores(selectedSeries);
   }, [selectedSeries, loadScores]);
 
-  const basValue = scores?.bas?.value ?? null;
-  const vatValue = scores?.vat?.value ?? null;
+  // Guard: bang returns raw "cludge" composite units when the scoring pipeline
+  // hasn't normalised to biological age yet (e.g. incomplete input data).
+  // A valid biological age sits in the 21–85 range; anything above 200 is a
+  // raw score artifact — treat it as missing so we don't display nonsense.
+  const rawBas = scores?.bas?.value ?? null;
+  const rawVat = scores?.vat?.value ?? null;
+  const basValue = rawBas !== null && rawBas <= 200 ? rawBas : null;
+  const vatValue = rawVat !== null && rawVat <= VAT_MAX * 3 ? rawVat : null;
   const sessionCount = sessions.length;
 
   return (
@@ -424,11 +432,10 @@ export function ScoreGauges() {
         stops={BAS_STOPS}
         decimals={1}
         emptyCopy={
-          sessionsLoading
-            ? 'Loading…'
-            : sessionCount === 0
-            ? EMPTY_COPY
-            : EMPTY_COPY
+          sessionsLoading ? 'Loading…'
+          : sessionCount === 0 ? EMPTY_COPY_NO_DATA
+          : rawBas !== null && basValue === null ? EMPTY_COPY_RAW_SCORE
+          : EMPTY_COPY_NO_SCORES
         }
         dotColor="#ef4444"
       />
@@ -442,11 +449,9 @@ export function ScoreGauges() {
         stops={VAT_STOPS}
         decimals={1}
         emptyCopy={
-          sessionsLoading
-            ? 'Loading…'
-            : sessionCount === 0
-            ? EMPTY_COPY
-            : EMPTY_COPY
+          sessionsLoading ? 'Loading…'
+          : sessionCount === 0 ? EMPTY_COPY_NO_DATA
+          : EMPTY_COPY_NO_SCORES
         }
         dotColor="#ef4444"
       />

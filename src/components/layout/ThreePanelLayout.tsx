@@ -1,11 +1,25 @@
 'use client';
 
-import React, { useRef, useState, useCallback } from 'react';
+import React, { useRef, useState, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useTheme } from '@/theme/ThemeProvider';
 import { LeftPanel, ChatListItem } from './LeftPanel';
 import { RightPanel } from './RightPanel';
 import { cn } from '@/lib/utils';
+
+// Tracks whether we're below the `md` breakpoint (phones). Used to render the
+// right panel as a full-screen overlay instead of a squished side column.
+function useIsMobile(breakpoint = 768) {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia(`(max-width: ${breakpoint - 1}px)`);
+    const update = () => setIsMobile(mq.matches);
+    update();
+    mq.addEventListener('change', update);
+    return () => mq.removeEventListener('change', update);
+  }, [breakpoint]);
+  return isMobile;
+}
 
 interface ThreePanelLayoutProps {
   children: React.ReactNode;
@@ -48,6 +62,14 @@ export function ThreePanelLayout({
     viewMode === 'analysis' ||
     viewMode === 'solution' ||
     mode === 'practitioner';
+
+  const isMobile = useIsMobile(1024);
+  // On mobile there's no room for a side-by-side panel, so we don't auto-open it
+  // for practitioner mode — it appears as a full-screen overlay only when the user
+  // explicitly opens it or when there's analysis/solution content to show.
+  const showRightMobile = isRightPanelOpen ||
+    viewMode === 'analysis' ||
+    viewMode === 'solution';
 
   // Right panel width as a percentage of the container.
   // Persists across open/close so the user's last resize is remembered.
@@ -114,7 +136,7 @@ export function ThreePanelLayout({
         </div>
 
         <AnimatePresence initial={false}>
-          {showRightPanel && (
+          {showRightPanel && !isMobile && (
             <>
               {/* Drag handle — wide touch target, thin visual separator */}
               <motion.div
@@ -146,6 +168,40 @@ export function ThreePanelLayout({
                 }
                 className="h-full flex-shrink-0 overflow-hidden"
                 style={{ minWidth: 0 }}
+              >
+                <RightPanel
+                  viewMode={viewMode}
+                  analysisContent={analysisContent}
+                  solutionContent={solutionContent}
+                  onClose={onCloseRightPanel}
+                />
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>
+
+        {/* Mobile: render the right panel as a full-screen overlay (with backdrop)
+            instead of a side column, so it never squishes the chat. */}
+        <AnimatePresence initial={false}>
+          {showRightMobile && isMobile && (
+            <>
+              <motion.div
+                key="right-backdrop-m"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="fixed inset-0 z-40 bg-black/50"
+                onClick={onCloseRightPanel}
+              />
+              <motion.div
+                key="right-panel-m"
+                initial={{ x: '100%' }}
+                animate={{ x: 0 }}
+                exit={{ x: '100%' }}
+                transition={{ type: 'spring', stiffness: 400, damping: 38, mass: 0.8 }}
+                className="fixed inset-0 z-50 w-full h-full overflow-hidden"
+                style={{ background: colors.background }}
               >
                 <RightPanel
                   viewMode={viewMode}

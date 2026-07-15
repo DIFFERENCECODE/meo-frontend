@@ -3,7 +3,14 @@ import { NextRequest, NextResponse } from 'next/server';
 const CLIENT_ID = process.env.COGNITO_CLIENT_ID!;
 const CLIENT_SECRET = process.env.COGNITO_CLIENT_SECRET!;
 const DOMAIN = process.env.COGNITO_DOMAIN!;
-const REDIRECT_URI = process.env.NEXT_PUBLIC_COGNITO_REDIRECT_URI!;
+
+// Mirror the client-side getRedirectUri() logic: derive from the real public
+// host so server and client always agree on the redirect_uri Cognito validates.
+function getRedirectUri(request: NextRequest): string {
+  const host = request.headers.get('x-forwarded-host') || request.headers.get('host') || 'localhost:3000';
+  const proto = host.startsWith('localhost') ? 'http' : 'https';
+  return `${proto}://${host}/`;
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -28,7 +35,7 @@ export async function POST(request: NextRequest) {
       body = new URLSearchParams({
         grant_type: 'authorization_code',
         code,
-        redirect_uri: REDIRECT_URI,
+        redirect_uri: getRedirectUri(request),
         client_id: CLIENT_ID,
       });
     }

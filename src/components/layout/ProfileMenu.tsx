@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { User, CreditCard, LogOut, Moon, Sun } from 'lucide-react';
 import { useTheme } from '@/theme/ThemeProvider';
-import { getIdToken, getEmailFromIdToken, clearIdToken, getLogoutUrl } from '@/app/lib/auth';
+import { getIdToken, getEmailFromIdToken, getNameFromIdToken, clearIdToken, getLogoutUrl } from '@/app/lib/auth';
 
 function initials(email: string): string {
   const local = email.split('@')[0];
@@ -17,11 +17,15 @@ export function ProfileMenu() {
   const { colors, colorMode, toggleColorMode } = useTheme();
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState<string | null>(null);
+  const [displayName, setDisplayName] = useState<string | null>(null);
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const token = getIdToken();
-    if (token) setEmail(getEmailFromIdToken(token));
+    if (token) {
+      setEmail(getEmailFromIdToken(token));
+      setDisplayName(getNameFromIdToken(token));
+    }
   }, []);
 
   // Close on outside click
@@ -45,19 +49,35 @@ export function ProfileMenu() {
 
   return (
     <div ref={ref} className="relative">
-      {/* Avatar button */}
-      <button
-        onClick={() => setOpen((v) => !v)}
-        aria-label="Profile menu"
-        aria-expanded={open}
-        className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold transition-opacity hover:opacity-80 focus:outline-none focus-visible:ring-2"
-        style={{
-          background: colors.primary,
-          color: colors.primaryForeground,
-        }}
-      >
-        {label}
-      </button>
+      {/* Avatar button — tooltip shows the user's name on hover */}
+      <div className="relative group">
+        <button
+          onClick={() => setOpen((v) => !v)}
+          aria-label="Profile menu"
+          aria-expanded={open}
+          className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold transition-opacity hover:opacity-80 focus:outline-none focus-visible:ring-2"
+          style={{
+            background: colors.primary,
+            color: colors.primaryForeground,
+          }}
+        >
+          {label}
+        </button>
+        {/* Name tooltip — appears below the avatar */}
+        <span
+          className="pointer-events-none absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2.5 py-1 rounded-lg text-xs font-medium whitespace-nowrap
+            opacity-0 translate-y-1 group-hover:opacity-100 group-hover:translate-y-0
+            transition-all duration-150 z-[300]"
+          style={{
+            backgroundColor: colors.card,
+            color: colors.foreground,
+            border: `1px solid ${colors.cardBorder}`,
+            boxShadow: '0 4px 12px rgba(0,0,0,0.25)',
+          }}
+        >
+          {displayName || email}
+        </span>
+      </div>
 
       {/* Dropdown */}
       {open && (

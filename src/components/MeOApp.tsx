@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import { ThemeProvider, useTheme } from '@/theme/ThemeProvider';
@@ -14,9 +14,9 @@ import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { getLoginUrl, getLogoutUrl, exchangeCodeForTokens, storeIdToken, getIdToken, clearIdToken, getSubFromIdToken, storeRefreshToken, getValidIdToken, apiFetch } from '@/app/lib/auth';
 import LandingPage from '@/components/LandingPage';
 import { ProfileMenu } from '@/components/layout/ProfileMenu';
-import { ProtocolPanel, BAS_STATES, KRAFT_STATES } from '@/components/layout/ProtocolPanel';
+import { ProtocolPanel, BAS_STATES, KRAFT_STATES, KRAFT_LEGACY_STATES } from '@/components/layout/ProtocolPanel';
 
-const ALL_PROTOCOL_STATES = [...BAS_STATES, ...KRAFT_STATES] as readonly string[];
+const ALL_PROTOCOL_STATES = [...BAS_STATES, ...KRAFT_STATES, ...KRAFT_LEGACY_STATES] as readonly string[];
 import { AnimatePresence } from 'motion/react';
 import { ProductTour } from '@/components/tour/ProductTour';
 import { useTour } from '@/hooks/useTour';
@@ -28,7 +28,11 @@ export type { Message };
 function MeOAppInner() {
   const { theme, colors, mode, setRightPanelOpen, setVendor, setUserRole } = useTheme();
   const { run: tourRun, markSeen: markTourSeen, resetTour } = useTour();
+  const { isLeftPanelOpen, toggleLeftPanel } = useTheme();
   const router = useRouter();
+  // Tracks chats we just created in handleSendMessage — skip history load
+  // for these so the optimistic user message doesn't get cleared.
+  const skipHistoryLoadRef = useRef<string | null>(null);
 
   // Chat state
   const [isActive, setIsActive] = useState(false);
@@ -219,10 +223,24 @@ function MeOAppInner() {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- only run when idToken changes; avoid overwriting currentChatId on re-run
   }, [idToken]);
 
+  // Ensure left panel is open before the product tour starts so
+  // [data-tour="marketplace-nav"] in the expanded panel is in DOM.
+  useEffect(() => {
+    if (tourRun && !isLeftPanelOpen) toggleLeftPanel();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tourRun]);
+
   // When currentChatId changes, load history for that chat
   useEffect(() => {
     if (!idToken || !currentChatId) {
       if (!currentChatId && idToken) setMessages([]);
+      return;
+    }
+    // Skip history load for chats we just created inside handleSendMessage.
+    // The optimistic user message is already in state; loading history would
+    // clear it since the chat has no messages yet.
+    if (skipHistoryLoadRef.current === currentChatId) {
+      skipHistoryLoadRef.current = null;
       return;
     }
     // Clear messages immediately so UI shows we're switching (then load below)
@@ -298,6 +316,9 @@ function MeOAppInner() {
             sessionId = getSubFromIdToken(freshToken) || 'demo_session';
           } else {
             const created = await createRes.json();
+            // Mark this chat so the history useEffect doesn't clear our
+            // optimistic user message (the chat has no history yet).
+            skipHistoryLoadRef.current = created.id;
             setCurrentChatId(created.id);
             setChats((prev) => [{ id: created.id, title: created.title, created_at: created.created_at, updated_at: created.updated_at }, ...prev]);
             sessionId = created.id;
@@ -393,7 +414,14 @@ function MeOAppInner() {
             if (payload.user_role) setUserRole(payload.user_role);
             if (payload.is_new_user !== undefined) setIsNewUser(Boolean(payload.is_new_user));
             if (payload.protocol_state && ALL_PROTOCOL_STATES.includes(payload.protocol_state)) {
-              setProtocolState(payload.protocol_state);
+              // Terminal states (complete screens) must only open the panel the first
+              // time they fire. If the user has already dismissed the panel (prev === null)
+              // and the backend re-fires the same terminal state on a follow-up message,
+              // we must NOT re-open the panel.
+              const TERMINAL = new Set(['bas_complete', 'complete', 'kraft_complete']);
+              setProtocolState((prev) =>
+                TERMINAL.has(payload.protocol_state) && prev === null ? null : payload.protocol_state
+              );
             } else if (payload.protocol_state === 'idle') {
               setProtocolState(null);
             }
