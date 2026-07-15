@@ -70,11 +70,21 @@ export async function POST(request: NextRequest) {
         mode?: string;
         steps?: unknown[];
         retrieved_sources?: unknown[];
+        protocol_state?: string;
+        user_role?: string;
+        is_new_user?: boolean;
       };
 
       const chunks = [
         sseEvent({ phase: 'content', delta: json.response ?? '' }),
-        sseEvent({ phase: 'done', mode: json.mode ?? 'response', steps: json.steps ?? [] }),
+        sseEvent({
+          phase: 'done',
+          mode: json.mode ?? 'response',
+          steps: json.steps ?? [],
+          protocol_state: json.protocol_state,
+          user_role: json.user_role,
+          is_new_user: json.is_new_user,
+        }),
       ];
 
       return new Response(chunks.join(''), { status: 200, headers: SSE_HEADERS });
@@ -119,11 +129,21 @@ export async function POST(request: NextRequest) {
       mode?: string;
       steps?: unknown[];
       retrieved_sources?: unknown[];
+      protocol_state?: string;
+      user_role?: string;
+      is_new_user?: boolean;
     };
 
     const chunks = [
       sseEvent({ phase: 'content', delta: json.response ?? '' }),
-      sseEvent({ phase: 'done', mode: json.mode ?? 'response', steps: json.steps ?? [] }),
+      sseEvent({
+        phase: 'done',
+        mode: json.mode ?? 'response',
+        steps: json.steps ?? [],
+        protocol_state: json.protocol_state,
+        user_role: json.user_role,
+        is_new_user: json.is_new_user,
+      }),
     ];
 
     return new Response(chunks.join(''), { status: 200, headers: SSE_HEADERS });

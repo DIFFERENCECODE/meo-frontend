@@ -21,6 +21,12 @@ import { AnimatePresence } from 'motion/react';
 import { ProductTour } from '@/components/tour/ProductTour';
 import { useTour } from '@/hooks/useTour';
 
+function normalizeProtocolState(state: string | null | undefined): string | null {
+  if (!state) return null;
+  const normalized = state.trim().toLowerCase();
+  return normalized.length > 0 ? normalized : null;
+}
+
 // Types re-exported from chat panel
 export type { Message };
 
@@ -60,7 +66,7 @@ function MeOAppInner() {
   const [chats, setChats] = useState<ChatListItem[]>([]);
   const [currentChatId, setCurrentChatId] = useState<string | null>(null);
   const [chatsLoading, setChatsLoading] = useState(false);
-  
+
   // Library panel open state — shared between LeftPanel (button) and ChatPanel (drawer)
   const [isLibraryOpen, setIsLibraryOpen] = useState(false);
 
@@ -166,7 +172,7 @@ function MeOAppInner() {
         if (fresh && fresh !== idToken) {
           setIdToken(fresh);
         }
-      } catch {}
+      } catch { }
     }, 5 * 60 * 1000); // 5 minutes
     return () => clearInterval(intervalId);
   }, [idToken]);
@@ -186,7 +192,7 @@ function MeOAppInner() {
           setUserRole(data.role);
           setProfileRole(data.role);
         }
-      } catch {}
+      } catch { }
       setProfileLoaded(true);
     })();
   }, [idToken]);
@@ -289,6 +295,11 @@ function MeOAppInner() {
     } else if (lowerMessage.includes('specialist') || lowerMessage.includes('find')) {
       intendedMode = 'solution';
     }
+
+    const shouldStartKraftProtocol =
+      /\b(start|begin|start the|begin the)\s+kraft\b/.test(lowerMessage) ||
+      /\bkraft\s+test\b/.test(lowerMessage) ||
+      /\brun\s+the\s+kraft\s+test\b/.test(lowerMessage);
 
     try {
       // Always get a fresh token before making API calls
@@ -424,6 +435,8 @@ function MeOAppInner() {
               );
             } else if (payload.protocol_state === 'idle') {
               setProtocolState(null);
+            } else if (shouldStartKraftProtocol) {
+              setProtocolState('fasting');
             }
           } else if (payload.phase === 'error') {
             console.error('[stream] upstream error', payload.message);
@@ -474,7 +487,7 @@ function MeOAppInner() {
           // Fallback: if the chat returned raw measurements but no Kraft
           // curve, derive chart points from glucose/insulin entries.
           if (graphDataParsed.measurements?.length > 0 &&
-              (!graphDataParsed.kraft_curve_data?.length)) {
+            (!graphDataParsed.kraft_curve_data?.length)) {
             const glucoseEntries = graphDataParsed.measurements
               .filter((m: any) => m.name === 'Glucose' && m.unit === 'mMol')
               .sort((a: any, b: any) => new Date(a.time).getTime() - new Date(b.time).getTime());
@@ -704,72 +717,72 @@ function MeOAppInner() {
   // Signed in: show full app.
   return (
     <>
-    <ProductTour run={tourRun} onFinish={markTourSeen} />
-    <ThreePanelLayout
-      viewMode={viewMode}
-      analysisContent={<ErrorBoundary name="Analysis"><AnalysisContent graphData={graphData} /></ErrorBoundary>}
-      solutionContent={<ErrorBoundary name="Solutions"><SolutionContent vendors={vendorCards} /></ErrorBoundary>}
-      onCloseRightPanel={() => setViewMode('response')}
-      onLibraryOpen={() => setIsLibraryOpen(true)}
-      onStartTour={resetTour}
-      onNewChat={handleNewChat}
-      chats={chats}
-      chatsLoading={chatsLoading}
-      currentChatId={currentChatId}
-      onSelectChat={handleSelectChat}
-      onDeleteChat={async (id) => {
-        // Optimistic remove from the sidebar; if the DELETE fails
-        // we pull a fresh list from the backend and surface a toast.
-        const deletedTitle = chats.find((c) => c.id === id)?.title;
-        setChats((prev) => prev.filter((c) => c.id !== id));
-        if (currentChatId === id) {
-          setCurrentChatId(null);
-          setMessages([]);
-          setIsActive(false);
-        }
-        try {
-          const res = await apiFetch(`/api/chats/${id}`, { method: 'DELETE' });
-          if (!res.ok) throw new Error(`status ${res.status}`);
-          toast.success(
-            deletedTitle
-              ? t('chat.delete_success', { title: deletedTitle })
-              : t('chat.delete_default_success'),
-          );
-        } catch (err) {
-          console.error('Failed to delete chat', err);
-          toast.error(t('chat.delete_failure'));
-          const resync = await apiFetch('/api/chats');
-          if (resync.ok) setChats(await resync.json());
-        }
-      }}
-    >
-      <div className="relative flex-1 flex flex-col h-full overflow-hidden">
-        <ChatPanel
-          messages={messages}
-          input={input}
-          loading={loading}
-          isActive={isActive}
-          onInputChange={setInput}
-          onSendMessage={handleSendMessage}
-          onRefresh={handleRefresh}
-          language={language}
-          onLanguageChange={setLanguage}
-          isNewUser={isNewUser}
-          isLibraryOpen={isLibraryOpen}
-          onLibraryOpen={() => setIsLibraryOpen(true)}
-          onLibraryClose={() => setIsLibraryOpen(false)}
-        />
-        <AnimatePresence>
-          {isProtocolActive && protocolState && (
-            <ProtocolPanel
-              protocolState={protocolState}
-              onSubmit={(msg) => handleSendMessage(undefined, msg)}
-              onExit={() => setProtocolState(null)}
-            />
-          )}
-        </AnimatePresence>
-      </div>
-    </ThreePanelLayout>
+      <ProductTour run={tourRun} onFinish={markTourSeen} />
+      <ThreePanelLayout
+        viewMode={viewMode}
+        analysisContent={<ErrorBoundary name="Analysis"><AnalysisContent graphData={graphData} /></ErrorBoundary>}
+        solutionContent={<ErrorBoundary name="Solutions"><SolutionContent vendors={vendorCards} /></ErrorBoundary>}
+        onCloseRightPanel={() => setViewMode('response')}
+        onLibraryOpen={() => setIsLibraryOpen(true)}
+        onStartTour={resetTour}
+        onNewChat={handleNewChat}
+        chats={chats}
+        chatsLoading={chatsLoading}
+        currentChatId={currentChatId}
+        onSelectChat={handleSelectChat}
+        onDeleteChat={async (id) => {
+          // Optimistic remove from the sidebar; if the DELETE fails
+          // we pull a fresh list from the backend and surface a toast.
+          const deletedTitle = chats.find((c) => c.id === id)?.title;
+          setChats((prev) => prev.filter((c) => c.id !== id));
+          if (currentChatId === id) {
+            setCurrentChatId(null);
+            setMessages([]);
+            setIsActive(false);
+          }
+          try {
+            const res = await apiFetch(`/api/chats/${id}`, { method: 'DELETE' });
+            if (!res.ok) throw new Error(`status ${res.status}`);
+            toast.success(
+              deletedTitle
+                ? t('chat.delete_success', { title: deletedTitle })
+                : t('chat.delete_default_success'),
+            );
+          } catch (err) {
+            console.error('Failed to delete chat', err);
+            toast.error(t('chat.delete_failure'));
+            const resync = await apiFetch('/api/chats');
+            if (resync.ok) setChats(await resync.json());
+          }
+        }}
+      >
+        <div className="relative flex-1 flex flex-col h-full overflow-hidden">
+          <ChatPanel
+            messages={messages}
+            input={input}
+            loading={loading}
+            isActive={isActive}
+            onInputChange={setInput}
+            onSendMessage={handleSendMessage}
+            onRefresh={handleRefresh}
+            language={language}
+            onLanguageChange={setLanguage}
+            isNewUser={isNewUser}
+            isLibraryOpen={isLibraryOpen}
+            onLibraryOpen={() => setIsLibraryOpen(true)}
+            onLibraryClose={() => setIsLibraryOpen(false)}
+          />
+          <AnimatePresence>
+            {isProtocolActive && protocolState && (
+              <ProtocolPanel
+                protocolState={protocolState}
+                onSubmit={(msg) => handleSendMessage(undefined, msg)}
+                onExit={() => setProtocolState(null)}
+              />
+            )}
+          </AnimatePresence>
+        </div>
+      </ThreePanelLayout>
     </>
   );
 }

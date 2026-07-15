@@ -4,12 +4,31 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { getValidIdToken } from '@/app/lib/auth';
 import {
-  X, CheckCircle2, ChevronRight, FlaskConical,
-  Droplets, Ruler, Activity, Copy, ArrowRight, Timer,
+  X,
+  CheckCircle2,
+  ChevronRight,
+  FlaskConical,
+  Droplets,
+  Ruler,
+  Activity,
+  Copy,
+  ArrowRight,
+  Smartphone,
+  GlassWater,
+  Timer,
+  ClipboardCheck,
+  AlertTriangle,
+  Pencil,
+  Hourglass,
+  Armchair,
+  Bell,
+  Check,
+  CircleCheck
+
 } from 'lucide-react';
 import { useTheme } from '@/theme/ThemeProvider';
 import { motion, AnimatePresence } from 'motion/react';
-import { Layers, Droplet, Clock, ClipboardList, Info, Hand, TrendingDown, TrendingUp} from 'lucide-react';
+import { Layers, Droplet, Clock, ClipboardList, Info, Hand, TrendingDown, TrendingUp } from 'lucide-react';
 
 // ── State constants (mirror protocol_state_machine.py) ───────────────────────
 
@@ -42,22 +61,22 @@ export type BASState = typeof BAS_STATES[number];
 export type KraftState = typeof KRAFT_STATES[number];
 
 const BAS_STEPS = [
-  { id: 'bas_fasting_confirmed', label: 'Fast',    icon: Droplets,    timeLabel: null },
-  { id: 'bas_glucose_reading',   label: 'Glucose', icon: Droplets,    timeLabel: null },
-  { id: 'bas_lipid_reading',     label: 'Lipids',  icon: FlaskConical,timeLabel: null },
-  { id: 'bas_anthropometrics',   label: 'Body',    icon: Ruler,       timeLabel: null },
-  { id: 'bas_complete',          label: 'Score',   icon: Activity,    timeLabel: null },
+  { id: 'bas_fasting_confirmed', label: 'Fast', icon: Droplets, timeLabel: null },
+  { id: 'bas_glucose_reading', label: 'Glucose', icon: Droplets, timeLabel: null },
+  { id: 'bas_lipid_reading', label: 'Lipids', icon: FlaskConical, timeLabel: null },
+  { id: 'bas_anthropometrics', label: 'Body', icon: Ruler, timeLabel: null },
+  { id: 'bas_complete', label: 'Score', icon: Activity, timeLabel: null },
 ];
 
 const KRAFT_STEPS = [
-  { id: 'kraft_fasting_confirmed', label: 'Fast',   icon: Droplets,     timeLabel: null },
-  { id: 'kraft_t0_reading',        label: 'T0',     icon: Droplets,     timeLabel: 'Fasting' },
-  { id: 'kraft_drink_consumed',    label: 'Drink',  icon: FlaskConical, timeLabel: null },
-  { id: 'kraft_t30_reading',       label: 'T+30',   icon: Activity,     timeLabel: '+30 min' },
-  { id: 'kraft_t60_reading',       label: 'T+60',   icon: Activity,     timeLabel: '+60 min' },
-  { id: 'kraft_t90_reading',       label: 'T+90',   icon: Activity,     timeLabel: '+90 min' },
-  { id: 'kraft_t120_reading',      label: 'T+120',  icon: Activity,     timeLabel: '+120 min' },
-  { id: 'kraft_complete',          label: 'Done',   icon: CheckCircle2, timeLabel: null },
+  { id: 'kraft_fasting_confirmed', label: 'Fast', icon: Droplets, timeLabel: null },
+  { id: 'kraft_t0_reading', label: 'T0', icon: Droplets, timeLabel: 'Fasting' },
+  { id: 'kraft_drink_consumed', label: 'Drink', icon: FlaskConical, timeLabel: null },
+  { id: 'kraft_t30_reading', label: 'T+30', icon: Activity, timeLabel: '+30 min' },
+  { id: 'kraft_t60_reading', label: 'T+60', icon: Activity, timeLabel: '+60 min' },
+  { id: 'kraft_t90_reading', label: 'T+90', icon: Activity, timeLabel: '+90 min' },
+  { id: 'kraft_t120_reading', label: 'T+120', icon: Activity, timeLabel: '+120 min' },
+  { id: 'kraft_complete', label: 'Done', icon: CheckCircle2, timeLabel: null },
 ];
 
 function isNewKraftState(state: string): boolean {
@@ -130,10 +149,10 @@ function glucoseRangeLabel(value: string, unit: 'mmol' | 'mgdl'): { label: strin
   const num = parseFloat(value);
   if (!num || isNaN(num)) return null;
   const v = unit === 'mgdl' ? num / 18 : num;
-  if (v < 3.9)  return { label: 'Low',      color: '#60a5fa' };
-  if (v <= 5.5) return { label: 'Normal',   color: '#4ade80' };
+  if (v < 3.9) return { label: 'Low', color: '#60a5fa' };
+  if (v <= 5.5) return { label: 'Normal', color: '#4ade80' };
   if (v <= 6.9) return { label: 'Elevated', color: '#fbbf24' };
-  return           { label: 'High',      color: '#f87171' };
+  return { label: 'High', color: '#f87171' };
 }
 
 // ── Kraft Measurement Step ────────────────────────────────────────────────────
@@ -230,7 +249,7 @@ function KraftMeasurementStep({
           className="w-full px-4 py-3 rounded-xl text-lg font-semibold border focus:outline-none transition-all"
           style={inputStyle(colors)}
         />
-        <p className="text-xs mt-1.5" style={{ color: `${colors.muted}70` }}>
+        <p className="text-xs mt-1.5" style={{ color: `${colors.foreground}70` }}>
           Fasting reference: 2–10 uIU/mL
         </p>
       </div>
@@ -337,19 +356,19 @@ function KraftComplete({ onExit, colors, data }: { onExit: () => void; colors: a
       };
 
       // T0 fasting
-      add('Glucose', 'mMol',   data.kraft_t0_glucose,   t(0),   'FASTING');
-      add('Insulin', 'uIU/mL', data.kraft_t0_insulin,   t(0),   'FASTING');
+      add('Glucose', 'mMol', data.kraft_t0_glucose, t(0), 'FASTING');
+      add('Insulin', 'uIU/mL', data.kraft_t0_insulin, t(0), 'FASTING');
       // T30
-      add('Glucose', 'mMol',   data.kraft_t30_glucose,  t(30),  'POSTPRANDIAL');
-      add('Insulin', 'uIU/mL', data.kraft_t30_insulin,  t(30),  'POSTPRANDIAL');
+      add('Glucose', 'mMol', data.kraft_t30_glucose, t(30), 'POSTPRANDIAL');
+      add('Insulin', 'uIU/mL', data.kraft_t30_insulin, t(30), 'POSTPRANDIAL');
       // T60
-      add('Glucose', 'mMol',   data.kraft_t60_glucose,  t(60),  'POSTPRANDIAL');
-      add('Insulin', 'uIU/mL', data.kraft_t60_insulin,  t(60),  'POSTPRANDIAL');
+      add('Glucose', 'mMol', data.kraft_t60_glucose, t(60), 'POSTPRANDIAL');
+      add('Insulin', 'uIU/mL', data.kraft_t60_insulin, t(60), 'POSTPRANDIAL');
       // T90
-      add('Glucose', 'mMol',   data.kraft_t90_glucose,  t(90),  'POSTPRANDIAL');
-      add('Insulin', 'uIU/mL', data.kraft_t90_insulin,  t(90),  'POSTPRANDIAL');
+      add('Glucose', 'mMol', data.kraft_t90_glucose, t(90), 'POSTPRANDIAL');
+      add('Insulin', 'uIU/mL', data.kraft_t90_insulin, t(90), 'POSTPRANDIAL');
       // T120
-      add('Glucose', 'mMol',   data.kraft_t120_glucose, t(120), 'POSTPRANDIAL');
+      add('Glucose', 'mMol', data.kraft_t120_glucose, t(120), 'POSTPRANDIAL');
       add('Insulin', 'uIU/mL', data.kraft_t120_insulin, t(120), 'POSTPRANDIAL');
 
       if (rows.length === 0) return;
@@ -381,10 +400,10 @@ function KraftComplete({ onExit, colors, data }: { onExit: () => void; colors: a
 
   const today = new Date().toISOString().slice(0, 10);
   const timepoints = [
-    { label: 'T0',    g: data.kraft_t0_glucose,   i: data.kraft_t0_insulin },
-    { label: 'T+30',  g: data.kraft_t30_glucose,  i: data.kraft_t30_insulin },
-    { label: 'T+60',  g: data.kraft_t60_glucose,  i: data.kraft_t60_insulin },
-    { label: 'T+90',  g: data.kraft_t90_glucose,  i: data.kraft_t90_insulin },
+    { label: 'T0', g: data.kraft_t0_glucose, i: data.kraft_t0_insulin },
+    { label: 'T+30', g: data.kraft_t30_glucose, i: data.kraft_t30_insulin },
+    { label: 'T+60', g: data.kraft_t60_glucose, i: data.kraft_t60_insulin },
+    { label: 'T+90', g: data.kraft_t90_glucose, i: data.kraft_t90_insulin },
     { label: 'T+120', g: data.kraft_t120_glucose, i: data.kraft_t120_insulin },
   ].filter(tp => tp.g || tp.i);
 
@@ -416,9 +435,9 @@ function KraftComplete({ onExit, colors, data }: { onExit: () => void; colors: a
           <p className="font-semibold text-sm" style={{ color: colors.foreground }}>Kraft OGTT Complete</p>
           <p className="text-xs mt-0.5" style={{ color: colors.muted }}>
             {submitStatus === 'submitting' && 'Saving your 5-point curve…'}
-            {submitStatus === 'success'    && '10 readings saved to your profile.'}
-            {submitStatus === 'error'      && 'Auto-save failed — copy and paste below.'}
-            {submitStatus === 'idle'       && 'All readings captured.'}
+            {submitStatus === 'success' && '10 readings saved to your profile.'}
+            {submitStatus === 'error' && 'Auto-save failed — copy and paste below.'}
+            {submitStatus === 'idle' && 'All readings captured.'}
           </p>
         </div>
       </div>
@@ -635,9 +654,9 @@ function LipidReading({ onSubmit, onData, colors }: { onSubmit: (msg: string) =>
 
   const fields = [
     { label: 'Total Cholesterol (TC)', hint: 'normal < 5.2 mmol/L', value: tc, set: setTc, optional: true },
-    { label: 'Triglycerides (TG)',     hint: 'normal < 1.7 mmol/L',  value: tg, set: setTg, optional: false },
-    { label: 'HDL Cholesterol',        hint: 'men > 1.0, women > 1.3', value: hdl, set: setHdl, optional: false },
-    { label: 'LDL Cholesterol',        hint: 'normal < 3.0 mmol/L',  value: ldl, set: setLdl, optional: false },
+    { label: 'Triglycerides (TG)', hint: 'normal < 1.7 mmol/L', value: tg, set: setTg, optional: false },
+    { label: 'HDL Cholesterol', hint: 'men > 1.0, women > 1.3', value: hdl, set: setHdl, optional: false },
+    { label: 'LDL Cholesterol', hint: 'normal < 3.0 mmol/L', value: ldl, set: setLdl, optional: false },
   ];
 
   return (
@@ -692,9 +711,9 @@ function Anthropometrics({ onSubmit, onData, colors }: { onSubmit: (msg: string)
   const toMetric = () => {
     // Returns { weightKg, heightCm, waistCm } as strings, always metric for bang
     if (!imperial) return { weightKg: weight, heightCm: height, waistCm: waist };
-    const wKg  = weight ? (parseFloat(weight) * 0.453592).toFixed(1) : '';
-    const hCm  = height ? (parseFloat(height) * 2.54).toFixed(1) : '';
-    const waCm = waist  ? (parseFloat(waist)  * 2.54).toFixed(1) : '';
+    const wKg = weight ? (parseFloat(weight) * 0.453592).toFixed(1) : '';
+    const hCm = height ? (parseFloat(height) * 2.54).toFixed(1) : '';
+    const waCm = waist ? (parseFloat(waist) * 2.54).toFixed(1) : '';
     return { weightKg: wKg, heightCm: hCm, waistCm: waCm };
   };
 
@@ -801,17 +820,17 @@ function BASComplete({ onViewResults, colors, data }: { onViewResults: () => voi
       // We submit DOB as YYYY-01-01 derived from year of birth collected in Anthropometrics.
       const dobISO = data.birthYear ? `${data.birthYear}-01-01T00:00:00Z` : null;
       const items = [
-        data.age    ? { date: nowISO, measurementSeries: series, name: 'Age',              unit: 'years',               value: parseFloat(data.age),    source: 'INCOMING', recordType: 'CLINICAL', subjectState: 'FASTING', canontimeofglucose: nowISO } : null,
-        dobISO      ? { date: dobISO, measurementSeries: series, name: 'DOB',              unit: 'ISO',                 value: parseInt(data.birthYear!, 10), source: 'INCOMING', recordType: 'CLINICAL', subjectState: 'FASTING', canontimeofglucose: nowISO } : null,
-        data.sex    ? { date: nowISO, measurementSeries: series, name: 'Sex',              unit: data.sex === 'male' ? 'M' : 'F', value: data.sex === 'male' ? 1 : 0, source: 'INCOMING', recordType: 'CLINICAL', subjectState: 'FASTING', canontimeofglucose: nowISO } : null,
-        data.weight ? { date: nowISO, measurementSeries: series, name: 'Weight',           unit: 'kg',                  value: parseFloat(data.weight),  source: 'INCOMING', recordType: 'CLINICAL', subjectState: 'FASTING', canontimeofglucose: nowISO } : null,
-        data.height ? { date: nowISO, measurementSeries: series, name: 'Height',           unit: 'cm',                  value: parseFloat(data.height),  source: 'INCOMING', recordType: 'CLINICAL', subjectState: 'FASTING', canontimeofglucose: nowISO } : null,
-        data.waist  ? { date: nowISO, measurementSeries: series, name: 'Waist',            unit: 'cm',                  value: parseFloat(data.waist),   source: 'INCOMING', recordType: 'CLINICAL', subjectState: 'FASTING', canontimeofglucose: nowISO } : null,
+        data.age ? { date: nowISO, measurementSeries: series, name: 'Age', unit: 'years', value: parseFloat(data.age), source: 'INCOMING', recordType: 'CLINICAL', subjectState: 'FASTING', canontimeofglucose: nowISO } : null,
+        dobISO ? { date: dobISO, measurementSeries: series, name: 'DOB', unit: 'ISO', value: parseInt(data.birthYear!, 10), source: 'INCOMING', recordType: 'CLINICAL', subjectState: 'FASTING', canontimeofglucose: nowISO } : null,
+        data.sex ? { date: nowISO, measurementSeries: series, name: 'Sex', unit: data.sex === 'male' ? 'M' : 'F', value: data.sex === 'male' ? 1 : 0, source: 'INCOMING', recordType: 'CLINICAL', subjectState: 'FASTING', canontimeofglucose: nowISO } : null,
+        data.weight ? { date: nowISO, measurementSeries: series, name: 'Weight', unit: 'kg', value: parseFloat(data.weight), source: 'INCOMING', recordType: 'CLINICAL', subjectState: 'FASTING', canontimeofglucose: nowISO } : null,
+        data.height ? { date: nowISO, measurementSeries: series, name: 'Height', unit: 'cm', value: parseFloat(data.height), source: 'INCOMING', recordType: 'CLINICAL', subjectState: 'FASTING', canontimeofglucose: nowISO } : null,
+        data.waist ? { date: nowISO, measurementSeries: series, name: 'Waist', unit: 'cm', value: parseFloat(data.waist), source: 'INCOMING', recordType: 'CLINICAL', subjectState: 'FASTING', canontimeofglucose: nowISO } : null,
         glucoseMmol !== null ? { date: nowISO, measurementSeries: series, name: 'Glucose', unit: 'mMol', value: glucoseMmol, source: 'INCOMING', recordType: 'CLINICAL', subjectState: 'FASTING', canontimeofglucose: nowISO } : null,
-        data.tc     ? { date: nowISO, measurementSeries: series, name: 'Total Cholesterol', unit: 'mMol', value: parseFloat(data.tc),  source: 'INCOMING', recordType: 'CLINICAL', subjectState: 'FASTING', canontimeofglucose: nowISO } : null,
-        data.hdl    ? { date: nowISO, measurementSeries: series, name: 'HDL',              unit: 'mMol', value: parseFloat(data.hdl), source: 'INCOMING', recordType: 'CLINICAL', subjectState: 'FASTING', canontimeofglucose: nowISO } : null,
-        data.ldl    ? { date: nowISO, measurementSeries: series, name: 'LDL',              unit: 'mMol', value: parseFloat(data.ldl), source: 'INCOMING', recordType: 'CLINICAL', subjectState: 'FASTING', canontimeofglucose: nowISO } : null,
-        data.tg     ? { date: nowISO, measurementSeries: series, name: 'Triglyceride',     unit: 'mMol', value: parseFloat(data.tg),  source: 'INCOMING', recordType: 'CLINICAL', subjectState: 'FASTING', canontimeofglucose: nowISO } : null,
+        data.tc ? { date: nowISO, measurementSeries: series, name: 'Total Cholesterol', unit: 'mMol', value: parseFloat(data.tc), source: 'INCOMING', recordType: 'CLINICAL', subjectState: 'FASTING', canontimeofglucose: nowISO } : null,
+        data.hdl ? { date: nowISO, measurementSeries: series, name: 'HDL', unit: 'mMol', value: parseFloat(data.hdl), source: 'INCOMING', recordType: 'CLINICAL', subjectState: 'FASTING', canontimeofglucose: nowISO } : null,
+        data.ldl ? { date: nowISO, measurementSeries: series, name: 'LDL', unit: 'mMol', value: parseFloat(data.ldl), source: 'INCOMING', recordType: 'CLINICAL', subjectState: 'FASTING', canontimeofglucose: nowISO } : null,
+        data.tg ? { date: nowISO, measurementSeries: series, name: 'Triglyceride', unit: 'mMol', value: parseFloat(data.tg), source: 'INCOMING', recordType: 'CLINICAL', subjectState: 'FASTING', canontimeofglucose: nowISO } : null,
       ].filter(Boolean);
       if (items.length === 0) return;
       setSubmitStatus('submitting');
@@ -844,9 +863,9 @@ function BASComplete({ onViewResults, colors, data }: { onViewResults: () => voi
           <p className="font-semibold text-sm" style={{ color: colors.foreground }}>BAS Measurement Complete</p>
           <p className="text-xs mt-0.5" style={{ color: colors.muted }}>
             {submitStatus === 'submitting' && 'Saving your results…'}
-            {submitStatus === 'success'    && 'Results saved to your profile.'}
-            {submitStatus === 'error'      && 'Auto-save failed — copy and paste below.'}
-            {submitStatus === 'idle'       && 'All readings captured.'}
+            {submitStatus === 'success' && 'Results saved to your profile.'}
+            {submitStatus === 'error' && 'Auto-save failed — copy and paste below.'}
+            {submitStatus === 'idle' && 'All readings captured.'}
           </p>
         </div>
       </div>
@@ -901,32 +920,101 @@ const GUIDANCE: Record<string, { title: string; body: React.ReactNode }> = {
     title: 'Kraft OGTT — Before You Begin',
     body: (
       <>
-        <p>The Kraft Oral Glucose Tolerance Test is the gold-standard for detecting hyperinsulinaemia — elevated insulin that standard blood tests miss.</p>
-        <p className="mt-3"><strong>You will take 5 paired readings</strong> (glucose + insulin) over 2 hours:</p>
-        <div className="mt-3 space-y-1.5">
-          {['T0 — Fasting baseline', 'T+30 min', 'T+60 min', 'T+90 min', 'T+120 min'].map((t, i) => (
-            <div key={i} className="flex items-center gap-2.5 text-xs">
-              <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: KRAFT_AMBER }} />
-              <span>{t}</span>
-            </div>
-          ))}
+        <p className="text-sm text-white/70 leading-relaxed">
+          The Kraft Oral Glucose Tolerance Test is the gold-standard for detecting hyperinsulinaemia — elevated insulin that standard blood tests miss.
+        </p>
+
+        <p className="text-[13px] mt-3.5 mb-3.5">
+          <strong>You will take 5 paired readings</strong> (glucose + insulin) over 2 hours
+        </p>
+
+        <div className="relative pl-1">
+          <div className="absolute left-[15px] top-2 bottom-2 w-0.5 bg-white/10" />
+
+          <div className="flex flex-col gap-1">
+            {[
+              { label: 'T0', text: 'Fasting baseline', active: true },
+              { label: '30′', text: 'T+30 min' },
+              { label: '60′', text: 'T+60 min' },
+              { label: '90′', text: 'T+90 min' },
+              { label: '120′', text: 'T+120 min' },
+            ].map((step, i) => (
+              <div key={i} className="flex items-center gap-3 py-1.5 relative">
+                <div
+                  className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 z-10 border-2 ${step.active
+                    ? 'bg-amber-400/10 border-amber-400/40'
+                    : 'bg-white/5 border-white/10'
+                    }`}
+                >
+                  <span className={`text-[9px] font-semibold ${step.active ? 'text-amber-400' : 'text-white/60'}`}>
+                    {step.label}
+                  </span>
+                </div>
+                <span className={`text-[13px] ${step.active ? 'text-white' : 'text-white/60'}`}>{step.text}</span>
+              </div>
+            ))}
+          </div>
         </div>
-        <p className="mt-3"><strong>Required:</strong> 10+ hour fast, glucose drink, BF-102 meter with glucose and insulin strips.</p>
+
+        <div className="mt-4 flex gap-3 p-3 rounded-lg bg-white/5">
+          <ClipboardCheck size={16} className="shrink-0 mt-0.5 text-white/60" />
+          <p className="text-[13px] text-white/70 leading-relaxed">
+            <strong className="text-white">Required:</strong> 10+ hour fast, glucose drink, BF-102 meter with glucose and insulin strips
+          </p>
+        </div>
       </>
     ),
   },
+
+
   kraft_t0_reading: {
     title: 'T0 — Fasting Baseline',
     body: (
       <>
-        <p>Take your fasting blood glucose and insulin readings <strong>before</strong> consuming the glucose drink.</p>
-        <ol className="mt-3 space-y-2 list-decimal list-inside text-xs">
-          <li>Wash and dry your hands thoroughly</li>
-          <li>Insert the glucose strip — take glucose reading</li>
-          <li>Switch to insulin strip — take insulin reading</li>
-          <li>Record both values in the panel to the right</li>
+        <div className="flex gap-2.5 p-3 rounded-lg mb-4" style={{ backgroundColor: KRAFT_AMBER_DIM, border: `1px solid ${KRAFT_AMBER_BORDER}` }}>
+          <AlertTriangle size={16} className="shrink-0 mt-0.5" style={{ color: KRAFT_AMBER }} />
+          <p className="text-[13px] leading-snug">
+            Take this reading <strong>before</strong> consuming the glucose drink
+          </p>
+        </div>
+
+        <p className="text-xs text-white/40 mb-2.5">Setup</p>
+
+        <ol className="space-y-0.5">
+          <li className="flex gap-3 py-1">
+            <span className="shrink-0 w-7 h-7 rounded-full bg-white/5 flex items-center justify-center">
+              <Hand size={13} className="text-white/60" />
+            </span>
+            <span className="text-[13px] text-white/70 pt-1">Wash and dry your hands thoroughly</span>
+          </li>
+
+          <li className="flex gap-3 py-1">
+            <span className="shrink-0 w-7 h-7 rounded-full bg-white/5 flex items-center justify-center">
+              <Droplet size={13} className="text-white/60" />
+            </span>
+            <span className="text-[13px] text-white/70 pt-1">Insert the glucose strip — take glucose reading</span>
+          </li>
+
+          <li className="flex gap-3 py-1">
+            <span className="shrink-0 w-7 h-7 rounded-full bg-white/5 flex items-center justify-center">
+              <Droplets size={13} className="text-white/60" />
+            </span>
+            <span className="text-[13px] text-white/70 pt-1">Switch to insulin strip — take insulin reading</span>
+          </li>
         </ol>
-        <div className="mt-4 p-3 rounded-xl text-xs" style={{ backgroundColor: KRAFT_AMBER_DIM, border: `1px solid ${KRAFT_AMBER_BORDER}` }}>
+
+        <div className="h-px bg-white/10 my-3.5" />
+
+        <p className="text-xs font-medium mb-2.5" style={{ color: KRAFT_AMBER }}>Your turn</p>
+
+        <div className="flex gap-3 p-2.5 rounded-lg" style={{ backgroundColor: KRAFT_AMBER_DIM, border: `1px solid ${KRAFT_AMBER_BORDER}` }}>
+          <span className="shrink-0 w-7 h-7 rounded-full bg-white/10 flex items-center justify-center">
+            <Pencil size={13} style={{ color: KRAFT_AMBER }} />
+          </span>
+          <span className="text-[13px] pt-1">Record both values in the panel to the right</span>
+        </div>
+
+        <div className="mt-3.5 p-3 rounded-xl text-xs" style={{ backgroundColor: KRAFT_AMBER_DIM, border: `1px solid ${KRAFT_AMBER_BORDER}` }}>
           <strong style={{ color: KRAFT_AMBER }}>Reference ranges (fasting):</strong><br />
           Glucose: 3.9–5.5 mmol/L<br />
           Insulin: 2–10 uIU/mL
@@ -934,108 +1022,377 @@ const GUIDANCE: Record<string, { title: string; body: React.ReactNode }> = {
       </>
     ),
   },
+
+
+
   kraft_drink_consumed: {
     title: 'Consume the Glucose Drink',
     body: (
       <>
-        <p>Your fasting readings are recorded. Now consume the 75g glucose solution to start the test.</p>
-        <div className="mt-3 p-3 rounded-xl text-xs" style={{ backgroundColor: KRAFT_AMBER_DIM, border: `1px solid ${KRAFT_AMBER_BORDER}` }}>
-          Drink the full solution within <strong style={{ color: KRAFT_AMBER }}>5 minutes</strong>. The 2-hour clock starts when you finish.
+        <p className="text-sm text-white/70 leading-relaxed">
+          Your fasting readings are recorded. Now consume the 75g glucose solution to start the test.
+        </p>
+
+        <div className="mt-3.5 flex gap-3 p-3 rounded-xl" style={{ backgroundColor: KRAFT_AMBER_DIM, border: `1px solid ${KRAFT_AMBER_BORDER}` }}>
+          <span className="shrink-0 w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
+            <Hourglass size={16} style={{ color: KRAFT_AMBER }} />
+          </span>
+          <p className="text-[13px] leading-relaxed pt-1.5">
+            Drink the full solution within <strong style={{ color: KRAFT_AMBER }}>5 minutes</strong>. The 2-hour clock starts when you finish.
+          </p>
         </div>
-        <p className="mt-3 text-xs">During the test:</p>
-        <ul className="mt-2 space-y-1.5 text-xs">
-          <li>Stay seated or gently mobile — no exercise</li>
-          <li>Water only — no food, coffee, or supplements</li>
-          <li>Set a 30-minute reminder for your next reading</li>
+
+        <p className="text-xs text-white/40 mt-4 mb-2.5">During the test</p>
+
+        <ul className="space-y-0.5">
+          <li className="flex gap-3 py-1">
+            <span className="shrink-0 w-7 h-7 rounded-full bg-white/5 flex items-center justify-center">
+              <Armchair size={13} className="text-white/60" />
+            </span>
+            <span className="text-[13px] text-white/70 pt-1">Stay seated or gently mobile — no exercise</span>
+          </li>
+
+          <li className="flex gap-3 py-1">
+            <span className="shrink-0 w-7 h-7 rounded-full bg-white/5 flex items-center justify-center">
+              <GlassWater size={13} className="text-white/60" />
+            </span>
+            <span className="text-[13px] text-white/70 pt-1">Water only — no food, coffee, or supplements</span>
+          </li>
+
+          <li className="flex gap-3 py-1">
+            <span className="shrink-0 w-7 h-7 rounded-full bg-white/5 flex items-center justify-center">
+              <Bell size={13} className="text-white/60" />
+            </span>
+            <span className="text-[13px] text-white/70 pt-1">Set a 30-minute reminder for your next reading</span>
+          </li>
         </ul>
       </>
     ),
   },
+
+  
   kraft_t30_reading: {
     title: 'T+30 min Reading',
     body: (
       <>
-        <p>30 minutes after finishing the glucose drink — take your second paired reading.</p>
-        <ol className="mt-3 space-y-2 list-decimal list-inside text-xs">
-          <li>Wash and dry your hands</li>
-          <li>Take glucose reading with glucose strip</li>
-          <li>Take insulin reading with insulin strip</li>
-          <li>Enter both values in the panel</li>
+        <div className="flex items-center gap-1.5 mb-4">
+          <div className="w-[22px] h-[22px] rounded-full flex items-center justify-center border-[1.5px] border-emerald-400/40">
+            <Check size={12} className="text-emerald-400" />
+          </div>
+          <div className="flex-1 h-0.5 bg-emerald-400/40" />
+          <div className="w-[22px] h-[22px] rounded-full flex items-center justify-center border-[1.5px]" style={{ backgroundColor: KRAFT_AMBER_DIM, borderColor: KRAFT_AMBER_BORDER }}>
+            <span className="text-[9px] font-bold" style={{ color: KRAFT_AMBER }}>30</span>
+          </div>
+          <div className="flex-1 h-0.5 bg-white/10" />
+          <div className="w-5 h-5 rounded-full flex items-center justify-center border-[1.5px] border-white/10 bg-white/5">
+            <span className="text-[8px] text-white/40">60</span>
+          </div>
+          <div className="flex-1 h-0.5 bg-white/10" />
+          <div className="w-5 h-5 rounded-full flex items-center justify-center border-[1.5px] border-white/10 bg-white/5">
+            <span className="text-[8px] text-white/40">90</span>
+          </div>
+          <div className="flex-1 h-0.5 bg-white/10" />
+          <div className="w-5 h-5 rounded-full flex items-center justify-center border-[1.5px] border-white/10 bg-white/5">
+            <span className="text-[8px] text-white/40">120</span>
+          </div>
+        </div>
+
+        <p className="text-sm text-white/70 leading-relaxed">
+          30 minutes after finishing the glucose drink — take your second paired reading.
+        </p>
+
+        <p className="text-xs text-white/40 mt-4 mb-2.5">Setup</p>
+        <ol className="space-y-0.5">
+          <li className="flex gap-3 py-1">
+            <span className="shrink-0 w-[26px] h-[26px] rounded-full bg-white/5 flex items-center justify-center">
+              <Hand size={12} className="text-white/60" />
+            </span>
+            <span className="text-[13px] text-white/70 pt-1">Wash and dry your hands</span>
+          </li>
+          <li className="flex gap-3 py-1">
+            <span className="shrink-0 w-[26px] h-[26px] rounded-full bg-white/5 flex items-center justify-center">
+              <Droplet size={12} className="text-white/60" />
+            </span>
+            <span className="text-[13px] text-white/70 pt-1">Take glucose reading with glucose strip</span>
+          </li>
+          <li className="flex gap-3 py-1">
+            <span className="shrink-0 w-[26px] h-[26px] rounded-full bg-white/5 flex items-center justify-center">
+              <Droplets size={12} className="text-white/60" />
+            </span>
+            <span className="text-[13px] text-white/70 pt-1">Take insulin reading with insulin strip</span>
+          </li>
         </ol>
-        <div className="mt-3 p-3 rounded-xl text-xs" style={{ backgroundColor: KRAFT_AMBER_DIM, border: `1px solid ${KRAFT_AMBER_BORDER}` }}>
+
+        <div className="h-px bg-white/10 my-3.5" />
+
+        <p className="text-xs font-medium mb-2.5" style={{ color: KRAFT_AMBER }}>Your turn</p>
+        <div className="flex gap-3 p-2.5 rounded-lg" style={{ backgroundColor: KRAFT_AMBER_DIM, border: `1px solid ${KRAFT_AMBER_BORDER}` }}>
+          <span className="shrink-0 w-[26px] h-[26px] rounded-full bg-white/10 flex items-center justify-center">
+            <Pencil size={12} style={{ color: KRAFT_AMBER }} />
+          </span>
+          <span className="text-[13px] pt-1">Enter both values in the panel</span>
+        </div>
+
+        <div className="mt-3.5 p-3 rounded-xl text-xs" style={{ backgroundColor: KRAFT_AMBER_DIM, border: `1px solid ${KRAFT_AMBER_BORDER}` }}>
           <strong style={{ color: KRAFT_AMBER }}>Expected:</strong> Glucose rising. Insulin should be rising sharply — a healthy first-phase response peaks between T30 and T60.
         </div>
       </>
     ),
   },
+
   kraft_t60_reading: {
     title: 'T+60 min Reading',
     body: (
       <>
-        <p>60 minutes since the drink. Most people see glucose at or near its peak here.</p>
-        <ol className="mt-3 space-y-2 list-decimal list-inside text-xs">
-          <li>Wash and dry your hands</li>
-          <li>Take glucose reading</li>
-          <li>Take insulin reading</li>
-          <li>Enter both values in the panel</li>
+        <div className="flex items-center gap-1.5 mb-4">
+          <div className="w-[22px] h-[22px] rounded-full flex items-center justify-center border-[1.5px] border-emerald-400/40">
+            <Check size={12} className="text-emerald-400" />
+          </div>
+          <div className="flex-1 h-0.5 bg-emerald-400/40" />
+          <div className="w-[22px] h-[22px] rounded-full flex items-center justify-center border-[1.5px] border-emerald-400/40">
+            <Check size={12} className="text-emerald-400" />
+          </div>
+          <div className="flex-1 h-0.5 bg-emerald-400/40" />
+          <div className="w-[22px] h-[22px] rounded-full flex items-center justify-center border-[1.5px]" style={{ backgroundColor: KRAFT_AMBER_DIM, borderColor: KRAFT_AMBER_BORDER }}>
+            <span className="text-[9px] font-bold" style={{ color: KRAFT_AMBER }}>60</span>
+          </div>
+          <div className="flex-1 h-0.5 bg-white/10" />
+          <div className="w-5 h-5 rounded-full flex items-center justify-center border-[1.5px] border-white/10 bg-white/5">
+            <span className="text-[8px] text-white/40">90</span>
+          </div>
+          <div className="flex-1 h-0.5 bg-white/10" />
+          <div className="w-5 h-5 rounded-full flex items-center justify-center border-[1.5px] border-white/10 bg-white/5">
+            <span className="text-[8px] text-white/40">120</span>
+          </div>
+        </div>
+
+        <p className="text-sm text-white/70 leading-relaxed">
+          60 minutes since the drink. Most people see glucose at or near its peak here.
+        </p>
+
+        <p className="text-xs text-white/40 mt-4 mb-2.5">Setup</p>
+        <ol className="space-y-0.5">
+          <li className="flex gap-3 py-1">
+            <span className="shrink-0 w-[26px] h-[26px] rounded-full bg-white/5 flex items-center justify-center">
+              <Hand size={12} className="text-white/60" />
+            </span>
+            <span className="text-[13px] text-white/70 pt-1">Wash and dry your hands</span>
+          </li>
+          <li className="flex gap-3 py-1">
+            <span className="shrink-0 w-[26px] h-[26px] rounded-full bg-white/5 flex items-center justify-center">
+              <Droplet size={12} className="text-white/60" />
+            </span>
+            <span className="text-[13px] text-white/70 pt-1">Take glucose reading</span>
+          </li>
+          <li className="flex gap-3 py-1">
+            <span className="shrink-0 w-[26px] h-[26px] rounded-full bg-white/5 flex items-center justify-center">
+              <Droplets size={12} className="text-white/60" />
+            </span>
+            <span className="text-[13px] text-white/70 pt-1">Take insulin reading</span>
+          </li>
         </ol>
-        <div className="mt-3 p-3 rounded-xl text-xs" style={{ backgroundColor: KRAFT_AMBER_DIM, border: `1px solid ${KRAFT_AMBER_BORDER}` }}>
-          Set a reminder for your T+90 reading — 30 minutes from now.
+
+        <div className="h-px bg-white/10 my-3.5" />
+
+        <p className="text-xs font-medium mb-2.5" style={{ color: KRAFT_AMBER }}>Your turn</p>
+        <div className="flex gap-3 p-2.5 rounded-lg" style={{ backgroundColor: KRAFT_AMBER_DIM, border: `1px solid ${KRAFT_AMBER_BORDER}` }}>
+          <span className="shrink-0 w-[26px] h-[26px] rounded-full bg-white/10 flex items-center justify-center">
+            <Pencil size={12} style={{ color: KRAFT_AMBER }} />
+          </span>
+          <span className="text-[13px] pt-1">Enter both values in the panel</span>
+        </div>
+
+        <div className="mt-3.5 flex gap-2.5 p-3 rounded-xl text-[13px]" style={{ backgroundColor: KRAFT_AMBER_DIM, border: `1px solid ${KRAFT_AMBER_BORDER}` }}>
+          <Bell size={14} className="shrink-0 mt-0.5" style={{ color: KRAFT_AMBER }} />
+          <span>Set a reminder for your T+90 reading — 30 minutes from now.</span>
         </div>
       </>
     ),
   },
+
   kraft_t90_reading: {
     title: 'T+90 min Reading',
     body: (
       <>
-        <p>90 minutes since the drink. Glucose should be declining. Insulin patterns here help classify your response type.</p>
-        <ol className="mt-3 space-y-2 list-decimal list-inside text-xs">
-          <li>Wash and dry your hands</li>
-          <li>Take glucose reading</li>
-          <li>Take insulin reading</li>
-          <li>Enter both values in the panel</li>
+        <div className="flex items-center gap-1.5 mb-4">
+          <div className="w-[22px] h-[22px] rounded-full flex items-center justify-center border-[1.5px] border-emerald-400/40">
+            <Check size={12} className="text-emerald-400" />
+          </div>
+          <div className="flex-1 h-0.5 bg-emerald-400/40" />
+          <div className="w-[22px] h-[22px] rounded-full flex items-center justify-center border-[1.5px] border-emerald-400/40">
+            <Check size={12} className="text-emerald-400" />
+          </div>
+          <div className="flex-1 h-0.5 bg-emerald-400/40" />
+          <div className="w-[22px] h-[22px] rounded-full flex items-center justify-center border-[1.5px] border-emerald-400/40">
+            <Check size={12} className="text-emerald-400" />
+          </div>
+          <div className="flex-1 h-0.5 bg-emerald-400/40" />
+          <div className="w-[22px] h-[22px] rounded-full flex items-center justify-center border-[1.5px]" style={{ backgroundColor: KRAFT_AMBER_DIM, borderColor: KRAFT_AMBER_BORDER }}>
+            <span className="text-[9px] font-bold" style={{ color: KRAFT_AMBER }}>90</span>
+          </div>
+          <div className="flex-1 h-0.5 bg-white/10" />
+          <div className="w-5 h-5 rounded-full flex items-center justify-center border-[1.5px] border-white/10 bg-white/5">
+            <span className="text-[8px] text-white/40">120</span>
+          </div>
+        </div>
+
+        <p className="text-sm text-white/70 leading-relaxed">
+          90 minutes since the drink. Glucose should be declining. Insulin patterns here help classify your response type.
+        </p>
+
+        <p className="text-xs text-white/40 mt-4 mb-2.5">Setup</p>
+        <ol className="space-y-0.5">
+          <li className="flex gap-3 py-1">
+            <span className="shrink-0 w-[26px] h-[26px] rounded-full bg-white/5 flex items-center justify-center">
+              <Hand size={12} className="text-white/60" />
+            </span>
+            <span className="text-[13px] text-white/70 pt-1">Wash and dry your hands</span>
+          </li>
+          <li className="flex gap-3 py-1">
+            <span className="shrink-0 w-[26px] h-[26px] rounded-full bg-white/5 flex items-center justify-center">
+              <Droplet size={12} className="text-white/60" />
+            </span>
+            <span className="text-[13px] text-white/70 pt-1">Take glucose reading</span>
+          </li>
+          <li className="flex gap-3 py-1">
+            <span className="shrink-0 w-[26px] h-[26px] rounded-full bg-white/5 flex items-center justify-center">
+              <Droplets size={12} className="text-white/60" />
+            </span>
+            <span className="text-[13px] text-white/70 pt-1">Take insulin reading</span>
+          </li>
         </ol>
-        <div className="mt-3 p-3 rounded-xl text-xs" style={{ backgroundColor: KRAFT_AMBER_DIM, border: `1px solid ${KRAFT_AMBER_BORDER}` }}>
+
+        <div className="h-px bg-white/10 my-3.5" />
+
+        <p className="text-xs font-medium mb-2.5" style={{ color: KRAFT_AMBER }}>Your turn</p>
+        <div className="flex gap-3 p-2.5 rounded-lg" style={{ backgroundColor: KRAFT_AMBER_DIM, border: `1px solid ${KRAFT_AMBER_BORDER}` }}>
+          <span className="shrink-0 w-[26px] h-[26px] rounded-full bg-white/10 flex items-center justify-center">
+            <Pencil size={12} style={{ color: KRAFT_AMBER }} />
+          </span>
+          <span className="text-[13px] pt-1">Enter both values in the panel</span>
+        </div>
+
+        <div className="mt-3.5 p-3 rounded-xl text-xs" style={{ backgroundColor: KRAFT_AMBER_DIM, border: `1px solid ${KRAFT_AMBER_BORDER}` }}>
           One more reading after this — at T+120 min. Almost done.
         </div>
       </>
     ),
   },
+
   kraft_t120_reading: {
     title: 'T+120 min — Final Reading',
     body: (
       <>
-        <p>The final reading. 2 hours since your glucose drink — this is your last paired measurement.</p>
-        <ol className="mt-3 space-y-2 list-decimal list-inside text-xs">
-          <li>Wash and dry your hands</li>
-          <li>Take glucose reading</li>
-          <li>Take insulin reading</li>
-          <li>Enter both values in the panel</li>
+        <div className="flex items-center gap-1.5 mb-4">
+          <div className="w-[22px] h-[22px] rounded-full flex items-center justify-center border-[1.5px] border-emerald-400/40">
+            <Check size={12} className="text-emerald-400" />
+          </div>
+          <div className="flex-1 h-0.5 bg-emerald-400/40" />
+          <div className="w-[22px] h-[22px] rounded-full flex items-center justify-center border-[1.5px] border-emerald-400/40">
+            <Check size={12} className="text-emerald-400" />
+          </div>
+          <div className="flex-1 h-0.5 bg-emerald-400/40" />
+          <div className="w-[22px] h-[22px] rounded-full flex items-center justify-center border-[1.5px] border-emerald-400/40">
+            <Check size={12} className="text-emerald-400" />
+          </div>
+          <div className="flex-1 h-0.5 bg-emerald-400/40" />
+          <div className="w-[22px] h-[22px] rounded-full flex items-center justify-center border-[1.5px] border-emerald-400/40">
+            <Check size={12} className="text-emerald-400" />
+          </div>
+          <div className="flex-1 h-0.5 bg-emerald-400/40" />
+          <div className="w-[22px] h-[22px] rounded-full flex items-center justify-center border-[1.5px]" style={{ backgroundColor: KRAFT_AMBER_DIM, borderColor: KRAFT_AMBER_BORDER }}>
+            <span className="text-[9px] font-bold" style={{ color: KRAFT_AMBER }}>120</span>
+          </div>
+        </div>
+
+        <p className="text-sm text-white/70 leading-relaxed">
+          The final reading. 2 hours since your glucose drink — this is your last paired measurement.
+        </p>
+
+        <p className="text-xs text-white/40 mt-4 mb-2.5">Setup</p>
+        <ol className="space-y-0.5">
+          <li className="flex gap-3 py-1">
+            <span className="shrink-0 w-[26px] h-[26px] rounded-full bg-white/5 flex items-center justify-center">
+              <Hand size={12} className="text-white/60" />
+            </span>
+            <span className="text-[13px] text-white/70 pt-1">Wash and dry your hands</span>
+          </li>
+          <li className="flex gap-3 py-1">
+            <span className="shrink-0 w-[26px] h-[26px] rounded-full bg-white/5 flex items-center justify-center">
+              <Droplet size={12} className="text-white/60" />
+            </span>
+            <span className="text-[13px] text-white/70 pt-1">Take glucose reading</span>
+          </li>
+          <li className="flex gap-3 py-1">
+            <span className="shrink-0 w-[26px] h-[26px] rounded-full bg-white/5 flex items-center justify-center">
+              <Droplets size={12} className="text-white/60" />
+            </span>
+            <span className="text-[13px] text-white/70 pt-1">Take insulin reading</span>
+          </li>
         </ol>
-        <div className="mt-3 p-3 rounded-xl text-xs" style={{ backgroundColor: KRAFT_AMBER_DIM, border: `1px solid ${KRAFT_AMBER_BORDER}` }}>
+
+        <div className="h-px bg-white/10 my-3.5" />
+
+        <p className="text-xs font-medium mb-2.5" style={{ color: KRAFT_AMBER }}>Your turn</p>
+        <div className="flex gap-3 p-2.5 rounded-lg" style={{ backgroundColor: KRAFT_AMBER_DIM, border: `1px solid ${KRAFT_AMBER_BORDER}` }}>
+          <span className="shrink-0 w-[26px] h-[26px] rounded-full bg-white/10 flex items-center justify-center">
+            <Pencil size={12} style={{ color: KRAFT_AMBER }} />
+          </span>
+          <span className="text-[13px] pt-1">Enter both values in the panel</span>
+        </div>
+
+        <div className="mt-3.5 p-3 rounded-xl text-xs" style={{ backgroundColor: KRAFT_AMBER_DIM, border: `1px solid ${KRAFT_AMBER_BORDER}` }}>
           <strong style={{ color: KRAFT_AMBER }}>After this:</strong> Your 5-point Kraft curve will be submitted automatically. You're done — you can eat normally.
         </div>
       </>
     ),
   },
+
+
+
   kraft_complete: {
     title: 'Test Complete',
     body: (
       <>
-        <p>All 5 timepoints captured. Your Kraft curve is being submitted and will appear in the Analysis tab shortly.</p>
-        <p className="mt-3 text-xs">Kraft patterns:</p>
-        <div className="mt-2 space-y-1.5 text-xs">
-          {['Pattern 0 — Normal response', 'Pattern I — Mild hyperinsulinaemia', 'Pattern II — Moderate', 'Pattern III–IV — Significant insulin dysfunction', 'Pattern V — Severe; T2D trajectory'].map((p, i) => (
-            <div key={i} className="flex items-start gap-2">
-              <div className="w-1.5 h-1.5 rounded-full mt-1 flex-shrink-0" style={{ backgroundColor: KRAFT_AMBER }} />
-              <span>{p}</span>
+        <div className="flex items-center gap-1.5 mb-4">
+          {[0, 1, 2, 3, 4].map((i) => (
+            <div key={i} className="flex items-center flex-1 last:flex-none">
+              <div className="w-[22px] h-[22px] rounded-full flex items-center justify-center border-[1.5px] border-emerald-400/40">
+                <Check size={12} className="text-emerald-400" />
+              </div>
+              {i < 4 && <div className="flex-1 h-0.5 bg-emerald-400/40" />}
+            </div>
+          ))}
+        </div>
+
+        <div className="flex gap-3 p-3 rounded-lg bg-emerald-400/10 border border-emerald-400/20 mb-4">
+          <CircleCheck size={20} className="text-emerald-400 shrink-0" />
+          <p className="text-sm leading-relaxed">
+            All 5 timepoints captured. Your Kraft curve is being submitted and will appear in the Analysis tab shortly.
+          </p>
+        </div>
+
+        <p className="text-xs text-white/40 mb-2.5">Kraft patterns</p>
+
+        <div className="space-y-0.5">
+          {[
+            { label: 'Pattern 0 — Normal response', color: '#4ade80' },
+            { label: 'Pattern I — Mild hyperinsulinaemia', color: '#bef264' },
+            { label: 'Pattern II — Moderate', color: '#fbbf24' },
+            { label: 'Pattern III–IV — Significant insulin dysfunction', color: '#fb923c' },
+            { label: 'Pattern V — Severe; T2D trajectory', color: '#f87171' },
+          ].map((p, i) => (
+            <div key={i} className="flex items-center gap-2.5 py-1.5">
+              <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: p.color }} />
+              <span className="text-[12.5px] text-white/70">{p.label}</span>
             </div>
           ))}
         </div>
       </>
     ),
   },
+
+
   // ── Legacy Kraft ─────────────────────────────────────────────────────────
   fasting: {
     title: 'Step 1 — Confirm Your Fast',
@@ -1072,8 +1429,6 @@ const GUIDANCE: Record<string, { title: string; body: React.ReactNode }> = {
 
     ),
   },
-
-
   bas_glucose_reading: {
     title: 'Step 1 — Fasting Blood Glucose',
     body: (
@@ -1131,8 +1486,6 @@ const GUIDANCE: Record<string, { title: string; body: React.ReactNode }> = {
       </>
     ),
   },
-
-
   bas_lipid_reading: {
     title: 'Step 2 — Lipid Panel',
     body: (
@@ -1192,66 +1545,64 @@ const GUIDANCE: Record<string, { title: string; body: React.ReactNode }> = {
     ),
   },
   bas_anthropometrics: {
-  title: 'Step 3 — Body Measurements',
-  body: (
-    <>
-      <div className="flex gap-3 p-3 rounded-xl bg-white/5">
-        <span className="shrink-0 w-9 h-9 rounded-full bg-emerald-400/10 flex items-center justify-center">
-          <Ruler size={18} className="text-emerald-400" />
-        </span>
-        <div>
-          <p className="text-sm font-medium mb-1.5">How to measure your waist</p>
-          <p className="text-sm text-white/70 leading-relaxed">
-            Stand relaxed. Wrap a tape measure around your bare abdomen at navel height.
-            Breathe out naturally — don't hold your breath or pull the tape tight. Read the number.
+    title: 'Step 3 — Body Measurements',
+    body: (
+      <>
+        <div className="flex gap-3 p-3 rounded-xl bg-white/5">
+          <span className="shrink-0 w-9 h-9 rounded-full bg-emerald-400/10 flex items-center justify-center">
+            <Ruler size={18} className="text-emerald-400" />
+          </span>
+          <div>
+            <p className="text-sm font-medium mb-1.5">How to measure your waist</p>
+            <p className="text-sm text-white/70 leading-relaxed">
+              Stand relaxed. Wrap a tape measure around your bare abdomen at navel height.
+              Breathe out naturally — don't hold your breath or pull the tape tight. Read the number.
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-3 flex gap-2.5 pl-3 border-l-2 border-white/15">
+          <Info size={14} className="shrink-0 mt-0.5 text-white/40" />
+          <p className="text-xs text-white/60">
+            Height and weight can be from a recent measurement if you don't have scales handy.
           </p>
         </div>
-      </div>
-
-      <div className="mt-3 flex gap-2.5 pl-3 border-l-2 border-white/15">
-        <Info size={14} className="shrink-0 mt-0.5 text-white/40" />
-        <p className="text-xs text-white/60">
-          Height and weight can be from a recent measurement if you don't have scales handy.
+      </>
+    ),
+  },
+  bas_complete: {
+    title: 'Your Results',
+    body: (
+      <>
+        <p className="text-sm text-white/70 leading-relaxed">
+          Your BAS is a composite score combining fasting glucose, your lipid panel, and an estimate of visceral fat from your measurements.
         </p>
-      </div>
-    </>
-  ),
-},
 
+        <div className="grid grid-cols-2 gap-2.5 mt-4">
+          <div className="p-3 rounded-lg bg-emerald-400/10 border border-emerald-400/20">
+            <TrendingDown size={18} className="text-emerald-400" />
+            <p className="text-[13px] font-medium mt-2 mb-1 text-emerald-400">BAS lower than your age</p>
+            <p className="text-xs text-white/60">Metabolically younger than your years</p>
+          </div>
 
-bas_complete: {
-  title: 'Your Results',
-  body: (
-    <>
-      <p className="text-sm text-white/70 leading-relaxed">
-        Your BAS is a composite score combining fasting glucose, your lipid panel, and an estimate of visceral fat from your measurements.
-      </p>
-
-      <div className="grid grid-cols-2 gap-2.5 mt-4">
-        <div className="p-3 rounded-lg bg-emerald-400/10 border border-emerald-400/20">
-          <TrendingDown size={18} className="text-emerald-400" />
-          <p className="text-[13px] font-medium mt-2 mb-1 text-emerald-400">BAS lower than your age</p>
-          <p className="text-xs text-white/60">Metabolically younger than your years</p>
+          <div className="p-3 rounded-lg bg-amber-400/10 border border-amber-400/20">
+            <TrendingUp size={18} className="text-amber-400" />
+            <p className="text-[13px] font-medium mt-2 mb-1 text-amber-400">BAS higher than your age</p>
+            <p className="text-xs text-white/60">Room to improve — MeO will explain the levers</p>
+          </div>
         </div>
 
-        <div className="p-3 rounded-lg bg-amber-400/10 border border-amber-400/20">
-          <TrendingUp size={18} className="text-amber-400" />
-          <p className="text-[13px] font-medium mt-2 mb-1 text-amber-400">BAS higher than your age</p>
-          <p className="text-xs text-white/60">Room to improve — MeO will explain the levers</p>
+        <div className="mt-4 flex gap-3 p-3 rounded-lg bg-emerald-400/10 border border-emerald-400/20">
+          <span className="shrink-0 w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
+            <Copy size={15} className="text-emerald-400" />
+          </span>
+          <span className="text-sm pt-1.5">
+            Copy your data and paste it into Personalise to store it permanently and unlock your Analysis tab
+          </span>
         </div>
-      </div>
-
-      <div className="mt-4 flex gap-3 p-3 rounded-lg bg-emerald-400/10 border border-emerald-400/20">
-        <span className="shrink-0 w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
-          <Copy size={15} className="text-emerald-400" />
-        </span>
-        <span className="text-sm pt-1.5">
-          Copy your data and paste it into Personalise to store it permanently and unlock your Analysis tab
-        </span>
-      </div>
-    </>
-  ),
-},
+      </>
+    ),
+  },
 };
 
 // ── Progress track ────────────────────────────────────────────────────────────
@@ -1304,16 +1655,16 @@ function ProgressTrack({ protocolState, colors }: { protocolState: string; color
 
 const PROTOCOL_NEXT: Record<string, string> = {
   'bas_fasting_confirmed': 'bas_glucose_reading',
-  'bas_glucose_reading':   'bas_lipid_reading',
-  'bas_lipid_reading':     'bas_anthropometrics',
-  'bas_anthropometrics':   'bas_complete',
+  'bas_glucose_reading': 'bas_lipid_reading',
+  'bas_lipid_reading': 'bas_anthropometrics',
+  'bas_anthropometrics': 'bas_complete',
   'kraft_fasting_confirmed': 'kraft_t0_reading',
-  'kraft_t0_reading':        'kraft_drink_consumed',
-  'kraft_drink_consumed':    'kraft_t30_reading',
-  'kraft_t30_reading':       'kraft_t60_reading',
-  'kraft_t60_reading':       'kraft_t90_reading',
-  'kraft_t90_reading':       'kraft_t120_reading',
-  'kraft_t120_reading':      'kraft_complete',
+  'kraft_t0_reading': 'kraft_drink_consumed',
+  'kraft_drink_consumed': 'kraft_t30_reading',
+  'kraft_t30_reading': 'kraft_t60_reading',
+  'kraft_t60_reading': 'kraft_t90_reading',
+  'kraft_t90_reading': 'kraft_t120_reading',
+  'kraft_t120_reading': 'kraft_complete',
 };
 
 // Linear ordering of each protocol — used to decide whether the backend has
@@ -1348,7 +1699,7 @@ export function ProtocolPanel({ protocolState, onSubmit, onExit }: ProtocolPanel
     if (!localState) return;
     const order = localState.startsWith('bas_') ? BAS_ORDER : KRAFT_ORDER;
     const backendPos = order.indexOf(protocolState);
-    const localPos  = order.indexOf(localState);
+    const localPos = order.indexOf(localState);
     // backendPos === -1 means backend is on a different protocol track — ignore.
     // Only clear when backend has reached or passed where we are locally.
     if (backendPos !== -1 && backendPos >= localPos) {
@@ -1376,27 +1727,27 @@ export function ProtocolPanel({ protocolState, onSubmit, onExit }: ProtocolPanel
     switch (effectiveState) {
       // BAS
       case 'bas_fasting_confirmed': return <FastingConfirm onSubmit={handleSubmit} colors={colors} />;
-      case 'bas_glucose_reading':   return <GlucoseReading onSubmit={handleSubmit} onData={mergeData} colors={colors} />;
-      case 'bas_lipid_reading':     return <LipidReading onSubmit={handleSubmit} onData={mergeData} colors={colors} />;
-      case 'bas_anthropometrics':   return <Anthropometrics onSubmit={handleSubmit} onData={mergeData} colors={colors} />;
-      case 'bas_complete':          return <BASComplete onViewResults={onExit} colors={colors} data={collectedData} />;
+      case 'bas_glucose_reading': return <GlucoseReading onSubmit={handleSubmit} onData={mergeData} colors={colors} />;
+      case 'bas_lipid_reading': return <LipidReading onSubmit={handleSubmit} onData={mergeData} colors={colors} />;
+      case 'bas_anthropometrics': return <Anthropometrics onSubmit={handleSubmit} onData={mergeData} colors={colors} />;
+      case 'bas_complete': return <BASComplete onViewResults={onExit} colors={colors} data={collectedData} />;
       // Kraft OGTT redesigned
       case 'kraft_fasting_confirmed': return <KraftFastingConfirm onSubmit={handleSubmit} colors={colors} />;
       // key per timepoint forces React to unmount+remount each step rather than
       // reusing the same KraftMeasurementStep instance (which would preserve stale
       // glucose/insulin values from the previous step in local state).
-      case 'kraft_t0_reading':        return <KraftMeasurementStep key="t0"   timeLabel="T0 — Fasting" minuteOffset={null} glucoseKey="kraft_t0_glucose" insulinKey="kraft_t0_insulin" isT0 onData={mergeData} onSubmit={handleSubmit} colors={colors} />;
-      case 'kraft_drink_consumed':    return <KraftDrinkConfirm onSubmit={handleSubmit} colors={colors} />;
-      case 'kraft_t30_reading':       return <KraftMeasurementStep key="t30"  timeLabel="+30 min" minuteOffset={30}  glucoseKey="kraft_t30_glucose" insulinKey="kraft_t30_insulin" isT0={false} onData={mergeData} onSubmit={handleSubmit} colors={colors} />;
-      case 'kraft_t60_reading':       return <KraftMeasurementStep key="t60"  timeLabel="+60 min" minuteOffset={60}  glucoseKey="kraft_t60_glucose" insulinKey="kraft_t60_insulin" isT0={false} onData={mergeData} onSubmit={handleSubmit} colors={colors} />;
-      case 'kraft_t90_reading':       return <KraftMeasurementStep key="t90"  timeLabel="+90 min" minuteOffset={90}  glucoseKey="kraft_t90_glucose" insulinKey="kraft_t90_insulin" isT0={false} onData={mergeData} onSubmit={handleSubmit} colors={colors} />;
-      case 'kraft_t120_reading':      return <KraftMeasurementStep key="t120" timeLabel="+120 min" minuteOffset={120} glucoseKey="kraft_t120_glucose" insulinKey="kraft_t120_insulin" isT0={false} onData={mergeData} onSubmit={handleSubmit} colors={colors} />;
-      case 'kraft_complete':          return <KraftComplete onExit={onExit} colors={colors} data={collectedData} />;
+      case 'kraft_t0_reading': return <KraftMeasurementStep key="t0" timeLabel="T0 — Fasting" minuteOffset={null} glucoseKey="kraft_t0_glucose" insulinKey="kraft_t0_insulin" isT0 onData={mergeData} onSubmit={handleSubmit} colors={colors} />;
+      case 'kraft_drink_consumed': return <KraftDrinkConfirm onSubmit={handleSubmit} colors={colors} />;
+      case 'kraft_t30_reading': return <KraftMeasurementStep key="t30" timeLabel="+30 min" minuteOffset={30} glucoseKey="kraft_t30_glucose" insulinKey="kraft_t30_insulin" isT0={false} onData={mergeData} onSubmit={handleSubmit} colors={colors} />;
+      case 'kraft_t60_reading': return <KraftMeasurementStep key="t60" timeLabel="+60 min" minuteOffset={60} glucoseKey="kraft_t60_glucose" insulinKey="kraft_t60_insulin" isT0={false} onData={mergeData} onSubmit={handleSubmit} colors={colors} />;
+      case 'kraft_t90_reading': return <KraftMeasurementStep key="t90" timeLabel="+90 min" minuteOffset={90} glucoseKey="kraft_t90_glucose" insulinKey="kraft_t90_insulin" isT0={false} onData={mergeData} onSubmit={handleSubmit} colors={colors} />;
+      case 'kraft_t120_reading': return <KraftMeasurementStep key="t120" timeLabel="+120 min" minuteOffset={120} glucoseKey="kraft_t120_glucose" insulinKey="kraft_t120_insulin" isT0={false} onData={mergeData} onSubmit={handleSubmit} colors={colors} />;
+      case 'kraft_complete': return <KraftComplete onExit={onExit} colors={colors} data={collectedData} />;
       // Legacy Kraft (in-progress sessions before redesign)
-      case 'fasting':      return <KraftLegacyStep confirmLabel="Fasting confirmed, taking reading now" onSubmit={handleSubmit} colors={colors} />;
+      case 'fasting': return <KraftLegacyStep confirmLabel="Fasting confirmed, taking reading now" onSubmit={handleSubmit} colors={colors} />;
       case 'drink_consumed': return <KraftLegacyStep confirmLabel="Glucose drink consumed" onSubmit={handleSubmit} colors={colors} />;
-      case 'post_drink':   return <KraftLegacyStep confirmLabel="Post-drink reading logged" onSubmit={handleSubmit} colors={colors} />;
-      case 'complete':     return (
+      case 'post_drink': return <KraftLegacyStep confirmLabel="Post-drink reading logged" onSubmit={handleSubmit} colors={colors} />;
+      case 'complete': return (
         <div className="flex flex-col gap-5 h-full">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: `${colors.primary}20` }}>
