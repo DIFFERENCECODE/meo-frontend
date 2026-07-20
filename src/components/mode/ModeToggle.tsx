@@ -3,7 +3,7 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { User, Stethoscope } from 'lucide-react';
-import { useTheme } from '@/theme/ThemeProvider';
+import { useTheme, PRACTITIONER_ROLES } from '@/theme/ThemeProvider';
 import { Mode } from '@/theme/vendorThemes';
 
 interface ModeToggleProps {
@@ -14,9 +14,6 @@ const allModes: { id: Mode; label: string; icon: typeof User }[] = [
   { id: 'patient', label: 'Patient', icon: User },
   { id: 'practitioner', label: 'Practitioner', icon: Stethoscope },
 ];
-
-// Roles that can access practitioner mode
-const PRACTITIONER_ROLES = ['clinician', 'admin', 'practitioner'];
 
 export function ModeToggle({ className }: ModeToggleProps) {
   const { mode, setMode, theme, userRole } = useTheme();

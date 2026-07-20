@@ -61,6 +61,12 @@ const STORAGE_KEYS = {
   mode: 'meo-mode',
 } as const;
 
+// Roles allowed to see practitioner UI. The persisted mode preference is only
+// honoured for these roles — every other role always resolves to patient mode,
+// so a stale localStorage value (e.g. from another account in the same
+// browser) can never surface the practitioner workspace to a patient.
+export const PRACTITIONER_ROLES = ['clinician', 'admin', 'practitioner'];
+
 export function ThemeProvider({
   children,
   defaultVendor = 'meterbolic',
@@ -189,13 +195,19 @@ export function ThemeProvider({
   // User role (set from /api/me response by MeOApp)
   const [userRole, setUserRole] = useState<string>('demo');
 
+  // Role-gate the exposed mode: consumers (ThreePanelLayout, RightPanel, …)
+  // only ever see 'practitioner' when the signed-in role is allowed to use it.
+  // The raw preference stays in state/localStorage, so a clinician who
+  // reloads keeps their practitioner mode once their role arrives.
+  const effectiveMode: Mode = PRACTITIONER_ROLES.includes(userRole) ? mode : 'patient';
+
   const contextValue: ThemeContextValue = {
     vendor,
     setVendor,
     toggleVendor,
     theme,
     colors,
-    mode,
+    mode: effectiveMode,
     setMode,
     toggleMode,
     isLeftPanelOpen,
