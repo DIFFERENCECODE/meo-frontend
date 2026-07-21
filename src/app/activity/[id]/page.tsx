@@ -222,6 +222,15 @@ export default function MeasurementDetailPage() {
                           <div className="min-w-0 flex-1">
                             <p className="text-sm font-medium truncate" style={{ color: colors.foreground }}>{m.name}</p>
                             <p className="text-xs mt-0.5" style={{ color: colors.muted }}>{timeLabelOf(m.time)}</p>
+                            {m.recordId && (
+                              <p
+                                className="text-[11px] mt-1 font-mono truncate select-all"
+                                style={{ color: colors.muted, opacity: 0.75 }}
+                                title={m.recordId}
+                              >
+                                ID · {m.recordId}
+                              </p>
+                            )}
                           </div>
                           <div className="text-right shrink-0 mr-2">
                             <p className="text-base font-semibold tabular-nums" style={{ color: colors.primary }}>{typeof m.value === 'number' ? m.value.toFixed(2) : m.value}</p>
