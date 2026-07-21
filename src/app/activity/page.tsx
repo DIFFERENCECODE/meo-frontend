@@ -268,7 +268,7 @@ export default function ActivityPage() {
         label: 'Metabolic metrics',
         timeStart: times[0],
         timeEnd: times[times.length - 1],
-        items: computed,
+        items: computed.slice().sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime() || a.name.localeCompare(b.name)),
       });
     }
 
@@ -289,7 +289,7 @@ export default function ActivityPage() {
         series: gitems[0].measurementSeries,
         timeStart: times[0],
         timeEnd: times[times.length - 1],
-        items: gitems.sort((a, b) => a.name.localeCompare(b.name)),
+        items: gitems.sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime() || a.name.localeCompare(b.name)),
       });
     }
 
