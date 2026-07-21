@@ -62,6 +62,20 @@ export interface Session {
   items: Measurement[];
 }
 
+// The measurement ID for a reading. Prefers the stored recordId tag; when a
+// legacy row was written before recordId existed, derive the SAME deterministic
+// id the backend would assign ({series}__{analyte} for computed, +__{HHMMSS} for
+// timed readings) so an id is always shown.
+export function displayId(m: Measurement): string {
+  if (m.recordId) return String(m.recordId);
+  const series = m.measurementSeries || '';
+  if (!series) return '';
+  const analyte = (m.name || '').replace(/[^A-Za-z0-9]+/g, '');
+  if (classify(m) === 'computed') return `${series}__${analyte}`;
+  const hhmmss = new Date(m.time).toISOString().slice(11, 19).replace(/:/g, '');
+  return `${series}__${analyte}__${hhmmss}`;
+}
+
 export const dateKeyOf = (t: string) => new Date(t).toISOString().slice(0, 10);
 export const dateLabelOf = (t: string) =>
   new Date(t).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });

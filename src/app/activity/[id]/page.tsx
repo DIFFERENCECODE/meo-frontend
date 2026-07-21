@@ -9,7 +9,7 @@ import { AppShell } from '@/components/layout/AppShell';
 import { getValidIdToken } from '@/app/lib/auth';
 import {
   Measurement, Session, SRC_META, extractMeasurements, findSessionById,
-  timeLabelOf, dateLabelOf,
+  timeLabelOf, dateLabelOf, displayId,
 } from '../sessionUtils';
 
 const COMMON_ANALYTES = [
@@ -222,13 +222,13 @@ export default function MeasurementDetailPage() {
                           <div className="min-w-0 flex-1">
                             <p className="text-sm font-medium truncate" style={{ color: colors.foreground }}>{m.name}</p>
                             <p className="text-xs mt-0.5" style={{ color: colors.muted }}>{timeLabelOf(m.time)}</p>
-                            {m.recordId && (
+                            {displayId(m) && (
                               <p
                                 className="text-[11px] mt-1 font-mono truncate select-all"
                                 style={{ color: colors.muted, opacity: 0.75 }}
-                                title={m.recordId}
+                                title={displayId(m)}
                               >
-                                ID · {m.recordId}
+                                ID · {displayId(m)}
                               </p>
                             )}
                           </div>
