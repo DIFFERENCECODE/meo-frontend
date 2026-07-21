@@ -39,7 +39,7 @@ export const translations: Record<'en' | 'ar' | 'hi' | 'nl' | 'zh', Messages> = 
     'chat.placeholder_main': 'Ask a question about metabolic health…',
     'home.tagline': 'Your Metabolic Health AI Assistant',
     'home.measure_title': 'Measure what matters',
-    'home.measure_desc': 'Lab-grade lipid meter. Biological Age Score at home. 20 test strips included — no clinic visit needed.',
+    'home.measure_desc': 'Lab-grade lipid meter. Biological Age Score at home. 10 test strips included — no clinic visit needed.',
     'home.get_meter': 'Get the Meter →',
     'suggest.ind1': 'What is the Biological Age Score?',
     'suggest.ind2': 'How do I measure my Biological Age Score at home?',
