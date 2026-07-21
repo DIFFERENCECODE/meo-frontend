@@ -1,5 +1,5 @@
 // Shared helpers for the Activity list + measurement-detail pages.
-import { Sigma, Waves, FlaskConical, Droplet, ClipboardPen } from 'lucide-react';
+import { Sigma, Waves, FlaskConical, Droplet, ClipboardPen, Activity, TestTube } from 'lucide-react';
 
 export interface Measurement {
   time: string;
@@ -14,7 +14,7 @@ export interface Measurement {
   deviceClass?: string | null;
 }
 
-export type SrcType = 'computed' | 'integration' | 'manual' | 'lab' | 'recorded';
+export type SrcType = 'computed' | 'lipid' | 'cgm' | 'ketone' | 'lab' | 'integration' | 'manual' | 'recorded';
 
 // Composite/derived metrics — shown in their own group, never mixed with raw
 // device readings. Fallback for rows whose source tag isn't set yet.
@@ -27,18 +27,25 @@ export const HEADLINE_ORDER = ['BAS', 'Glucose', 'Insulin', 'Total Cholesterol',
 
 export function classify(m: Measurement): SrcType {
   const s = (m.source || '').toUpperCase();
-  if (s === 'INDICES' || INDEX_ANALYTES.has(m.name)) return 'computed';
-  if (s === 'INTEGRATION') return 'integration';
   const dc = (m.deviceClass || '').toUpperCase();
-  if (dc === 'LABORATORY' || dc === 'LAB') return 'lab';
+  if (s === 'INDICES' || dc === 'COMPUTED' || INDEX_ANALYTES.has(m.name)) return 'computed';
+  if (dc === 'LIPID_METER') return 'lipid';
+  if (dc === 'CGM') return 'cgm';
+  if (dc === 'KETONE_METER') return 'ketone';
+  if (dc === 'LAB' || dc === 'LABORATORY') return 'lab';
+  if (dc === 'MANUAL') return 'manual';
+  if (s === 'INTEGRATION') return 'integration';
   if (s === 'INCOMING') return 'manual';
   return 'recorded';
 }
 
 export const SRC_META: Record<SrcType, { label: string; color: string; Icon: any; title: string }> = {
   computed: { label: 'Computed', color: '#b79ce0', Icon: Sigma, title: 'Metabolic metrics' },
+  lipid: { label: 'Lipid meter', color: '#e58a72', Icon: Droplet, title: 'Lipid panel' },
+  cgm: { label: 'CGM', color: '#6fb7d6', Icon: Activity, title: 'Continuous glucose' },
+  ketone: { label: 'Ketone meter', color: '#e6b95a', Icon: FlaskConical, title: 'Blood ketones' },
+  lab: { label: 'Lab', color: '#a4d65e', Icon: TestTube, title: 'Lab panel' },
   integration: { label: 'Integration', color: '#6fb7d6', Icon: Waves, title: 'Device panel' },
-  lab: { label: 'Lab', color: '#a4d65e', Icon: FlaskConical, title: 'Lab panel' },
   manual: { label: 'Manual entry', color: '#8fa89c', Icon: ClipboardPen, title: 'Panel' },
   recorded: { label: 'Recorded', color: '#8fa89c', Icon: Droplet, title: 'Panel' },
 };

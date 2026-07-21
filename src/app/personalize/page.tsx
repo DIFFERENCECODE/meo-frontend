@@ -32,6 +32,7 @@ interface MeasurementItem {
   recordType: string;
   subjectState: string;
   canontimeofglucose: string;
+  deviceClass?: string;
 }
 
 interface ParsedPayload {
@@ -130,6 +131,7 @@ export default function PersonalizePage() {
   const [userEmail, setUserEmail] = useState('');
   const [timezone, setTimezone] = useState('UTC');
   const [mounted, setMounted] = useState(false);
+  const [deviceClass, setDeviceClass] = useState('MANUAL');
 
   // Set client-only values after mount to avoid hydration mismatch
   useEffect(() => {
@@ -374,7 +376,10 @@ export default function PersonalizePage() {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({
+          ...payload,
+          items: payload.items.map((it) => ({ ...it, deviceClass })),
+        }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -954,6 +959,28 @@ export default function PersonalizePage() {
                     {parsing ? <RefreshCw className="h-4 w-4 animate-spin" /> : 'Refine'}
                   </button>
                 </div>
+              </div>
+
+              {/* Source / device */}
+              <div className="mb-4">
+                <label className="block text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: colors.muted }}>
+                  Where did these readings come from?
+                </label>
+                <select
+                  value={deviceClass}
+                  onChange={(e) => setDeviceClass(e.target.value)}
+                  className="w-full sm:w-auto rounded-xl px-4 py-2.5 text-sm outline-none"
+                  style={{ background: colors.background, color: colors.foreground, border: `1px solid ${colors.cardBorder}` }}
+                >
+                  <option value="LIPID_METER">Lipid meter (finger-prick panel)</option>
+                  <option value="CGM">CGM (continuous glucose monitor)</option>
+                  <option value="KETONE_METER">Ketone meter</option>
+                  <option value="LAB">Lab / blood test</option>
+                  <option value="MANUAL">Manual / other</option>
+                </select>
+                <p className="text-xs mt-1.5" style={{ color: colors.muted }}>
+                  Applied to all readings in this submission — shown as the source in your Activity.
+                </p>
               </div>
 
               {/* Action buttons */}
