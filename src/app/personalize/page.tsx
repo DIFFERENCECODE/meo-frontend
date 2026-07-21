@@ -636,6 +636,23 @@ export default function PersonalizePage() {
                 </div>
               </div>
 
+              {/* Source / device (applies to all rows) */}
+              <div className="mb-4">
+                <label className="text-xs block mb-1" style={{ color: colors.muted }}>Source / device</label>
+                <select
+                  value={deviceClass}
+                  onChange={(e) => setDeviceClass(e.target.value)}
+                  className="w-full sm:w-auto rounded-lg px-3 py-2 text-sm outline-none"
+                  style={{ background: colors.background, color: colors.foreground, border: `1px solid ${colors.cardBorder}` }}
+                >
+                  <option value="LIPID_METER">Lipid meter (finger-prick panel)</option>
+                  <option value="CGM">CGM (continuous glucose monitor)</option>
+                  <option value="KETONE_METER">Ketone meter</option>
+                  <option value="LAB">Lab / blood test</option>
+                  <option value="MANUAL">Manual / other</option>
+                </select>
+              </div>
+
               {/* Rows */}
               <div className="space-y-2 mb-3">
                 {formRows.map((row, i) => (
