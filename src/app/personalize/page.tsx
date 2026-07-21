@@ -79,7 +79,7 @@ POSTPRANDIAL (Kraft 5-hour curve)
 9:52   Glucose 8.9    Insulin 26.9
 10:21  Glucose 6.7    Insulin 9.0
 10:51  Glucose 7.1    Insulin 9.6
-11:50  Glucose 3.0    Insulin 1.44`;
+11:50  Glucose 3.0    Insulin 3.5`;
 
 type InputMode = 'paste' | 'form';
 
@@ -404,7 +404,9 @@ export default function PersonalizePage() {
   };
 
   const useExample = () => {
-    setText(EXAMPLE_TEXT);
+    const today = new Date().toISOString().slice(0, 10);
+    setText(EXAMPLE_TEXT.replace('2026-04-01', today));
+    setDeviceClass('LAB'); // this example is a full clinical panel + OGTT — from a lab
     setError(null);
     setSuccess(null);
   };
