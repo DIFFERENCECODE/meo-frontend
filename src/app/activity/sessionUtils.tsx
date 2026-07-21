@@ -12,6 +12,7 @@ export interface Measurement {
   subjectState?: string | null;
   sampleSource?: string | null;
   deviceClass?: string | null;
+  recordId?: string | null;
 }
 
 export type SrcType = 'computed' | 'lipid' | 'cgm' | 'ketone' | 'lab' | 'integration' | 'manual' | 'recorded';
