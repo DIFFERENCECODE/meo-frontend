@@ -9,7 +9,7 @@ import { AppShell } from '@/components/layout/AppShell';
 import { getValidIdToken } from '@/app/lib/auth';
 import {
   Measurement, Session, SRC_META, extractMeasurements, findSessionById,
-  timeLabelOf, dateLabelOf, displayId,
+  timeLabelOf, dateLabelOf,
 } from '../sessionUtils';
 
 const COMMON_ANALYTES = [
@@ -169,8 +169,12 @@ export default function MeasurementDetailPage() {
                   </div>
                   <p className="text-sm mt-1" style={{ color: colors.muted }}>
                     {dateLabelOf(session.timeEnd)} · {timeText} · {session.items.length} {session.items.length === 1 ? 'reading' : 'readings'}
-                    {session.series ? ` · ${session.series}` : ''}
                   </p>
+                  {(session.series || session.items[0]?.measurementSeries) && (
+                    <p className="text-xs mt-1.5 font-mono select-all" style={{ color: colors.muted, opacity: 0.85 }} title={session.series || session.items[0]?.measurementSeries || ''}>
+                      Measurement ID · {session.series || session.items[0]?.measurementSeries}
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -222,15 +226,6 @@ export default function MeasurementDetailPage() {
                           <div className="min-w-0 flex-1">
                             <p className="text-sm font-medium truncate" style={{ color: colors.foreground }}>{m.name}</p>
                             <p className="text-xs mt-0.5" style={{ color: colors.muted }}>{timeLabelOf(m.time)}</p>
-                            {displayId(m) && (
-                              <p
-                                className="text-[11px] mt-1 font-mono truncate select-all"
-                                style={{ color: colors.muted, opacity: 0.75 }}
-                                title={displayId(m)}
-                              >
-                                ID · {displayId(m)}
-                              </p>
-                            )}
                           </div>
                           <div className="text-right shrink-0 mr-2">
                             <p className="text-base font-semibold tabular-nums" style={{ color: colors.primary }}>{typeof m.value === 'number' ? m.value.toFixed(2) : m.value}</p>
