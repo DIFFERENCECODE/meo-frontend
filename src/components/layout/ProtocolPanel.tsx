@@ -155,6 +155,64 @@ function glucoseRangeLabel(value: string, unit: 'mmol' | 'mgdl'): { label: strin
   return { label: 'High', color: '#f87171' };
 }
 
+
+// ── Kraft countdown gate ──────────────────────────────────────────────────────
+// Anchors on kraft_t0_time (already captured at T0) rather than a fresh local
+// timer, so it survives screen navigation and tab refreshes correctly.
+
+function useKraftCountdown(targetISO: string | null, onComplete?: () => void) {
+  const [now, setNow] = useState(() => Date.now());
+  const wasWaitingRef = useRef(false);
+  const firedRef = useRef(false);
+
+  const targetMs = targetISO ? new Date(targetISO).getTime() : null;
+  const done = targetMs ? now >= targetMs : true;
+
+  useEffect(() => {
+    if (!targetMs || done) return;
+    wasWaitingRef.current = true;
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, [targetMs, done]);
+
+  useEffect(() => {
+    // Only chime if we actually watched the countdown run — avoids playing
+    // a sound just because someone loaded an already-elapsed step.
+    if (done && wasWaitingRef.current && !firedRef.current) {
+      firedRef.current = true;
+      onComplete?.();
+    }
+  }, [done]);
+
+  const msLeft = targetMs ? Math.max(0, targetMs - now) : 0;
+  return { msLeft, done };
+}
+
+function playChime() {
+  try {
+    const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+    if (!AudioCtx) return;
+    const ctx = new AudioCtx();
+    const tone = (freq: number, start: number, dur: number) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0.0001, ctx.currentTime + start);
+      gain.gain.exponentialRampToValueAtTime(0.15, ctx.currentTime + start + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + start + dur);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(ctx.currentTime + start);
+      osc.stop(ctx.currentTime + start + dur);
+    };
+    tone(880, 0, 0.18);
+    tone(1108, 0.2, 0.22);
+  } catch {
+    // Silent fail — visual countdown still communicates the state
+  }
+}
+
 // ── Kraft Measurement Step ────────────────────────────────────────────────────
 // The core new component — captures glucose + insulin at each OGTT timepoint.
 
@@ -169,35 +227,57 @@ interface KraftMeasurementStepProps {
   colors: any;
 }
 
+interface KraftMeasurementStepProps {
+  timeLabel: string;
+  minuteOffset: number | null;
+  glucoseKey: keyof CollectedData;
+  insulinKey: keyof CollectedData;
+  isT0: boolean;
+  t0Time?: string;               // NEW — anchors the T+30/60/90/120 countdown
+  onData: (patch: Partial<CollectedData>) => void;
+  onSubmit: (msg: string) => void;
+  colors: any;
+}
+
 function KraftMeasurementStep({
-  timeLabel, minuteOffset, glucoseKey, insulinKey, isT0,
+  timeLabel, minuteOffset, glucoseKey, insulinKey, isT0, t0Time,
   onData, onSubmit, colors,
 }: KraftMeasurementStepProps) {
   const [glucose, setGlucose] = useState('');
   const [insulin, setInsulin] = useState('');
   const glucoseRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => { glucoseRef.current?.focus(); }, []);
+  const targetISO = (!isT0 && minuteOffset !== null && t0Time)
+    ? new Date(new Date(t0Time).getTime() + minuteOffset * 60000).toISOString()
+    : null;
 
-  const ready = glucose && insulin && !isNaN(parseFloat(glucose)) && !isNaN(parseFloat(insulin));
+  const { msLeft, done } = useKraftCountdown(targetISO, playChime);
+
+  useEffect(() => { if (done) glucoseRef.current?.focus(); }, [done]);
+
+  const ready = done && !!glucose && !!insulin && !isNaN(parseFloat(glucose)) && !isNaN(parseFloat(insulin));
   const range = glucoseRangeLabel(glucose, 'mmol');
   const subjectState = minuteOffset === null ? 'FASTING' : 'POSTPRANDIAL';
 
   function handleConfirm() {
-    const t0Time = isT0 ? new Date().toISOString() : undefined;
+    const t0TimeNow = isT0 ? new Date().toISOString() : undefined;
     const patch: Partial<CollectedData> = {
       [glucoseKey]: glucose,
       [insulinKey]: insulin,
-      ...(t0Time ? { kraft_t0_time: t0Time } : {}),
+      ...(t0TimeNow ? { kraft_t0_time: t0TimeNow } : {}),
     };
     onData(patch);
     const tLabel = minuteOffset === null ? 'fasting (T0)' : `+${minuteOffset} min`;
     onSubmit(`Kraft reading at ${tLabel}: Glucose ${glucose} mmol/L, Insulin ${insulin} uIU/mL.`);
   }
 
+  const totalMs = minuteOffset ? minuteOffset * 60000 : 0;
+  const pct = targetISO && totalMs ? Math.min(100, ((totalMs - msLeft) / totalMs) * 100) : 100;
+  const cdMins = Math.floor(msLeft / 60000);
+  const cdSecs = Math.floor((msLeft % 60000) / 1000);
+
   return (
     <div className="flex flex-col gap-5 h-full">
-      {/* Timepoint badge */}
       <div className="flex items-center gap-3">
         <div
           className="px-3 py-1 rounded-full text-xs font-semibold tracking-wider"
@@ -210,48 +290,58 @@ function KraftMeasurementStep({
         </span>
       </div>
 
-      {/* Glucose */}
-      <div>
-        <label className="text-xs font-medium mb-1.5 block" style={{ color: colors.muted }}>
-          Blood Glucose <span style={{ color: `${colors.muted}80` }}>(mmol/L)</span>
-        </label>
-        <input
-          ref={glucoseRef}
-          type="number"
-          step="0.1"
-          inputMode="decimal"
-          value={glucose}
-          onChange={(e) => setGlucose(e.target.value)}
-          placeholder="e.g. 5.2"
-          className="w-full px-4 py-3 rounded-xl text-lg font-semibold border focus:outline-none focus:ring-1 transition-all"
-          style={inputStyle(colors)}
-        />
-        {range && (
-          <div className="flex items-center gap-2 mt-2">
-            <div className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: range.color }} />
-            <span className="text-xs font-medium" style={{ color: range.color }}>{range.label}</span>
+      {targetISO && !done && (
+        <div
+          className="flex flex-col items-center gap-3 py-6 rounded-2xl"
+          style={{ backgroundColor: KRAFT_AMBER_DIM, border: `1px solid ${KRAFT_AMBER_BORDER}` }}
+        >
+          <span className="text-xs font-medium" style={{ color: KRAFT_AMBER }}>Not yet — unlocks in</span>
+          <span className="text-4xl font-bold tabular-nums" style={{ color: colors.foreground }}>
+            {String(cdMins).padStart(2, '0')}:{String(cdSecs).padStart(2, '0')}
+          </span>
+          <div className="w-4/5 h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: colors.cardBorder }}>
+            <div
+              className="h-full rounded-full transition-[width] duration-1000 ease-linear"
+              style={{ width: `${pct}%`, backgroundColor: KRAFT_AMBER }}
+            />
           </div>
-        )}
-      </div>
+          <span className="text-xs text-center px-4" style={{ color: colors.muted }}>
+            Reading early throws off your Kraft curve — this unlocks automatically.
+          </span>
+        </div>
+      )}
 
-      {/* Insulin */}
-      <div>
-        <label className="text-xs font-medium mb-1.5 block" style={{ color: colors.muted }}>
-          Insulin <span style={{ color: `${colors.muted}80` }}>(uIU/mL)</span>
-        </label>
-        <input
-          type="number"
-          step="0.1"
-          inputMode="decimal"
-          value={insulin}
-          onChange={(e) => setInsulin(e.target.value)}
-          placeholder="e.g. 5.0"
-          className="w-full px-4 py-3 rounded-xl text-lg font-semibold border focus:outline-none transition-all"
-          style={inputStyle(colors)}
-        />
-        <p className="text-xs mt-1.5" style={{ color: `${colors.foreground}70` }}>
-          Fasting reference: 2–10 uIU/mL
-        </p>
+      <div style={{ opacity: done ? 1 : 0.4, pointerEvents: done ? 'auto' : 'none' }} className="flex flex-col gap-5">
+        <div>
+          <label className="text-xs font-medium mb-1.5 block" style={{ color: colors.muted }}>
+            Blood Glucose <span style={{ color: `${colors.muted}80` }}>(mmol/L)</span>
+          </label>
+          <input
+            ref={glucoseRef} type="number" step="0.1" inputMode="decimal" value={glucose}
+            onChange={(e) => setGlucose(e.target.value)} placeholder="e.g. 5.2" disabled={!done}
+            className="w-full px-4 py-3 rounded-xl text-lg font-semibold border focus:outline-none focus:ring-1 transition-all"
+            style={inputStyle(colors)}
+          />
+          {range && (
+            <div className="flex items-center gap-2 mt-2">
+              <div className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: range.color }} />
+              <span className="text-xs font-medium" style={{ color: range.color }}>{range.label}</span>
+            </div>
+          )}
+        </div>
+
+        <div>
+          <label className="text-xs font-medium mb-1.5 block" style={{ color: colors.muted }}>
+            Insulin <span style={{ color: `${colors.muted}80` }}>(uIU/mL)</span>
+          </label>
+          <input
+            type="number" step="0.1" inputMode="decimal" value={insulin}
+            onChange={(e) => setInsulin(e.target.value)} placeholder="e.g. 5.0" disabled={!done}
+            className="w-full px-4 py-3 rounded-xl text-lg font-semibold border focus:outline-none transition-all"
+            style={inputStyle(colors)}
+          />
+          <p className="text-xs mt-1.5" style={{ color: `${colors.foreground}70` }}>Fasting reference: 2–10 uIU/mL</p>
+        </div>
       </div>
 
       <button
@@ -260,7 +350,7 @@ function KraftMeasurementStep({
         className="py-3 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-2 mt-auto disabled:opacity-35"
         style={{ backgroundColor: KRAFT_AMBER, color: '#0a0a0a' }}
       >
-        Record &amp; Continue <ChevronRight className="h-4 w-4" />
+        {done ? <>Record &amp; Continue <ChevronRight className="h-4 w-4" /></> : 'Waiting for timer…'}
       </button>
     </div>
   );
@@ -270,6 +360,33 @@ function KraftMeasurementStep({
 
 function KraftDrinkConfirm({ onSubmit, colors }: { onSubmit: (msg: string) => void; colors: any }) {
   const [confirmed, setConfirmed] = useState(false);
+  const [secondsLeft, setSecondsLeft] = useState(300);
+  const [timerRunning, setTimerRunning] = useState(false);
+  const [timerFinished, setTimerFinished] = useState(false);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    if (timerRunning && secondsLeft > 0) {
+      intervalRef.current = setInterval(() => {
+        setSecondsLeft((s) => {
+          if (s <= 1) {
+            clearInterval(intervalRef.current!);
+            setTimerRunning(false);
+            setTimerFinished(true);
+            return 0;
+          }
+          return s - 1;
+        });
+      }, 1000);
+    }
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, [timerRunning]);
+
+  const mins = Math.floor(secondsLeft / 60);
+  const secs = secondsLeft % 60;
+  const pct = ((300 - secondsLeft) / 300) * 100;
 
   return (
     <div className="flex flex-col gap-5 h-full">
@@ -281,9 +398,54 @@ function KraftDrinkConfirm({ onSubmit, colors }: { onSubmit: (msg: string) => vo
         <p className="text-xs leading-relaxed" style={{ color: colors.muted }}>
           Consume the full 75 g glucose solution within 5 minutes. Note the exact time you finish — your 2-hour clock starts now.
         </p>
+
+        {/* Countdown timer */}
+        <div className="flex flex-col items-center gap-2 py-2">
+          <span
+            className="text-4xl font-bold tabular-nums tracking-wide"
+            style={{ color: timerFinished ? '#f87171' : colors.foreground }}
+          >
+            {String(mins).padStart(2, '0')}:{String(secs).padStart(2, '0')}
+          </span>
+
+          <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: `${colors.cardBorder}` }}>
+            <div
+              className="h-full rounded-full transition-[width] duration-1000 ease-linear"
+              style={{ width: `${pct}%`, backgroundColor: timerFinished ? '#f87171' : KRAFT_AMBER }}
+            />
+          </div>
+
+          {!timerRunning && !timerFinished && secondsLeft === 300 && (
+            <button
+              onClick={() => setTimerRunning(true)}
+              className="w-full py-2.5 rounded-xl text-sm font-semibold mt-1 flex items-center justify-center gap-2"
+              style={{ backgroundColor: KRAFT_AMBER, color: '#0a0a0a' }}
+            >
+              <Timer className="h-4 w-4" />
+              Start timer — I'm drinking now
+            </button>
+          )}
+
+          {timerRunning && (
+            <p className="text-xs text-center mt-0.5" style={{ color: colors.muted }}>
+              Finish drinking before this reaches 0:00
+            </p>
+          )}
+
+          {timerFinished && (
+            <div
+              className="w-full flex items-center justify-center gap-2 py-2 rounded-lg mt-0.5"
+              style={{ backgroundColor: 'rgba(248,113,113,0.12)', border: '1px solid rgba(248,113,113,0.3)' }}
+            >
+              <span className="text-xs font-medium" style={{ color: '#f87171' }}>
+                Time's up — confirm below once finished
+              </span>
+            </div>
+          )}
+        </div>
       </div>
 
-      <ul className="flex flex-col gap-2">
+      <ul className="flex flex-col gap-2 text-xl leading-relaxed" style={{ color: colors.foreground }}>
         {[
           'Drink the full glucose solution within 5 minutes',
           'Stay seated or lightly active — no exercise',
@@ -1070,7 +1232,7 @@ const GUIDANCE: Record<string, { title: string; body: React.ReactNode }> = {
     ),
   },
 
-  
+
   kraft_t30_reading: {
     title: 'T+30 min Reading',
     body: (
@@ -1649,6 +1811,28 @@ function ProgressTrack({ protocolState, colors }: { protocolState: string; color
   );
 }
 
+function KraftElapsedBadge({ t0Time, colors }: { t0Time: string; colors: any }) {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, []);
+  const elapsedMin = Math.max(0, Math.floor((now - new Date(t0Time).getTime()) / 60000));
+  const pct = Math.min(100, (elapsedMin / 120) * 100);
+
+  return (
+    <div className="flex items-center gap-2 flex-shrink-0">
+      <div className="w-14 h-1 rounded-full overflow-hidden" style={{ backgroundColor: colors.cardBorder }}>
+        <div className="h-full rounded-full" style={{ width: `${pct}%`, backgroundColor: KRAFT_AMBER }} />
+      </div>
+      <span className="text-[11px] font-medium tabular-nums" style={{ color: colors.muted }}>
+        {elapsedMin}m / 120m
+      </span>
+    </div>
+  );
+}
+
+
 // ── Protocol transition table (mirrors protocol_state_machine.py) ─────────────
 // Used for optimistic local advance so the panel responds immediately to the
 // user's button click — the backend confirms asynchronously and corrects if wrong.
@@ -1738,10 +1922,10 @@ export function ProtocolPanel({ protocolState, onSubmit, onExit }: ProtocolPanel
       // glucose/insulin values from the previous step in local state).
       case 'kraft_t0_reading': return <KraftMeasurementStep key="t0" timeLabel="T0 — Fasting" minuteOffset={null} glucoseKey="kraft_t0_glucose" insulinKey="kraft_t0_insulin" isT0 onData={mergeData} onSubmit={handleSubmit} colors={colors} />;
       case 'kraft_drink_consumed': return <KraftDrinkConfirm onSubmit={handleSubmit} colors={colors} />;
-      case 'kraft_t30_reading': return <KraftMeasurementStep key="t30" timeLabel="+30 min" minuteOffset={30} glucoseKey="kraft_t30_glucose" insulinKey="kraft_t30_insulin" isT0={false} onData={mergeData} onSubmit={handleSubmit} colors={colors} />;
-      case 'kraft_t60_reading': return <KraftMeasurementStep key="t60" timeLabel="+60 min" minuteOffset={60} glucoseKey="kraft_t60_glucose" insulinKey="kraft_t60_insulin" isT0={false} onData={mergeData} onSubmit={handleSubmit} colors={colors} />;
-      case 'kraft_t90_reading': return <KraftMeasurementStep key="t90" timeLabel="+90 min" minuteOffset={90} glucoseKey="kraft_t90_glucose" insulinKey="kraft_t90_insulin" isT0={false} onData={mergeData} onSubmit={handleSubmit} colors={colors} />;
-      case 'kraft_t120_reading': return <KraftMeasurementStep key="t120" timeLabel="+120 min" minuteOffset={120} glucoseKey="kraft_t120_glucose" insulinKey="kraft_t120_insulin" isT0={false} onData={mergeData} onSubmit={handleSubmit} colors={colors} />;
+      case 'kraft_t30_reading': return <KraftMeasurementStep key="t30" timeLabel="+30 min" minuteOffset={30} glucoseKey="kraft_t30_glucose" insulinKey="kraft_t30_insulin" isT0={false} t0Time={collectedData.kraft_t0_time} onData={mergeData} onSubmit={handleSubmit} colors={colors} />;
+      case 'kraft_t60_reading': return <KraftMeasurementStep key="t60" timeLabel="+60 min" minuteOffset={60} glucoseKey="kraft_t60_glucose" insulinKey="kraft_t60_insulin" isT0={false} t0Time={collectedData.kraft_t0_time} onData={mergeData} onSubmit={handleSubmit} colors={colors} />;
+      case 'kraft_t90_reading': return <KraftMeasurementStep key="t90" timeLabel="+90 min" minuteOffset={90} glucoseKey="kraft_t90_glucose" insulinKey="kraft_t90_insulin" isT0={false} t0Time={collectedData.kraft_t0_time} onData={mergeData} onSubmit={handleSubmit} colors={colors} />;
+      case 'kraft_t120_reading': return <KraftMeasurementStep key="t120" timeLabel="+120 min" minuteOffset={120} glucoseKey="kraft_t120_glucose" insulinKey="kraft_t120_insulin" isT0={false} t0Time={collectedData.kraft_t0_time} onData={mergeData} onSubmit={handleSubmit} colors={colors} />;
       case 'kraft_complete': return <KraftComplete onExit={onExit} colors={colors} data={collectedData} />;
       // Legacy Kraft (in-progress sessions before redesign)
       case 'fasting': return <KraftLegacyStep confirmLabel="Fasting confirmed, taking reading now" onSubmit={handleSubmit} colors={colors} />;
@@ -1764,6 +1948,10 @@ export function ProtocolPanel({ protocolState, onSubmit, onExit }: ProtocolPanel
       default: return null;
     }
   }
+
+  {isKraft && collectedData.kraft_t0_time && effectiveState !== 'kraft_fasting_confirmed' && effectiveState !== 'kraft_t0_reading' && (
+  <KraftElapsedBadge t0Time={collectedData.kraft_t0_time} colors={colors} />
+)}
 
   const testLabel = isKraft ? 'Kraft OGTT' : isLegacyKraftState(effectiveState) ? 'Kraft Test' : 'BAS Test';
 
