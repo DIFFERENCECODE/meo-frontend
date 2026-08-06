@@ -357,15 +357,6 @@ export function AnalysisContent({ graphData: graphDataProp }: AnalysisContentPro
             {downloading ? 'Generating…' : 'Download Report'}
           </button>
         </div>
-        <div className="flex items-center gap-4">
-          <div className="text-right">
-            <p className="text-xs" style={{ color: theme.colors.muted }}>
-              Risk Score
-            </p>
-            <p className="text-3xl font-bold text-orange-500">{hasRealData ? riskScore : '—'}</p>
-          </div>
-          <RiskScoreGauge score={hasRealData ? riskScore : 0} />
-        </div>
       </div>
 
       {/* Grafana-parity score gauges (BAS + KRAFT Deep Fat Score).
