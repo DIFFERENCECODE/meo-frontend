@@ -395,16 +395,21 @@ export function AnalysisContent({ graphData: graphDataProp }: AnalysisContentPro
               5-Hour Glucose Tolerance Test
             </p>
           </div>
-          <span
-            className="px-3 py-1 rounded-full text-xs font-medium"
+          <button
+            onClick={handleDownloadReport}
+            disabled={downloading}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium transition-all disabled:opacity-60"
             style={{
-              backgroundColor: `${theme.colors.warning}20`,
-              color: theme.colors.warning,
-              border: `1px solid ${theme.colors.warning}40`,
+              backgroundColor: `${theme.colors.primary}15`,
+              color: theme.colors.primary,
+              border: `1px solid ${theme.colors.primary}40`,
             }}
           >
-            At Risk
-          </span>
+            {downloading
+              ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              : <Download className="h-3.5 w-3.5" />}
+            {downloading ? 'Generating…' : 'Download Report'}
+          </button>
         </div>
 
         <div className="h-[350px] w-full">

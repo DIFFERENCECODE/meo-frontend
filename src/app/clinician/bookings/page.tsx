@@ -1,320 +1,156 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { useTheme } from '@/theme/ThemeProvider';
-import { getClinicianBookings, saveClinicianBooking, updateBookingStatus, deleteClinicianBooking, getListings, type ClinicianBooking } from '../store';
-import { CalendarDays, Plus, Check, Trash2, Clock, PoundSterling, User, ChevronDown } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { getClinicianBookings, type ClinicianBooking } from '../store';
 
-type StatusFilter = 'all' | 'upcoming' | 'completed' | 'cancelled' | 'no-show';
+type Filter = 'all' | ClinicianBooking['status'];
 
-const STATUS_COLORS: Record<string, string> = {
-  upcoming: '#a4d65e', completed: '#22c55e', cancelled: '#ef4444', 'no-show': '#f59e0b',
+const FILTERS: { value: Filter; label: string }[] = [
+  { value: 'all', label: 'All' },
+  { value: 'upcoming', label: 'Upcoming' },
+  { value: 'completed', label: 'Completed' },
+  { value: 'cancelled', label: 'Cancelled' },
+  { value: 'no-show', label: 'No-show' },
+];
+
+const STATUS_BADGE: Record<ClinicianBooking['status'], { bg: string; fg: string }> = {
+  upcoming:  { bg: 'rgba(164,214,94,.16)',  fg: '#a4d65e' },
+  completed: { bg: 'rgba(74,222,128,.16)',  fg: '#4ade80' },
+  cancelled: { bg: 'rgba(248,113,113,.16)', fg: '#f87171' },
+  'no-show': { bg: 'rgba(245,158,11,.16)',  fg: '#f5b942' },
 };
 
-// ─── New Booking Modal ────────────────────────────────────────────────────────
-
-function BookingModal({ onSave, onClose }: { onSave: () => void; onClose: () => void }) {
-  const { colors } = useTheme();
-  const listings = getListings();
-  const [form, setForm] = useState({
-    patientName: '', patientEmail: '', listingTitle: '',
-    scheduledDate: '', scheduledTime: '', price: '', duration: '60', notes: '',
-  });
-  const [error, setError] = useState('');
-
-  const set = (k: string, v: string) => setForm((p) => ({ ...p, [k]: v }));
-
-  const handleListingChange = (title: string) => {
-    const listing = listings.find((l) => l.title === title);
-    set('listingTitle', title);
-    if (listing) {
-      setForm((p) => ({ ...p, listingTitle: title, price: String(listing.price), duration: String(listing.duration) }));
-    }
-  };
-
-  const submit = () => {
-    if (!form.patientName.trim()) { setError('Patient name is required.'); return; }
-    if (!form.scheduledDate) { setError('Please select a date.'); return; }
-    if (!form.scheduledTime) { setError('Please select a time.'); return; }
-    if (!form.listingTitle) { setError('Please select a service.'); return; }
-    saveClinicianBooking({
-      patientName: form.patientName.trim(),
-      patientEmail: form.patientEmail.trim(),
-      listingTitle: form.listingTitle,
-      scheduledDate: form.scheduledDate,
-      scheduledTime: form.scheduledTime,
-      price: Number(form.price) || 0,
-      duration: Number(form.duration) || 60,
-      notes: form.notes,
-    });
-    onSave();
-  };
-
-  const inputStyle = {
-    background: 'rgba(255,255,255,0.07)', border: `1px solid rgba(255,255,255,0.15)`,
-    color: colors.foreground, fontSize: '16px',
-  };
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-sm" onClick={onClose}>
-      <div
-        className="w-full sm:max-w-lg max-h-[92vh] flex flex-col rounded-t-2xl sm:rounded-2xl overflow-hidden"
-        style={{ background: colors.card, border: `1px solid ${colors.cardBorder}` }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="px-5 py-4 border-b flex items-center justify-between flex-shrink-0" style={{ borderColor: colors.cardBorder }}>
-          <h2 className="text-base font-semibold" style={{ color: colors.foreground }}>Log Booking</h2>
-          <button onClick={onClose} className="text-xs px-3 py-1.5 rounded-lg" style={{ color: colors.muted, background: 'rgba(255,255,255,0.07)' }}>Cancel</button>
-        </div>
-
-        <div className="overflow-y-auto flex-1 p-5 space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label className="block text-sm font-medium mb-1.5" style={{ color: 'rgba(255,255,255,0.8)' }}>Patient name <span style={{ color: colors.primary }}>*</span></label>
-              <input value={form.patientName} onChange={(e) => set('patientName', e.target.value)}
-                placeholder="Jane Smith" className="w-full px-3 py-3 rounded-lg outline-none" style={inputStyle} />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1.5" style={{ color: 'rgba(255,255,255,0.8)' }}>Patient email</label>
-              <input type="email" value={form.patientEmail} onChange={(e) => set('patientEmail', e.target.value)}
-                placeholder="jane@example.com" className="w-full px-3 py-3 rounded-lg outline-none" style={inputStyle} />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1.5" style={{ color: 'rgba(255,255,255,0.8)' }}>Service <span style={{ color: colors.primary }}>*</span></label>
-            <select value={form.listingTitle} onChange={(e) => handleListingChange(e.target.value)}
-              className="w-full px-3 py-3 rounded-lg outline-none appearance-none" style={{ ...inputStyle, color: form.listingTitle ? colors.foreground : 'rgba(255,255,255,0.4)' }}>
-              <option value="">Select service…</option>
-              {listings.map((l) => <option key={l.id} value={l.title} style={{ background: '#1a3a3a' }}>{l.title}</option>)}
-              <option value="Other" style={{ background: '#1a3a3a' }}>Other / Ad hoc</option>
-            </select>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-sm font-medium mb-1.5" style={{ color: 'rgba(255,255,255,0.8)' }}>Date <span style={{ color: colors.primary }}>*</span></label>
-              <input type="date" value={form.scheduledDate} onChange={(e) => set('scheduledDate', e.target.value)}
-                className="w-full px-3 py-3 rounded-lg outline-none" style={inputStyle} />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1.5" style={{ color: 'rgba(255,255,255,0.8)' }}>Time <span style={{ color: colors.primary }}>*</span></label>
-              <input type="time" value={form.scheduledTime} onChange={(e) => set('scheduledTime', e.target.value)}
-                className="w-full px-3 py-3 rounded-lg outline-none" style={inputStyle} />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-sm font-medium mb-1.5" style={{ color: 'rgba(255,255,255,0.8)' }}>Price (£)</label>
-              <input type="number" min="0" value={form.price} onChange={(e) => set('price', e.target.value)}
-                placeholder="120" className="w-full px-3 py-3 rounded-lg outline-none" style={inputStyle} />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1.5" style={{ color: 'rgba(255,255,255,0.8)' }}>Duration (min)</label>
-              <input type="number" min="1" value={form.duration} onChange={(e) => set('duration', e.target.value)}
-                placeholder="60" className="w-full px-3 py-3 rounded-lg outline-none" style={inputStyle} />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1.5" style={{ color: 'rgba(255,255,255,0.8)' }}>Notes</label>
-            <textarea value={form.notes} onChange={(e) => set('notes', e.target.value)} rows={2}
-              placeholder="Session notes, prep instructions…"
-              className="w-full px-3 py-3 rounded-lg outline-none resize-none" style={inputStyle} />
-          </div>
-
-          {error && (
-            <div className="px-4 py-3 rounded-lg text-sm" style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', color: '#fca5a5' }}>
-              {error}
-            </div>
-          )}
-        </div>
-
-        <div className="px-5 py-4 border-t flex-shrink-0" style={{ borderColor: colors.cardBorder }}>
-          <button onClick={submit}
-            className="w-full py-3 rounded-xl text-sm font-semibold flex items-center justify-center gap-2"
-            style={{ background: colors.primary, color: colors.primaryForeground }}>
-            <Check className="h-4 w-4" /> Save Booking
-          </button>
-        </div>
-      </div>
-    </div>
-  );
+function initials(name: string) {
+  return name.split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase();
 }
 
-// ─── Bookings Page ────────────────────────────────────────────────────────────
+function formatDate(iso: string, time: string) {
+  const d = new Date(iso);
+  return `${d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })} · ${time}`;
+}
 
 export default function BookingsPage() {
-  const { colors } = useTheme();
   const [bookings, setBookings] = useState<ClinicianBooking[]>([]);
-  const [filter, setFilter] = useState<StatusFilter>('all');
-  const [showModal, setShowModal] = useState(false);
-  const [openId, setOpenId] = useState<string | null>(null);
+  const [filter, setFilter] = useState<Filter>('all');
+  const [selected, setSelected] = useState<ClinicianBooking | null>(null);
 
-  const refresh = () => setBookings(getClinicianBookings());
-  useEffect(refresh, []);
+  const refresh = useCallback(() => setBookings(getClinicianBookings()), []);
+  useEffect(() => { refresh(); }, [refresh]);
 
   const filtered = filter === 'all' ? bookings : bookings.filter((b) => b.status === filter);
 
-  const counts: Record<StatusFilter, number> = {
-    all: bookings.length,
-    upcoming: bookings.filter((b) => b.status === 'upcoming').length,
-    completed: bookings.filter((b) => b.status === 'completed').length,
-    cancelled: bookings.filter((b) => b.status === 'cancelled').length,
-    'no-show': bookings.filter((b) => b.status === 'no-show').length,
-  };
-
-  const TABS: StatusFilter[] = ['all', 'upcoming', 'completed', 'cancelled', 'no-show'];
-
   return (
-    <div className="p-4 sm:p-6 max-w-4xl mx-auto space-y-5">
-      <div className="flex items-center justify-between gap-3">
-        <div>
-          <h1 className="text-xl sm:text-2xl font-bold" style={{ color: colors.foreground }}>Bookings</h1>
-          <p className="text-sm" style={{ color: colors.muted }}>{bookings.length} total session{bookings.length !== 1 ? 's' : ''}</p>
+    <main style={{ flex: 1, minWidth: 0, position: 'relative', overflowY: 'auto', padding: '34px 40px' }}>
+
+      <h1 style={{ margin: 0, fontSize: 28, fontWeight: 800, letterSpacing: '-.025em' }}>Bookings</h1>
+      <div style={{ marginTop: 7, fontSize: 14, color: 'rgba(255,255,255,.6)' }}>Sessions booked through your MeO listings</div>
+
+      {/* Filter pills */}
+      <div style={{ display: 'flex', gap: 8, marginTop: 22 }}>
+        {FILTERS.map((f) => {
+          const active = filter === f.value;
+          return (
+            <button key={f.value} onClick={() => setFilter(f.value)} style={{ cursor: 'pointer', padding: '9px 18px', borderRadius: 999, fontSize: 13, fontWeight: 600, fontFamily: 'inherit', background: active ? 'rgba(164,214,94,.14)' : 'transparent', border: `1px solid ${active ? 'rgba(164,214,94,.55)' : 'rgba(255,255,255,.16)'}`, color: active ? '#a4d65e' : 'rgba(255,255,255,.65)' }}>
+              {f.label}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Table */}
+      <div style={{ marginTop: 20, borderRadius: 12, background: 'rgba(40,70,70,.8)', border: '1px solid rgba(255,255,255,.1)', overflow: 'hidden' }}>
+        {/* Header */}
+        <div style={{ display: 'grid', gridTemplateColumns: '2.1fr 1.5fr 1.3fr .9fr .7fr', gap: 16, padding: '14px 22px', borderBottom: '1px solid rgba(255,255,255,.1)', fontSize: 11, fontWeight: 700, letterSpacing: '.12em', textTransform: 'uppercase', color: 'rgba(255,255,255,.45)' }}>
+          <div>Patient</div><div>Service</div><div>Date &amp; time</div><div>Status</div><div />
         </div>
-        <button
-          onClick={() => setShowModal(true)}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold flex-shrink-0"
-          style={{ background: colors.primary, color: colors.primaryForeground }}
-        >
-          <Plus className="h-4 w-4" /> Log Booking
-        </button>
-      </div>
 
-      {/* Status tabs */}
-      <div className="flex gap-1.5 overflow-x-auto pb-1">
-        {TABS.map((t) => (
-          <button key={t} onClick={() => setFilter(t)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap flex-shrink-0 transition-all"
-            style={{
-              background: filter === t ? `${colors.primary}20` : 'rgba(255,255,255,0.05)',
-              border: `1px solid ${filter === t ? `${colors.primary}50` : 'rgba(255,255,255,0.1)'}`,
-              color: filter === t ? colors.primary : colors.muted,
-            }}>
-            <span className="capitalize">{t.replace('-', ' ')}</span>
-            <span className="text-xs px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(255,255,255,0.1)' }}>{counts[t]}</span>
-          </button>
-        ))}
-      </div>
-
-      {/* Bookings list */}
-      <div className="rounded-xl overflow-hidden" style={{ background: colors.card, border: `1px solid ${colors.cardBorder}` }}>
         {filtered.length === 0 ? (
-          <div className="p-12 text-center space-y-2">
-            <CalendarDays className="h-10 w-10 mx-auto opacity-25" style={{ color: colors.muted }} />
-            <p className="text-sm" style={{ color: colors.muted }}>
-              {filter === 'all' ? 'No bookings yet. Use "Log Booking" to add one.' : `No ${filter} bookings.`}
-            </p>
+          <div style={{ padding: '48px 22px', textAlign: 'center', color: 'rgba(255,255,255,.35)', fontSize: 13 }}>
+            {bookings.length === 0 ? 'No bookings yet — add listings so patients can book sessions.' : `No ${filter} bookings.`}
           </div>
         ) : (
-          <div className="divide-y" style={{ borderColor: colors.cardBorder }}>
-            {filtered.map((b) => {
-              const isOpen = openId === b.id;
-              const statusColor = STATUS_COLORS[b.status] ?? '#94a3b8';
-              return (
-                <div key={b.id}>
-                  <button
-                    onClick={() => setOpenId(isOpen ? null : b.id)}
-                    className="w-full px-5 py-4 flex items-center gap-4 text-left transition-all hover:bg-white/5"
-                  >
-                    {/* Date block */}
-                    <div className="flex-shrink-0 w-12 text-center">
-                      <p className="text-lg font-bold leading-none" style={{ color: colors.foreground }}>
-                        {b.scheduledDate ? new Date(b.scheduledDate).getDate() : '—'}
-                      </p>
-                      <p className="text-xs uppercase" style={{ color: colors.muted }}>
-                        {b.scheduledDate ? new Date(b.scheduledDate).toLocaleDateString('en-GB', { month: 'short' }) : ''}
-                      </p>
-                    </div>
-
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <p className="text-sm font-semibold" style={{ color: colors.foreground }}>{b.patientName}</p>
-                        <span className="text-xs px-2 py-0.5 rounded-full capitalize"
-                          style={{ background: `${statusColor}18`, color: statusColor }}>
-                          {b.status}
-                        </span>
-                      </div>
-                      <p className="text-xs mt-0.5 truncate" style={{ color: colors.muted }}>
-                        {b.listingTitle} · {b.scheduledTime} · {b.duration} min · £{b.price}
-                      </p>
-                    </div>
-
-                    <ChevronDown className={`h-4 w-4 flex-shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`} style={{ color: colors.muted }} />
-                  </button>
-
-                  {/* Expanded detail */}
-                  {isOpen && (
-                    <div className="px-5 pb-4 space-y-3" style={{ borderTop: `1px solid ${colors.cardBorder}` }}>
-                      <div className="pt-3 grid grid-cols-2 sm:grid-cols-4 gap-3">
-                        {[
-                          { icon: User, label: 'Patient', value: b.patientName },
-                          { icon: CalendarDays, label: 'Date & Time', value: `${b.scheduledDate} ${b.scheduledTime}` },
-                          { icon: Clock, label: 'Duration', value: `${b.duration} min` },
-                          { icon: PoundSterling, label: 'Price', value: `£${b.price}` },
-                        ].map(({ icon: Icon, label, value }) => (
-                          <div key={label} className="rounded-lg p-2.5" style={{ background: 'rgba(255,255,255,0.05)' }}>
-                            <p className="text-xs mb-1 flex items-center gap-1" style={{ color: colors.muted }}>
-                              <Icon className="h-3 w-3" /> {label}
-                            </p>
-                            <p className="text-sm font-medium" style={{ color: colors.foreground }}>{value}</p>
-                          </div>
-                        ))}
-                      </div>
-
-                      {b.notes && (
-                        <div className="rounded-lg p-3" style={{ background: 'rgba(255,255,255,0.05)' }}>
-                          <p className="text-xs mb-1" style={{ color: colors.muted }}>Notes</p>
-                          <p className="text-sm" style={{ color: colors.foreground }}>{b.notes}</p>
-                        </div>
-                      )}
-
-                      {/* Status actions */}
-                      <div className="flex flex-wrap gap-2">
-                        {b.status === 'upcoming' && (
-                          <>
-                            <button onClick={() => { updateBookingStatus(b.id, 'completed'); refresh(); }}
-                              className="text-xs px-3 py-1.5 rounded-lg flex items-center gap-1.5"
-                              style={{ background: 'rgba(34,197,94,0.15)', color: '#22c55e' }}>
-                              <Check className="h-3.5 w-3.5" /> Mark completed
-                            </button>
-                            <button onClick={() => { updateBookingStatus(b.id, 'no-show'); refresh(); }}
-                              className="text-xs px-3 py-1.5 rounded-lg"
-                              style={{ background: 'rgba(245,158,11,0.15)', color: '#f59e0b' }}>
-                              No-show
-                            </button>
-                            <button onClick={() => { updateBookingStatus(b.id, 'cancelled'); refresh(); }}
-                              className="text-xs px-3 py-1.5 rounded-lg"
-                              style={{ background: 'rgba(239,68,68,0.1)', color: '#f87171' }}>
-                              Cancel
-                            </button>
-                          </>
-                        )}
-                        {b.status !== 'upcoming' && (
-                          <button onClick={() => { updateBookingStatus(b.id, 'upcoming'); refresh(); }}
-                            className="text-xs px-3 py-1.5 rounded-lg"
-                            style={{ background: 'rgba(255,255,255,0.07)', color: colors.muted }}>
-                            Reopen
-                          </button>
-                        )}
-                        <button onClick={() => { deleteClinicianBooking(b.id); refresh(); }}
-                          className="ml-auto text-xs px-3 py-1.5 rounded-lg flex items-center gap-1.5"
-                          style={{ background: 'rgba(239,68,68,0.08)', color: '#f87171' }}>
-                          <Trash2 className="h-3.5 w-3.5" /> Delete
-                        </button>
-                      </div>
-                    </div>
-                  )}
+          filtered.map((b) => {
+            const badge = STATUS_BADGE[b.status];
+            const inits = initials(b.patientName);
+            return (
+              <div key={b.id} style={{ display: 'grid', gridTemplateColumns: '2.1fr 1.5fr 1.3fr .9fr .7fr', gap: 16, alignItems: 'center', padding: '15px 22px', borderBottom: '1px solid rgba(255,255,255,.06)' }}
+                onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,.03)')}
+                onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
+                  <div style={{ width: 34, height: 34, flexShrink: 0, borderRadius: 999, background: 'rgba(164,214,94,.16)', color: '#a4d65e', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11.5, fontWeight: 700 }}>{inits}</div>
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{ fontSize: 13.5, fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{b.patientName}</div>
+                    <div style={{ fontSize: 11.5, color: 'rgba(255,255,255,.5)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{b.patientEmail}</div>
+                  </div>
                 </div>
-              );
-            })}
-          </div>
+                <div style={{ fontSize: 13, color: 'rgba(255,255,255,.85)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{b.listingTitle}</div>
+                <div style={{ fontSize: 13, color: 'rgba(255,255,255,.85)' }}>{formatDate(b.scheduledDate, b.scheduledTime)}</div>
+                <div>
+                  <span style={{ display: 'inline-block', fontSize: 11, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase', padding: '5px 11px', borderRadius: 999, background: badge.bg, color: badge.fg }}>{b.status}</span>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <button onClick={() => setSelected(b)} style={{ cursor: 'pointer', padding: '7px 16px', borderRadius: 999, background: 'none', border: '1px solid rgba(255,255,255,.2)', color: 'rgba(255,255,255,.8)', fontSize: 12.5, fontWeight: 600, fontFamily: 'inherit' }}
+                    onMouseEnter={(e) => { e.currentTarget.style.color = '#a4d65e'; e.currentTarget.style.borderColor = 'rgba(164,214,94,.6)'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.color = 'rgba(255,255,255,.8)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,.2)'; }}
+                  >View</button>
+                </div>
+              </div>
+            );
+          })
         )}
       </div>
 
-      {showModal && <BookingModal onSave={() => { setShowModal(false); refresh(); }} onClose={() => setShowModal(false)} />}
-    </div>
+      {/* Booking detail modal */}
+      {selected && (
+        <div onClick={() => setSelected(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(10,26,26,.72)', backdropFilter: 'blur(3px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 40, zIndex: 50 }}>
+          <div onClick={(e) => e.stopPropagation()} style={{ width: 520, borderRadius: 16, background: '#22494a', border: '1px solid rgba(255,255,255,.14)', boxShadow: '0 30px 80px -20px rgba(0,0,0,.7)' }}>
+            {/* Modal header */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 13, padding: '22px 24px', borderBottom: '1px solid rgba(255,255,255,.1)' }}>
+              <div style={{ width: 42, height: 42, flexShrink: 0, borderRadius: 999, background: 'rgba(164,214,94,.16)', color: '#a4d65e', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700 }}>{initials(selected.patientName)}</div>
+              <div style={{ minWidth: 0, flex: 1 }}>
+                <div style={{ fontSize: 16, fontWeight: 700 }}>{selected.patientName}</div>
+                <div style={{ fontSize: 12.5, color: 'rgba(255,255,255,.55)', marginTop: 2 }}>{selected.patientEmail}</div>
+              </div>
+              <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase', padding: '5px 11px', borderRadius: 999, background: STATUS_BADGE[selected.status].bg, color: STATUS_BADGE[selected.status].fg }}>{selected.status}</span>
+            </div>
+
+            {/* Modal body */}
+            <div style={{ padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: 14 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+                {[
+                  { label: 'Service', value: selected.listingTitle },
+                  { label: 'Date & time', value: formatDate(selected.scheduledDate, selected.scheduledTime) },
+                  { label: 'Price', value: `£${selected.price}` },
+                  { label: 'Duration', value: `${selected.duration} mins` },
+                ].map(({ label, value }) => (
+                  <div key={label} style={{ padding: '13px 15px', borderRadius: 11, background: 'rgba(20,45,45,.5)', border: '1px solid rgba(255,255,255,.1)' }}>
+                    <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,.45)' }}>{label}</div>
+                    <div style={{ fontSize: 14, fontWeight: 600, marginTop: 6 }}>{value}</div>
+                  </div>
+                ))}
+              </div>
+              {selected.notes && (
+                <div style={{ padding: '13px 15px', borderRadius: 11, background: 'rgba(20,45,45,.5)', border: '1px solid rgba(255,255,255,.1)' }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,.45)', marginBottom: 6 }}>Patient notes</div>
+                  <div style={{ fontSize: 13.5, color: 'rgba(255,255,255,.8)', lineHeight: 1.5 }}>{selected.notes}</div>
+                </div>
+              )}
+            </div>
+
+            {/* Modal footer */}
+            <div style={{ display: 'flex', gap: 10, padding: '16px 24px', borderTop: '1px solid rgba(255,255,255,.1)' }}>
+              <button style={{ flex: 1, cursor: 'pointer', padding: '11px', border: 0, borderRadius: 999, background: '#a4d65e', color: '#123030', fontSize: 13.5, fontWeight: 700, fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                Open in MeO
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/></svg>
+              </button>
+              <button onClick={() => setSelected(null)} style={{ padding: '11px 20px', borderRadius: 999, background: 'rgba(248,113,113,.08)', border: '1px solid rgba(248,113,113,.5)', color: '#f87171', fontSize: 13.5, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+                Cancel booking
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </main>
   );
 }

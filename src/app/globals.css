@@ -1,4 +1,12 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 @import "tailwindcss";
+
+/* Clinician portal scrollbar */
+.meo-clinician ::-webkit-scrollbar { width: 8px; height: 8px; }
+.meo-clinician ::-webkit-scrollbar-thumb { background: rgba(255,255,255,.14); border-radius: 8px; }
+.meo-clinician ::-webkit-scrollbar-track { background: transparent; }
+@keyframes meoShimmer { 0% { background-position: -380px 0 } 100% { background-position: 380px 0 } }
+.meo-shim { background: linear-gradient(90deg, rgba(255,255,255,.05) 0%, rgba(255,255,255,.12) 45%, rgba(255,255,255,.05) 90%); background-size: 380px 100%; animation: meoShimmer 1.4s linear infinite; border-radius: 6px; }
 
 @custom-variant dark (&:is(.dark *));
 

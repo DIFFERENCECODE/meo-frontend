@@ -655,6 +655,9 @@ export function ChatPanel({
                     <ReactMarkdown
                       remarkPlugins={[remarkGfm]}
                       components={{
+                        p: ({ node, ...props }) => (
+                          <p className="text-sm leading-relaxed" {...props} />
+                        ),
                         table: ({ node, ...props }) => (
                           <div className="my-3 overflow-x-auto rounded-lg border" style={{ borderColor: colors.cardBorder }}>
                             <table className="min-w-full text-sm border-collapse" {...props} />
