@@ -75,10 +75,13 @@ interface BiomarkerFlagItem {
   delta: number | null;
   trend: string | null;
   note: string;
+  source?: 'lab_panel' | 'guided_test';
+  as_of?: string | null;
 }
 
 interface LabFlagsResponse {
   test_dates: string[];
+  guided_as_of?: string | null;
   flags: BiomarkerFlagItem[];
   all_results: BiomarkerFlagItem[];
 }
@@ -349,6 +352,8 @@ function BiomarkerFlagsCard({
   const allResults = data?.all_results ?? [];
   const hasAnyResults = allResults.length > 0;
   const hasFlags = flags.length > 0;
+  const hasGuided = allResults.some((f) => f.source === 'guided_test');
+  const hasLabPanel = (data?.test_dates?.length ?? 0) > 0;
 
   const byCategory: Record<string, BiomarkerFlagItem[]> = {};
   for (const f of flags) {
@@ -373,7 +378,15 @@ function BiomarkerFlagsCard({
           <AlertTriangle className="h-3.5 w-3.5" style={{ color: hasFlags ? '#f97316' : colors.muted }} />
           <span style={{ fontSize: 13, fontWeight: 700, color: colors.foreground }}>Biomarker Flags</span>
           <span style={{ fontSize: 11, color: colors.muted }}>
-            {loading ? 'Loading…' : hasAnyResults ? 'Values outside optimal range' : 'No lab results on file'}
+            {loading
+              ? 'Loading…'
+              : !hasAnyResults
+                ? 'No results on file'
+                : hasLabPanel && hasGuided
+                  ? 'Lab panel + patient guided tests'
+                  : hasGuided
+                    ? "From the patient's guided tests"
+                    : 'Values outside optimal range'}
           </span>
           {!loading && hasFlags && (
             <span style={{ fontSize: 10, fontWeight: 700, padding: '1px 7px', borderRadius: 100, background: 'rgba(249,115,22,0.12)', color: '#f97316' }}>
@@ -449,6 +462,14 @@ function BiomarkerFlagsCard({
                         <span style={{ fontSize: 11, color: colors.muted, flexShrink: 0, whiteSpace: 'nowrap' }}>
                           Optimal {rangeStr(f.optimal_low, f.optimal_high, f.unit)}
                         </span>
+                        {f.source === 'guided_test' && (
+                          <span
+                            title={f.as_of ? `Patient guided test · ${f.as_of}` : 'From the patient’s guided test'}
+                            style={{ fontSize: 10, fontWeight: 600, padding: '2px 6px', borderRadius: 4, flexShrink: 0, whiteSpace: 'nowrap', background: 'rgba(255,255,255,0.06)', color: colors.muted }}
+                          >
+                            home test
+                          </span>
+                        )}
                         {f.trend && f.trend !== 'stable' && (
                           <span style={{ fontSize: 11, flexShrink: 0, color: f.trend === 'worsening' ? '#ef4444' : '#22c55e', whiteSpace: 'nowrap' }}>
                             {f.trend === 'worsening' ? '↑' : '↓'} {f.trend}
