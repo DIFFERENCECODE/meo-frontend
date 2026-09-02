@@ -3,7 +3,10 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { getIdToken, clearIdToken, getLogoutUrl, getLoginUrl } from '@/app/lib/auth';
+import {
+  getIdToken, clearIdToken, getLogoutUrl, getLoginUrl,
+  exchangeCodeForTokens, storeIdToken, storeRefreshToken,
+} from '@/app/lib/auth';
 
 // ─── Design tokens (exact from design handoff) ────────────────────────────────
 const T = {
@@ -46,17 +49,40 @@ export default function ClinicianLayout({ children }: { children: React.ReactNod
   const [profile, setProfile] = useState<Profile>({});
 
   useEffect(() => {
-    const token = getIdToken();
-    if (!token) { window.location.assign(getLoginUrl()); return; }
-    fetch('/api/profile', { headers: { Authorization: `Bearer ${token}` } })
-      .then((r) => (r.ok ? r.json() : null))
-      .then((data) => {
+    (async () => {
+      // The clinician portal is served on its own origin (clinician.<env>.
+      // meterbolic.com), so it must handle the Cognito redirect itself — the
+      // patient app's exchange in MeOApp never runs here. Without this, a fresh
+      // login loops: Cognito redirects back with ?code=, we find no stored
+      // token, and bounce straight back to the Hosted UI.
+      const url = new URL(window.location.href);
+      const code = url.searchParams.get('code');
+      if (code && !getIdToken()) {
+        try {
+          const tokens = await exchangeCodeForTokens(code);
+          storeIdToken(tokens.id_token);
+          if (tokens.refresh_token) storeRefreshToken(tokens.refresh_token);
+        } catch (err) {
+          console.error('clinician: Cognito code exchange failed', err);
+        }
+        url.searchParams.delete('code');
+        window.history.replaceState({}, '', url.toString());
+      }
+
+      const token = getIdToken();
+      if (!token) { window.location.assign(getLoginUrl()); return; }
+      try {
+        const r = await fetch('/api/profile', { headers: { Authorization: `Bearer ${token}` } });
+        const data = r.ok ? await r.json() : null;
         if (!data || (data.role !== 'clinician' && data.role !== 'admin')) { setDenied(true); return; }
         setProfile(data);
         setAuthorized(true);
-      })
-      .catch(() => setDenied(true))
-      .finally(() => setChecking(false));
+      } catch {
+        setDenied(true);
+      } finally {
+        setChecking(false);
+      }
+    })();
   }, []);
 
   const initials = (profile.name || profile.email || 'DR')
