@@ -46,7 +46,7 @@ Status: ✅ Normal, ⚠️ Elevated/Borderline, ❌ Critical
 
 ### Service/vendor lists
 Format as bullets:
-- **Taylor Made Rehab** — Metabolic recovery specialists · £120/session
+- **Glucose Optimization Clinic** — Continuous monitoring · £150/month
 
 ### Key clinical summary
 Wrap a single critical insight in a blockquote:

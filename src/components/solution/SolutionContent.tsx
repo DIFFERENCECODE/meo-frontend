@@ -20,19 +20,6 @@ const mockVendors = [
     available: true,
   },
   {
-    id: '2',
-    name: 'Taylor Made Rehab',
-    category: 'Metabolic Recovery Specialists',
-    description:
-      'Specialised protocol for delayed insulin response patterns. Combines targeted nutrition therapy, metabolic testing, and personalised supplementation.',
-    rating: 4.9,
-    reviews: 127,
-    price: '£120/session',
-    location: 'London, UK',
-    tags: ['Insulin Resistance', 'Fatigue Protocol', 'Nutrition'],
-    available: true,
-  },
-  {
     id: '3',
     name: 'Glucose Optimization Clinic',
     category: 'Continuous Monitoring',
