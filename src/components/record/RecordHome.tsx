@@ -59,14 +59,14 @@ export interface RecordResponse {
  * the difference between a number a meter produced and one a person
  * transcribed — that transcription step is where unit slips live.
  */
-const CAPTURE_LABEL: Record<string, string> = {
+export const CAPTURE_LABEL: Record<string, string> = {
   device: 'from your meter',
   typed: 'entered by hand',
   lab: 'from the lab',
   mixed: 'mixed sources',
 };
 
-const LABELS: Record<string, { label: string; unit: string }> = {
+export const LABELS: Record<string, { label: string; unit: string }> = {
   Triglyceride: { label: 'Triglycerides', unit: 'mmol/L' },
   HDL: { label: 'HDL', unit: 'mmol/L' },
   LDL: { label: 'LDL', unit: 'mmol/L' },
@@ -77,9 +77,9 @@ const LABELS: Record<string, { label: string; unit: string }> = {
 };
 
 /** The order the storyboard lists them in. BAS is the headline, not a row. */
-const DELTA_ORDER = ['Triglyceride', 'HDL', 'Glucose', 'Waist', 'LDL', 'Cholesterol', 'Weight'];
+export const DELTA_ORDER = ['Triglyceride', 'HDL', 'Glucose', 'Waist', 'LDL', 'Cholesterol', 'Weight'];
 
-function fmtDate(d: string | null): string {
+export function fmtDate(d: string | null): string {
   if (!d) return '';
   try {
     return new Date(d).toLocaleDateString('en-GB', {

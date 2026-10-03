@@ -37,7 +37,10 @@ export function GuidedTest() {
 
   const leave = () => {
     exit();
-    router.push('/');
+    // A finished test goes to its result, not back to the record. The record
+    // shows where you are overall; this screen answers the question the patient
+    // just spent ten minutes earning the answer to.
+    router.push(state === 'bas_complete' ? '/reading' : '/');
   };
 
   return (
