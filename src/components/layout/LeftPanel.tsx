@@ -22,6 +22,7 @@ import {
   Check,
   Home,
   TrendingUp,
+  History,
   FlaskConical,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -221,6 +222,7 @@ export function LeftPanel({
                 { href: '/', label: 'My record', Icon: Home },
                 { href: '/test', label: 'Guided test', Icon: FlaskConical },
                 { href: '/trends', label: 'Trends', Icon: TrendingUp },
+                { href: '/timeline', label: 'Timeline', Icon: History },
                 { href: '/marketplace', label: 'Marketplace', Icon: ShoppingBag },
               ].map(({ href, label, Icon }) => {
                 const active = pathname === href;
@@ -521,6 +523,14 @@ export function LeftPanel({
             >
               <TrendingUp className="h-5 w-5" style={{ color: colors.muted }} />
               <RailTooltip label="Trends" />
+            </Link>
+
+            <Link
+              href="/timeline"
+              className="relative group p-3 rounded-lg transition-colors hover:bg-white/10 w-full flex justify-center"
+            >
+              <History className="h-5 w-5" style={{ color: colors.muted }} />
+              <RailTooltip label="Timeline" />
             </Link>
 
             <button

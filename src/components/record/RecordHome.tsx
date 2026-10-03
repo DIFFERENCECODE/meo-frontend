@@ -23,6 +23,8 @@ export interface Reading {
   bas: number | null;
   has_score: boolean;
   is_panel: boolean;
+  /** What sort of sitting this was: panel | insulin | body | other. */
+  kind?: string;
   /**
    * How the reading was captured: 'device', 'typed', 'lab', or 'mixed' when a
    * single sitting combined them. Null for every reading taken before we
