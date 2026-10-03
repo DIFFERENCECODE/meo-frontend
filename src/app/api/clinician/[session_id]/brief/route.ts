@@ -12,9 +12,15 @@ export async function GET(
   }
 
   const { session_id } = await params;
+  // Which lens to render. Validated here rather than passed through blindly so
+  // a bad value cannot reach the agent; the backend also falls back on its own.
+  const requested = request.nextUrl.searchParams.get('persona');
+  const persona = ['physician', 'therapist', 'coach'].includes(requested || '')
+    ? requested
+    : 'physician';
 
   try {
-    const res = await fetch(`${BACKEND_BASE}/clinician/${session_id}/brief`, {
+    const res = await fetch(`${BACKEND_BASE}/clinician/${session_id}/brief?persona=${persona}`, {
       method: 'GET',
       headers: { Authorization: authHeader },
     });

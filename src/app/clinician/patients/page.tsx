@@ -4,6 +4,8 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { useSearchParams } from 'next/navigation';
+import { getPersona } from '../persona';
+import { LensSwitcher } from '../LensSwitcher';
 import { getIdToken } from '@/app/lib/auth';
 
 // Design tokens matching the clinician portal handoff
@@ -889,6 +891,12 @@ function PatientWorkspace({
 
       {/* Scrollable content — brief card, biomarker card, Q&A */}
       <div style={{ flex: 1, overflowY: 'auto', padding: 20, display: 'flex', flexDirection: 'column', gap: 16 }}>
+        {/* The lens sits on the brief, not in a settings page: the claim is
+            that the same record reads three ways, and that is only legible if
+            switching is one click from the thing being re-read. */}
+        <div style={{ padding: '12px 14px', borderRadius: 10, background: 'rgba(255,255,255,.03)', border: `1px solid ${colors.cardBorder}` }}>
+          <LensSwitcher onChange={onRegenerate} compact />
+        </div>
         <BriefCard
           content={briefContent}
           isLoading={briefLoading}
@@ -1024,7 +1032,7 @@ export default function PatientsPage() {
     if (!token) return;
     setBriefContent(null);
     setBriefLoading(true);
-    fetch(`/api/clinician/${sessionId}/brief`, { headers: { Authorization: `Bearer ${token}` } })
+    fetch(`/api/clinician/${sessionId}/brief?persona=${getPersona()}`, { headers: { Authorization: `Bearer ${token}` } })
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => setBriefContent(data?.response || 'Unable to generate brief — try asking manually below.'))
       .catch(() => setBriefContent('Brief unavailable. Ask a question below.'))

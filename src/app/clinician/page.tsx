@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { getIdToken } from '@/app/lib/auth';
 import { getListings, getClinicianBookings } from './store';
+import { LensSwitcher } from './LensSwitcher';
 
 interface TriagePatient {
   session_id: string;
@@ -82,6 +83,11 @@ export default function DashboardPage() {
         {dateStr} · {upcomingBookings.length || 0} sessions booked this week
       </div>
 
+      {/* Lens — the practitioner half of "one record, three lenses". */}
+      <div style={{ marginTop: 22, padding: '16px 20px', borderRadius: 12, background: 'rgba(40,70,70,.55)', border: '1px solid rgba(255,255,255,.1)' }}>
+        <LensSwitcher />
+      </div>
+
       {/* Stat cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 16, marginTop: 24 }}>
 
@@ -140,7 +146,16 @@ export default function DashboardPage() {
       <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginTop: 30 }}>
         <div>
           <h2 style={{ margin: 0, fontSize: 19, fontWeight: 700, letterSpacing: '-.015em' }}>Your Panel</h2>
-          <div style={{ marginTop: 5, fontSize: 13.5, color: 'rgba(255,255,255,.6)' }}>Patients needing attention today</div>
+          <div style={{ marginTop: 5, display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+            <span style={{ fontSize: 13.5, color: 'rgba(255,255,255,.6)' }}>
+              Sorted by what changed since you last looked
+            </span>
+            {/* Named explicitly because it is the point: a caseload ordered
+                alphabetically makes the practitioner do the triage. */}
+            <span style={{ fontSize: 11.5, fontWeight: 600, padding: '4px 10px', borderRadius: 999, color: 'rgba(255,255,255,.7)', background: 'rgba(255,255,255,.06)', border: '1px solid rgba(255,255,255,.14)', whiteSpace: 'nowrap' }}>
+              Not alphabetical
+            </span>
+          </div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 14, fontSize: 12, color: 'rgba(255,255,255,.5)' }}>
