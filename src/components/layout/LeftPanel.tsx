@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import {
   Menu,
   SquarePen,
@@ -19,6 +20,9 @@ import {
   ChevronDown,
   ChevronRight,
   Check,
+  Home,
+  TrendingUp,
+  FlaskConical,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -104,6 +108,7 @@ export function LeftPanel({
     vendor,
     setVendor,
   } = useTheme();
+  const pathname = usePathname();
   const { t } = useTranslation();
   const [showSettings, setShowSettings] = useState(false);
   const [showVendorPicker, setShowVendorPicker] = useState(false);
@@ -206,8 +211,51 @@ export function LeftPanel({
               </a>
             </div>
 
+            {/* Primary navigation.
+                The storyboard puts these ABOVE the chat history, because the
+                record is the app's home and chat is one destination among
+                several. They used to sit in the footer under the conversation
+                list, which quietly said the opposite. */}
+            <nav className="px-2 pt-2 pb-1 space-y-0.5">
+              {[
+                { href: '/', label: 'My record', Icon: Home },
+                { href: '/test', label: 'Guided test', Icon: FlaskConical },
+                { href: '/trends', label: 'Trends', Icon: TrendingUp },
+                { href: '/marketplace', label: 'Marketplace', Icon: ShoppingBag },
+              ].map(({ href, label, Icon }) => {
+                const active = pathname === href;
+                return (
+                  <Link
+                    key={label}
+                    data-tour={label === 'Marketplace' ? 'marketplace-nav' : undefined}
+                    href={href}
+                    className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors hover:bg-white/5"
+                    style={{
+                      color: active ? colors.primary : colors.muted,
+                      backgroundColor: active ? colors.accent : undefined,
+                      fontWeight: active ? 600 : 400,
+                    }}
+                  >
+                    <Icon className="h-5 w-5" />
+                    <span>{label}</span>
+                  </Link>
+                );
+              })}
+              <button
+                data-tour="library-nav"
+                onClick={onLibraryOpen}
+                className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors hover:bg-white/5"
+                style={{ color: colors.muted }}
+              >
+                <BookOpen className="h-5 w-5" />
+                <span>Library</span>
+              </button>
+            </nav>
+
+            <div className="mx-4 my-1" style={{ height: 1, backgroundColor: colors.cardBorder }} />
+
             {/* Chats */}
-            <div className="flex-1 overflow-y-auto px-2 py-4">
+            <div className="flex-1 overflow-y-auto px-2 py-2">
               <p className="px-3 py-2 text-xs font-medium uppercase tracking-wider" style={{ color: colors.muted }}>
                 {t('sidebar.chats')}
               </p>
@@ -267,106 +315,35 @@ export function LeftPanel({
               </div>
             </div>
 
-            {/* Footer */}
-            <div className="p-2 space-y-1" style={{ borderTop: `1px solid ${colors.cardBorder}` }}>
+            {/* Footer.
+                The storyboard's sidebar ends with one entry, not seven. Language,
+                vendor, Personalize and Activity all used to be stacked here, which
+                meant the bottom of the panel competed with the primary nav at the
+                top for the same attention — and lost, because none of them is what
+                a patient opens the app to do. They are all still reachable, one
+                level down, under Settings. */}
+            <div className="p-2" style={{ borderTop: `1px solid ${colors.cardBorder}` }}>
+              {/* Language stays on the surface rather than under Settings: for
+                  anyone not reading in English it is the first thing they need,
+                  and burying it makes them hunt for it. */}
               <div className="px-2 pb-1">
                 <LanguagePicker compact showLabelWhenCompact />
               </div>
               <button
-                data-tour="library-nav"
-                onClick={onLibraryOpen}
-                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors hover:bg-white/5"
-                style={{ color: colors.muted }}
-              >
-                <BookOpen className="h-5 w-5" />
-                <span>Library</span>
-              </button>
-              <Link
-                data-tour="marketplace-nav"
-                href="/marketplace"
-                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors hover:bg-white/5"
-                style={{ color: colors.muted }}
-              >
-                <ShoppingBag className="h-5 w-5" />
-                <span>Marketplace</span>
-              </Link>
-
-              {/* Vendor switcher */}
-              <div className="relative">
-                <button
-                  data-tour="vendor-nav"
-                  onClick={() => setShowVendorPicker(!showVendorPicker)}
-                  className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm transition-colors hover:bg-white/5"
-                  style={{ color: colors.muted }}
-                >
-                  <span className="flex items-center gap-3">
-                    <Store className="h-5 w-5" />
-                    <span>Vendor</span>
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <span className="text-xs" style={{ color: colors.primary }}>
-                      {vendor === 'eos' ? 'Eos' : 'Meterbolic'}
-                    </span>
-                    <ChevronDown
-                      className="h-3.5 w-3.5 transition-transform"
-                      style={{ transform: showVendorPicker ? 'rotate(180deg)' : 'rotate(0deg)' }}
-                    />
-                  </span>
-                </button>
-                <AnimatePresence>
-                  {showVendorPicker && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: 'auto', opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      className="overflow-hidden"
-                    >
-                      <div className="mx-2 mb-1 p-1 rounded-lg space-y-0.5" style={{ backgroundColor: colors.accent }}>
-                        {(['meterbolic', 'eos'] as const).map((v) => (
-                          <button
-                            key={v}
-                            onClick={() => { setVendor(v); setShowVendorPicker(false); }}
-                            className="w-full flex items-center justify-between px-3 py-2 rounded-md text-sm transition-colors hover:bg-white/5"
-                            style={{ color: colors.foreground }}
-                          >
-                            <span>{v === 'eos' ? 'Eos' : 'Meterbolic'}</span>
-                            {vendor === v && <Check className="h-3.5 w-3.5" style={{ color: colors.primary }} />}
-                          </button>
-                        ))}
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-
-              <Link
-                data-tour="personalize-nav"
-                href="/personalize"
-                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors hover:bg-white/5"
-                style={{ color: colors.muted }}
-              >
-                <Sparkles className="h-5 w-5" />
-                <span>{t('sidebar.personalize')}</span>
-              </Link>
-              <Link
-                data-tour="activity-nav"
-                href="/activity"
-                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors hover:bg-white/5"
-                style={{ color: colors.muted }}
-              >
-                <Clock className="h-5 w-5" />
-                <span>{t('sidebar.activity')}</span>
-              </Link>
-              <button
                 onClick={() => setShowSettings(!showSettings)}
-                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors hover:bg-white/5"
+                className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors hover:bg-white/5"
                 style={{ color: colors.muted }}
               >
-                <Settings className="h-5 w-5" />
-                <span>{t('sidebar.settings')}</span>
+                <span className="flex items-center gap-3">
+                  <Settings className="h-5 w-5" />
+                  <span>{t('sidebar.settings')}</span>
+                </span>
+                <ChevronDown
+                  className="h-3.5 w-3.5 transition-transform"
+                  style={{ transform: showSettings ? 'rotate(180deg)' : 'rotate(0deg)' }}
+                />
               </button>
 
-              {/* Settings submenu */}
               <AnimatePresence>
                 {showSettings && (
                   <motion.div
@@ -375,28 +352,76 @@ export function LeftPanel({
                     exit={{ height: 0, opacity: 0 }}
                     className="overflow-hidden"
                   >
-                    <div className="ml-6 mt-1 p-2 rounded-lg space-y-1" style={{ backgroundColor: colors.accent }}>
-                      <Link
-                        href="/profile"
-                        className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors hover:bg-white/5"
-                        style={{ color: colors.foreground }}
-                      >
+                    <div className="mt-1 p-2 rounded-lg space-y-0.5" style={{ backgroundColor: colors.accent }}>
+                      <Link href="/profile" className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors hover:bg-white/5" style={{ color: colors.foreground }}>
                         <User className="h-4 w-4" />
                         <span>Profile</span>
                       </Link>
-                      <Link
-                        href="/pricing"
-                        className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors hover:bg-white/5"
-                        style={{ color: colors.foreground }}
-                      >
+                      <Link data-tour="personalize-nav" href="/personalize" className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors hover:bg-white/5" style={{ color: colors.foreground }}>
+                        <Sparkles className="h-4 w-4" />
+                        <span>{t('sidebar.personalize')}</span>
+                      </Link>
+                      <Link data-tour="activity-nav" href="/activity" className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors hover:bg-white/5" style={{ color: colors.foreground }}>
+                        <Clock className="h-4 w-4" />
+                        <span>{t('sidebar.activity')}</span>
+                      </Link>
+                      <Link href="/pricing" className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors hover:bg-white/5" style={{ color: colors.foreground }}>
                         <CreditCard className="h-4 w-4" />
                         <span>Subscription</span>
                       </Link>
+
+                      <div className="my-1" style={{ height: 1, backgroundColor: colors.cardBorder }} />
+
+                      {/* Vendor switcher — a tenant setting, not a destination. */}
+                      <button
+                        data-tour="vendor-nav"
+                        onClick={() => setShowVendorPicker(!showVendorPicker)}
+                        className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors hover:bg-white/5"
+                        style={{ color: colors.foreground }}
+                      >
+                        <span className="flex items-center gap-2">
+                          <Store className="h-4 w-4" />
+                          <span>Vendor</span>
+                        </span>
+                        <span className="flex items-center gap-1.5">
+                          <span className="text-xs" style={{ color: colors.primary }}>
+                            {vendor === 'eos' ? 'Eos' : 'Meterbolic'}
+                          </span>
+                          <ChevronDown
+                            className="h-3.5 w-3.5 transition-transform"
+                            style={{ transform: showVendorPicker ? 'rotate(180deg)' : 'rotate(0deg)' }}
+                          />
+                        </span>
+                      </button>
+                      <AnimatePresence>
+                        {showVendorPicker && (
+                          <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: 'auto', opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            className="overflow-hidden"
+                          >
+                            <div className="ml-6 mb-1 space-y-0.5">
+                              {(['meterbolic', 'eos'] as const).map((v) => (
+                                <button
+                                  key={v}
+                                  onClick={() => { setVendor(v); setShowVendorPicker(false); }}
+                                  className="w-full flex items-center justify-between px-3 py-1.5 rounded-md text-sm transition-colors hover:bg-white/5"
+                                  style={{ color: colors.foreground }}
+                                >
+                                  <span>{v === 'eos' ? 'Eos' : 'Meterbolic'}</span>
+                                  {vendor === v && <Check className="h-3.5 w-3.5" style={{ color: colors.primary }} />}
+                                </button>
+                              ))}
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+
                       {onStartTour && (
                         <button
                           onClick={() => { setShowSettings(false); onStartTour(); }}
-                          className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors hover:bg-white/5"
-                          style={{ color: colors.foreground }}
+                          className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors hover:bg-white/5" style={{ color: colors.foreground }}
                         >
                           <span>🗺️</span>
                           <span>Take the tour</span>
@@ -471,6 +496,33 @@ export function LeftPanel({
           <div className="w-6 my-1" style={{ height: 1, backgroundColor: `${colors.cardBorder}60` }} />
 
           <div className="flex-1 flex flex-col items-center gap-0.5 py-2 w-full">
+            {/* The record is the app's home, so it leads the rail. Chat is
+                reached from New Chat and from the history below, not from
+                here — it is a destination now, not the ground floor. */}
+            <Link
+              href="/"
+              className="relative group p-3 rounded-lg transition-colors hover:bg-white/10 w-full flex justify-center"
+            >
+              <Home className="h-5 w-5" style={{ color: colors.muted }} />
+              <RailTooltip label="My record" />
+            </Link>
+
+            <Link
+              href="/test"
+              className="relative group p-3 rounded-lg transition-colors hover:bg-white/10 w-full flex justify-center"
+            >
+              <FlaskConical className="h-5 w-5" style={{ color: colors.muted }} />
+              <RailTooltip label="Guided test" />
+            </Link>
+
+            <Link
+              href="/trends"
+              className="relative group p-3 rounded-lg transition-colors hover:bg-white/10 w-full flex justify-center"
+            >
+              <TrendingUp className="h-5 w-5" style={{ color: colors.muted }} />
+              <RailTooltip label="Trends" />
+            </Link>
+
             <button
               data-tour="library-nav"
               onClick={onLibraryOpen}
@@ -489,31 +541,6 @@ export function LeftPanel({
               <RailTooltip label="Marketplace" />
             </Link>
 
-            <button
-              data-tour="vendor-nav"
-              className="relative group p-3 rounded-lg transition-colors hover:bg-white/10 w-full flex justify-center"
-            >
-              <Store className="h-5 w-5" style={{ color: colors.muted }} />
-              <RailTooltip label={vendor === 'eos' ? 'Eos' : 'Meterbolic'} />
-            </button>
-
-            <Link
-              data-tour="personalize-nav"
-              href="/personalize"
-              className="relative group p-3 rounded-lg transition-colors hover:bg-white/10 w-full flex justify-center"
-            >
-              <Sparkles className="h-5 w-5" style={{ color: colors.muted }} />
-              <RailTooltip label="Personalise" />
-            </Link>
-
-            <Link
-              data-tour="activity-nav"
-              href="/activity"
-              className="relative group p-3 rounded-lg transition-colors hover:bg-white/10 w-full flex justify-center"
-            >
-              <Clock className="h-5 w-5" style={{ color: colors.muted }} />
-              <RailTooltip label="Activity" />
-            </Link>
           </div>
 
           <div className="pb-3 w-full flex flex-col items-center">

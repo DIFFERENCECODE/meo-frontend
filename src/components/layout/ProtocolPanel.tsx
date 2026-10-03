@@ -27,6 +27,8 @@ import {
 
 } from 'lucide-react';
 import { useTheme } from '@/theme/ThemeProvider';
+import { QcNotice, useQc } from '@/components/protocol/QcNotice';
+import { blocks } from '@/lib/qc';
 import { motion, AnimatePresence } from 'motion/react';
 import { Layers, Droplet, Clock, ClipboardList, Info, Hand, TrendingDown, TrendingUp } from 'lucide-react';
 
@@ -378,7 +380,7 @@ function KraftComplete({ onExit, colors, data }: { onExit: () => void; colors: a
         const res = await fetch('/api/personalize/submit', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-          body: JSON.stringify({ items: rows }),
+          body: JSON.stringify({ items: rows, capture_method: 'typed' }),
         });
         const json = await res.json();
         if (!res.ok || json.error) {
@@ -610,6 +612,8 @@ function GlucoseReading({ onSubmit, onData, colors }: { onSubmit: (msg: string) 
   const [unit, setUnit] = useState<'mmol' | 'mgdl'>('mmol');
   const range = glucoseRangeLabel(value, unit);
 
+  const glucoseQc = useQc('Glucose', value, unit === 'mmol');
+
   return (
     <div className="flex flex-col gap-5 h-full">
       <div className="flex gap-2">
@@ -627,6 +631,7 @@ function GlucoseReading({ onSubmit, onData, colors }: { onSubmit: (msg: string) 
           placeholder={unit === 'mmol' ? 'e.g. 5.2' : 'e.g. 95'}
           className="w-full px-4 py-3 rounded-xl text-lg font-semibold border bg-transparent focus:outline-none"
           style={inputStyle(colors)} />
+        <QcNotice verdict={glucoseQc} onAccept={(v) => setValue(String(v))} />
         {range && (
           <div className="flex items-center gap-2 mt-2">
             <div className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: range.color }} />
@@ -635,7 +640,7 @@ function GlucoseReading({ onSubmit, onData, colors }: { onSubmit: (msg: string) 
           </div>
         )}
       </div>
-      <button disabled={!value || isNaN(parseFloat(value))}
+      <button disabled={!value || isNaN(parseFloat(value)) || blocks(glucoseQc)}
         onClick={() => { onData({ glucose: value, glucoseUnit: unit }); onSubmit(`My fasting blood glucose reading is ${value} ${unit === 'mmol' ? 'mmol/L' : 'mg/dL'}.`); }}
         className="py-3 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-2 mt-auto disabled:opacity-35"
         style={{ backgroundColor: colors.primary, color: colors.primaryForeground }}>
@@ -650,14 +655,22 @@ function LipidReading({ onSubmit, onData, colors }: { onSubmit: (msg: string) =>
   const [tg, setTg] = useState('');
   const [hdl, setHdl] = useState('');
   const [ldl, setLdl] = useState('');
-  const ready = tg && hdl && ldl;
+  // A lipid strip reporting mg/dL is the single most common way this panel
+  // goes in wrong, and it is silent: 150 mg/dL of triglycerides is a fine
+  // number that happens to be 85x too large once stored as mmol/L.
+  const tcQc = useQc('Cholesterol', tc);
+  const tgQc = useQc('Triglyceride', tg);
+  const hdlQc = useQc('HDL', hdl);
+  const ldlQc = useQc('LDL', ldl);
 
   const fields = [
-    { label: 'Total Cholesterol (TC)', hint: 'normal < 5.2 mmol/L', value: tc, set: setTc, optional: true },
-    { label: 'Triglycerides (TG)', hint: 'normal < 1.7 mmol/L', value: tg, set: setTg, optional: false },
-    { label: 'HDL Cholesterol', hint: 'men > 1.0, women > 1.3', value: hdl, set: setHdl, optional: false },
-    { label: 'LDL Cholesterol', hint: 'normal < 3.0 mmol/L', value: ldl, set: setLdl, optional: false },
+    { label: 'Total Cholesterol (TC)', hint: 'normal < 5.2 mmol/L', value: tc, set: setTc, optional: true, qc: tcQc },
+    { label: 'Triglycerides (TG)', hint: 'normal < 1.7 mmol/L', value: tg, set: setTg, optional: false, qc: tgQc },
+    { label: 'HDL Cholesterol', hint: 'men > 1.0, women > 1.3', value: hdl, set: setHdl, optional: false, qc: hdlQc },
+    { label: 'LDL Cholesterol', hint: 'normal < 3.0 mmol/L', value: ldl, set: setLdl, optional: false, qc: ldlQc },
   ];
+
+  const ready = tg && hdl && ldl && !fields.some((f) => blocks(f.qc));
 
   return (
     <div className="flex flex-col gap-4 h-full">
@@ -677,6 +690,7 @@ function LipidReading({ onSubmit, onData, colors }: { onSubmit: (msg: string) =>
             className="w-full px-4 py-2.5 rounded-xl text-sm border bg-transparent focus:outline-none"
             style={{ borderColor: colors.cardBorder, color: colors.foreground }}
           />
+          <QcNotice verdict={f.qc} onAccept={(v) => f.set(String(v))} />
           <p className="text-xs mt-1" style={{ color: '#e8f1ef' }}>*{f.hint}</p>
         </div>
       ))}
@@ -706,7 +720,19 @@ function Anthropometrics({ onSubmit, onData, colors }: { onSubmit: (msg: string)
   const currentYear = new Date().getFullYear();
   const yearNum = parseInt(birthYear, 10);
   const age = birthYear && !isNaN(yearNum) ? (currentYear - yearNum).toString() : '';
-  const ready = birthYear && !isNaN(yearNum) && yearNum > 1900 && yearNum <= currentYear && sex && weight && height && waist;
+  // In imperial mode the toggle has already told us the unit and toMetric()
+  // converts, so there is nothing to diagnose. In metric mode there is: a waist
+  // typed as 32 is the exact input that silently cost two real readings their
+  // BAS score, because -8.36 METS-VF is out of the score's domain and the
+  // engine correctly refuses rather than guessing.
+  const weightQc = useQc('Weight', weight, !imperial);
+  const heightQc = useQc('Height', height, !imperial);
+  const waistQc = useQc('Waist', waist, !imperial);
+
+  const ready =
+    birthYear && !isNaN(yearNum) && yearNum > 1900 && yearNum <= currentYear &&
+    sex && weight && height && waist &&
+    !blocks(weightQc) && !blocks(heightQc) && !blocks(waistQc);
 
   const toMetric = () => {
     // Returns { weightKg, heightCm, waistCm } as strings, always metric for bang
@@ -764,6 +790,7 @@ function Anthropometrics({ onSubmit, onData, colors }: { onSubmit: (msg: string)
             placeholder={imperial ? 'e.g. 165' : 'e.g. 75'}
             className="w-full px-3 py-2.5 rounded-xl text-sm border bg-transparent focus:outline-none"
             style={inputStyle(colors)} />
+          <QcNotice verdict={weightQc} onAccept={(v) => setWeight(String(v))} />
         </div>
         <div>
           <label className="text-xs font-medium mb-1 block" style={{ color: colors.muted }}>
@@ -773,6 +800,7 @@ function Anthropometrics({ onSubmit, onData, colors }: { onSubmit: (msg: string)
             placeholder={imperial ? 'e.g. 69' : 'e.g. 175'}
             className="w-full px-3 py-2.5 rounded-xl text-sm border bg-transparent focus:outline-none"
             style={inputStyle(colors)} />
+          <QcNotice verdict={heightQc} onAccept={(v) => setHeight(String(v))} />
           {imperial && <p className="text-xs mt-0.5" style={{ color: `${colors.muted}70` }}>Total inches (e.g. 5ft 9in = 69)</p>}
         </div>
       </div>
@@ -784,6 +812,7 @@ function Anthropometrics({ onSubmit, onData, colors }: { onSubmit: (msg: string)
           placeholder={imperial ? 'e.g. 32' : 'e.g. 81'}
           className="w-full px-3 py-2.5 rounded-xl text-sm border bg-transparent focus:outline-none"
           style={{ borderColor: colors.cardBorder, color: colors.foreground }} />
+        <QcNotice verdict={waistQc} onAccept={(v) => setWaist(String(v))} />
         <p className="text-xs mt-1" style={{ color: colors.foreground }}>
           Tape around bare abdomen at navel height. Don't pull tight.
         </p>
@@ -835,7 +864,7 @@ function BASComplete({ onViewResults, colors, data }: { onViewResults: () => voi
       if (items.length === 0) return;
       setSubmitStatus('submitting');
       try {
-        const res = await fetch('/api/personalize/submit', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ items }) });
+        const res = await fetch('/api/personalize/submit', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ items, capture_method: 'typed' }) });
         const json = await res.json();
         if (!res.ok || json.error) { setSubmitError(json.error || `Server returned ${res.status}`); setSubmitStatus('error'); }
         else { setSubmitStatus('success'); }

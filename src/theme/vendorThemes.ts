@@ -74,7 +74,7 @@ export const meterbolicTheme: VendorTheme = {
     cardBorder: 'rgba(255, 255, 255, 0.1)',
     
     foreground: '#ffffff',
-    muted: 'rgba(255, 255, 255, 0.6)',
+    muted: '#c3d0d0',
     
     accent: 'rgba(164, 214, 94, 0.15)',
     accentHover: 'rgba(164, 214, 94, 0.25)',
@@ -83,7 +83,7 @@ export const meterbolicTheme: VendorTheme = {
     warning: '#f97316',
     error: '#ef4444',
     
-    chartPrimary: '#3b82f6',
+    chartPrimary: '#a4d65e',
     chartSecondary: '#f97316',
     chartTertiary: '#a4d65e',
   },
@@ -103,7 +103,7 @@ export const meterbolicTheme: VendorTheme = {
     cardBorder: 'rgba(255, 255, 255, 0.12)',
 
     foreground: '#e8f5e8',
-    muted: 'rgba(232, 245, 232, 0.55)',
+    muted: '#c3d0d0',
 
     accent: 'rgba(164, 214, 94, 0.15)',
     accentHover: 'rgba(164, 214, 94, 0.25)',
@@ -112,7 +112,7 @@ export const meterbolicTheme: VendorTheme = {
     warning: '#f97316',
     error: '#ef4444',
 
-    chartPrimary: '#3b82f6',
+    chartPrimary: '#a4d65e',
     chartSecondary: '#f97316',
     chartTertiary: '#a4d65e',
   },

@@ -1,0 +1,56 @@
+'use client';
+
+import React from 'react';
+import { AlertTriangle, ArrowRight } from 'lucide-react';
+import { checkValue, QcField, QcVerdict } from '@/lib/qc';
+
+/**
+ * The inline quality-control line under a measurement input.
+ *
+ * Deliberately not a modal or a toast: the correction belongs next to the
+ * number that caused it, while the patient still has the meter in their hand.
+ * A `suspect` verdict offers the converted value as a button rather than
+ * silently rewriting the field — the patient measured it, so the patient
+ * confirms what it was.
+ */
+export function useQc(field: QcField, raw: string, enabled = true): QcVerdict {
+  return React.useMemo(() => {
+    if (!enabled || raw.trim() === '') return { level: 'ok' };
+    return checkValue(field, parseFloat(raw));
+  }, [field, raw, enabled]);
+}
+
+export function QcNotice({
+  verdict,
+  onAccept,
+}: {
+  verdict: QcVerdict;
+  /** Called with the corrected value when the patient accepts the conversion. */
+  onAccept?: (value: number) => void;
+}) {
+  if (verdict.level === 'ok') return null;
+  const amber = verdict.level === 'suspect';
+  const colour = amber ? '#f0a05a' : '#e57373';
+
+  return (
+    <div className="flex items-start gap-2 mt-2" role="status">
+      <AlertTriangle className="h-3.5 w-3.5 shrink-0 mt-0.5" style={{ color: colour }} />
+      <div className="min-w-0">
+        <p className="text-xs" style={{ color: colour }}>{verdict.message}</p>
+        {verdict.suggestion && onAccept && (
+          <button
+            type="button"
+            onClick={() => onAccept(verdict.suggestion!.value)}
+            className="inline-flex items-center gap-1 mt-1 text-xs font-medium underline underline-offset-2"
+            style={{ color: colour }}
+          >
+            {verdict.suggestion.label}
+            <ArrowRight className="h-3 w-3" />
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export default QcNotice;

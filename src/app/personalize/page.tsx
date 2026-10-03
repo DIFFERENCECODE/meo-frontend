@@ -374,7 +374,9 @@ export default function PersonalizePage() {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(payload),
+        // The personalize form is always hand-entered, whether the patient
+        // typed the numbers or pasted a lab report for parsing.
+        body: JSON.stringify({ ...payload, capture_method: 'typed' }),
       });
       const data = await res.json();
       if (!res.ok) {
