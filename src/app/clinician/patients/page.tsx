@@ -6,6 +6,7 @@ import remarkGfm from 'remark-gfm';
 import { useSearchParams } from 'next/navigation';
 import { getPersona } from '../persona';
 import { LensSwitcher } from '../LensSwitcher';
+import { PostConsult } from '../PostConsult';
 import { getIdToken } from '@/app/lib/auth';
 
 // Design tokens matching the clinician portal handoff
@@ -897,6 +898,7 @@ function PatientWorkspace({
         <div style={{ padding: '12px 14px', borderRadius: 10, background: 'rgba(255,255,255,.03)', border: `1px solid ${colors.cardBorder}` }}>
           <LensSwitcher onChange={onRegenerate} compact />
         </div>
+        <PostConsult patientSessionId={patient.session_id} colors={colors} />
         <BriefCard
           content={briefContent}
           isLoading={briefLoading}

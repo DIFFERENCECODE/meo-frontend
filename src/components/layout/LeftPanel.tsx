@@ -23,6 +23,8 @@ import {
   Home,
   TrendingUp,
   History,
+  ClipboardList,
+  UserRound,
   FlaskConical,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -240,6 +242,29 @@ export function LeftPanel({
                   >
                     <Icon className="h-5 w-5" />
                     <span>{label}</span>
+                  </Link>
+                );
+              })}
+              {/* Secondary: both come from a practitioner, so they sit
+                  together and below the things the patient drives. */}
+              {[
+                { href: '/plan', label: 'My plan', Icon: ClipboardList },
+                { href: '/from-practitioner', label: 'From your practitioner', Icon: UserRound },
+              ].map(({ href, label, Icon }) => {
+                const active = pathname === href;
+                return (
+                  <Link
+                    key={label}
+                    href={href}
+                    className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors hover:bg-white/5"
+                    style={{
+                      color: active ? colors.primary : colors.muted,
+                      backgroundColor: active ? colors.accent : undefined,
+                      fontWeight: active ? 600 : 400,
+                    }}
+                  >
+                    <Icon className="h-5 w-5" />
+                    <span className="truncate">{label}</span>
                   </Link>
                 );
               })}
