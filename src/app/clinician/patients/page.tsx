@@ -7,6 +7,7 @@ import { useSearchParams } from 'next/navigation';
 import { getPersona } from '../persona';
 import { LensSwitcher } from '../LensSwitcher';
 import { PostConsult } from '../PostConsult';
+import { BetweenVisits } from '../BetweenVisits';
 import { getIdToken } from '@/app/lib/auth';
 
 // Design tokens matching the clinician portal handoff
@@ -465,14 +466,28 @@ function BiomarkerFlagsCard({
                         <span style={{ fontSize: 11, color: colors.muted, flexShrink: 0, whiteSpace: 'nowrap' }}>
                           Optimal {rangeStr(f.optimal_low, f.optimal_high, f.unit)}
                         </span>
-                        {f.source === 'guided_test' && (
-                          <span
-                            title={f.as_of ? `Patient guided test · ${f.as_of}` : 'From the patient’s guided test'}
-                            style={{ fontSize: 10, fontWeight: 600, padding: '2px 6px', borderRadius: 4, flexShrink: 0, whiteSpace: 'nowrap', background: 'rgba(255,255,255,0.06)', color: colors.muted }}
-                          >
-                            home test
-                          </span>
-                        )}
+                        {/* Source, always shown — including when it was never
+                            recorded. A flag whose origin is blank reads as a lab
+                            result unless we say otherwise, and a home-test value
+                            and a venous panel do not carry the same weight. */}
+                        <span
+                          title={
+                            f.source === 'guided_test'
+                              ? (f.as_of ? `Patient guided test · ${f.as_of}` : 'From the patient\u2019s guided test')
+                              : f.source === 'lab_panel'
+                                ? 'Returned from a laboratory'
+                                : 'No source recorded for this value'
+                          }
+                          style={{
+                            fontSize: 10, fontWeight: 600, padding: '2px 6px', borderRadius: 4,
+                            flexShrink: 0, whiteSpace: 'nowrap',
+                            background: 'rgba(255,255,255,0.06)',
+                            color: f.source ? colors.muted : 'rgba(255,255,255,0.35)',
+                            fontStyle: f.source ? 'normal' : 'italic',
+                          }}
+                        >
+                          {f.source === 'guided_test' ? 'home test' : f.source === 'lab_panel' ? 'lab' : 'source not recorded'}
+                        </span>
                         {f.trend && f.trend !== 'stable' && (
                           <span style={{ fontSize: 11, flexShrink: 0, color: f.trend === 'worsening' ? '#ef4444' : '#22c55e', whiteSpace: 'nowrap' }}>
                             {f.trend === 'worsening' ? '↑' : '↓'} {f.trend}
@@ -898,6 +913,7 @@ function PatientWorkspace({
         <div style={{ padding: '12px 14px', borderRadius: 10, background: 'rgba(255,255,255,.03)', border: `1px solid ${colors.cardBorder}` }}>
           <LensSwitcher onChange={onRegenerate} compact />
         </div>
+        <BetweenVisits patientSessionId={patient.session_id} colors={colors} />
         <PostConsult patientSessionId={patient.session_id} colors={colors} />
         <BriefCard
           content={briefContent}
