@@ -25,6 +25,17 @@ export interface ThemeColors {
   // Text colors
   foreground: string;
   muted: string;
+  /**
+   * The storyboard's second muted tone, used 186 times: uppercase section
+   * labels, captions, timestamps and inactive nav. Rendering those in `muted`
+   * puts the label at the same weight as the sentence beneath it and the
+   * hierarchy flattens — the single most visible gap against the storyboard.
+   */
+  mutedDim: string;
+  /** Softer warn tier, between `warning` and `success`. */
+  caution: string;
+  /** Phone- and device-sourced data. */
+  device: string;
   
   // Accent colors
   accent: string;
@@ -69,12 +80,15 @@ export const meterbolicTheme: VendorTheme = {
     backgroundGradientMid: '#264545',
     backgroundGradientEnd: '#2a5555',
     
-    card: 'rgba(40, 70, 70, 0.8)',
+    card: 'rgba(40, 70, 70, 0.82)',
     cardHover: 'rgba(50, 80, 80, 0.9)',
-    cardBorder: 'rgba(255, 255, 255, 0.1)',
+    cardBorder: 'rgba(255, 255, 255, 0.12)',
     
     foreground: '#ffffff',
     muted: '#c3d0d0',
+    mutedDim: '#a3b4b4',
+    caution: '#eab839',
+    device: '#7cc5d8',
     
     accent: 'rgba(164, 214, 94, 0.15)',
     accentHover: 'rgba(164, 214, 94, 0.25)',
@@ -104,6 +118,9 @@ export const meterbolicTheme: VendorTheme = {
 
     foreground: '#e8f5e8',
     muted: '#c3d0d0',
+    mutedDim: '#a3b4b4',
+    caution: '#eab839',
+    device: '#7cc5d8',
 
     accent: 'rgba(164, 214, 94, 0.15)',
     accentHover: 'rgba(164, 214, 94, 0.25)',
@@ -153,6 +170,9 @@ export const eosTheme: VendorTheme = {
 
     foreground: '#f0ece4',
     muted: 'rgba(240, 236, 228, 0.55)',
+    mutedDim: 'rgba(240, 236, 228, 0.42)',
+    caution: '#eab839',
+    device: '#7cc5d8',
 
     accent: 'rgba(212, 168, 83, 0.12)',
     accentHover: 'rgba(212, 168, 83, 0.22)',
@@ -182,6 +202,9 @@ export const eosTheme: VendorTheme = {
 
     foreground: '#e8e4dc',
     muted: 'rgba(232, 228, 220, 0.5)',
+    mutedDim: 'rgba(240, 236, 228, 0.42)',
+    caution: '#eab839',
+    device: '#7cc5d8',
 
     accent: 'rgba(212, 168, 83, 0.12)',
     accentHover: 'rgba(212, 168, 83, 0.22)',

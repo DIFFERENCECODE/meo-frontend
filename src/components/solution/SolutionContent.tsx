@@ -73,10 +73,10 @@ export function SolutionContent({ vendors = [] }: SolutionContentProps) {
     <div className="space-y-4">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold" style={{ color: theme.colors.foreground }}>
+        <h1 className="t-head font-bold" style={{ color: theme.colors.foreground }}>
           Recommended Support
         </h1>
-        <p className="text-sm" style={{ color: theme.colors.muted }}>
+        <p className="t-lead" style={{ color: theme.colors.muted }}>
           {vendors.length > 0 ? `${vendors.length} matches found` : 'Matched to your metabolic profile'}
         </p>
       </div>
@@ -85,7 +85,7 @@ export function SolutionContent({ vendors = [] }: SolutionContentProps) {
       {displayVendors.map((vendor) => (
         <div
           key={vendor.id}
-          className="rounded-xl p-6 border transition-all cursor-pointer group"
+          className="rounded-[10px] p-6 border transition-all cursor-pointer group"
           style={{
             backgroundColor: theme.colors.card,
             borderColor: theme.colors.cardBorder,
@@ -102,7 +102,7 @@ export function SolutionContent({ vendors = [] }: SolutionContentProps) {
                 </h3>
                 {vendor.available ? (
                   <span
-                    className="px-2 py-0.5 rounded-full text-xs font-medium"
+                    className="px-2 py-0.5 rounded-full t-body2 font-medium"
                     style={{
                       backgroundColor: `${theme.colors.success}20`,
                       color: theme.colors.success,
@@ -113,7 +113,7 @@ export function SolutionContent({ vendors = [] }: SolutionContentProps) {
                   </span>
                 ) : (
                   <span
-                    className="px-2 py-0.5 rounded-full text-xs font-medium"
+                    className="px-2 py-0.5 rounded-full t-body2 font-medium"
                     style={{
                       backgroundColor: `${theme.colors.muted}20`,
                       color: theme.colors.muted,
@@ -124,10 +124,10 @@ export function SolutionContent({ vendors = [] }: SolutionContentProps) {
                   </span>
                 )}
               </div>
-              <p className="text-sm font-medium mb-2" style={{ color: theme.colors.primary }}>
+              <p className="t-lead font-medium mb-2" style={{ color: theme.colors.primary }}>
                 {vendor.category}
               </p>
-              <p className="text-sm mb-4 leading-relaxed" style={{ color: theme.colors.muted }}>
+              <p className="t-lead mb-4 leading-relaxed" style={{ color: theme.colors.muted }}>
                 {vendor.description}
               </p>
 
@@ -136,7 +136,7 @@ export function SolutionContent({ vendors = [] }: SolutionContentProps) {
                 {vendor.tags.map((tag, i) => (
                   <span
                     key={i}
-                    className="px-2 py-1 rounded-md text-xs"
+                    className="px-2 py-1 rounded-md t-body2"
                     style={{
                       backgroundColor: theme.colors.accent,
                       color: theme.colors.foreground,
@@ -149,7 +149,7 @@ export function SolutionContent({ vendors = [] }: SolutionContentProps) {
               </div>
 
               {/* Meta Info */}
-              <div className="flex items-center gap-4 text-sm" style={{ color: theme.colors.muted }}>
+              <div className="flex items-center gap-4 t-lead" style={{ color: theme.colors.muted }}>
                 {vendor.rating && (
                   <div className="flex items-center gap-1">
                     <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
@@ -176,12 +176,12 @@ export function SolutionContent({ vendors = [] }: SolutionContentProps) {
             {/* Price & CTA */}
             <div className="flex flex-col items-end gap-3 ml-6">
               <div className="text-right">
-                <p className="text-2xl font-bold" style={{ color: theme.colors.foreground }}>
+                <p className="t-head font-bold" style={{ color: theme.colors.foreground }}>
                   {vendor.price}
                 </p>
               </div>
               <button
-                className="flex items-center gap-2 px-4 py-2 font-medium rounded-lg transition-colors"
+                className="flex items-center gap-2 px-4 py-2 font-medium rounded-[9px] transition-colors"
                 style={{
                   backgroundColor: theme.colors.primary,
                   color: theme.colors.primaryForeground,
@@ -190,7 +190,7 @@ export function SolutionContent({ vendors = [] }: SolutionContentProps) {
                 Book Now
                 <ChevronRight className="h-4 w-4" />
               </button>
-              <button className="text-sm transition-colors" style={{ color: theme.colors.muted }}>
+              <button className="t-lead transition-colors" style={{ color: theme.colors.muted }}>
                 Learn More
               </button>
             </div>

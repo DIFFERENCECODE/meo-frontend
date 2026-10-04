@@ -25,7 +25,7 @@ function Arrow({ direction, improved }: { direction: string; improved: boolean |
   // Direction is geometry, colour is judgement. HDL falling is a down arrow and
   // a bad thing; triglycerides falling is a down arrow and a good one, so the
   // two are deliberately separated rather than inferred from each other.
-  const tone = improved === null ? colors.muted : improved ? colors.primary : '#f0a05a';
+  const tone = improved === null ? colors.muted : improved ? colors.primary : '#f97316';
   const Icon = direction === 'up' ? ArrowUp : direction === 'down' ? ArrowDown : Minus;
   return <Icon className="h-4 w-4 shrink-0" style={{ color: tone }} />;
 }
@@ -63,7 +63,7 @@ function WhatChanged({ record }: { record: RecordResponse }) {
       className="rounded-2xl p-5"
       style={{ backgroundColor: colors.card, border: `1px solid ${colors.cardBorder}` }}
     >
-      <h2 className="text-[11px] font-bold uppercase tracking-[0.14em] mb-4" style={{ color: colors.muted }}>
+      <h2 className="t-label mb-4" style={{ color: colors.mutedDim }}>
         What changed most
       </h2>
 
@@ -78,13 +78,13 @@ function WhatChanged({ record }: { record: RecordResponse }) {
               className="flex items-center gap-3 py-3"
               style={{ borderTop: i === 0 ? undefined : `1px solid ${colors.cardBorder}` }}
             >
-              <span className="text-sm flex-1 min-w-0 truncate">{meta.label}</span>
-              <span className="text-sm tabular-nums" style={{ color: colors.foreground }}>
+              <span className="t-lead flex-1 min-w-0 truncate">{meta.label}</span>
+              <span className="t-lead tabular-nums" style={{ color: colors.foreground }}>
                 {d.from} <span style={{ color: colors.muted }}>→</span>{' '}
                 <span className="font-semibold">{d.to}</span>
               </span>
               <Arrow direction={d.direction} improved={d.improved} />
-              <span className="text-xs w-20 text-right tabular-nums" style={{ color: colors.muted }}>
+              <span className="t-body2 w-20 text-right tabular-nums" style={{ color: colors.muted }}>
                 {d.direction === 'flat' ? 'no change' : `${pct.toFixed(0)}%`}
               </span>
             </div>
@@ -92,7 +92,7 @@ function WhatChanged({ record }: { record: RecordResponse }) {
         })}
       </div>
 
-      <p className="text-[11px] mt-4 leading-relaxed" style={{ color: colors.muted }}>
+      <p className="t-dense mt-4 leading-relaxed" style={{ color: colors.muted }}>
         Ranked by how far each value moved, not by how much it moved your score.
         Attributing the score change to individual markers needs the METS-IR →
         METS-VF calculation, which runs in the measurement engine — in
@@ -114,15 +114,15 @@ export function ReadingComplete({ record }: { record: RecordResponse }) {
   const capture = latest.captured_by ? CAPTURE_LABEL[latest.captured_by] : null;
 
   return (
-    <div className="w-full max-w-3xl mx-auto px-5 py-8 space-y-5">
+    <div className="w-full px-7 py-8 space-y-5">
       <header>
-        <p className="text-xs uppercase tracking-wider mb-1" style={{ color: colors.primary }}>
+        <p className="t-body2 uppercase tracking-wider mb-1" style={{ color: colors.primary }}>
           Reading saved
         </p>
-        <h1 className="text-2xl font-bold">
+        <h1 className="t-head font-bold">
           Reading {record.panel_count}
         </h1>
-        <p className="text-sm mt-1" style={{ color: colors.muted }}>
+        <p className="t-lead mt-1" style={{ color: colors.muted }}>
           {fmtDate(latest.date)}
           {latest.fasted ? ' · fasted' : ''}
           {capture ? ` · ${capture}` : ''}
@@ -136,24 +136,24 @@ export function ReadingComplete({ record }: { record: RecordResponse }) {
         className="rounded-2xl p-5"
         style={{ backgroundColor: colors.card, border: `1px solid ${colors.cardBorder}` }}
       >
-        <h2 className="text-[11px] font-bold uppercase tracking-[0.14em] mb-3" style={{ color: colors.muted }}>
+        <h2 className="t-dense font-bold uppercase tracking-[0.14em] mb-3" style={{ color: colors.muted }}>
           {basDelta != null ? 'Score recomputed' : 'Biological Age Score'}
         </h2>
 
         {basNow != null ? (
           <div className="flex items-end gap-4 flex-wrap">
             {basPrev != null && (
-              <span className="text-2xl font-semibold line-through" style={{ color: colors.muted }}>
+              <span className="t-head font-semibold line-through" style={{ color: colors.muted }}>
                 {basPrev.toFixed(1)}
               </span>
             )}
-            <span className="text-5xl font-bold" style={{ color: colors.primary }}>
+            <span className="t-metric-xl" style={{ color: colors.primary }}>
               {basNow.toFixed(1)}
             </span>
             {basDelta != null && (
               <span
-                className="text-sm font-medium pb-2"
-                style={{ color: basDelta < 0 ? colors.primary : '#f0a05a' }}
+                className="t-lead font-medium pb-2"
+                style={{ color: basDelta < 0 ? colors.primary : '#f97316' }}
               >
                 {basDelta < 0 ? '▼' : '▲'} {Math.abs(basDelta).toFixed(1)}
               </span>
@@ -161,8 +161,8 @@ export function ReadingComplete({ record }: { record: RecordResponse }) {
           </div>
         ) : (
           <div className="flex gap-2 items-start">
-            <Lock className="h-4 w-4 mt-0.5 shrink-0" style={{ color: '#f0a05a' }} />
-            <p className="text-sm" style={{ color: '#f0a05a' }}>
+            <Lock className="h-4 w-4 mt-0.5 shrink-0" style={{ color: '#f97316' }} />
+            <p className="t-lead" style={{ color: '#f97316' }}>
               This reading has no score. A score needs a full set of plausible
               fasting values — the engine returns nothing rather than a number it
               can&apos;t stand behind.
@@ -171,7 +171,7 @@ export function ReadingComplete({ record }: { record: RecordResponse }) {
         )}
 
         {basDelta != null && (
-          <p className="text-sm mt-3" style={{ color: colors.muted }}>
+          <p className="t-lead mt-3" style={{ color: colors.muted }}>
             {record.panel_count < 3
               ? 'Two points make a line. A few more make a direction.'
               : 'Compared with your own last reading, not a population range.'}
@@ -184,14 +184,14 @@ export function ReadingComplete({ record }: { record: RecordResponse }) {
       <div className="flex flex-wrap gap-2">
         <Link
           href="/trends"
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-opacity hover:opacity-90"
+          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-[10px] t-lead font-medium transition-opacity hover:opacity-90"
           style={{ backgroundColor: colors.primary, color: colors.primaryForeground }}
         >
           <TrendingUp className="h-4 w-4" /> See my trend
         </Link>
         <Link
           href={`/chat?q=${encodeURIComponent('What does my latest reading mean?')}`}
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm transition-colors hover:bg-white/5"
+          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-[10px] t-lead transition-colors hover:bg-transparent/5"
           style={{ color: colors.foreground, border: `1px solid ${colors.cardBorder}` }}
         >
           <MessageSquare className="h-4 w-4" /> Ask MeO what this means

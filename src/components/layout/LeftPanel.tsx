@@ -74,7 +74,7 @@ function formatChatDate(created_at?: string | null): string {
 function RailTooltip({ label }: { label: string }) {
   return (
     <span
-      className="pointer-events-none absolute left-full top-1/2 -translate-y-1/2 ml-2 px-2.5 py-1 rounded-lg text-xs font-medium whitespace-nowrap
+      className="pointer-events-none absolute left-full top-1/2 -translate-y-1/2 ml-2 px-2.5 py-1 rounded-[9px] t-body2 font-medium whitespace-nowrap
         opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0
         transition-all duration-150 z-[60]"
       style={{
@@ -135,7 +135,7 @@ export function LeftPanel({
       {!isLeftPanelOpen && (
         <button
           onClick={toggleLeftPanel}
-          className="md:hidden fixed top-3 left-3 z-30 p-2.5 rounded-lg shadow-md"
+          className="md:hidden fixed top-3 left-3 z-30 p-2.5 rounded-[9px] shadow-md"
           style={{ backgroundColor: colors.background, border: `1px solid ${colors.cardBorder}40` }}
           aria-label="Open menu"
         >
@@ -160,7 +160,7 @@ export function LeftPanel({
 
           <motion.aside
             initial={{ width: 0, opacity: 0 }}
-            animate={{ width: 260, opacity: 1 }}
+            animate={{ width: 248, opacity: 1 }}
             exit={{ width: 0, opacity: 0 }}
             transition={{ duration: 0.2, ease: 'easeOut' }}
             className={cn(
@@ -175,7 +175,7 @@ export function LeftPanel({
               <div className="flex items-center gap-2">
                 <button
                   onClick={toggleLeftPanel}
-                  className="p-2 rounded-lg transition-colors hover:bg-white/10"
+                  className="p-2 rounded-[9px] transition-colors hover:bg-transparent/10"
                   aria-label="Close menu"
                 >
                   <Menu className="h-5 w-5" style={{ color: colors.foreground }} />
@@ -192,7 +192,7 @@ export function LeftPanel({
               <button
                 data-tour="new-chat"
                 onClick={onNewChat}
-                className="flex items-center gap-3 w-full px-4 py-3 rounded-full border transition-colors hover:bg-white/5"
+                className="flex items-center gap-3 w-full px-4 py-3 rounded-full border transition-colors hover:bg-transparent/5"
                 style={{ borderColor: colors.cardBorder, color: colors.foreground }}
               >
                 <SquarePen className="h-5 w-5" />
@@ -206,7 +206,7 @@ export function LeftPanel({
                 href="https://www.meterbolic.com/pricing"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border w-fit text-xs transition-colors hover:bg-white/5 no-underline"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border w-fit t-body2 transition-colors hover:bg-transparent/5 no-underline"
                 style={{ borderColor: colors.cardBorder }}
               >
                 <span style={{ color: colors.muted }}>Free plan</span>
@@ -234,7 +234,7 @@ export function LeftPanel({
                     key={label}
                     data-tour={label === 'Marketplace' ? 'marketplace-nav' : undefined}
                     href={href}
-                    className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors hover:bg-white/5"
+                    className="w-full flex items-center gap-3 px-3 py-2 rounded-[9px] t-lead transition-colors hover:bg-transparent/5"
                     style={{
                       color: active ? colors.primary : colors.muted,
                       backgroundColor: active ? colors.accent : undefined,
@@ -258,7 +258,7 @@ export function LeftPanel({
                   <Link
                     key={label}
                     href={href}
-                    className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors hover:bg-white/5"
+                    className="w-full flex items-center gap-3 px-3 py-2 rounded-[9px] t-lead transition-colors hover:bg-transparent/5"
                     style={{
                       color: active ? colors.primary : colors.muted,
                       backgroundColor: active ? colors.accent : undefined,
@@ -273,7 +273,7 @@ export function LeftPanel({
               <button
                 data-tour="library-nav"
                 onClick={onLibraryOpen}
-                className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors hover:bg-white/5"
+                className="w-full flex items-center gap-3 px-3 py-2 rounded-[9px] t-lead transition-colors hover:bg-transparent/5"
                 style={{ color: colors.muted }}
               >
                 <BookOpen className="h-5 w-5" />
@@ -285,7 +285,7 @@ export function LeftPanel({
 
             {/* Chats */}
             <div className="flex-1 overflow-y-auto px-2 py-2">
-              <p className="px-3 py-2 text-xs font-medium uppercase tracking-wider" style={{ color: colors.muted }}>
+              <p className="px-3 py-2 t-body2 font-medium uppercase tracking-wider" style={{ color: colors.muted }}>
                 {t('sidebar.chats')}
               </p>
               <div className="space-y-1">
@@ -300,7 +300,7 @@ export function LeftPanel({
                   chats.map((chat) => (
                     <div
                       key={chat.id}
-                      className="group relative w-full rounded-lg transition-colors hover:bg-white/5"
+                      className="group relative w-full rounded-[9px] transition-colors hover:bg-transparent/5"
                       style={{
                         backgroundColor: currentChatId === chat.id ? colors.accent || 'transparent' : undefined,
                       }}
@@ -308,12 +308,12 @@ export function LeftPanel({
                       <button
                         type="button"
                         onClick={() => onSelectChat?.(chat.id)}
-                        className="w-full text-left px-3 py-2 pr-9 rounded-lg text-sm truncate"
+                        className="w-full text-left px-3 py-2 pr-9 rounded-[9px] t-lead truncate"
                         style={{ color: colors.foreground }}
                       >
                         <span className="block truncate">{chat.title}</span>
                         {formatChatDate(chat.updated_at || chat.created_at) && (
-                          <span className="block text-xs mt-0.5" style={{ color: colors.muted }}>
+                          <span className="block t-body2 mt-0.5" style={{ color: colors.muted }}>
                             {formatChatDate(chat.updated_at || chat.created_at)}
                           </span>
                         )}
@@ -337,7 +337,7 @@ export function LeftPanel({
                     </div>
                   ))
                 ) : (
-                  <p className="px-3 py-2 text-sm" style={{ color: colors.muted }}>
+                  <p className="px-3 py-2 t-lead" style={{ color: colors.muted }}>
                     {t('sidebar.empty_chats')}
                   </p>
                 )}
@@ -360,7 +360,7 @@ export function LeftPanel({
               </div>
               <button
                 onClick={() => setShowSettings(!showSettings)}
-                className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors hover:bg-white/5"
+                className="w-full flex items-center justify-between px-3 py-2 rounded-[9px] t-lead transition-colors hover:bg-transparent/5"
                 style={{ color: colors.muted }}
               >
                 <span className="flex items-center gap-3">
@@ -381,20 +381,20 @@ export function LeftPanel({
                     exit={{ height: 0, opacity: 0 }}
                     className="overflow-hidden"
                   >
-                    <div className="mt-1 p-2 rounded-lg space-y-0.5" style={{ backgroundColor: colors.accent }}>
-                      <Link href="/profile" className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors hover:bg-white/5" style={{ color: colors.foreground }}>
+                    <div className="mt-1 p-2 rounded-[9px] space-y-0.5" style={{ backgroundColor: colors.accent }}>
+                      <Link href="/profile" className="w-full flex items-center gap-2 px-3 py-2 rounded-[9px] t-lead transition-colors hover:bg-transparent/5" style={{ color: colors.foreground }}>
                         <User className="h-4 w-4" />
                         <span>Profile</span>
                       </Link>
-                      <Link data-tour="personalize-nav" href="/personalize" className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors hover:bg-white/5" style={{ color: colors.foreground }}>
+                      <Link data-tour="personalize-nav" href="/personalize" className="w-full flex items-center gap-2 px-3 py-2 rounded-[9px] t-lead transition-colors hover:bg-transparent/5" style={{ color: colors.foreground }}>
                         <Sparkles className="h-4 w-4" />
                         <span>{t('sidebar.personalize')}</span>
                       </Link>
-                      <Link data-tour="activity-nav" href="/activity" className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors hover:bg-white/5" style={{ color: colors.foreground }}>
+                      <Link data-tour="activity-nav" href="/activity" className="w-full flex items-center gap-2 px-3 py-2 rounded-[9px] t-lead transition-colors hover:bg-transparent/5" style={{ color: colors.foreground }}>
                         <Clock className="h-4 w-4" />
                         <span>{t('sidebar.activity')}</span>
                       </Link>
-                      <Link href="/pricing" className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors hover:bg-white/5" style={{ color: colors.foreground }}>
+                      <Link href="/pricing" className="w-full flex items-center gap-2 px-3 py-2 rounded-[9px] t-lead transition-colors hover:bg-transparent/5" style={{ color: colors.foreground }}>
                         <CreditCard className="h-4 w-4" />
                         <span>Subscription</span>
                       </Link>
@@ -405,7 +405,7 @@ export function LeftPanel({
                       <button
                         data-tour="vendor-nav"
                         onClick={() => setShowVendorPicker(!showVendorPicker)}
-                        className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors hover:bg-white/5"
+                        className="w-full flex items-center justify-between px-3 py-2 rounded-[9px] t-lead transition-colors hover:bg-transparent/5"
                         style={{ color: colors.foreground }}
                       >
                         <span className="flex items-center gap-2">
@@ -413,7 +413,7 @@ export function LeftPanel({
                           <span>Vendor</span>
                         </span>
                         <span className="flex items-center gap-1.5">
-                          <span className="text-xs" style={{ color: colors.primary }}>
+                          <span className="t-body2" style={{ color: colors.primary }}>
                             {vendor === 'eos' ? 'Eos' : 'Meterbolic'}
                           </span>
                           <ChevronDown
@@ -435,7 +435,7 @@ export function LeftPanel({
                                 <button
                                   key={v}
                                   onClick={() => { setVendor(v); setShowVendorPicker(false); }}
-                                  className="w-full flex items-center justify-between px-3 py-1.5 rounded-md text-sm transition-colors hover:bg-white/5"
+                                  className="w-full flex items-center justify-between px-3 py-1.5 rounded-md t-lead transition-colors hover:bg-transparent/5"
                                   style={{ color: colors.foreground }}
                                 >
                                   <span>{v === 'eos' ? 'Eos' : 'Meterbolic'}</span>
@@ -450,7 +450,7 @@ export function LeftPanel({
                       {onStartTour && (
                         <button
                           onClick={() => { setShowSettings(false); onStartTour(); }}
-                          className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors hover:bg-white/5" style={{ color: colors.foreground }}
+                          className="w-full flex items-center gap-2 px-3 py-2 rounded-[9px] t-lead transition-colors hover:bg-transparent/5" style={{ color: colors.foreground }}
                         >
                           <span>🗺️</span>
                           <span>Take the tour</span>
@@ -458,7 +458,7 @@ export function LeftPanel({
                       )}
                       <button
                         onClick={toggleColorMode}
-                        className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors hover:bg-white/5"
+                        className="w-full flex items-center justify-between px-3 py-2 rounded-[9px] t-lead transition-colors hover:bg-transparent/5"
                         style={{ color: colors.foreground }}
                       >
                         <span className="flex items-center gap-2">
@@ -466,7 +466,7 @@ export function LeftPanel({
                           <span>{colorMode === 'dark' ? 'Dark mode' : 'Light mode'}</span>
                         </span>
                         <span
-                          className="text-xs px-2 py-0.5 rounded"
+                          className="t-body2 px-2 py-0.5 rounded"
                           style={{ backgroundColor: colors.primary + '30', color: colors.primary }}
                         >
                           {colorMode === 'dark' ? 'ON' : 'OFF'}
@@ -505,7 +505,7 @@ export function LeftPanel({
           <div className="pt-3 pb-1 flex flex-col items-center gap-1 w-full">
             <button
               onClick={toggleLeftPanel}
-              className="relative group p-3 rounded-lg transition-colors hover:bg-white/10"
+              className="relative group p-3 rounded-[9px] transition-colors hover:bg-transparent/10"
               aria-label="Open menu"
             >
               <Menu className="h-5 w-5" style={{ color: colors.foreground }} />
@@ -514,7 +514,7 @@ export function LeftPanel({
 
             <button
               onClick={onNewChat}
-              className="relative group p-3 rounded-lg transition-colors hover:bg-white/10"
+              className="relative group p-3 rounded-[9px] transition-colors hover:bg-transparent/10"
               aria-label={t('sidebar.new_chat')}
             >
               <SquarePen className="h-5 w-5" style={{ color: colors.foreground }} />
@@ -530,7 +530,7 @@ export function LeftPanel({
                 here — it is a destination now, not the ground floor. */}
             <Link
               href="/"
-              className="relative group p-3 rounded-lg transition-colors hover:bg-white/10 w-full flex justify-center"
+              className="relative group p-3 rounded-[9px] transition-colors hover:bg-transparent/10 w-full flex justify-center"
             >
               <Home className="h-5 w-5" style={{ color: colors.muted }} />
               <RailTooltip label="My record" />
@@ -538,7 +538,7 @@ export function LeftPanel({
 
             <Link
               href="/test"
-              className="relative group p-3 rounded-lg transition-colors hover:bg-white/10 w-full flex justify-center"
+              className="relative group p-3 rounded-[9px] transition-colors hover:bg-transparent/10 w-full flex justify-center"
             >
               <FlaskConical className="h-5 w-5" style={{ color: colors.muted }} />
               <RailTooltip label="Guided test" />
@@ -546,7 +546,7 @@ export function LeftPanel({
 
             <Link
               href="/trends"
-              className="relative group p-3 rounded-lg transition-colors hover:bg-white/10 w-full flex justify-center"
+              className="relative group p-3 rounded-[9px] transition-colors hover:bg-transparent/10 w-full flex justify-center"
             >
               <TrendingUp className="h-5 w-5" style={{ color: colors.muted }} />
               <RailTooltip label="Trends" />
@@ -554,7 +554,7 @@ export function LeftPanel({
 
             <Link
               href="/timeline"
-              className="relative group p-3 rounded-lg transition-colors hover:bg-white/10 w-full flex justify-center"
+              className="relative group p-3 rounded-[9px] transition-colors hover:bg-transparent/10 w-full flex justify-center"
             >
               <History className="h-5 w-5" style={{ color: colors.muted }} />
               <RailTooltip label="Timeline" />
@@ -563,7 +563,7 @@ export function LeftPanel({
             <button
               data-tour="library-nav"
               onClick={onLibraryOpen}
-              className="relative group p-3 rounded-lg transition-colors hover:bg-white/10 w-full flex justify-center"
+              className="relative group p-3 rounded-[9px] transition-colors hover:bg-transparent/10 w-full flex justify-center"
             >
               <BookOpen className="h-5 w-5" style={{ color: colors.muted }} />
               <RailTooltip label="Library" />
@@ -572,7 +572,7 @@ export function LeftPanel({
             <Link
               data-tour="marketplace-nav"
               href="/marketplace"
-              className="relative group p-3 rounded-lg transition-colors hover:bg-white/10 w-full flex justify-center"
+              className="relative group p-3 rounded-[9px] transition-colors hover:bg-transparent/10 w-full flex justify-center"
             >
               <ShoppingBag className="h-5 w-5" style={{ color: colors.muted }} />
               <RailTooltip label="Marketplace" />
@@ -583,7 +583,7 @@ export function LeftPanel({
           <div className="pb-3 w-full flex flex-col items-center">
             <div className="w-6 mb-1" style={{ height: 1, backgroundColor: `${colors.cardBorder}60` }} />
             <button
-              className="relative group p-3 rounded-lg transition-colors hover:bg-white/10 w-full flex justify-center"
+              className="relative group p-3 rounded-[9px] transition-colors hover:bg-transparent/10 w-full flex justify-center"
               onClick={() => { toggleLeftPanel(); setTimeout(() => setShowSettings(true), 250); }}
             >
               <Settings className="h-5 w-5" style={{ color: colors.muted }} />

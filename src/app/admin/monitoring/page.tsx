@@ -48,15 +48,15 @@ export default function MonitoringPage() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold" style={{ color: colors.foreground }}>System Monitoring</h1>
-          <p className="text-sm" style={{ color: colors.muted }}>
+          <h1 className="t-head font-bold" style={{ color: colors.foreground }}>System Monitoring</h1>
+          <p className="t-lead" style={{ color: colors.muted }}>
             {lastRefresh ? `Last checked: ${lastRefresh.toLocaleTimeString()}` : 'Checking...'}
           </p>
         </div>
         <button
           onClick={fetchHealth}
           disabled={loading}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-50"
+          className="flex items-center gap-2 px-4 py-2 rounded-[9px] t-lead font-medium disabled:opacity-50"
           style={{ backgroundColor: colors.primary, color: colors.primaryForeground }}
         >
           <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
@@ -66,7 +66,7 @@ export default function MonitoringPage() {
 
       {/* Overall Status */}
       <div
-        className="rounded-xl border p-6 mb-6"
+        className="rounded-[10px] border p-6 mb-6"
         style={{ backgroundColor: colors.card, borderColor: colors.cardBorder }}
       >
         <div className="flex items-center gap-4">
@@ -83,7 +83,7 @@ export default function MonitoringPage() {
             <p className="text-xl font-bold" style={{ color: colors.foreground }}>
               {okCount === totalCount ? 'All Systems Operational' : `${totalCount - okCount} Service(s) Down`}
             </p>
-            <p className="text-sm" style={{ color: colors.muted }}>{okCount}/{totalCount} services healthy</p>
+            <p className="t-lead" style={{ color: colors.muted }}>{okCount}/{totalCount} services healthy</p>
           </div>
         </div>
       </div>
@@ -97,20 +97,20 @@ export default function MonitoringPage() {
             return (
               <div
                 key={service}
-                className="rounded-xl border p-5"
+                className="rounded-[10px] border p-5"
                 style={{ backgroundColor: colors.card, borderColor: colors.cardBorder }}
               >
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center gap-3">
                     <div
-                      className="p-2 rounded-lg"
+                      className="p-2 rounded-[9px]"
                       style={{ backgroundColor: isOk ? `${colors.success}15` : `${colors.error}15` }}
                     >
                       <Icon className="h-5 w-5" style={{ color: isOk ? colors.success : colors.error }} />
                     </div>
                     <div>
                       <p className="font-semibold capitalize" style={{ color: colors.foreground }}>{service}</p>
-                      <p className="text-xs" style={{ color: colors.muted }}>
+                      <p className="t-body2" style={{ color: colors.muted }}>
                         {service === 'rds' && 'PostgreSQL Database'}
                         {service === 'qdrant' && 'Vector Store (RAG)'}
                         {service === 'bedrock' && 'AWS LLM Service'}
@@ -119,7 +119,7 @@ export default function MonitoringPage() {
                     </div>
                   </div>
                   <span
-                    className="px-2 py-1 rounded-full text-xs font-medium"
+                    className="px-2 py-1 rounded-full t-body2 font-medium"
                     style={{
                       backgroundColor: isOk ? `${colors.success}20` : `${colors.error}20`,
                       color: isOk ? colors.success : colors.error,
@@ -130,11 +130,11 @@ export default function MonitoringPage() {
                 </div>
 
                 {/* Details */}
-                <div className="text-xs space-y-1" style={{ color: colors.muted }}>
+                <div className="t-body2 space-y-1" style={{ color: colors.muted }}>
                   {check.vendors_count !== undefined && <p>Vendors: {check.vendors_count} | Knowledge: {check.knowledge_count}</p>}
                   {check.model && <p>Model: {check.model}</p>}
                   {!isOk && check.detail && (
-                    <p className="mt-2 p-2 rounded text-xs break-all" style={{ backgroundColor: `${colors.error}10`, color: colors.error }}>
+                    <p className="mt-2 p-2 rounded t-body2 break-all" style={{ backgroundColor: `${colors.error}10`, color: colors.error }}>
                       {check.detail}
                     </p>
                   )}

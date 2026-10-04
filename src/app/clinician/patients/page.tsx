@@ -691,15 +691,15 @@ function AssistantBubble({ content, isLoading, colors }: {
         style={{ background: `${colors.primary}20` }}>
         <Sparkles className="h-3 w-3" style={{ color: colors.primary }} />
       </div>
-      <div className="flex-1 min-w-0 rounded-2xl rounded-tl-sm px-4 py-3 text-sm"
+      <div className="flex-1 min-w-0 rounded-2xl rounded-tl-sm px-4 py-3 t-lead"
         style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
         {isLoading ? <LoadingDots color={colors.muted} /> : (
           <ReactMarkdown remarkPlugins={[remarkGfm]} components={{
-            p: ({ children }) => <p className="text-sm leading-relaxed mb-2 last:mb-0" style={{ color: colors.foreground }}>{children}</p>,
-            h2: ({ children }) => <h2 className="text-sm font-bold mt-3 mb-1.5" style={{ color: colors.primary }}>{children}</h2>,
+            p: ({ children }) => <p className="t-lead leading-relaxed mb-2 last:mb-0" style={{ color: colors.foreground }}>{children}</p>,
+            h2: ({ children }) => <h2 className="t-lead font-bold mt-3 mb-1.5" style={{ color: colors.primary }}>{children}</h2>,
             ul: ({ children }) => <ul className="my-2 space-y-1 pl-3">{children}</ul>,
             ol: ({ children }) => <ol className="my-2 space-y-1 pl-3 list-decimal">{children}</ol>,
-            li: ({ children }) => <li className="text-sm flex items-start gap-2" style={{ color: colors.foreground }}><span className="mt-2 h-1 w-1 rounded-full flex-shrink-0" style={{ background: colors.primary }} /><span>{children}</span></li>,
+            li: ({ children }) => <li className="t-lead flex items-start gap-2" style={{ color: colors.foreground }}><span className="mt-2 h-1 w-1 rounded-full flex-shrink-0" style={{ background: colors.primary }} /><span>{children}</span></li>,
             strong: ({ children }) => <strong className="font-semibold" style={{ color: colors.foreground }}>{children}</strong>,
             hr: () => <hr className="my-3" style={{ borderColor: 'rgba(255,255,255,0.08)' }} />,
           }}>
@@ -714,7 +714,7 @@ function AssistantBubble({ content, isLoading, colors }: {
 function UserBubble({ content, colors }: { content: string; colors: typeof COLORS }) {
   return (
     <div className="flex justify-end">
-      <div className="max-w-[75%] rounded-2xl rounded-tr-sm px-4 py-2.5 text-sm"
+      <div className="max-w-[75%] rounded-2xl rounded-tr-sm px-4 py-2.5 t-lead"
         style={{ background: `${colors.primary}22`, color: colors.foreground }}>
         {content}
       </div>

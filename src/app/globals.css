@@ -688,3 +688,29 @@ html {
     overflow: hidden;
   }
 }
+
+/* ── Storyboard type scale ────────────────────────────────────────────────
+   The storyboard uses six steps between 10.5 and 15px; Tailwind's defaults
+   have two, which put every screen roughly one step too large. These are the
+   measured values, nudged a half-pixel down where Cabinet Grotesk runs wider
+   than the Plus Jakarta Sans the frames were drawn in.                      */
+.t-meta   { font-size: 10.5px; line-height: 1.45; }
+.t-dense  { font-size: 11px;   line-height: 1.45; }
+.t-small  { font-size: 12px;   line-height: 1.5; }
+.t-body2  { font-size: 12.5px; line-height: 1.5; }
+.t-body   { font-size: 13px;   line-height: 1.55; }
+.t-lead   { font-size: 13.5px; line-height: 1.55; }
+.t-lg     { font-size: 15px;   line-height: 1.45; }
+.t-head   { font-size: 22px;   line-height: 1.2;  letter-spacing: -0.01em; }
+
+/* Big numbers are set, not inflated: weight 800 and negative tracking. */
+.t-metric { font-size: 30px; font-weight: 800; letter-spacing: -0.025em; line-height: 1.05; }
+.t-metric-xl { font-size: 44px; font-weight: 800; letter-spacing: -0.045em; line-height: 1; }
+
+/* The storyboard's uppercase section label, in full. */
+.t-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}

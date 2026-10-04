@@ -172,7 +172,7 @@ export function BASProgressChart() {
 
   return (
     <div
-      className="rounded-xl border p-6"
+      className="rounded-[10px] border p-6"
       style={{ backgroundColor: colors.card, borderColor: colors.cardBorder }}
     >
       <div className="flex items-center gap-2 mb-4">
@@ -182,7 +182,7 @@ export function BASProgressChart() {
         </h2>
         {basPoints.length > 0 && (
           <span
-            className="ml-auto text-xs px-2 py-0.5 rounded-full"
+            className="ml-auto t-body2 px-2 py-0.5 rounded-full"
             style={{
               backgroundColor: `${LINE_COLOR}20`,
               color: LINE_COLOR,
@@ -196,15 +196,15 @@ export function BASProgressChart() {
 
       {loading ? (
         <div className="h-[260px] flex items-center justify-center">
-          <span className="text-sm" style={{ color: colors.muted }}>Loading…</span>
+          <span className="t-lead" style={{ color: colors.muted }}>Loading…</span>
         </div>
       ) : error ? (
         <div className="h-[260px] flex items-center justify-center">
-          <span className="text-sm" style={{ color: '#ef4444' }}>{error}</span>
+          <span className="t-lead" style={{ color: '#ef4444' }}>{error}</span>
         </div>
       ) : basPoints.length === 0 ? (
         <div className="h-[260px] flex items-center justify-center px-6 text-center">
-          <p className="text-sm" style={{ color: colors.muted }}>{EMPTY_COPY}</p>
+          <p className="t-lead" style={{ color: colors.muted }}>{EMPTY_COPY}</p>
         </div>
       ) : (
         <div className="h-[260px] w-full">

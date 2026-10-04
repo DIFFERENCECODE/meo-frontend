@@ -43,32 +43,32 @@ function Row({ reading, colors }: { reading: Reading & { kind?: string }; colors
   return (
     <li className="flex gap-3 py-4" style={{ borderTop: `1px solid ${colors.cardBorder}` }}>
       <div
-        className="h-9 w-9 shrink-0 rounded-xl flex items-center justify-center"
+        className="h-9 w-9 shrink-0 rounded-[10px] flex items-center justify-center"
         style={{ backgroundColor: 'rgba(164,214,94,0.12)' }}
       >
         <Icon className="h-4 w-4" style={{ color: colors.primary }} />
       </div>
       <div className="min-w-0 flex-1">
         <div className="flex items-baseline gap-2 flex-wrap">
-          <span className="text-sm font-semibold">{kind.label}</span>
+          <span className="t-lead font-semibold">{kind.label}</span>
           {reading.bas != null && (
-            <span className="text-sm" style={{ color: colors.primary }}>
+            <span className="t-lead" style={{ color: colors.primary }}>
               BAS {reading.bas.toFixed(1)}
             </span>
           )}
           {reading.is_panel && reading.bas == null && (
-            <span className="text-xs" style={{ color: '#f0a05a' }}>
+            <span className="t-body2" style={{ color: '#f97316' }}>
               no score
             </span>
           )}
         </div>
-        <p className="text-xs mt-1" style={{ color: colors.muted }}>
+        <p className="t-body2 mt-1" style={{ color: colors.muted }}>
           {markers} value{markers === 1 ? '' : 's'}
           {reading.fasted ? ' · fasted' : ''}
           {capture ? ` · ${capture}` : ' · capture not recorded'}
         </p>
       </div>
-      <time className="text-xs shrink-0 tabular-nums" style={{ color: colors.muted }}>
+      <time className="t-body2 shrink-0 tabular-nums" style={{ color: colors.muted }}>
         {fmtDate(reading.date)}
       </time>
     </li>
@@ -90,7 +90,7 @@ export function DataSources({ record }: { record: RecordResponse }) {
   return (
     <div className="space-y-4">
       <div>
-        <p className="text-[11px] font-bold uppercase tracking-[0.14em]" style={{ color: colors.muted }}>
+        <p className="t-label" style={{ color: colors.mutedDim }}>
           Where your data comes from
         </p>
       </div>
@@ -99,21 +99,21 @@ export function DataSources({ record }: { record: RecordResponse }) {
         {rows.map((r) => (
           <div
             key={r.label}
-            className="flex items-center gap-3 rounded-xl px-3 py-2.5"
+            className="flex items-center gap-3 rounded-[10px] px-3 py-2.5"
             style={{ backgroundColor: colors.card, border: `1px solid ${colors.cardBorder}` }}
           >
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-medium truncate">{r.label}</p>
-              <p className="text-xs" style={{ color: colors.muted }}>{r.detail}</p>
+              <p className="t-lead font-medium truncate">{r.label}</p>
+              <p className="t-body2" style={{ color: colors.muted }}>{r.detail}</p>
             </div>
-            <span className="text-lg font-bold tabular-nums" style={{ color: r.n ? colors.primary : colors.muted }}>
+            <span className="t-lg font-extrabold tabular-nums" style={{ color: r.n ? colors.primary : colors.muted }}>
               {r.n}
             </span>
           </div>
         ))}
       </div>
 
-      <p className="text-[11px] leading-relaxed" style={{ color: colors.muted }}>
+      <p className="t-dense leading-relaxed" style={{ color: colors.muted }}>
         Nothing here is inferred. Every row is something a device measured, you
         entered, or a lab reported.
       </p>
@@ -128,10 +128,10 @@ export function Timeline({ record }: { record: RecordResponse }) {
   const shown = filter === 'all' ? readings : readings.filter((r) => r.kind === filter);
 
   return (
-    <div className="w-full max-w-3xl mx-auto px-5 py-8">
+    <div className="w-full px-7 py-8">
       <header className="mb-5">
-        <h1 className="text-2xl font-bold">Your timeline</h1>
-        <p className="text-sm mt-1" style={{ color: colors.muted }}>
+        <h1 className="t-head font-bold">Your timeline</h1>
+        <p className="t-lead mt-1" style={{ color: colors.muted }}>
           Every reading in one order, each tagged with where it came from.
         </p>
       </header>
@@ -145,7 +145,7 @@ export function Timeline({ record }: { record: RecordResponse }) {
               key={f.id}
               onClick={() => setFilter(f.id)}
               aria-pressed={active}
-              className="px-3 py-1.5 rounded-full text-xs font-medium transition-colors"
+              className="px-3 py-1.5 rounded-full t-body2 font-medium transition-colors"
               style={{
                 color: active ? colors.primary : colors.muted,
                 backgroundColor: active ? 'rgba(164,214,94,0.12)' : 'rgba(255,255,255,0.05)',
@@ -159,7 +159,7 @@ export function Timeline({ record }: { record: RecordResponse }) {
       </div>
 
       {shown.length === 0 ? (
-        <p className="text-sm py-8" style={{ color: colors.muted }}>
+        <p className="t-lead py-8" style={{ color: colors.muted }}>
           Nothing of that kind on your record yet.
         </p>
       ) : (

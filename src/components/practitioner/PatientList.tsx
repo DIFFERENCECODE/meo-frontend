@@ -46,13 +46,13 @@ export function PatientList({ onSelectPatient, selectedPatientId, className }: P
 
   return (
     <div
-      className={`rounded-xl border overflow-hidden ${className || ''}`}
+      className={`rounded-[10px] border overflow-hidden ${className || ''}`}
       style={{ backgroundColor: theme.colors.card, borderColor: theme.colors.cardBorder }}
     >
       <div className="p-4 border-b" style={{ borderColor: theme.colors.cardBorder }}>
         <div className="flex items-center justify-between mb-3">
           <h3 className="font-semibold" style={{ color: theme.colors.foreground }}>Patient List</h3>
-          <span className="text-xs px-2 py-1 rounded-full" style={{ backgroundColor: theme.colors.accent, color: theme.colors.muted }}>
+          <span className="t-body2 px-2 py-1 rounded-full" style={{ backgroundColor: theme.colors.accent, color: theme.colors.muted }}>
             {filtered.length} patients
           </span>
         </div>
@@ -63,7 +63,7 @@ export function PatientList({ onSelectPatient, selectedPatientId, className }: P
             placeholder="Search patients..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 rounded-lg border text-sm"
+            className="w-full pl-10 pr-4 py-2 rounded-[9px] border t-lead"
             style={{ backgroundColor: theme.colors.background, borderColor: theme.colors.cardBorder, color: theme.colors.foreground }}
           />
         </div>
@@ -75,7 +75,7 @@ export function PatientList({ onSelectPatient, selectedPatientId, className }: P
             <Loader2 className="h-5 w-5 animate-spin" style={{ color: theme.colors.primary }} />
           </div>
         ) : filtered.length === 0 ? (
-          <p className="p-4 text-sm text-center" style={{ color: theme.colors.muted }}>
+          <p className="p-4 t-lead text-center" style={{ color: theme.colors.muted }}>
             {patients.length === 0 ? 'No patients yet' : 'No matches'}
           </p>
         ) : (
@@ -94,10 +94,10 @@ export function PatientList({ onSelectPatient, selectedPatientId, className }: P
               </div>
               <div className="flex-1 text-left">
                 <div className="flex items-center gap-2">
-                  <span className="font-medium text-sm" style={{ color: theme.colors.foreground }}>{patient.name}</span>
+                  <span className="font-medium t-lead" style={{ color: theme.colors.foreground }}>{patient.name}</span>
                   <Circle className="h-2 w-2" style={{ fill: patient.role === 'patient' ? theme.colors.success : theme.colors.warning, color: patient.role === 'patient' ? theme.colors.success : theme.colors.warning }} />
                 </div>
-                <p className="text-xs" style={{ color: theme.colors.muted }}>
+                <p className="t-body2" style={{ color: theme.colors.muted }}>
                   {patient.metabolic_goals.length > 0 ? patient.metabolic_goals.join(', ') : patient.role}
                 </p>
               </div>

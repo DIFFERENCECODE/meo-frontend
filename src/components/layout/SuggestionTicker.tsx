@@ -69,7 +69,7 @@ export default function SuggestionTicker({ onSelect, phase = 'general' }: Sugges
             key={i}
             type="button"
             onClick={() => onSelect(q)}
-            className="flex-shrink-0 rounded-full border px-3 py-1 text-xs transition-colors hover:opacity-90 active:scale-95"
+            className="flex-shrink-0 rounded-full border px-3 py-1 t-body2 transition-colors hover:opacity-90 active:scale-95"
             style={{
               borderColor: colors.cardBorder,
               backgroundColor: colors.card,

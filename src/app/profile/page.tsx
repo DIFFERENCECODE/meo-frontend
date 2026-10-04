@@ -162,7 +162,7 @@ export default function ProfilePage() {
             <div className="mx-auto mb-4 flex h-10 w-10 items-center justify-center rounded-full animate-spin" style={{ background: colors.primary }}>
               <span className="text-lg font-bold" style={{ color: colors.primaryForeground }}>M</span>
             </div>
-            <p className="text-sm animate-pulse" style={{ color: colors.muted }}>Loading profile...</p>
+            <p className="t-lead animate-pulse" style={{ color: colors.muted }}>Loading profile...</p>
           </div>
         </div>
       </AppShell>
@@ -183,7 +183,7 @@ export default function ProfilePage() {
     <AppShell>
       <div className="flex-1 overflow-auto" style={{ background: 'transparent' }}>
         <div className="max-w-4xl mx-auto px-6 py-8">
-          <Link href="/" className="inline-block mb-6 text-sm underline" style={{ color: colors.primary }}>
+          <Link href="/" className="inline-block mb-6 t-lead underline" style={{ color: colors.primary }}>
             ← Back to MeO
           </Link>
         <div
@@ -200,22 +200,22 @@ export default function ProfilePage() {
           {/* Identity Details */}
           <div className="space-y-4 mb-6">
             <div>
-              <p className="text-sm mb-1" style={{ color: colors.muted }}>Email</p>
+              <p className="t-lead mb-1" style={{ color: colors.muted }}>Email</p>
               <p style={{ color: colors.foreground }}>{profile?.email ?? '—'}</p>
             </div>
             <div>
-              <p className="text-sm mb-1" style={{ color: colors.muted }}>Cognito ID</p>
-              <p className="text-xs font-mono" style={{ color: colors.foreground }}>{profile?.cognito_sub ?? '—'}</p>
+              <p className="t-lead mb-1" style={{ color: colors.muted }}>Cognito ID</p>
+              <p className="t-body2 font-mono" style={{ color: colors.foreground }}>{profile?.cognito_sub ?? '—'}</p>
             </div>
             <div>
-              <p className="text-sm mb-1" style={{ color: colors.muted }}>Meterbolic User ID</p>
+              <p className="t-lead mb-1" style={{ color: colors.muted }}>Meterbolic User ID</p>
               <p className="font-mono" style={{ color: colors.foreground }}>{profile?.meterbolic_userid ?? 'Not provisioned'}</p>
             </div>
             <div className="flex gap-8">
               <div>
-                <p className="text-sm mb-1" style={{ color: colors.muted }}>Role</p>
+                <p className="t-lead mb-1" style={{ color: colors.muted }}>Role</p>
                 <span
-                  className="inline-block px-3 py-1 rounded-full text-xs font-medium"
+                  className="inline-block px-3 py-1 rounded-full t-body2 font-medium"
                   style={{
                     background: profile?.role === 'patient' ? `${colors.success}20` : `${colors.warning}20`,
                     color: profile?.role === 'patient' ? colors.success : colors.warning,
@@ -225,22 +225,22 @@ export default function ProfilePage() {
                 </span>
               </div>
               <div>
-                <p className="text-sm mb-1" style={{ color: colors.muted }}>Vendor</p>
+                <p className="t-lead mb-1" style={{ color: colors.muted }}>Vendor</p>
                 <p style={{ color: colors.foreground }}>{profile?.vendor_id ?? 'meterbolic'}</p>
               </div>
               <div>
-                <p className="text-sm mb-1" style={{ color: colors.muted }}>Organization</p>
+                <p className="t-lead mb-1" style={{ color: colors.muted }}>Organization</p>
                 <p style={{ color: colors.foreground }}>{profile?.organization_id ?? '—'}</p>
               </div>
             </div>
             {profile?.metabolic_goals && profile.metabolic_goals.length > 0 && (
               <div>
-                <p className="text-sm mb-1" style={{ color: colors.muted }}>Metabolic Goals</p>
+                <p className="t-lead mb-1" style={{ color: colors.muted }}>Metabolic Goals</p>
                 <div className="flex flex-wrap gap-2">
                   {profile.metabolic_goals.map((goal, i) => (
                     <span
                       key={i}
-                      className="px-3 py-1 rounded-full text-xs border"
+                      className="px-3 py-1 rounded-full t-body2 border"
                       style={{ borderColor: colors.primary, color: colors.primary }}
                     >
                       {goal}
@@ -253,12 +253,12 @@ export default function ProfilePage() {
 
           {/* Editable Name */}
           <div className="pt-6 border-t" style={{ borderColor: colors.cardBorder }}>
-            <label className="block text-sm mb-1" style={{ color: colors.muted }}>Display name</label>
+            <label className="block t-lead mb-1" style={{ color: colors.muted }}>Display name</label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full rounded-lg px-4 py-2 border mb-4"
+              className="w-full rounded-[9px] px-4 py-2 border mb-4"
               style={{
                 background: colors.background,
                 borderColor: colors.cardBorder,
@@ -269,7 +269,7 @@ export default function ProfilePage() {
               <button
                 onClick={handleSave}
                 disabled={saving}
-                className="rounded-lg px-6 py-2 font-medium disabled:opacity-70"
+                className="rounded-[9px] px-6 py-2 font-medium disabled:opacity-70"
                 style={{ background: colors.primary, color: colors.primaryForeground }}
               >
                 {saving ? 'Saving...' : 'Save'}
@@ -287,37 +287,37 @@ export default function ProfilePage() {
               <button
                 onClick={refreshMeasurements}
                 disabled={measLoading}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium disabled:opacity-50 transition-colors"
+                className="flex items-center gap-2 px-3 py-1.5 rounded-[9px] t-body2 font-medium disabled:opacity-50 transition-colors"
                 style={{ backgroundColor: colors.primary, color: colors.primaryForeground }}
               >
                 {measLoading ? 'Refreshing...' : 'Refresh'}
               </button>
             </div>
             {measLoading ? (
-              <p className="text-sm animate-pulse" style={{ color: colors.muted }}>Loading measurements...</p>
+              <p className="t-lead animate-pulse" style={{ color: colors.muted }}>Loading measurements...</p>
             ) : measurements.length === 0 ? (
-              <p className="text-sm" style={{ color: colors.muted }}>No measurements found</p>
+              <p className="t-lead" style={{ color: colors.muted }}>No measurements found</p>
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full text-sm">
+                <table className="w-full t-lead">
                   <thead>
                     <tr style={{ borderBottom: `1px solid ${colors.cardBorder}` }}>
                       {['Date', 'Analyte', 'Value', 'Unit'].map(h => (
-                        <th key={h} className="px-3 py-2 text-left text-xs font-medium uppercase" style={{ color: colors.muted }}>{h}</th>
+                        <th key={h} className="px-3 py-2 text-left t-body2 font-medium uppercase" style={{ color: colors.muted }}>{h}</th>
                       ))}
                     </tr>
                   </thead>
                   <tbody>
                     {measurements.map((m, i) => (
                       <tr key={i} style={{ borderBottom: `1px solid ${colors.cardBorder}` }}>
-                        <td className="px-3 py-2 text-xs" style={{ color: colors.muted }}>
+                        <td className="px-3 py-2 t-body2" style={{ color: colors.muted }}>
                           {new Date(m.time).toLocaleDateString()}
                         </td>
                         <td className="px-3 py-2" style={{ color: colors.foreground }}>{m.name}</td>
                         <td className="px-3 py-2 font-medium" style={{ color: colors.primary }}>
                           {typeof m.value === 'number' ? m.value.toFixed(2) : m.value}
                         </td>
-                        <td className="px-3 py-2 text-xs" style={{ color: colors.muted }}>{m.unit}</td>
+                        <td className="px-3 py-2 t-body2" style={{ color: colors.muted }}>{m.unit}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -342,7 +342,7 @@ export default function ProfilePage() {
                     const data = await res.json();
                     if (data.url) window.location.href = data.url;
                   }}
-                  className="px-3 py-1.5 rounded-lg text-xs font-medium transition-colors"
+                  className="px-3 py-1.5 rounded-[9px] t-body2 font-medium transition-colors"
                   style={{ backgroundColor: colors.primary, color: colors.primaryForeground }}
                 >
                   Manage Billing
@@ -351,9 +351,9 @@ export default function ProfilePage() {
             </div>
             <div className="flex items-center gap-4">
               <div>
-                <p className="text-sm mb-1" style={{ color: colors.muted }}>Current Plan</p>
+                <p className="t-lead mb-1" style={{ color: colors.muted }}>Current Plan</p>
                 <span
-                  className="inline-block px-3 py-1 rounded-full text-sm font-semibold"
+                  className="inline-block px-3 py-1 rounded-full t-lead font-semibold"
                   style={{
                     background: subscription?.status === 'active' && subscription?.plan !== 'free'
                       ? `${colors.primary}20` : `${colors.muted}20`,
@@ -366,7 +366,7 @@ export default function ProfilePage() {
               </div>
               {subscription?.status === 'active' && subscription?.currentPeriodEnd && (
                 <div>
-                  <p className="text-sm mb-1" style={{ color: colors.muted }}>
+                  <p className="t-lead mb-1" style={{ color: colors.muted }}>
                     {subscription.cancelAtPeriodEnd ? 'Expires' : 'Renews'}
                   </p>
                   <p style={{ color: colors.foreground }}>
@@ -378,7 +378,7 @@ export default function ProfilePage() {
             {(!subscription || subscription.plan === 'free' || subscription.status !== 'active') && (
               <a
                 href="/pricing"
-                className="inline-block mt-4 px-6 py-2 rounded-lg text-sm font-semibold transition-colors"
+                className="inline-block mt-4 px-6 py-2 rounded-[9px] t-lead font-semibold transition-colors"
                 style={{ background: colors.primary, color: colors.primaryForeground }}
               >
                 Upgrade Plan
@@ -392,14 +392,14 @@ export default function ProfilePage() {
               <h2 className="text-lg font-bold" style={{ color: colors.foreground }}>Therapy Sessions</h2>
               <Link
                 href="/marketplace"
-                className="text-xs px-3 py-1.5 rounded-lg font-medium transition-colors"
+                className="t-body2 px-3 py-1.5 rounded-[9px] font-medium transition-colors"
                 style={{ backgroundColor: colors.primary, color: colors.primaryForeground }}
               >
                 Book a session
               </Link>
             </div>
             {bookings.length === 0 ? (
-              <p className="text-sm" style={{ color: colors.muted }}>No sessions booked yet.</p>
+              <p className="t-lead" style={{ color: colors.muted }}>No sessions booked yet.</p>
             ) : (
               <div className="space-y-3">
                 {bookings.map((b) => {
@@ -409,7 +409,7 @@ export default function ProfilePage() {
                   return (
                     <div
                       key={b.id}
-                      className="rounded-xl overflow-hidden"
+                      className="rounded-[10px] overflow-hidden"
                       style={{
                         border: `1px solid ${colors.cardBorder}`,
                         opacity: b.status === 'cancelled' ? 0.5 : 1,
@@ -423,16 +423,16 @@ export default function ProfilePage() {
                           <img
                             src={b.therapistImage || `https://ui-avatars.com/api/?name=${encodeURIComponent(b.therapistName)}&background=random`}
                             alt={b.therapistName}
-                            className="w-10 h-10 rounded-xl object-cover flex-shrink-0"
+                            className="w-10 h-10 rounded-[10px] object-cover flex-shrink-0"
                           />
                           <div className="min-w-0">
-                            <p className="font-semibold text-sm truncate" style={{ color: colors.foreground }}>{b.therapistName}</p>
-                            <p className="text-xs" style={{ color: colors.muted }}>{b.day} · {b.slot} · {b.sessionLength} min · £{b.price}</p>
+                            <p className="font-semibold t-lead truncate" style={{ color: colors.foreground }}>{b.therapistName}</p>
+                            <p className="t-body2" style={{ color: colors.muted }}>{b.day} · {b.slot} · {b.sessionLength} min · £{b.price}</p>
                           </div>
                         </div>
                         <div className="flex items-center gap-2 flex-shrink-0">
                           <span
-                            className="text-xs px-2 py-0.5 rounded-full font-medium"
+                            className="t-body2 px-2 py-0.5 rounded-full font-medium"
                             style={{
                               backgroundColor: b.status === 'upcoming' ? colors.primary + '20' : '#ef444420',
                               color: b.status === 'upcoming' ? colors.primary : '#ef4444',
@@ -444,7 +444,7 @@ export default function ProfilePage() {
                             <>
                               <button
                                 onClick={() => setCalendarOpen(calendarOpen === b.id ? null : b.id)}
-                                className="text-xs px-2 py-0.5 rounded-full transition-colors hover:opacity-80"
+                                className="t-body2 px-2 py-0.5 rounded-full transition-colors hover:opacity-80"
                                 style={{ backgroundColor: colors.primary + '20', color: colors.primary, border: `1px solid ${colors.primary}30` }}
                               >
                                 + Calendar
@@ -454,7 +454,7 @@ export default function ProfilePage() {
                                   cancelBooking(b.id);
                                   setBookings(getBookings());
                                 }}
-                                className="text-xs px-2 py-0.5 rounded-full transition-colors hover:opacity-80"
+                                className="t-body2 px-2 py-0.5 rounded-full transition-colors hover:opacity-80"
                                 style={{ backgroundColor: '#ef444415', color: '#ef4444', border: '1px solid #ef444430' }}
                               >
                                 Cancel
@@ -472,14 +472,14 @@ export default function ProfilePage() {
                             href={googleCalendarUrl(ev)}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all hover:opacity-80"
+                            className="px-3 py-1.5 rounded-[9px] t-body2 font-medium transition-all hover:opacity-80"
                             style={{ backgroundColor: colors.accent, color: colors.foreground, border: `1px solid ${colors.cardBorder}` }}
                           >
                             Google Calendar
                           </a>
                           <button
                             onClick={() => downloadICS(ev)}
-                            className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all hover:opacity-80"
+                            className="px-3 py-1.5 rounded-[9px] t-body2 font-medium transition-all hover:opacity-80"
                             style={{ backgroundColor: colors.accent, color: colors.foreground, border: `1px solid ${colors.cardBorder}` }}
                           >
                             Apple Calendar (.ics)
@@ -488,7 +488,7 @@ export default function ProfilePage() {
                             href={outlookCalendarUrl(ev)}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all hover:opacity-80"
+                            className="px-3 py-1.5 rounded-[9px] t-body2 font-medium transition-all hover:opacity-80"
                             style={{ backgroundColor: colors.accent, color: colors.foreground, border: `1px solid ${colors.cardBorder}` }}
                           >
                             Outlook
@@ -504,14 +504,14 @@ export default function ProfilePage() {
 
           {/* Password Reset */}
           <div className="mt-6 pt-6 border-t" style={{ borderColor: colors.cardBorder }}>
-            <p className="text-sm mb-2" style={{ color: colors.muted }}>
+            <p className="t-lead mb-2" style={{ color: colors.muted }}>
               Password and account recovery are managed by AWS Cognito.
             </p>
             <a
               href={getForgotPasswordUrl()}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-sm underline"
+              className="t-lead underline"
               style={{ color: colors.primary }}
             >
               Forgot password? Reset it here

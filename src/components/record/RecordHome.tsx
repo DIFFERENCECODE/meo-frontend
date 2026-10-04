@@ -117,7 +117,7 @@ export function RecordHome({ record, state }: RecordHomeProps) {
 
   if (loading) {
     return (
-      <div className="py-24 text-center text-sm" style={{ color: colors.muted }}>
+      <div className="py-24 text-center t-lead" style={{ color: colors.muted }}>
         Loading your record…
       </div>
     );
@@ -130,11 +130,11 @@ export function RecordHome({ record, state }: RecordHomeProps) {
   if (error || !record || !record.latest) {
     return (
       <div
-        className="rounded-xl p-5 flex items-start gap-3 max-w-2xl"
+        className="rounded-[10px] p-5 flex items-start gap-3 max-w-2xl"
         style={{ backgroundColor: colors.card, border: `1px solid ${colors.cardBorder}` }}
       >
         <AlertCircle className="h-5 w-5 mt-0.5" style={{ color: colors.warning }} />
-        <p className="text-sm" style={{ color: colors.foreground }}>
+        <p className="t-lead" style={{ color: colors.foreground }}>
           Could not load your record just now.
         </p>
       </div>
@@ -156,7 +156,7 @@ export function RecordHome({ record, state }: RecordHomeProps) {
         <div className="flex flex-wrap items-center gap-8">
           <div>
             <p
-              className="text-[11px] font-bold uppercase tracking-[0.14em]"
+              className="t-dense font-bold uppercase tracking-[0.14em]"
               style={{ color: colors.primary }}
             >
               Biological Age Score
@@ -180,7 +180,7 @@ export function RecordHome({ record, state }: RecordHomeProps) {
                 </span>
               )}
             </div>
-            <p className="text-sm mt-2" style={{ color: colors.muted }}>
+            <p className="t-lead mt-2" style={{ color: colors.muted }}>
               {latest.bas == null
                 ? 'This reading has no score yet'
                 : previous
@@ -192,7 +192,7 @@ export function RecordHome({ record, state }: RecordHomeProps) {
           {basSeries.length > 1 && (
             <div className="flex-1 min-w-[260px]">
               <p
-                className="text-[11px] font-bold uppercase tracking-[0.14em] mb-1"
+                className="t-dense font-bold uppercase tracking-[0.14em] mb-1"
                 style={{ color: colors.muted }}
               >
                 Last {basSeries.length} scores
@@ -211,12 +211,12 @@ export function RecordHome({ record, state }: RecordHomeProps) {
         >
           <div className="flex items-center justify-between mb-1">
             <p
-              className="text-[11px] font-bold uppercase tracking-[0.14em]"
+              className="t-dense font-bold uppercase tracking-[0.14em]"
               style={{ color: colors.muted }}
             >
               What changed
             </p>
-            <p className="text-xs" style={{ color: colors.muted }}>
+            <p className="t-body2" style={{ color: colors.muted }}>
               {fmtDate(previous.date)} → {fmtDate(latest.date)}
             </p>
           </div>
@@ -240,21 +240,21 @@ export function RecordHome({ record, state }: RecordHomeProps) {
                   borderBottom: i === arr.length - 1 ? 'none' : `1px solid ${colors.cardBorder}`,
                 }}
               >
-                <span className="flex-1 text-sm" style={{ color: colors.muted }}>
+                <span className="flex-1 t-lead" style={{ color: colors.muted }}>
                   {meta.label}
                 </span>
-                <span className="text-sm font-semibold" style={{ color: colors.foreground }}>
+                <span className="t-lead font-semibold" style={{ color: colors.foreground }}>
                   {d.from} → {d.to}
                 </span>
                 <Icon className="h-4 w-4" style={{ color: tone }} />
-                <span className="w-24 text-right text-xs" style={{ color: colors.muted }}>
+                <span className="w-24 text-right t-body2" style={{ color: colors.muted }}>
                   {meta.unit}
                 </span>
               </div>
             );
           })}
 
-          <p className="text-[11px] mt-3" style={{ color: colors.muted }}>
+          <p className="t-dense mt-3" style={{ color: colors.muted }}>
             Compared with your own last reading, not a population range. The score itself is
             computed in deterministic code, never by the model.
           </p>
@@ -264,15 +264,15 @@ export function RecordHome({ record, state }: RecordHomeProps) {
       {/* ── Unscored readings: surfaced, not hidden ──────────────────── */}
       {record.readings_without_score > 0 && (
         <section
-          className="rounded-xl p-4 flex items-start gap-3"
+          className="rounded-[10px] p-4 flex items-start gap-3"
           style={{ backgroundColor: colors.card, border: `1px solid ${colors.warning}` }}
         >
           <AlertCircle className="h-5 w-5 mt-0.5" style={{ color: colors.warning }} />
           <div>
-            <p className="text-sm font-semibold" style={{ color: colors.foreground }}>
+            <p className="t-lead font-semibold" style={{ color: colors.foreground }}>
               {record.readings_without_score} of your {record.panel_count} readings have no score
             </p>
-            <p className="text-xs mt-1" style={{ color: colors.muted }}>
+            <p className="t-body2 mt-1" style={{ color: colors.muted }}>
               A score needs a full set of fasting values, and every value has to be plausible.
               A reading entered in the wrong units cannot be scored.
             </p>
@@ -284,20 +284,20 @@ export function RecordHome({ record, state }: RecordHomeProps) {
       <div className="grid gap-4 sm:grid-cols-2">
         <Link
           href="/trends"
-          className="rounded-xl p-4 flex items-center gap-3 transition-colors"
+          className="rounded-[10px] p-4 flex items-center gap-3 transition-colors"
           style={{ backgroundColor: colors.card, border: `1px solid ${colors.cardBorder}` }}
         >
           <div
-            className="h-10 w-10 rounded-xl flex items-center justify-center"
+            className="h-10 w-10 rounded-[10px] flex items-center justify-center"
             style={{ backgroundColor: colors.accent }}
           >
             <TrendingDown className="h-5 w-5" style={{ color: colors.primary }} />
           </div>
           <div className="flex-1">
-            <p className="text-sm font-semibold" style={{ color: colors.foreground }}>
+            <p className="t-lead font-semibold" style={{ color: colors.foreground }}>
               See your trend
             </p>
-            <p className="text-xs" style={{ color: colors.muted }}>
+            <p className="t-body2" style={{ color: colors.muted }}>
               {record.panel_count} readings
             </p>
           </div>
@@ -305,20 +305,20 @@ export function RecordHome({ record, state }: RecordHomeProps) {
         </Link>
 
         <div
-          className="rounded-xl p-4 flex items-center gap-3"
+          className="rounded-[10px] p-4 flex items-center gap-3"
           style={{ backgroundColor: colors.card, border: `1px solid ${colors.cardBorder}` }}
         >
           <div
-            className="h-10 w-10 rounded-xl flex items-center justify-center"
+            className="h-10 w-10 rounded-[10px] flex items-center justify-center"
             style={{ backgroundColor: colors.accent }}
           >
             <Check className="h-5 w-5" style={{ color: colors.primary }} />
           </div>
           <div className="flex-1">
-            <p className="text-sm font-semibold" style={{ color: colors.foreground }}>
+            <p className="t-lead font-semibold" style={{ color: colors.foreground }}>
               Last reading
             </p>
-            <p className="text-xs" style={{ color: colors.muted }}>
+            <p className="t-body2" style={{ color: colors.muted }}>
               {fmtDate(latest.date)}
               {latest.fasted ? ' · fasted' : ''}
             </p>
@@ -347,7 +347,7 @@ function DayOne() {
         <h2 className="text-xl font-bold" style={{ color: colors.foreground }}>
           One reading is a starting point
         </h2>
-        <p className="text-sm mt-2 leading-relaxed" style={{ color: colors.muted }}>
+        <p className="t-lead mt-2 leading-relaxed" style={{ color: colors.muted }}>
           Your second reading is when this number starts to mean something — it shows which
           way you are moving, and which of your numbers is moving it.
         </p>
@@ -359,7 +359,7 @@ function DayOne() {
         style={{ backgroundColor: colors.card, border: `1px solid ${colors.primary}` }}
       >
         <div
-          className="h-11 w-11 rounded-xl flex items-center justify-center"
+          className="h-11 w-11 rounded-[10px] flex items-center justify-center"
           style={{ backgroundColor: colors.accent }}
         >
           <Clock className="h-5 w-5" style={{ color: colors.primary }} />
@@ -368,7 +368,7 @@ function DayOne() {
           <p className="font-semibold" style={{ color: colors.foreground }}>
             Take a guided reading
           </p>
-          <p className="text-sm" style={{ color: colors.muted }}>
+          <p className="t-lead" style={{ color: colors.muted }}>
             Fasted, before breakfast. About 8 minutes, one strip.
           </p>
         </div>
@@ -399,12 +399,12 @@ export function ThisReadingPanel({ record }: { record: RecordResponse }) {
     <div className="p-5 flex flex-col gap-4">
       <div>
         <p
-          className="text-[11px] font-bold uppercase tracking-[0.14em]"
-          style={{ color: colors.muted }}
+          className="t-label"
+          style={{ color: colors.mutedDim }}
         >
           This reading
         </p>
-        <p className="text-sm mt-1" style={{ color: colors.foreground }}>
+        <p className="t-lead mt-1" style={{ color: colors.foreground }}>
           {fmtDate(latest.date)}
           {latest.fasted ? ' · fasted' : ''}
           {latest.captured_by ? ` · ${CAPTURE_LABEL[latest.captured_by] ?? latest.captured_by}` : ''}
@@ -417,13 +417,13 @@ export function ThisReadingPanel({ record }: { record: RecordResponse }) {
           return (
             <div
               key={key}
-              className="rounded-xl p-3"
+              className="rounded-[10px] p-3"
               style={{
                 backgroundColor: 'rgba(255,255,255,0.05)',
                 border: `1px solid ${colors.cardBorder}`,
               }}
             >
-              <p className="text-[11px]" style={{ color: colors.muted }}>
+              <p className="t-dense" style={{ color: colors.muted }}>
                 {meta.label}
               </p>
               <p
@@ -432,7 +432,7 @@ export function ThisReadingPanel({ record }: { record: RecordResponse }) {
               >
                 {latest.values[key]}
               </p>
-              <p className="text-[10px]" style={{ color: colors.muted }}>
+              <p className="t-meta" style={{ color: colors.muted }}>
                 {meta.unit}
               </p>
             </div>
@@ -442,13 +442,13 @@ export function ThisReadingPanel({ record }: { record: RecordResponse }) {
 
       {!latest.has_score && (
         <div
-          className="rounded-xl p-3"
+          className="rounded-[10px] p-3"
           style={{
             backgroundColor: 'rgba(255,255,255,0.05)',
             border: `1px solid ${colors.warning}`,
           }}
         >
-          <p className="text-xs leading-relaxed" style={{ color: colors.muted }}>
+          <p className="t-body2 leading-relaxed" style={{ color: colors.muted }}>
             This reading has no score. A score needs a full set of plausible fasting values.
           </p>
         </div>

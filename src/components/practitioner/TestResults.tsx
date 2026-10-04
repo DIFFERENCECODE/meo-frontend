@@ -40,31 +40,31 @@ export function TestResults({ results = [], lastUpdated, className }: TestResult
 
   if (results.length === 0) {
     return (
-      <div className={`rounded-xl border p-6 ${className || ''}`} style={{ backgroundColor: theme.colors.card, borderColor: theme.colors.cardBorder }}>
+      <div className={`rounded-[10px] border p-6 ${className || ''}`} style={{ backgroundColor: theme.colors.card, borderColor: theme.colors.cardBorder }}>
         <h3 className="font-semibold mb-2" style={{ color: theme.colors.foreground }}>Recent Test Results</h3>
-        <p className="text-sm" style={{ color: theme.colors.muted }}>Select a patient to view results</p>
+        <p className="t-lead" style={{ color: theme.colors.muted }}>Select a patient to view results</p>
       </div>
     );
   }
 
   return (
-    <div className={`rounded-xl border overflow-hidden ${className || ''}`} style={{ backgroundColor: theme.colors.card, borderColor: theme.colors.cardBorder }}>
+    <div className={`rounded-[10px] border overflow-hidden ${className || ''}`} style={{ backgroundColor: theme.colors.card, borderColor: theme.colors.cardBorder }}>
       <div className="p-4 border-b" style={{ borderColor: theme.colors.cardBorder }}>
         <h3 className="font-semibold" style={{ color: theme.colors.foreground }}>Recent Test Results</h3>
-        {lastUpdated && <p className="text-xs mt-1" style={{ color: theme.colors.muted }}>Last updated: {lastUpdated}</p>}
+        {lastUpdated && <p className="t-body2 mt-1" style={{ color: theme.colors.muted }}>Last updated: {lastUpdated}</p>}
       </div>
       <div className="p-4 grid grid-cols-2 gap-3">
         {results.map((result, i) => (
-          <div key={i} className="p-3 rounded-lg border" style={{ backgroundColor: theme.colors.background, borderColor: theme.colors.cardBorder }}>
+          <div key={i} className="p-3 rounded-[9px] border" style={{ backgroundColor: theme.colors.background, borderColor: theme.colors.cardBorder }}>
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-medium" style={{ color: theme.colors.muted }}>{result.name}</span>
+              <span className="t-body2 font-medium" style={{ color: theme.colors.muted }}>{result.name}</span>
               <TrendIcon trend={result.trend} />
             </div>
             <div className="flex items-baseline gap-1">
               <span className="text-xl font-bold" style={{ color: getStatusColor(result.status) }}>{result.value}</span>
-              <span className="text-xs" style={{ color: theme.colors.muted }}>{result.unit}</span>
+              <span className="t-body2" style={{ color: theme.colors.muted }}>{result.unit}</span>
             </div>
-            {result.range && <p className="text-xs mt-1" style={{ color: theme.colors.muted }}>Ref: {result.range}</p>}
+            {result.range && <p className="t-body2 mt-1" style={{ color: theme.colors.muted }}>Ref: {result.range}</p>}
           </div>
         ))}
       </div>

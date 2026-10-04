@@ -184,8 +184,8 @@ export default function UsersPage() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold" style={{ color: colors.foreground }}>User Management</h1>
-          <p className="text-sm" style={{ color: colors.muted }}>
+          <h1 className="t-head font-bold" style={{ color: colors.foreground }}>User Management</h1>
+          <p className="t-lead" style={{ color: colors.muted }}>
             {filtered.length === users.length
               ? `${users.length} total users`
               : `${filtered.length} of ${users.length} users`}
@@ -194,7 +194,7 @@ export default function UsersPage() {
         <button
           onClick={exportCsv}
           disabled={filtered.length === 0}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg border text-sm font-medium hover:opacity-90 disabled:opacity-50"
+          className="flex items-center gap-2 px-4 py-2 rounded-[9px] border t-lead font-medium hover:opacity-90 disabled:opacity-50"
           style={{ backgroundColor: colors.card, borderColor: colors.cardBorder, color: colors.foreground }}
           title="Export visible users to CSV"
         >
@@ -205,10 +205,10 @@ export default function UsersPage() {
 
       {/* Pending clinician applications */}
       {users.filter((u) => u.role === 'clinician_pending').length > 0 && (
-        <div className="mb-6 rounded-xl overflow-hidden" style={{ border: '1px solid rgba(245,158,11,0.3)', background: 'rgba(245,158,11,0.06)' }}>
+        <div className="mb-6 rounded-[10px] overflow-hidden" style={{ border: '1px solid rgba(245,158,11,0.3)', background: 'rgba(245,158,11,0.06)' }}>
           <div className="px-4 py-3 flex items-center gap-2 border-b" style={{ borderColor: 'rgba(245,158,11,0.2)' }}>
             <Stethoscope className="h-4 w-4" style={{ color: '#f59e0b' }} />
-            <span className="text-sm font-semibold" style={{ color: '#f59e0b' }}>
+            <span className="t-lead font-semibold" style={{ color: '#f59e0b' }}>
               Pending Clinician Applications — {users.filter((u) => u.role === 'clinician_pending').length}
             </span>
           </div>
@@ -220,15 +220,15 @@ export default function UsersPage() {
                 <div key={u.cognito_sub}>
                   <div className="px-4 py-3 flex items-center gap-3">
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium" style={{ color: colors.foreground }}>{u.name || app.fullName || 'Unknown'}</p>
-                      <p className="text-xs truncate" style={{ color: colors.muted }}>
+                      <p className="t-lead font-medium" style={{ color: colors.foreground }}>{u.name || app.fullName || 'Unknown'}</p>
+                      <p className="t-body2 truncate" style={{ color: colors.muted }}>
                         {u.email} · {app.profBody || 'No registration body'} · {app.clinicName || 'No clinic'}
                       </p>
                     </div>
                     <div className="flex items-center gap-2 flex-shrink-0">
                       <button
                         onClick={() => setExpandedApp(isOpen ? null : u.cognito_sub)}
-                        className="text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1"
+                        className="t-body2 px-2.5 py-1.5 rounded-[9px] flex items-center gap-1"
                         style={{ background: 'rgba(255,255,255,0.07)', color: colors.muted }}
                       >
                         {isOpen ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
@@ -236,14 +236,14 @@ export default function UsersPage() {
                       </button>
                       <button
                         onClick={() => handleClinicianDecision(u.cognito_sub, true)}
-                        className="text-xs px-3 py-1.5 rounded-lg flex items-center gap-1.5 font-semibold"
+                        className="t-body2 px-3 py-1.5 rounded-[9px] flex items-center gap-1.5 font-semibold"
                         style={{ background: 'rgba(34,197,94,0.15)', color: '#22c55e' }}
                       >
                         <CheckCircle2 className="h-3.5 w-3.5" /> Approve
                       </button>
                       <button
                         onClick={() => handleClinicianDecision(u.cognito_sub, false)}
-                        className="text-xs px-3 py-1.5 rounded-lg flex items-center gap-1.5"
+                        className="t-body2 px-3 py-1.5 rounded-[9px] flex items-center gap-1.5"
                         style={{ background: 'rgba(239,68,68,0.1)', color: '#f87171' }}
                       >
                         <XCircle className="h-3.5 w-3.5" /> Reject
@@ -251,23 +251,23 @@ export default function UsersPage() {
                     </div>
                   </div>
                   {isOpen && app.bio && (
-                    <div className="px-4 pb-3 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                    <div className="px-4 pb-3 grid grid-cols-1 sm:grid-cols-2 gap-3 t-body2">
                       {[
                         { label: 'Registration', value: `${app.profBody} — ${app.regNumber}` },
                         { label: 'Specialties', value: (app.specialties ?? []).join(', ') || '—' },
                         { label: 'Clinic', value: `${app.clinicName}${app.clinicAddress ? `, ${app.clinicAddress}` : ''}` },
                         { label: 'Website', value: app.website || '—' },
                       ].map(({ label, value }) => (
-                        <div key={label} className="rounded-lg p-2.5" style={{ background: 'rgba(255,255,255,0.05)' }}>
+                        <div key={label} className="rounded-[9px] p-2.5" style={{ background: 'rgba(255,255,255,0.05)' }}>
                           <p style={{ color: colors.muted }}>{label}</p>
                           <p className="mt-0.5 font-medium" style={{ color: colors.foreground }}>{value}</p>
                         </div>
                       ))}
-                      <div className="sm:col-span-2 rounded-lg p-2.5" style={{ background: 'rgba(255,255,255,0.05)' }}>
+                      <div className="sm:col-span-2 rounded-[9px] p-2.5" style={{ background: 'rgba(255,255,255,0.05)' }}>
                         <p style={{ color: colors.muted }}>Professional Bio</p>
                         <p className="mt-0.5" style={{ color: colors.foreground }}>{app.bio}</p>
                       </div>
-                      <div className="sm:col-span-2 rounded-lg p-2.5" style={{ background: 'rgba(255,255,255,0.05)' }}>
+                      <div className="sm:col-span-2 rounded-[9px] p-2.5" style={{ background: 'rgba(255,255,255,0.05)' }}>
                         <p style={{ color: colors.muted }}>Why Meterbolic</p>
                         <p className="mt-0.5" style={{ color: colors.foreground }}>{app.reasonForJoining}</p>
                       </div>
@@ -289,14 +289,14 @@ export default function UsersPage() {
             placeholder="Search by email, name, role, or Meterbolic ID..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 rounded-lg border text-sm"
+            className="w-full pl-10 pr-4 py-2.5 rounded-[9px] border t-lead"
             style={{ backgroundColor: colors.card, borderColor: colors.cardBorder, color: colors.foreground }}
           />
         </div>
         <select
           value={roleFilter}
           onChange={(e) => setRoleFilter(e.target.value)}
-          className="rounded-lg px-3 py-2.5 border text-sm"
+          className="rounded-[9px] px-3 py-2.5 border t-lead"
           style={{ backgroundColor: colors.card, borderColor: colors.cardBorder, color: colors.foreground }}
           aria-label="Filter by role"
         >
@@ -308,9 +308,9 @@ export default function UsersPage() {
       </div>
 
       {/* Table */}
-      <div className="rounded-xl border overflow-hidden" style={{ backgroundColor: colors.card, borderColor: colors.cardBorder }}>
+      <div className="rounded-[10px] border overflow-hidden" style={{ backgroundColor: colors.card, borderColor: colors.cardBorder }}>
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="w-full t-lead">
             <thead>
               <tr style={{ borderBottom: `1px solid ${colors.cardBorder}` }}>
                 {HEADERS.map((h) => {
@@ -320,7 +320,7 @@ export default function UsersPage() {
                     <th
                       key={h.label}
                       onClick={sortable ? () => toggleSort(h.key as SortKey) : undefined}
-                      className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider select-none ${sortable ? 'cursor-pointer hover:opacity-80' : ''}`}
+                      className={`px-4 py-3 text-left t-body2 font-medium uppercase tracking-wider select-none ${sortable ? 'cursor-pointer hover:opacity-80' : ''}`}
                       style={{ color: isActive ? colors.foreground : colors.muted }}
                     >
                       <span className="inline-flex items-center gap-1">
@@ -347,7 +347,7 @@ export default function UsersPage() {
                     <td className="px-4 py-3" style={{ color: colors.foreground }}>{user.name || '—'}</td>
                     <td className="px-4 py-3">
                       <span
-                        className="px-2 py-0.5 rounded-full text-xs font-medium"
+                        className="px-2 py-0.5 rounded-full t-body2 font-medium"
                         style={{
                           backgroundColor: user.role === 'admin' ? `${colors.error}20` : user.role === 'patient' ? `${colors.success}20` : `${colors.warning}20`,
                           color: user.role === 'admin' ? colors.error : user.role === 'patient' ? colors.success : colors.warning,
@@ -356,11 +356,11 @@ export default function UsersPage() {
                         {user.role}
                       </span>
                     </td>
-                    <td className="px-4 py-3 font-mono text-xs" style={{ color: user.meterbolic_userid ? colors.foreground : colors.muted }}>
+                    <td className="px-4 py-3 font-mono t-body2" style={{ color: user.meterbolic_userid ? colors.foreground : colors.muted }}>
                       {user.meterbolic_userid || 'not provisioned'}
                     </td>
                     <td className="px-4 py-3" style={{ color: colors.foreground }}>{user.vendor_id}</td>
-                    <td className="px-4 py-3 text-xs" style={{ color: colors.muted }}>
+                    <td className="px-4 py-3 t-body2" style={{ color: colors.muted }}>
                       {user.created_at ? new Date(user.created_at).toLocaleDateString() : '—'}
                     </td>
                     <td className="px-4 py-3">
@@ -394,13 +394,13 @@ export default function UsersPage() {
               <h3 className="font-bold" style={{ color: colors.foreground }}>Edit User</h3>
               <button onClick={() => setEditingUser(null)}><X className="h-5 w-5" style={{ color: colors.muted }} /></button>
             </div>
-            <p className="text-sm mb-4" style={{ color: colors.muted }}>{editingUser.email}</p>
+            <p className="t-lead mb-4" style={{ color: colors.muted }}>{editingUser.email}</p>
 
-            <label className="block text-xs mb-1" style={{ color: colors.muted }}>Role</label>
+            <label className="block t-body2 mb-1" style={{ color: colors.muted }}>Role</label>
             <select
               value={editRole}
               onChange={(e) => setEditRole(e.target.value)}
-              className="w-full rounded-lg px-3 py-2 border mb-4 text-sm"
+              className="w-full rounded-[9px] px-3 py-2 border mb-4 t-lead"
               style={{ backgroundColor: colors.background, borderColor: colors.cardBorder, color: colors.foreground }}
             >
               {['demo', 'patient', 'clinician', 'clinician_pending', 'practitioner', 'admin'].map((r) => (
@@ -408,11 +408,11 @@ export default function UsersPage() {
               ))}
             </select>
 
-            <label className="block text-xs mb-1" style={{ color: colors.muted }}>Vendor</label>
+            <label className="block t-body2 mb-1" style={{ color: colors.muted }}>Vendor</label>
             <select
               value={editVendor}
               onChange={(e) => setEditVendor(e.target.value)}
-              className="w-full rounded-lg px-3 py-2 border mb-6 text-sm"
+              className="w-full rounded-[9px] px-3 py-2 border mb-6 t-lead"
               style={{ backgroundColor: colors.background, borderColor: colors.cardBorder, color: colors.foreground }}
             >
               {['meterbolic', 'eos'].map((v) => (
@@ -424,14 +424,14 @@ export default function UsersPage() {
               <button
                 onClick={handleSave}
                 disabled={saving}
-                className="flex-1 rounded-lg py-2 font-medium disabled:opacity-70"
+                className="flex-1 rounded-[9px] py-2 font-medium disabled:opacity-70"
                 style={{ backgroundColor: colors.primary, color: colors.primaryForeground }}
               >
                 {saving ? 'Saving...' : 'Save Changes'}
               </button>
               <button
                 onClick={() => setEditingUser(null)}
-                className="px-4 rounded-lg py-2 border"
+                className="px-4 rounded-[9px] py-2 border"
                 style={{ borderColor: colors.cardBorder, color: colors.muted }}
               >
                 Cancel

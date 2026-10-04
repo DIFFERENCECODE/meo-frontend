@@ -44,7 +44,7 @@ export function TrendChart({
     return (
       <div
         style={{ height, color: colors.muted }}
-        className="flex items-center justify-center text-sm"
+        className="flex items-center justify-center t-lead"
       >
         No readings yet.
       </div>
@@ -57,9 +57,9 @@ export function TrendChart({
     return (
       <div
         style={{ height, color: colors.muted }}
-        className="flex flex-col items-center justify-center gap-2 text-sm"
+        className="flex flex-col items-center justify-center gap-2 t-lead"
       >
-        <span style={{ color: colors.foreground }} className="text-2xl font-bold">
+        <span style={{ color: colors.foreground }} className="t-head font-bold">
           {points[0].value}
           {unit ? ` ${unit}` : ''}
         </span>

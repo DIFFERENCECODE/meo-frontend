@@ -62,11 +62,11 @@ export function GuidedTest() {
             className="w-full max-w-3xl mx-auto px-5 py-10 overflow-y-auto"
           >
             <header className="mb-8">
-              <p className="text-xs uppercase tracking-wider mb-2" style={{ color: colors.primary }}>
+              <p className="t-body2 uppercase tracking-wider mb-2" style={{ color: colors.primary }}>
                 Guided test
               </p>
               <h1 className="text-3xl font-bold">Your BAS reading</h1>
-              <p className="text-sm mt-2 max-w-xl" style={{ color: colors.muted }}>
+              <p className="t-lead mt-2 max-w-xl" style={{ color: colors.muted }}>
                 Four measurements, about ten minutes. I&apos;ll take them one at a
                 time and check each one before we move on.
               </p>
@@ -75,7 +75,7 @@ export function GuidedTest() {
             {/* The fasting gate is stated before the kit, not after, because it
                 is the one thing that cannot be fixed once the test has begun. */}
             <div
-              className="flex gap-3 rounded-xl p-4 mb-6"
+              className="flex gap-3 rounded-[10px] p-4 mb-6"
               style={{
                 backgroundColor: 'rgba(164,214,94,0.07)',
                 border: `1px solid ${colors.cardBorder}`,
@@ -83,20 +83,20 @@ export function GuidedTest() {
             >
               <Clock className="h-5 w-5 shrink-0 mt-0.5" style={{ color: colors.primary }} />
               <div>
-                <p className="text-sm font-medium">Fast for 8 to 12 hours first</p>
-                <p className="text-xs mt-1" style={{ color: colors.muted }}>
+                <p className="t-lead font-medium">Fast for 8 to 12 hours first</p>
+                <p className="t-body2 mt-1" style={{ color: colors.muted }}>
                   Water is fine. Anything else moves glucose and triglycerides
                   enough that the reading won&apos;t compare to your last one.
                 </p>
               </div>
             </div>
 
-            <h2 className="text-sm font-medium mb-3">What you&apos;ll need</h2>
+            <h2 className="t-lead font-medium mb-3">What you&apos;ll need</h2>
             <div className="grid sm:grid-cols-2 gap-3 mb-8">
               {KIT.map(({ Icon, label, detail }) => (
                 <div
                   key={label}
-                  className="flex gap-3 rounded-xl p-4"
+                  className="flex gap-3 rounded-[10px] p-4"
                   style={{
                     backgroundColor: colors.card,
                     border: `1px solid ${colors.cardBorder}`,
@@ -104,15 +104,15 @@ export function GuidedTest() {
                 >
                   <Icon className="h-5 w-5 shrink-0 mt-0.5" style={{ color: colors.primary }} />
                   <div>
-                    <p className="text-sm font-medium">{label}</p>
-                    <p className="text-xs mt-0.5" style={{ color: colors.muted }}>{detail}</p>
+                    <p className="t-lead font-medium">{label}</p>
+                    <p className="t-body2 mt-0.5" style={{ color: colors.muted }}>{detail}</p>
                   </div>
                 </div>
               ))}
             </div>
 
             {phase === 'error' && (
-              <div className="flex items-center gap-2 mb-4 text-sm" style={{ color: '#f0a05a' }}>
+              <div className="flex items-center gap-2 mb-4 t-lead" style={{ color: '#f97316' }}>
                 <AlertTriangle className="h-4 w-4" />
                 <span>Couldn&apos;t start the test. Try again in a moment.</span>
               </div>
@@ -122,14 +122,14 @@ export function GuidedTest() {
               <button
                 onClick={start}
                 disabled={phase === 'starting'}
-                className="px-6 py-3 rounded-xl text-sm font-semibold transition-opacity disabled:opacity-60"
+                className="px-6 py-3 rounded-[10px] t-lead font-semibold transition-opacity disabled:opacity-60"
                 style={{ backgroundColor: colors.primary, color: colors.primaryForeground }}
               >
                 {phase === 'starting' ? 'Starting…' : "I've fasted — begin"}
               </button>
               <button
                 onClick={leave}
-                className="px-4 py-3 rounded-xl text-sm transition-colors hover:bg-white/5"
+                className="px-4 py-3 rounded-[10px] t-lead transition-colors hover:bg-transparent/5"
                 style={{ color: colors.muted }}
               >
                 Not now
@@ -137,7 +137,7 @@ export function GuidedTest() {
             </div>
 
             {note && (
-              <p className="text-xs mt-6" style={{ color: colors.muted }}>{note}</p>
+              <p className="t-body2 mt-6" style={{ color: colors.muted }}>{note}</p>
             )}
           </motion.div>
         )}

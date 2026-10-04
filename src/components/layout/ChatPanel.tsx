@@ -49,7 +49,7 @@ function Tip({
       {children}
       <span
         className={cn(
-          'pointer-events-none absolute left-1/2 -translate-x-1/2 px-2.5 py-1 rounded-lg whitespace-nowrap',
+          'pointer-events-none absolute left-1/2 -translate-x-1/2 px-2.5 py-1 rounded-[9px] whitespace-nowrap',
           'opacity-0 group-hover:opacity-100 transition-all duration-150 z-[9999]',
           positionClasses,
         )}
@@ -372,7 +372,7 @@ export function ChatPanel({
                   {/* Plus button */}
                   <Tip label="Not available yet" position="top">
                     <button
-                      className="p-2 rounded-full transition-colors hover:bg-white/10"
+                      className="p-2 rounded-full transition-colors hover:bg-transparent/10"
                       style={{ color: colors.muted }}
                     >
                       <Plus className="h-5 w-5" />
@@ -384,11 +384,11 @@ export function ChatPanel({
                     <Tip label="Start guided Kraft / BAS test" position="top">
                       <button
                         onClick={() => setIsToolsOpen(!isToolsOpen)}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors hover:bg-white/10"
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-[9px] transition-colors hover:bg-transparent/10"
                         style={{ color: colors.muted }}
                       >
                         <SlidersHorizontal className="h-4 w-4" />
-                        <span className="text-sm">Tools</span>
+                        <span className="t-lead">Tools</span>
                       </button>
                     </Tip>
                     
@@ -399,7 +399,7 @@ export function ChatPanel({
                           animate={{ opacity: 1, y: 0, scale: 1 }}
                           exit={{ opacity: 0, y: 10, scale: 0.95 }}
                           transition={{ duration: 0.15 }}
-                          className="absolute top-full left-0 mt-2 w-64 rounded-xl border shadow-2xl overflow-hidden z-50"
+                          className="absolute top-full left-0 mt-2 w-64 rounded-[10px] border shadow-2xl overflow-hidden z-50"
                           style={{
                             backgroundColor: colors.cardHover,
                             borderColor: colors.cardBorder,
@@ -407,25 +407,25 @@ export function ChatPanel({
                         >
                           <div className="p-2">
                             <p 
-                              className="px-3 py-2 text-xs font-medium uppercase tracking-wider"
+                              className="px-3 py-2 t-body2 font-medium uppercase tracking-wider"
                               style={{ color: colors.muted }}
                             >
                               Tools
                             </p>
                             <button
                               onClick={() => handleToolClick('protocol')}
-                              className="w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-colors hover:bg-white/10"
+                              className="w-full flex items-center gap-3 px-3 py-3 rounded-[9px] transition-colors hover:bg-transparent/10"
                               style={{ color: colors.foreground }}
                             >
                               <div 
-                                className="p-2 rounded-lg"
+                                className="p-2 rounded-[9px]"
                                 style={{ backgroundColor: colors.primary + '20' }}
                               >
                                 <FlaskConical className="h-5 w-5" style={{ color: colors.primary }} />
                               </div>
                               <div className="text-left">
-                                <p className="font-medium text-sm">Protocol Mode</p>
-                                <p className="text-xs" style={{ color: colors.muted }}>
+                                <p className="font-medium t-lead">Protocol Mode</p>
+                                <p className="t-body2" style={{ color: colors.muted }}>
                                   Run a guided test protocol
                                 </p>
                               </div>
@@ -447,7 +447,7 @@ export function ChatPanel({
                       type="button"
                       onClick={voiceSupported ? toggleVoice : undefined}
                       aria-label={listening ? t('voice.stop') : t('voice.start')}
-                      className="p-2 rounded-full transition-colors hover:bg-white/10"
+                      className="p-2 rounded-full transition-colors hover:bg-transparent/10"
                       style={{
                         color: listening ? colors.primary : colors.muted,
                         backgroundColor: listening ? `${colors.primary}20` : undefined,
@@ -475,22 +475,22 @@ export function ChatPanel({
               href="https://www.meterbolic.com/pricing"
               target="_blank"
               rel="noopener noreferrer"
-              className="no-underline block rounded-2xl border overflow-hidden transition-all hover:bg-white/5"
+              className="no-underline block rounded-2xl border overflow-hidden transition-all hover:bg-transparent/5"
               style={{ borderColor: colors.cardBorder, backgroundColor: colors.card }}
             >
               <div className="flex items-stretch">
                 {/* Left: text + CTA */}
                 <div className="flex-1 p-5 flex flex-col gap-3">
                   <div>
-                    <p className="font-semibold text-sm leading-snug" style={{ color: colors.foreground }}>
+                    <p className="font-semibold t-lead leading-snug" style={{ color: colors.foreground }}>
                       Measure what matters
                     </p>
-                    <p className="text-xs mt-1.5 leading-relaxed" style={{ color: colors.muted }}>
+                    <p className="t-body2 mt-1.5 leading-relaxed" style={{ color: colors.muted }}>
                       Lab-grade lipid meter. Biological Age Score at home. 10 test strips included — no clinic visit needed.
                     </p>
                   </div>
                   <div
-                    className="self-start px-4 py-2 rounded-lg text-xs font-medium"
+                    className="self-start px-4 py-2 rounded-[9px] t-body2 font-medium"
                     style={{ backgroundColor: `${colors.primary}20`, color: colors.primary }}
                   >
                     Get the Meter →
@@ -531,7 +531,7 @@ export function ChatPanel({
                 onPointerUp={onLibHandlePointerUp}
               >
                 <div
-                  className="w-px h-full transition-colors group-hover:bg-white/30 group-active:bg-white/50"
+                  className="w-px h-full transition-colors group-hover:bg-transparent/30 group-active:bg-transparent/50"
                   style={{ backgroundColor: `${colors.cardBorder}80` }}
                 />
               </motion.div>
@@ -588,7 +588,7 @@ export function ChatPanel({
           <Tip label="Library" position="bottom">
             <button
               onClick={openLibrary}
-              className="p-2 rounded-full transition-colors hover:bg-white/10"
+              className="p-2 rounded-full transition-colors hover:bg-transparent/10"
               style={{ color: isLibraryOpen ? colors.primary : colors.muted }}
               aria-label="Open MeO Library"
             >
@@ -598,7 +598,7 @@ export function ChatPanel({
           <Tip label="Metabolic data" position="bottom">
             <button
               onClick={toggleRightPanel}
-              className="p-2 rounded-full transition-colors hover:bg-white/10"
+              className="p-2 rounded-full transition-colors hover:bg-transparent/10"
               style={{ color: isRightPanelOpen ? colors.primary : colors.muted }}
               aria-label={isRightPanelOpen ? 'Close data panel' : 'Open data panel'}
             >
@@ -606,7 +606,7 @@ export function ChatPanel({
             </button>
           </Tip>
           <div
-            className="px-3 py-1.5 rounded-full text-xs font-medium border whitespace-nowrap"
+            className="px-3 py-1.5 rounded-full t-body2 font-medium border whitespace-nowrap"
             style={{
               backgroundColor: `${colors.primary}20`,
               borderColor: `${colors.primary}40`,
@@ -629,7 +629,7 @@ export function ChatPanel({
                   className="max-w-[85%] rounded-2xl px-4 py-3"
                   style={{ backgroundColor: colors.card }}
                 >
-                  <p className="text-sm leading-relaxed" style={{ color: colors.foreground }}>
+                  <p className="t-lead leading-relaxed" style={{ color: colors.foreground }}>
                     {msg.content}
                   </p>
                 </div>
@@ -649,18 +649,18 @@ export function ChatPanel({
                     />
                   )}
                   <div
-                    className="prose prose-sm max-w-none text-sm leading-relaxed"
+                    className="prose prose-sm max-w-none t-lead leading-relaxed"
                     style={{ color: `${colors.foreground}e6` }}
                   >
                     <ReactMarkdown
                       remarkPlugins={[remarkGfm]}
                       components={{
                         p: ({ node, ...props }) => (
-                          <p className="text-sm leading-relaxed" {...props} />
+                          <p className="t-lead leading-relaxed" {...props} />
                         ),
                         table: ({ node, ...props }) => (
-                          <div className="my-3 overflow-x-auto rounded-lg border" style={{ borderColor: colors.cardBorder }}>
-                            <table className="min-w-full text-sm border-collapse" {...props} />
+                          <div className="my-3 overflow-x-auto rounded-[9px] border" style={{ borderColor: colors.cardBorder }}>
+                            <table className="min-w-full t-lead border-collapse" {...props} />
                           </div>
                         ),
                         thead: ({ node, ...props }) => (
@@ -671,7 +671,7 @@ export function ChatPanel({
                         ),
                         th: ({ node, ...props }) => (
                           <th
-                            className="px-3 py-2 text-left font-semibold text-xs uppercase tracking-wide"
+                            className="px-3 py-2 text-left font-semibold t-body2 uppercase tracking-wide"
                             style={{ color: colors.foreground }}
                             {...props}
                           />
@@ -734,7 +734,7 @@ export function ChatPanel({
               data-tour="chat-input"
               placeholder={t('chat.placeholder_followup')}
               dir={language === 'ar' ? 'rtl' : 'ltr'}
-              className="w-full py-3 pl-4 pr-28 rounded-xl backdrop-blur border focus:outline-none focus:ring-2 resize-none overflow-hidden min-h-[48px] max-h-[200px]"
+              className="w-full py-3 pl-4 pr-28 rounded-[10px] backdrop-blur border focus:outline-none focus:ring-2 resize-none overflow-hidden min-h-[48px] max-h-[200px]"
               style={{
                 backgroundColor: colors.card,
                 borderColor: colors.cardBorder,
@@ -754,7 +754,7 @@ export function ChatPanel({
                   type="button"
                   onClick={voiceSupported ? toggleVoice : undefined}
                   aria-label={listening ? t('voice.stop') : t('voice.start')}
-                  className="h-10 w-10 flex items-center justify-center rounded-lg transition-colors hover:bg-white/10"
+                  className="h-10 w-10 flex items-center justify-center rounded-[9px] transition-colors hover:bg-transparent/10"
                   style={{
                     color: listening ? colors.primary : colors.muted,
                     backgroundColor: listening ? `${colors.primary}20` : undefined,
@@ -767,7 +767,7 @@ export function ChatPanel({
               </Tip>
               <button
                 type="submit"
-                className="h-10 w-10 flex items-center justify-center rounded-lg transition-colors"
+                className="h-10 w-10 flex items-center justify-center rounded-[9px] transition-colors"
                 style={{
                   backgroundColor: colors.primary,
                   color: colors.primaryForeground,
@@ -796,7 +796,7 @@ export function ChatPanel({
               onPointerUp={onLibHandlePointerUp}
             >
               <div
-                className="w-px h-full transition-colors group-hover:bg-white/30 group-active:bg-white/50"
+                className="w-px h-full transition-colors group-hover:bg-transparent/30 group-active:bg-transparent/50"
                 style={{ backgroundColor: `${colors.cardBorder}80` }}
               />
             </motion.div>

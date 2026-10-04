@@ -45,7 +45,7 @@ export function VendorToggle({ className }: VendorToggleProps) {
 
   return (
     <div
-      className={`flex rounded-xl p-1 ${className || ''}`}
+      className={`flex rounded-[10px] p-1 ${className || ''}`}
       style={{ backgroundColor: theme.colors.accent }}
     >
       {vendorOptions.map((option) => {
@@ -56,7 +56,7 @@ export function VendorToggle({ className }: VendorToggleProps) {
           <button
             key={option.id}
             onClick={() => setVendor(option.id)}
-            className="relative flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors"
+            className="relative flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-[9px] t-lead font-medium transition-colors"
             style={{
               color: isActive ? theme.colors.primaryForeground : theme.colors.muted,
             }}
@@ -64,7 +64,7 @@ export function VendorToggle({ className }: VendorToggleProps) {
             {isActive && (
               <motion.div
                 layoutId="vendorToggle"
-                className="absolute inset-0 rounded-lg"
+                className="absolute inset-0 rounded-[9px]"
                 style={{ backgroundColor: theme.colors.primary }}
                 transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
               />

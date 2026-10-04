@@ -57,7 +57,7 @@ export function ThinkingTrace({ steps, live = false }: Props) {
 
   return (
     <div
-      className="mb-3 rounded-lg border overflow-hidden"
+      className="mb-3 rounded-[9px] border overflow-hidden"
       style={{
         backgroundColor: `${colors.card}80`,
         borderColor: colors.cardBorder,
@@ -66,7 +66,7 @@ export function ThinkingTrace({ steps, live = false }: Props) {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="w-full flex items-center gap-2 px-3 py-2 text-left transition-colors hover:bg-white/5"
+        className="w-full flex items-center gap-2 px-3 py-2 text-left transition-colors hover:bg-transparent/5"
       >
         <motion.div animate={{ rotate: open ? 90 : 0 }} transition={{ duration: 0.15 }}>
           <ChevronRight className="h-3.5 w-3.5" style={{ color: colors.muted }} />
@@ -84,7 +84,7 @@ export function ThinkingTrace({ steps, live = false }: Props) {
         ) : (
           <Sparkles className="h-3.5 w-3.5" style={{ color: colors.primary }} />
         )}
-        <span className="text-xs flex-1 truncate" style={{ color: colors.muted }}>
+        <span className="t-body2 flex-1 truncate" style={{ color: colors.muted }}>
           {summary}
         </span>
       </button>
@@ -105,7 +105,7 @@ export function ThinkingTrace({ steps, live = false }: Props) {
               {steps.map((step, i) => {
                 const Icon = KIND_ICON[step.kind] || Activity;
                 return (
-                  <div key={i} className="flex items-start gap-2 text-xs">
+                  <div key={i} className="flex items-start gap-2 t-body2">
                     <Icon
                       className="h-3.5 w-3.5 mt-0.5 shrink-0"
                       style={{ color: colors.primary }}
@@ -116,14 +116,14 @@ export function ThinkingTrace({ steps, live = false }: Props) {
                           {step.title}
                         </span>
                         {step.duration_ms !== undefined && (
-                          <span style={{ color: colors.muted }} className="text-[10px]">
+                          <span style={{ color: colors.muted }} className="t-meta">
                             {step.duration_ms}ms
                           </span>
                         )}
                       </div>
                       {step.details && (
                         <div
-                          className="mt-0.5 text-[11px] leading-snug font-mono"
+                          className="mt-0.5 t-dense leading-snug font-mono"
                           style={{ color: `${colors.muted}e0` }}
                         >
                           {step.details}

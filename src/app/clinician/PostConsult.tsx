@@ -149,7 +149,7 @@ export function PostConsult({ patientSessionId, colors }: { patientSessionId: st
         </>
       )}
 
-      {error && <div style={{ fontSize: 12, color: '#f0a05a', marginTop: 10 }}>{error}</div>}
+      {error && <div style={{ fontSize: 12, color: '#f97316', marginTop: 10 }}>{error}</div>}
 
       <button
         onClick={submit}

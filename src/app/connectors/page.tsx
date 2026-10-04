@@ -58,16 +58,16 @@ function ConnectorsInner() {
   }, []);
 
   return (
-    <div className="w-full max-w-3xl mx-auto px-5 py-8">
+    <div className="w-full px-7 py-8">
       <header className="mb-6">
-        <h1 className="text-2xl font-bold">Connectors</h1>
-        <p className="text-sm mt-1" style={{ color: colors.muted }}>
+        <h1 className="t-head font-bold">Connectors</h1>
+        <p className="t-lead mt-1" style={{ color: colors.muted }}>
           Where your record gets its data, and whether anything has arrived.
         </p>
       </header>
 
-      {state === 'loading' && <p className="text-sm opacity-70">Checking your sources…</p>}
-      {state === 'error' && <p className="text-sm opacity-70">Couldn&apos;t load your connectors.</p>}
+      {state === 'loading' && <p className="t-lead opacity-70">Checking your sources…</p>}
+      {state === 'error' && <p className="t-lead opacity-70">Couldn&apos;t load your connectors.</p>}
 
       {state === 'ready' && sources && (
         <>
@@ -84,7 +84,7 @@ function ConnectorsInner() {
                   style={{ backgroundColor: colors.card, border: `1px solid ${colors.cardBorder}` }}
                 >
                   <div
-                    className="h-9 w-9 shrink-0 rounded-xl flex items-center justify-center"
+                    className="h-9 w-9 shrink-0 rounded-[10px] flex items-center justify-center"
                     style={{ backgroundColor: has ? 'rgba(164,214,94,0.12)' : 'rgba(255,255,255,0.05)' }}
                   >
                     {has ? (
@@ -94,16 +94,16 @@ function ConnectorsInner() {
                     )}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm font-semibold">{s.label}</p>
-                    <p className="text-xs mt-0.5" style={{ color: colors.muted }}>{s.detail}</p>
-                    <p className="text-xs mt-2" style={{ color: has ? colors.primary : colors.muted }}>
+                    <p className="t-lead font-semibold">{s.label}</p>
+                    <p className="t-body2 mt-0.5" style={{ color: colors.muted }}>{s.detail}</p>
+                    <p className="t-body2 mt-2" style={{ color: has ? colors.primary : colors.muted }}>
                       {unknown
                         ? 'Not visible from the web — check in the app'
                         : has
                           ? `${s.count} on your record${s.last_seen ? ` · latest ${s.last_seen}` : ''}`
                           : 'Nothing on your record yet'}
                     </p>
-                    <p className="text-xs mt-1.5 flex items-center gap-1.5" style={{ color: colors.muted }}>
+                    <p className="t-body2 mt-1.5 flex items-center gap-1.5" style={{ color: colors.muted }}>
                       <Icon className="h-3.5 w-3.5" /> {where.label}
                     </p>
                   </div>
@@ -112,7 +112,7 @@ function ConnectorsInner() {
             })}
           </ul>
 
-          <p className="text-xs mt-5 leading-relaxed" style={{ color: colors.muted }}>
+          <p className="t-body2 mt-5 leading-relaxed" style={{ color: colors.muted }}>
             {note}
           </p>
         </>

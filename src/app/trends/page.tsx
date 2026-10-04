@@ -111,32 +111,32 @@ export default function TrendsPage() {
         <div className="mb-6">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-sm mb-3"
+            className="inline-flex items-center gap-2 t-lead mb-3"
             style={{ color: colors.muted }}
           >
             <ArrowLeft className="h-4 w-4" /> Back
           </Link>
-          <h1 className="text-2xl font-bold" style={{ color: colors.foreground }}>
+          <h1 className="t-head font-bold" style={{ color: colors.foreground }}>
             Trends
           </h1>
-          <p className="text-sm mt-1" style={{ color: colors.muted }}>
+          <p className="t-lead mt-1" style={{ color: colors.muted }}>
             Every reading compared with your own last one — not a population range.
           </p>
         </div>
 
         {loading && (
-          <div className="py-16 text-center text-sm" style={{ color: colors.muted }}>
+          <div className="py-16 text-center t-lead" style={{ color: colors.muted }}>
             Loading your readings…
           </div>
         )}
 
         {error && !loading && (
           <div
-            className="rounded-xl p-5 flex items-start gap-3"
+            className="rounded-[10px] p-5 flex items-start gap-3"
             style={{ backgroundColor: colors.card, border: `1px solid ${colors.cardBorder}` }}
           >
             <AlertCircle className="h-5 w-5 mt-0.5" style={{ color: colors.warning }} />
-            <p className="text-sm" style={{ color: colors.foreground }}>{error}</p>
+            <p className="t-lead" style={{ color: colors.foreground }}>{error}</p>
           </div>
         )}
 
@@ -144,14 +144,14 @@ export default function TrendsPage() {
           <>
             {record.panel_count === 0 && (
               <div
-                className="rounded-xl p-6 text-center"
+                className="rounded-[10px] p-6 text-center"
                 style={{ backgroundColor: colors.card, border: `1px solid ${colors.cardBorder}` }}
               >
                 <TrendingUp className="h-8 w-8 mx-auto mb-3" style={{ color: colors.primary }} />
                 <p className="font-semibold" style={{ color: colors.foreground }}>
                   No readings yet
                 </p>
-                <p className="text-sm mt-1" style={{ color: colors.muted }}>
+                <p className="t-lead mt-1" style={{ color: colors.muted }}>
                   Take a guided test and your first point appears here.
                 </p>
               </div>
@@ -166,7 +166,7 @@ export default function TrendsPage() {
                       <button
                         key={b.key}
                         onClick={() => setActive(b.key)}
-                        className="text-xs font-semibold px-3 py-2 rounded-full transition-colors"
+                        className="t-body2 font-semibold px-3 py-2 rounded-full transition-colors"
                         style={{
                           backgroundColor: on ? colors.primary : colors.accent,
                           color: on ? colors.primaryForeground : colors.muted,
@@ -189,7 +189,7 @@ export default function TrendsPage() {
                       <h2 className="font-semibold" style={{ color: colors.foreground }}>
                         {current?.label}
                       </h2>
-                      <p className="text-xs" style={{ color: colors.muted }}>
+                      <p className="t-body2" style={{ color: colors.muted }}>
                         {points.length} reading{points.length === 1 ? '' : 's'}
                         {current?.unit ? ` · ${current.unit}` : ''}
                       </p>
@@ -210,7 +210,7 @@ export default function TrendsPage() {
                           {delta.direction === 'up' ? '▲' : delta.direction === 'down' ? '▼' : '—'}{' '}
                           {Math.abs(delta.change).toFixed(2)}
                         </div>
-                        <div className="text-xs" style={{ color: colors.muted }}>
+                        <div className="t-body2" style={{ color: colors.muted }}>
                           {delta.from} → {delta.to} since last reading
                         </div>
                       </div>
@@ -226,7 +226,7 @@ export default function TrendsPage() {
 
                 {record.readings_without_score > 0 && (
                   <div
-                    className="rounded-xl p-4 flex items-start gap-3"
+                    className="rounded-[10px] p-4 flex items-start gap-3"
                     style={{
                       backgroundColor: colors.card,
                       border: `1px solid ${colors.warning}`,
@@ -234,11 +234,11 @@ export default function TrendsPage() {
                   >
                     <AlertCircle className="h-5 w-5 mt-0.5" style={{ color: colors.warning }} />
                     <div>
-                      <p className="text-sm font-semibold" style={{ color: colors.foreground }}>
+                      <p className="t-lead font-semibold" style={{ color: colors.foreground }}>
                         {record.readings_without_score} of your {record.panel_count} readings
                         have no Biological Age Score
                       </p>
-                      <p className="text-xs mt-1" style={{ color: colors.muted }}>
+                      <p className="t-body2 mt-1" style={{ color: colors.muted }}>
                         A score needs a full set of fasting values — triglycerides, HDL,
                         glucose and waist — and every value has to be plausible. A reading
                         entered in the wrong units cannot be scored.

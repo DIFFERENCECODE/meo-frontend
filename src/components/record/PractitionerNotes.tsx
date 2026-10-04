@@ -49,7 +49,7 @@ export function fmtNoteDate(iso: string): string {
 export function Attribution({ note }: { note: PractitionerNote }) {
   const { colors } = useTheme();
   return (
-    <div className="flex items-center gap-2 text-xs" style={{ color: colors.muted }}>
+    <div className="flex items-center gap-2 t-body2" style={{ color: colors.muted }}>
       <UserRound className="h-3.5 w-3.5" />
       <span style={{ color: colors.foreground }}>{note.practitioner_name || 'Your practitioner'}</span>
       <span>·</span>
@@ -71,17 +71,17 @@ export function PlanLine({ note }: { note: PractitionerNote }) {
     >
       <div className="flex items-start gap-3">
         <div
-          className="h-9 w-9 shrink-0 rounded-xl flex items-center justify-center"
+          className="h-9 w-9 shrink-0 rounded-[10px] flex items-center justify-center"
           style={{ backgroundColor: 'rgba(164,214,94,0.12)' }}
         >
           <Icon className="h-4 w-4" style={{ color: unchecked ? colors.muted : colors.primary }} />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-semibold">{note.body}</p>
+          <p className="t-lead font-semibold">{note.body}</p>
           {note.target && (
-            <p className="text-sm mt-0.5" style={{ color: colors.primary }}>{note.target}</p>
+            <p className="t-lead mt-0.5" style={{ color: colors.primary }}>{note.target}</p>
           )}
-          <p className="text-xs mt-2" style={{ color: colors.muted }}>{meta.label}</p>
+          <p className="t-body2 mt-2" style={{ color: colors.muted }}>{meta.label}</p>
           <div className="mt-2">
             <Attribution note={note} />
           </div>
@@ -100,9 +100,9 @@ export function NoteCard({ note }: { note: PractitionerNote }) {
     >
       <Attribution note={note} />
       {/* whitespace-pre-wrap: stored verbatim, so rendered verbatim. */}
-      <p className="text-sm mt-2 leading-relaxed whitespace-pre-wrap">{note.body}</p>
+      <p className="t-lead mt-2 leading-relaxed whitespace-pre-wrap">{note.body}</p>
       {note.reading_series && (
-        <p className="text-xs mt-2" style={{ color: colors.muted }}>
+        <p className="t-body2 mt-2" style={{ color: colors.muted }}>
           About the reading on {note.reading_series.slice(0, 4)}-
           {note.reading_series.slice(4, 6)}-{note.reading_series.slice(6, 8)}
         </p>

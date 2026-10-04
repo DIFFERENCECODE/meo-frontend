@@ -202,19 +202,19 @@ function KraftMeasurementStep({
       {/* Timepoint badge */}
       <div className="flex items-center gap-3">
         <div
-          className="px-3 py-1 rounded-full text-xs font-semibold tracking-wider"
+          className="px-3 py-1 rounded-full t-body2 font-semibold tracking-wider"
           style={{ backgroundColor: KRAFT_AMBER_DIM, color: KRAFT_AMBER, border: `1px solid ${KRAFT_AMBER_BORDER}` }}
         >
           {timeLabel}
         </div>
-        <span className="text-xs" style={{ color: colors.muted }}>
+        <span className="t-body2" style={{ color: colors.muted }}>
           {subjectState === 'FASTING' ? 'Fasting reading' : 'Postprandial reading'}
         </span>
       </div>
 
       {/* Glucose */}
       <div>
-        <label className="text-xs font-medium mb-1.5 block" style={{ color: colors.muted }}>
+        <label className="t-body2 font-medium mb-1.5 block" style={{ color: colors.muted }}>
           Blood Glucose <span style={{ color: `${colors.muted}80` }}>(mmol/L)</span>
         </label>
         <input
@@ -225,20 +225,20 @@ function KraftMeasurementStep({
           value={glucose}
           onChange={(e) => setGlucose(e.target.value)}
           placeholder="e.g. 5.2"
-          className="w-full px-4 py-3 rounded-xl text-lg font-semibold border focus:outline-none focus:ring-1 transition-all"
+          className="w-full px-4 py-3 rounded-[10px] text-lg font-semibold border focus:outline-none focus:ring-1 transition-all"
           style={inputStyle(colors)}
         />
         {range && (
           <div className="flex items-center gap-2 mt-2">
             <div className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: range.color }} />
-            <span className="text-xs font-medium" style={{ color: range.color }}>{range.label}</span>
+            <span className="t-body2 font-medium" style={{ color: range.color }}>{range.label}</span>
           </div>
         )}
       </div>
 
       {/* Insulin */}
       <div>
-        <label className="text-xs font-medium mb-1.5 block" style={{ color: colors.muted }}>
+        <label className="t-body2 font-medium mb-1.5 block" style={{ color: colors.muted }}>
           Insulin <span style={{ color: `${colors.muted}80` }}>(uIU/mL)</span>
         </label>
         <input
@@ -248,10 +248,10 @@ function KraftMeasurementStep({
           value={insulin}
           onChange={(e) => setInsulin(e.target.value)}
           placeholder="e.g. 5.0"
-          className="w-full px-4 py-3 rounded-xl text-lg font-semibold border focus:outline-none transition-all"
+          className="w-full px-4 py-3 rounded-[10px] text-lg font-semibold border focus:outline-none transition-all"
           style={inputStyle(colors)}
         />
-        <p className="text-xs mt-1.5" style={{ color: `${colors.foreground}70` }}>
+        <p className="t-body2 mt-1.5" style={{ color: `${colors.foreground}70` }}>
           Fasting reference: 2–10 uIU/mL
         </p>
       </div>
@@ -259,7 +259,7 @@ function KraftMeasurementStep({
       <button
         disabled={!ready}
         onClick={handleConfirm}
-        className="py-3 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-2 mt-auto disabled:opacity-35"
+        className="py-3 rounded-[10px] t-lead font-semibold transition-all flex items-center justify-center gap-2 mt-auto disabled:opacity-35"
         style={{ backgroundColor: KRAFT_AMBER, color: '#0a0a0a' }}
       >
         Record &amp; Continue <ChevronRight className="h-4 w-4" />
@@ -279,8 +279,8 @@ function KraftDrinkConfirm({ onSubmit, colors }: { onSubmit: (msg: string) => vo
         className="rounded-2xl p-5 flex flex-col gap-3"
         style={{ backgroundColor: KRAFT_AMBER_DIM, border: `1px solid ${KRAFT_AMBER_BORDER}` }}
       >
-        <p className="text-sm font-semibold" style={{ color: KRAFT_AMBER }}>Ready to drink?</p>
-        <p className="text-xs leading-relaxed" style={{ color: colors.muted }}>
+        <p className="t-lead font-semibold" style={{ color: KRAFT_AMBER }}>Ready to drink?</p>
+        <p className="t-body2 leading-relaxed" style={{ color: colors.muted }}>
           Consume the full 75 g glucose solution within 5 minutes. Note the exact time you finish — your 2-hour clock starts now.
         </p>
       </div>
@@ -292,9 +292,9 @@ function KraftDrinkConfirm({ onSubmit, colors }: { onSubmit: (msg: string) => vo
           'Water only — nothing else to eat or drink',
           'Set a 30-minute timer for your first post-drink reading',
         ].map((item, i) => (
-          <li key={i} className="flex items-start gap-2.5 text-xs" style={{ color: colors.muted }}>
+          <li key={i} className="flex items-start gap-2.5 t-body2" style={{ color: colors.muted }}>
             <span
-              className="mt-0.5 w-4 h-4 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold"
+              className="mt-0.5 w-4 h-4 rounded-full flex-shrink-0 flex items-center justify-center t-body2 font-bold"
               style={{ backgroundColor: KRAFT_AMBER_DIM, color: KRAFT_AMBER }}
             >
               {i + 1}
@@ -315,7 +315,7 @@ function KraftDrinkConfirm({ onSubmit, colors }: { onSubmit: (msg: string) => vo
         >
           {confirmed && <CheckCircle2 className="h-3.5 w-3.5" style={{ color: '#0a0a0a' }} />}
         </div>
-        <span className="text-xs leading-relaxed" style={{ color: colors.muted }}>
+        <span className="t-body2 leading-relaxed" style={{ color: colors.muted }}>
           I have finished the glucose drink
         </span>
       </label>
@@ -323,7 +323,7 @@ function KraftDrinkConfirm({ onSubmit, colors }: { onSubmit: (msg: string) => vo
       <button
         disabled={!confirmed}
         onClick={() => onSubmit('I have finished the glucose drink. Starting the 120-minute clock now.')}
-        className="py-3 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-2 mt-auto disabled:opacity-35"
+        className="py-3 rounded-[10px] t-lead font-semibold transition-all flex items-center justify-center gap-2 mt-auto disabled:opacity-35"
         style={{ backgroundColor: KRAFT_AMBER, color: '#0a0a0a' }}
       >
         <Timer className="h-4 w-4" />
@@ -439,8 +439,8 @@ function KraftComplete({ onExit, colors, data }: { onExit: () => void; colors: a
           <CheckCircle2 className="h-5 w-5" style={{ color: KRAFT_AMBER }} />
         </div>
         <div>
-          <p className="font-semibold text-sm" style={{ color: colors.foreground }}>Kraft OGTT Complete</p>
-          <p className="text-xs mt-0.5" style={{ color: colors.muted }}>
+          <p className="font-semibold t-lead" style={{ color: colors.foreground }}>Kraft OGTT Complete</p>
+          <p className="t-body2 mt-0.5" style={{ color: colors.muted }}>
             {submitStatus === 'submitting' && 'Saving your 5-point curve…'}
             {submitStatus === 'success' && '10 readings saved to your profile.'}
             {submitStatus === 'error' && 'Your readings are safe — saving again.'}
@@ -451,14 +451,14 @@ function KraftComplete({ onExit, colors, data }: { onExit: () => void; colors: a
 
       {submitStatus === 'success' && (
         <div
-          className="rounded-xl p-3 text-xs leading-relaxed"
+          className="rounded-[10px] p-3 t-body2 leading-relaxed"
           style={{ backgroundColor: KRAFT_AMBER_DIM, color: KRAFT_AMBER, border: `1px solid ${KRAFT_AMBER_BORDER}` }}
         >
           Your Kraft curve is saved. Go to Personalise to confirm your data, then start a new chat to discuss your insulin response pattern.
         </div>
       )}
       {submitStatus === 'error' && (
-        <div className="rounded-xl p-3 text-xs leading-relaxed" style={{ backgroundColor: '#f0a05a20', color: '#f0a05a', border: '1px solid #f0a05a40' }}>
+        <div className="rounded-[10px] p-3 t-body2 leading-relaxed" style={{ backgroundColor: '#f9731620', color: '#f97316', border: '1px solid #f9731640' }}>
           <p className="font-medium">We couldn&apos;t save that just now.</p>
           <p className="mt-1" style={{ opacity: 0.9 }}>
             Nothing is lost — your readings are still on this screen. This is
@@ -466,45 +466,45 @@ function KraftComplete({ onExit, colors, data }: { onExit: () => void; colors: a
           </p>
           <button
             onClick={() => setAttempt((n) => n + 1)}
-            className="mt-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-opacity hover:opacity-90"
-            style={{ backgroundColor: '#f0a05a', color: '#1a3a3a' }}
+            className="mt-2 px-3 py-1.5 rounded-[9px] t-body2 font-semibold transition-opacity hover:opacity-90"
+            style={{ backgroundColor: '#f97316', color: '#1a3a3a' }}
           >
             Try saving again
           </button>
           {submitError && (
-            <p className="mt-2 text-[10px]" style={{ opacity: 0.7 }}>{submitError}</p>
+            <p className="mt-2 t-meta" style={{ opacity: 0.7 }}>{submitError}</p>
           )}
         </div>
       )}
 
       {/* Paste-ready summary — same pattern as BASComplete */}
       {timepoints.length > 0 && (
-        <div className="rounded-xl border overflow-hidden" style={{ borderColor: colors.cardBorder }}>
+        <div className="rounded-[10px] border overflow-hidden" style={{ borderColor: colors.cardBorder }}>
           <div className="flex items-center justify-between px-3 py-2 border-b" style={{ borderColor: colors.cardBorder, backgroundColor: colors.card }}>
-            <span className="text-xs font-medium uppercase tracking-wider" style={{ color: colors.muted }}>Paste-ready format</span>
+            <span className="t-body2 font-medium uppercase tracking-wider" style={{ color: colors.muted }}>Paste-ready format</span>
             <button
               onClick={handleCopy}
-              className="flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-lg transition-all"
+              className="flex items-center gap-1.5 t-body2 px-2.5 py-1 rounded-[9px] transition-all"
               style={{ color: copied ? KRAFT_AMBER : colors.muted, backgroundColor: copied ? KRAFT_AMBER_DIM : `${colors.cardBorder}40`, border: `1px solid ${copied ? KRAFT_AMBER_BORDER : 'transparent'}` }}
             >
               {copied ? <><CheckCircle2 className="h-3 w-3" /> Copied!</> : <><Copy className="h-3 w-3" /> Copy</>}
             </button>
           </div>
-          <pre className="text-xs p-4 whitespace-pre font-mono leading-relaxed overflow-x-auto" style={{ backgroundColor: colors.background, color: colors.foreground }}>{formattedText}</pre>
+          <pre className="t-body2 p-4 whitespace-pre font-mono leading-relaxed overflow-x-auto" style={{ backgroundColor: colors.background, color: colors.foreground }}>{formattedText}</pre>
         </div>
       )}
 
       <div className="flex gap-3 mt-auto">
         <button
           onClick={onExit}
-          className="flex-1 py-2.5 rounded-xl text-sm font-medium border transition-all"
+          className="flex-1 py-2.5 rounded-[10px] t-lead font-medium border transition-all"
           style={{ borderColor: colors.cardBorder, color: colors.muted }}
         >
           View chat
         </button>
         <Link
           href="/personalize"
-          className="flex-1 py-2.5 rounded-xl text-sm font-medium text-center flex items-center justify-center gap-2 transition-all hover:opacity-90"
+          className="flex-1 py-2.5 rounded-[10px] t-lead font-medium text-center flex items-center justify-center gap-2 transition-all hover:opacity-90"
           style={{ backgroundColor: KRAFT_AMBER, color: '#0a0a0a' }}
         >
           Go to Personalise <ArrowRight className="h-4 w-4" />
@@ -521,17 +521,17 @@ function KraftFastingConfirm({ onSubmit, colors }: { onSubmit: (msg: string) => 
 
   return (
     <div className="flex flex-col gap-6 h-full">
-      <p className="text-sm font-semibold" style={{ color: colors.foreground }}>
+      <p className="t-lead font-semibold" style={{ color: colors.foreground }}>
         Have you fasted for at least 10 hours?
       </p>
-      <p className="text-xs leading-relaxed -mt-3" style={{ color: colors.muted }}>
+      <p className="t-body2 leading-relaxed -mt-3" style={{ color: colors.muted }}>
         Water is fine. Black coffee, food, and supplements all break the fast and invalidate the test.
       </p>
 
       <div className="flex gap-3">
         <button
           onClick={() => setConfirmed(true)}
-          className="flex-1 py-3 rounded-xl text-sm font-semibold border transition-all"
+          className="flex-1 py-3 rounded-[10px] t-lead font-semibold border transition-all"
           style={{
             backgroundColor: confirmed === true ? KRAFT_AMBER : 'transparent',
             borderColor: confirmed === true ? KRAFT_AMBER : colors.cardBorder,
@@ -542,7 +542,7 @@ function KraftFastingConfirm({ onSubmit, colors }: { onSubmit: (msg: string) => 
         </button>
         <button
           onClick={() => setConfirmed(false)}
-          className="flex-1 py-3 rounded-xl text-sm font-semibold border transition-all"
+          className="flex-1 py-3 rounded-[10px] t-lead font-semibold border transition-all"
           style={{
             backgroundColor: confirmed === false ? `${colors.primary}20` : 'transparent',
             borderColor: colors.cardBorder,
@@ -554,14 +554,14 @@ function KraftFastingConfirm({ onSubmit, colors }: { onSubmit: (msg: string) => 
       </div>
 
       {confirmed === false && (
-        <p className="text-xs p-3 rounded-xl" style={{ backgroundColor: `${colors.primary}12`, color: colors.muted }}>
+        <p className="t-body2 p-3 rounded-[10px]" style={{ backgroundColor: `${colors.primary}12`, color: colors.muted }}>
           Fast overnight (10–12 hours), then return and say "Start Kraft" to begin.
         </p>
       )}
       {confirmed === true && (
         <button
           onClick={() => onSubmit('I confirm I have fasted for at least 10 hours and am ready to begin the Kraft test.')}
-          className="py-3 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-2 mt-auto"
+          className="py-3 rounded-[10px] t-lead font-semibold transition-all flex items-center justify-center gap-2 mt-auto"
           style={{ backgroundColor: KRAFT_AMBER, color: '#0a0a0a' }}
         >
           Begin Test <ChevronRight className="h-4 w-4" />
@@ -578,16 +578,16 @@ function FastingConfirm({ onSubmit, colors }: { onSubmit: (msg: string) => void;
 
   return (
     <div className="flex flex-col gap-6 h-full">
-      <p className="text-sm font-semibold" style={{ color: colors.foreground }}>
+      <p className="t-lead font-semibold" style={{ color: colors.foreground }}>
         Have you fasted for at least 10 hours?
       </p>
-      <p className="text-xs leading-relaxed -mt-3" style={{ color: colors.muted }}>
+      <p className="t-body2 leading-relaxed -mt-3" style={{ color: colors.muted }}>
         Water is fine. Coffee, even black, invalidates the test. If you haven't fasted yet, set a reminder and come back when ready.
       </p>
       <div className="flex gap-3">
         <button
           onClick={() => setConfirmed(true)}
-          className="flex-1 py-3 rounded-xl text-sm font-semibold border transition-all"
+          className="flex-1 py-3 rounded-[10px] t-lead font-semibold border transition-all"
           style={{
             backgroundColor: confirmed === true ? colors.primary : 'transparent',
             borderColor: confirmed === true ? colors.primary : colors.cardBorder,
@@ -598,7 +598,7 @@ function FastingConfirm({ onSubmit, colors }: { onSubmit: (msg: string) => void;
         </button>
         <button
           onClick={() => setConfirmed(false)}
-          className="flex-1 py-3 rounded-xl text-sm font-semibold border transition-all"
+          className="flex-1 py-3 rounded-[10px] t-lead font-semibold border transition-all"
           style={{
             backgroundColor: confirmed === false ? `${colors.primary}20` : 'transparent',
             borderColor: colors.cardBorder,
@@ -609,14 +609,14 @@ function FastingConfirm({ onSubmit, colors }: { onSubmit: (msg: string) => void;
         </button>
       </div>
       {confirmed === false && (
-        <p className="text-xs p-3 rounded-xl" style={{ backgroundColor: `${colors.primary}12`, color: colors.muted }}>
+        <p className="t-body2 p-3 rounded-[10px]" style={{ backgroundColor: `${colors.primary}12`, color: colors.muted }}>
           Fast for 10–12 hours (overnight works well) then say "Start BAS" to begin.
         </p>
       )}
       {confirmed === true && (
         <button
           onClick={() => onSubmit('I confirm I have fasted for at least 10 hours and am ready to begin the BAS test.')}
-          className="py-3 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-2 mt-auto"
+          className="py-3 rounded-[10px] t-lead font-semibold transition-all flex items-center justify-center gap-2 mt-auto"
           style={{ backgroundColor: colors.primary, color: colors.primaryForeground }}
         >
           Continue <ChevronRight className="h-4 w-4" />
@@ -638,30 +638,30 @@ function GlucoseReading({ onSubmit, onData, colors }: { onSubmit: (msg: string) 
       <div className="flex gap-2">
         {(['mmol', 'mgdl'] as const).map((u) => (
           <button key={u} onClick={() => setUnit(u)}
-            className="px-3 py-1 rounded-full text-xs font-medium border transition-all"
+            className="px-3 py-1 rounded-full t-body2 font-medium border transition-all"
             style={{ backgroundColor: unit === u ? colors.primary : 'transparent', borderColor: unit === u ? colors.primary : colors.cardBorder, color: unit === u ? colors.primaryForeground : colors.muted }}>
             {u === 'mmol' ? 'mmol/L' : 'mg/dL'}
           </button>
         ))}
       </div>
       <div>
-        <label className="text-xs font-medium mb-1.5 block" style={{ color: colors.muted }}>Fasting Blood Glucose</label>
+        <label className="t-body2 font-medium mb-1.5 block" style={{ color: colors.muted }}>Fasting Blood Glucose</label>
         <input type="number" step="0.1" value={value} onChange={(e) => setValue(e.target.value)}
           placeholder={unit === 'mmol' ? 'e.g. 5.2' : 'e.g. 95'}
-          className="w-full px-4 py-3 rounded-xl text-lg font-semibold border bg-transparent focus:outline-none"
+          className="w-full px-4 py-3 rounded-[10px] text-lg font-semibold border bg-transparent focus:outline-none"
           style={inputStyle(colors)} />
         <QcNotice verdict={glucoseQc} onAccept={(v) => setValue(String(v))} />
         {range && (
           <div className="flex items-center gap-2 mt-2">
             <div className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: range.color }} />
-            <span className="text-xs font-medium" style={{ color: range.color }}>{range.label}</span>
-            <span className="text-xs" style={{ color: colors.muted }}>{unit === 'mmol' ? '(normal: 3.9–5.5 mmol/L)' : '(normal: 70–99 mg/dL)'}</span>
+            <span className="t-body2 font-medium" style={{ color: range.color }}>{range.label}</span>
+            <span className="t-body2" style={{ color: colors.muted }}>{unit === 'mmol' ? '(normal: 3.9–5.5 mmol/L)' : '(normal: 70–99 mg/dL)'}</span>
           </div>
         )}
       </div>
       <button disabled={!value || isNaN(parseFloat(value)) || blocks(glucoseQc)}
         onClick={() => { onData({ glucose: value, glucoseUnit: unit }); onSubmit(`My fasting blood glucose reading is ${value} ${unit === 'mmol' ? 'mmol/L' : 'mg/dL'}.`); }}
-        className="py-3 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-2 mt-auto disabled:opacity-35"
+        className="py-3 rounded-[10px] t-lead font-semibold transition-all flex items-center justify-center gap-2 mt-auto disabled:opacity-35"
         style={{ backgroundColor: colors.primary, color: colors.primaryForeground }}>
         Next <ChevronRight className="h-4 w-4" />
       </button>
@@ -730,8 +730,8 @@ function LipidReading({ onSubmit, onData, colors }: { onSubmit: (msg: string) =>
     return (
       <div className="flex flex-col gap-5 h-full">
         <div>
-          <p className="text-sm font-semibold">Let the strip develop</p>
-          <p className="text-xs mt-1" style={{ color: colors.muted }}>
+          <p className="t-lead font-semibold">Let the strip develop</p>
+          <p className="t-body2 mt-1" style={{ color: colors.muted }}>
             Three minutes, from the moment the blood touches the pad. Reading it
             early gives a number, just not a true one.
           </p>
@@ -749,7 +749,7 @@ function LipidReading({ onSubmit, onData, colors }: { onSubmit: (msg: string) =>
             {mmss}
           </span>
           {retakes > 0 && (
-            <span className="text-xs" style={{ color: colors.muted }}>
+            <span className="t-body2" style={{ color: colors.muted }}>
               Retake {retakes} · fasting and glucose are still confirmed
             </span>
           )}
@@ -758,7 +758,7 @@ function LipidReading({ onSubmit, onData, colors }: { onSubmit: (msg: string) =>
         {!running ? (
           <button
             onClick={() => setRunning(true)}
-            className="py-3 rounded-xl text-sm font-semibold mt-auto"
+            className="py-3 rounded-[10px] t-lead font-semibold mt-auto"
             style={{ backgroundColor: colors.primary, color: colors.primaryForeground }}
           >
             Start the 3 minutes
@@ -767,7 +767,7 @@ function LipidReading({ onSubmit, onData, colors }: { onSubmit: (msg: string) =>
           <button
             disabled={remaining > 0}
             onClick={() => setPhase('strip')}
-            className="py-3 rounded-xl text-sm font-semibold mt-auto flex items-center justify-center gap-2 disabled:opacity-35"
+            className="py-3 rounded-[10px] t-lead font-semibold mt-auto flex items-center justify-center gap-2 disabled:opacity-35"
             style={{ backgroundColor: colors.primary, color: colors.primaryForeground }}
           >
             {remaining > 0 ? `Wait ${mmss}` : <>Check the strip <ChevronRight className="h-4 w-4" /></>}
@@ -785,7 +785,7 @@ function LipidReading({ onSubmit, onData, colors }: { onSubmit: (msg: string) =>
           <p className="text-base font-semibold leading-snug">
             Flip the strip. Are all <span style={{ color: colors.primary }}>three circles</span> fully coloured?
           </p>
-          <p className="text-xs mt-1.5" style={{ color: colors.muted }}>
+          <p className="t-body2 mt-1.5" style={{ color: colors.muted }}>
             If any circle is patchy the sample was too small, and this reading
             can&apos;t be trusted.
           </p>
@@ -804,8 +804,8 @@ function LipidReading({ onSubmit, onData, colors }: { onSubmit: (msg: string) =>
         </div>
 
         <div
-          className="rounded-xl p-3 text-xs leading-relaxed"
-          style={{ backgroundColor: 'rgba(240,160,90,0.1)', border: '1px solid rgba(240,160,90,0.35)', color: '#f0a05a' }}
+          className="rounded-[10px] p-3 t-body2 leading-relaxed"
+          style={{ backgroundColor: 'rgba(249,115,22,0.1)', border: '1px solid rgba(249,115,22,0.35)', color: '#f97316' }}
         >
           A patchy circle means MeO will <b>not</b> save this reading or update
           your score. We would rather have no number than a wrong one — a wrong
@@ -815,14 +815,14 @@ function LipidReading({ onSubmit, onData, colors }: { onSubmit: (msg: string) =>
         <div className="flex flex-col gap-2 mt-auto">
           <button
             onClick={() => setPhase('entry')}
-            className="py-3 rounded-xl text-sm font-semibold"
+            className="py-3 rounded-[10px] t-lead font-semibold"
             style={{ backgroundColor: colors.primary, color: colors.primaryForeground }}
           >
             Yes — all three filled
           </button>
           <button
             onClick={retake}
-            className="py-2.5 rounded-xl text-sm font-medium transition-colors hover:bg-white/5"
+            className="py-2.5 rounded-[10px] t-lead font-medium transition-colors hover:bg-transparent/5"
             style={{ color: colors.muted, border: `1px solid ${colors.cardBorder}` }}
           >
             No — retake with a new strip
@@ -837,12 +837,12 @@ function LipidReading({ onSubmit, onData, colors }: { onSubmit: (msg: string) =>
     <div className="flex flex-col gap-4 h-full overflow-y-auto">
       <div className="flex items-center gap-2">
         <CircleCheck className="h-4 w-4" style={{ color: colors.primary }} />
-        <p className="text-xs" style={{ color: colors.primary }}>Strip check passed</p>
+        <p className="t-body2" style={{ color: colors.primary }}>Strip check passed</p>
       </div>
-      <p className="text-xs" style={{ color: colors.muted }}>All values in mmol/L</p>
+      <p className="t-body2" style={{ color: colors.muted }}>All values in mmol/L</p>
       {fields.map((f) => (
         <div key={f.label}>
-          <label className="text-xs font-large mb-1 block" style={{ color: colors.muted }}>
+          <label className="t-body2 font-large mb-1 block" style={{ color: colors.muted }}>
             {f.label}
             {f.optional && <span className="ml-1 opacity-60">(if available)</span>}
           </label>
@@ -852,11 +852,11 @@ function LipidReading({ onSubmit, onData, colors }: { onSubmit: (msg: string) =>
             value={f.value}
             onChange={(e) => f.set(e.target.value)}
             placeholder="0.00 mmol/L"
-            className="w-full px-4 py-2.5 rounded-xl text-sm border bg-transparent focus:outline-none"
+            className="w-full px-4 py-2.5 rounded-[10px] t-lead border bg-transparent focus:outline-none"
             style={{ borderColor: colors.cardBorder, color: colors.foreground }}
           />
           <QcNotice verdict={f.qc} onAccept={(v) => f.set(String(v))} />
-          <p className="text-xs mt-1" style={{ color: '#e8f1ef' }}>*{f.hint}</p>
+          <p className="t-body2 mt-1" style={{ color: '#e8f1ef' }}>*{f.hint}</p>
         </div>
       ))}
       <button disabled={!ready}
@@ -865,7 +865,7 @@ function LipidReading({ onSubmit, onData, colors }: { onSubmit: (msg: string) =>
           const parts = [tc ? `TC ${tc}` : '', `TG ${tg}`, `HDL ${hdl}`, `LDL ${ldl}`].filter(Boolean).join(', ');
           onSubmit(`My lipid panel: ${parts} mmol/L. Strip check passed.`);
         }}
-        className="py-3 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-2 mt-auto disabled:opacity-35"
+        className="py-3 rounded-[10px] t-lead font-semibold transition-all flex items-center justify-center gap-2 mt-auto disabled:opacity-35"
         style={{ backgroundColor: colors.primary, color: colors.primaryForeground }}>
         Next <ChevronRight className="h-4 w-4" />
       </button>
@@ -912,10 +912,10 @@ function Anthropometrics({ onSubmit, onData, colors }: { onSubmit: (msg: string)
     <div className="flex flex-col gap-4 h-full">
       {/* Unit toggle */}
       <div className="flex items-center justify-end gap-2">
-        <span className="text-xs" style={{ color: colors.muted }}>Units:</span>
+        <span className="t-body2" style={{ color: colors.muted }}>Units:</span>
         {(['metric', 'imperial'] as const).map((u) => (
           <button key={u} onClick={() => { setImperial(u === 'imperial'); setWeight(''); setHeight(''); setWaist(''); }}
-            className="px-2.5 py-1 rounded-lg text-xs font-medium border transition-all capitalize"
+            className="px-2.5 py-1 rounded-[9px] t-body2 font-medium border transition-all capitalize"
             style={{
               backgroundColor: (u === 'imperial') === imperial ? colors.primary : 'transparent',
               borderColor: (u === 'imperial') === imperial ? colors.primary : colors.cardBorder,
@@ -928,19 +928,19 @@ function Anthropometrics({ onSubmit, onData, colors }: { onSubmit: (msg: string)
 
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="text-xs font-medium mb-1 block" style={{ color: colors.muted }}>Year of Birth</label>
+          <label className="t-body2 font-medium mb-1 block" style={{ color: colors.muted }}>Year of Birth</label>
           <input type="number" value={birthYear} onChange={(e) => setBirthYear(e.target.value)} placeholder="e.g. 1986"
             min="1900" max={currentYear}
-            className="w-full px-3 py-2.5 rounded-xl text-sm border bg-transparent focus:outline-none"
+            className="w-full px-3 py-2.5 rounded-[10px] t-lead border bg-transparent focus:outline-none"
             style={inputStyle(colors)} />
-          {age && <p className="text-xs mt-0.5" style={{ color: `${colors.muted}80` }}>Age: {age} years</p>}
+          {age && <p className="t-body2 mt-0.5" style={{ color: `${colors.muted}80` }}>Age: {age} years</p>}
         </div>
         <div>
-          <label className="text-xs font-medium mb-1 block" style={{ color: colors.muted }}>Biological Sex</label>
+          <label className="t-body2 font-medium mb-1 block" style={{ color: colors.muted }}>Biological Sex</label>
           <div className="flex gap-2">
             {(['male', 'female'] as const).map((s) => (
               <button key={s} onClick={() => setSex(s)}
-                className="flex-1 py-2.5 rounded-xl text-xs font-semibold border transition-all capitalize"
+                className="flex-1 py-2.5 rounded-[10px] t-body2 font-semibold border transition-all capitalize"
                 style={{ backgroundColor: sex === s ? colors.primary : 'transparent', borderColor: sex === s ? colors.primary : colors.cardBorder, color: sex === s ? colors.primaryForeground : colors.foreground }}>
                 {s}
               </button>
@@ -948,37 +948,37 @@ function Anthropometrics({ onSubmit, onData, colors }: { onSubmit: (msg: string)
           </div>
         </div>
         <div>
-          <label className="text-xs font-medium mb-1 block" style={{ color: colors.muted }}>
+          <label className="t-body2 font-medium mb-1 block" style={{ color: colors.muted }}>
             Weight ({imperial ? 'lbs' : 'kg'})
           </label>
           <input type="number" value={weight} onChange={(e) => setWeight(e.target.value)}
             placeholder={imperial ? 'e.g. 165' : 'e.g. 75'}
-            className="w-full px-3 py-2.5 rounded-xl text-sm border bg-transparent focus:outline-none"
+            className="w-full px-3 py-2.5 rounded-[10px] t-lead border bg-transparent focus:outline-none"
             style={inputStyle(colors)} />
           <QcNotice verdict={weightQc} onAccept={(v) => setWeight(String(v))} />
         </div>
         <div>
-          <label className="text-xs font-medium mb-1 block" style={{ color: colors.muted }}>
+          <label className="t-body2 font-medium mb-1 block" style={{ color: colors.muted }}>
             Height ({imperial ? 'inches' : 'cm'})
           </label>
           <input type="number" value={height} onChange={(e) => setHeight(e.target.value)}
             placeholder={imperial ? 'e.g. 69' : 'e.g. 175'}
-            className="w-full px-3 py-2.5 rounded-xl text-sm border bg-transparent focus:outline-none"
+            className="w-full px-3 py-2.5 rounded-[10px] t-lead border bg-transparent focus:outline-none"
             style={inputStyle(colors)} />
           <QcNotice verdict={heightQc} onAccept={(v) => setHeight(String(v))} />
-          {imperial && <p className="text-xs mt-0.5" style={{ color: `${colors.muted}70` }}>Total inches (e.g. 5ft 9in = 69)</p>}
+          {imperial && <p className="t-body2 mt-0.5" style={{ color: `${colors.muted}70` }}>Total inches (e.g. 5ft 9in = 69)</p>}
         </div>
       </div>
       <div>
-        <label className="text-xs font-medium mb-1 block" style={{ color: colors.muted }}>
+        <label className="t-body2 font-medium mb-1 block" style={{ color: colors.muted }}>
           Waist Circumference ({imperial ? 'inches' : 'cm'})
         </label>
         <input type="number" value={waist} onChange={(e) => setWaist(e.target.value)}
           placeholder={imperial ? 'e.g. 32' : 'e.g. 81'}
-          className="w-full px-3 py-2.5 rounded-xl text-sm border bg-transparent focus:outline-none"
+          className="w-full px-3 py-2.5 rounded-[10px] t-lead border bg-transparent focus:outline-none"
           style={{ borderColor: colors.cardBorder, color: colors.foreground }} />
         <QcNotice verdict={waistQc} onAccept={(v) => setWaist(String(v))} />
-        <p className="text-xs mt-1" style={{ color: colors.foreground }}>
+        <p className="t-body2 mt-1" style={{ color: colors.foreground }}>
           Tape around bare abdomen at navel height. Don't pull tight.
         </p>
       </div>
@@ -989,7 +989,7 @@ function Anthropometrics({ onSubmit, onData, colors }: { onSubmit: (msg: string)
           onData({ age, birthYear, sex, weight: weightKg, height: heightCm, waist: waistCm });
           onSubmit(`My measurements: Age ${age} years (born ${birthYear}), Sex ${sex}, Weight ${weightKg} kg, Height ${heightCm} cm, Waist ${waistCm} cm.${unitLabel}`);
         }}
-        className="py-3 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-2 mt-auto disabled:opacity-35"
+        className="py-3 rounded-[10px] t-lead font-semibold transition-all flex items-center justify-center gap-2 mt-auto disabled:opacity-35"
         style={{ backgroundColor: colors.primary, color: colors.primaryForeground }}>
         Calculate My Score <ChevronRight className="h-4 w-4" />
       </button>
@@ -1054,8 +1054,8 @@ function BASComplete({ onViewResults, colors, data }: { onViewResults: () => voi
           <CheckCircle2 className="h-5 w-5" style={{ color: colors.primary }} />
         </div>
         <div>
-          <p className="font-semibold text-sm" style={{ color: colors.foreground }}>BAS Measurement Complete</p>
-          <p className="text-xs mt-0.5" style={{ color: colors.muted }}>
+          <p className="font-semibold t-lead" style={{ color: colors.foreground }}>BAS Measurement Complete</p>
+          <p className="t-body2 mt-0.5" style={{ color: colors.muted }}>
             {submitStatus === 'submitting' && 'Saving your results…'}
             {submitStatus === 'success' && 'Results saved to your profile.'}
             {submitStatus === 'error' && 'Auto-save failed — copy and paste below.'}
@@ -1064,12 +1064,12 @@ function BASComplete({ onViewResults, colors, data }: { onViewResults: () => voi
         </div>
       </div>
       {submitStatus === 'success' && (
-        <div className="rounded-xl p-3 text-xs leading-relaxed" style={{ backgroundColor: `${colors.primary}15`, color: colors.primary, border: `1px solid ${colors.primary}30` }}>
+        <div className="rounded-[10px] p-3 t-body2 leading-relaxed" style={{ backgroundColor: `${colors.primary}15`, color: colors.primary, border: `1px solid ${colors.primary}30` }}>
           Your measurements are saved. Your BAS score will update shortly — check the Analysis tab.
         </div>
       )}
       {submitStatus === 'error' && (
-        <div className="rounded-xl p-3 text-xs leading-relaxed" style={{ backgroundColor: '#ef444420', color: '#ef4444', border: '1px solid #ef444440' }}>
+        <div className="rounded-[10px] p-3 t-body2 leading-relaxed" style={{ backgroundColor: '#ef444420', color: '#ef4444', border: '1px solid #ef444440' }}>
           Auto-save failed: {submitError}. Copy the block below and submit via Personalise.
         </div>
       )}
@@ -1077,24 +1077,24 @@ function BASComplete({ onViewResults, colors, data }: { onViewResults: () => voi
           It is a last-resort escape hatch for someone who needs their numbers
           out of the app, not a step in the flow. */}
       {submitStatus === 'error' && (
-      <details className="rounded-xl border overflow-hidden" style={{ borderColor: colors.cardBorder }}>
-        <summary className="flex items-center justify-between px-3 py-2 cursor-pointer text-xs" style={{ color: colors.muted }}>
+      <details className="rounded-[10px] border overflow-hidden" style={{ borderColor: colors.cardBorder }}>
+        <summary className="flex items-center justify-between px-3 py-2 cursor-pointer t-body2" style={{ color: colors.muted }}>
           <span className="font-medium uppercase tracking-wider">Copy my readings instead</span>
-          <button onClick={handleCopy} className="flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-lg transition-all" style={{ color: copied ? colors.primary : colors.muted, backgroundColor: copied ? `${colors.primary}18` : `${colors.cardBorder}40`, border: `1px solid ${copied ? colors.primary + '50' : 'transparent'}` }}>
+          <button onClick={handleCopy} className="flex items-center gap-1.5 t-body2 px-2.5 py-1 rounded-[9px] transition-all" style={{ color: copied ? colors.primary : colors.muted, backgroundColor: copied ? `${colors.primary}18` : `${colors.cardBorder}40`, border: `1px solid ${copied ? colors.primary + '50' : 'transparent'}` }}>
             {copied ? <><CheckCircle2 className="h-3 w-3" /> Copied!</> : <><Copy className="h-3 w-3" /> Copy</>}
           </button>
         </summary>
-        <pre className="text-xs p-4 whitespace-pre font-mono leading-relaxed overflow-x-auto" style={{ backgroundColor: colors.background, color: colors.foreground }}>{formattedText}</pre>
+        <pre className="t-body2 p-4 whitespace-pre font-mono leading-relaxed overflow-x-auto" style={{ backgroundColor: colors.background, color: colors.foreground }}>{formattedText}</pre>
       </details>
       )}
       <div className="flex gap-3 mt-auto">
-        <Link href="/chat" className="flex-1 py-2.5 rounded-xl text-sm font-medium text-center border transition-all" style={{ borderColor: colors.cardBorder, color: colors.muted }}>
+        <Link href="/chat" className="flex-1 py-2.5 rounded-[10px] t-lead font-medium text-center border transition-all" style={{ borderColor: colors.cardBorder, color: colors.muted }}>
           Open chat
         </Link>
         {/* The reading, not another data-entry screen. Sending someone to
             Personalise after they just completed a guided test is asking them
             to enter the same numbers twice. */}
-        <button onClick={onViewResults} className="flex-1 py-2.5 rounded-xl text-sm font-medium text-center flex items-center justify-center gap-2 transition-all hover:opacity-90" style={{ backgroundColor: colors.primary, color: colors.primaryForeground }}>
+        <button onClick={onViewResults} className="flex-1 py-2.5 rounded-[10px] t-lead font-medium text-center flex items-center justify-center gap-2 transition-all hover:opacity-90" style={{ backgroundColor: colors.primary, color: colors.primaryForeground }}>
           See my reading <ArrowRight className="h-4 w-4" />
         </button>
       </div>
@@ -1106,10 +1106,10 @@ function BASComplete({ onViewResults, colors, data }: { onViewResults: () => voi
 function KraftLegacyStep({ confirmLabel, onSubmit, colors }: { confirmLabel: string; onSubmit: (msg: string) => void; colors: any }) {
   return (
     <div className="flex flex-col gap-5 h-full">
-      <p className="text-sm leading-relaxed" style={{ color: colors.muted }}>
+      <p className="t-lead leading-relaxed" style={{ color: colors.muted }}>
         Follow the instructions on the left panel, then tap the button below when you're ready to continue.
       </p>
-      <button onClick={() => onSubmit('done')} className="py-3 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-2 mt-auto" style={{ backgroundColor: colors.primary, color: colors.primaryForeground }}>
+      <button onClick={() => onSubmit('done')} className="py-3 rounded-[10px] t-lead font-semibold transition-all flex items-center justify-center gap-2 mt-auto" style={{ backgroundColor: colors.primary, color: colors.primaryForeground }}>
         {confirmLabel} <ChevronRight className="h-4 w-4" />
       </button>
     </div>
@@ -1124,7 +1124,7 @@ const GUIDANCE: Record<string, { title: string; body: React.ReactNode }> = {
     title: 'Kraft OGTT — Before You Begin',
     body: (
       <>
-        <p className="text-sm text-white/70 leading-relaxed">
+        <p className="t-lead text-white/70 leading-relaxed">
           The Kraft Oral Glucose Tolerance Test is the gold-standard for detecting hyperinsulinaemia — elevated insulin that standard blood tests miss.
         </p>
 
@@ -1133,7 +1133,7 @@ const GUIDANCE: Record<string, { title: string; body: React.ReactNode }> = {
         </p>
 
         <div className="relative pl-1">
-          <div className="absolute left-[15px] top-2 bottom-2 w-0.5 bg-white/10" />
+          <div className="absolute left-[15px] top-2 bottom-2 w-0.5 bg-transparent/10" />
 
           <div className="flex flex-col gap-1">
             {[
@@ -1147,7 +1147,7 @@ const GUIDANCE: Record<string, { title: string; body: React.ReactNode }> = {
                 <div
                   className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 z-10 border-2 ${step.active
                     ? 'bg-amber-400/10 border-amber-400/40'
-                    : 'bg-white/5 border-white/10'
+                    : 'bg-transparent/5 border-white/10'
                     }`}
                 >
                   <span className={`text-[9px] font-semibold ${step.active ? 'text-amber-400' : 'text-white/60'}`}>
@@ -1160,7 +1160,7 @@ const GUIDANCE: Record<string, { title: string; body: React.ReactNode }> = {
           </div>
         </div>
 
-        <div className="mt-4 flex gap-3 p-3 rounded-lg bg-white/5">
+        <div className="mt-4 flex gap-3 p-3 rounded-[9px] bg-transparent/5">
           <ClipboardCheck size={16} className="shrink-0 mt-0.5 text-white/60" />
           <p className="text-[13px] text-white/70 leading-relaxed">
             <strong className="text-white">Required:</strong> 10+ hour fast, glucose drink, BF-102 meter with glucose and insulin strips
@@ -1175,50 +1175,50 @@ const GUIDANCE: Record<string, { title: string; body: React.ReactNode }> = {
     title: 'T0 — Fasting Baseline',
     body: (
       <>
-        <div className="flex gap-2.5 p-3 rounded-lg mb-4" style={{ backgroundColor: KRAFT_AMBER_DIM, border: `1px solid ${KRAFT_AMBER_BORDER}` }}>
+        <div className="flex gap-2.5 p-3 rounded-[9px] mb-4" style={{ backgroundColor: KRAFT_AMBER_DIM, border: `1px solid ${KRAFT_AMBER_BORDER}` }}>
           <AlertTriangle size={16} className="shrink-0 mt-0.5" style={{ color: KRAFT_AMBER }} />
           <p className="text-[13px] leading-snug">
             Take this reading <strong>before</strong> consuming the glucose drink
           </p>
         </div>
 
-        <p className="text-xs text-white/40 mb-2.5">Setup</p>
+        <p className="t-body2 text-white/40 mb-2.5">Setup</p>
 
         <ol className="space-y-0.5">
           <li className="flex gap-3 py-1">
-            <span className="shrink-0 w-7 h-7 rounded-full bg-white/5 flex items-center justify-center">
+            <span className="shrink-0 w-7 h-7 rounded-full bg-transparent/5 flex items-center justify-center">
               <Hand size={13} className="text-white/60" />
             </span>
             <span className="text-[13px] text-white/70 pt-1">Wash and dry your hands thoroughly</span>
           </li>
 
           <li className="flex gap-3 py-1">
-            <span className="shrink-0 w-7 h-7 rounded-full bg-white/5 flex items-center justify-center">
+            <span className="shrink-0 w-7 h-7 rounded-full bg-transparent/5 flex items-center justify-center">
               <Droplet size={13} className="text-white/60" />
             </span>
             <span className="text-[13px] text-white/70 pt-1">Insert the glucose strip — take glucose reading</span>
           </li>
 
           <li className="flex gap-3 py-1">
-            <span className="shrink-0 w-7 h-7 rounded-full bg-white/5 flex items-center justify-center">
+            <span className="shrink-0 w-7 h-7 rounded-full bg-transparent/5 flex items-center justify-center">
               <Droplets size={13} className="text-white/60" />
             </span>
             <span className="text-[13px] text-white/70 pt-1">Switch to insulin strip — take insulin reading</span>
           </li>
         </ol>
 
-        <div className="h-px bg-white/10 my-3.5" />
+        <div className="h-px bg-transparent/10 my-3.5" />
 
-        <p className="text-xs font-medium mb-2.5" style={{ color: KRAFT_AMBER }}>Your turn</p>
+        <p className="t-body2 font-medium mb-2.5" style={{ color: KRAFT_AMBER }}>Your turn</p>
 
-        <div className="flex gap-3 p-2.5 rounded-lg" style={{ backgroundColor: KRAFT_AMBER_DIM, border: `1px solid ${KRAFT_AMBER_BORDER}` }}>
-          <span className="shrink-0 w-7 h-7 rounded-full bg-white/10 flex items-center justify-center">
+        <div className="flex gap-3 p-2.5 rounded-[9px]" style={{ backgroundColor: KRAFT_AMBER_DIM, border: `1px solid ${KRAFT_AMBER_BORDER}` }}>
+          <span className="shrink-0 w-7 h-7 rounded-full bg-transparent/10 flex items-center justify-center">
             <Pencil size={13} style={{ color: KRAFT_AMBER }} />
           </span>
           <span className="text-[13px] pt-1">Record both values in the panel to the right</span>
         </div>
 
-        <div className="mt-3.5 p-3 rounded-xl text-xs" style={{ backgroundColor: KRAFT_AMBER_DIM, border: `1px solid ${KRAFT_AMBER_BORDER}` }}>
+        <div className="mt-3.5 p-3 rounded-[10px] t-body2" style={{ backgroundColor: KRAFT_AMBER_DIM, border: `1px solid ${KRAFT_AMBER_BORDER}` }}>
           <strong style={{ color: KRAFT_AMBER }}>Reference ranges (fasting):</strong><br />
           Glucose: 3.9–5.5 mmol/L<br />
           Insulin: 2–10 uIU/mL
@@ -1233,12 +1233,12 @@ const GUIDANCE: Record<string, { title: string; body: React.ReactNode }> = {
     title: 'Consume the Glucose Drink',
     body: (
       <>
-        <p className="text-sm text-white/70 leading-relaxed">
+        <p className="t-lead text-white/70 leading-relaxed">
           Your fasting readings are recorded. Now consume the 75g glucose solution to start the test.
         </p>
 
-        <div className="mt-3.5 flex gap-3 p-3 rounded-xl" style={{ backgroundColor: KRAFT_AMBER_DIM, border: `1px solid ${KRAFT_AMBER_BORDER}` }}>
-          <span className="shrink-0 w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
+        <div className="mt-3.5 flex gap-3 p-3 rounded-[10px]" style={{ backgroundColor: KRAFT_AMBER_DIM, border: `1px solid ${KRAFT_AMBER_BORDER}` }}>
+          <span className="shrink-0 w-8 h-8 rounded-full bg-transparent/10 flex items-center justify-center">
             <Hourglass size={16} style={{ color: KRAFT_AMBER }} />
           </span>
           <p className="text-[13px] leading-relaxed pt-1.5">
@@ -1246,25 +1246,25 @@ const GUIDANCE: Record<string, { title: string; body: React.ReactNode }> = {
           </p>
         </div>
 
-        <p className="text-xs text-white/40 mt-4 mb-2.5">During the test</p>
+        <p className="t-body2 text-white/40 mt-4 mb-2.5">During the test</p>
 
         <ul className="space-y-0.5">
           <li className="flex gap-3 py-1">
-            <span className="shrink-0 w-7 h-7 rounded-full bg-white/5 flex items-center justify-center">
+            <span className="shrink-0 w-7 h-7 rounded-full bg-transparent/5 flex items-center justify-center">
               <Armchair size={13} className="text-white/60" />
             </span>
             <span className="text-[13px] text-white/70 pt-1">Stay seated or gently mobile — no exercise</span>
           </li>
 
           <li className="flex gap-3 py-1">
-            <span className="shrink-0 w-7 h-7 rounded-full bg-white/5 flex items-center justify-center">
+            <span className="shrink-0 w-7 h-7 rounded-full bg-transparent/5 flex items-center justify-center">
               <GlassWater size={13} className="text-white/60" />
             </span>
             <span className="text-[13px] text-white/70 pt-1">Water only — no food, coffee, or supplements</span>
           </li>
 
           <li className="flex gap-3 py-1">
-            <span className="shrink-0 w-7 h-7 rounded-full bg-white/5 flex items-center justify-center">
+            <span className="shrink-0 w-7 h-7 rounded-full bg-transparent/5 flex items-center justify-center">
               <Bell size={13} className="text-white/60" />
             </span>
             <span className="text-[13px] text-white/70 pt-1">Set a 30-minute reminder for your next reading</span>
@@ -1287,57 +1287,57 @@ const GUIDANCE: Record<string, { title: string; body: React.ReactNode }> = {
           <div className="w-[22px] h-[22px] rounded-full flex items-center justify-center border-[1.5px]" style={{ backgroundColor: KRAFT_AMBER_DIM, borderColor: KRAFT_AMBER_BORDER }}>
             <span className="text-[9px] font-bold" style={{ color: KRAFT_AMBER }}>30</span>
           </div>
-          <div className="flex-1 h-0.5 bg-white/10" />
-          <div className="w-5 h-5 rounded-full flex items-center justify-center border-[1.5px] border-white/10 bg-white/5">
+          <div className="flex-1 h-0.5 bg-transparent/10" />
+          <div className="w-5 h-5 rounded-full flex items-center justify-center border-[1.5px] border-white/10 bg-transparent/5">
             <span className="text-[8px] text-white/40">60</span>
           </div>
-          <div className="flex-1 h-0.5 bg-white/10" />
-          <div className="w-5 h-5 rounded-full flex items-center justify-center border-[1.5px] border-white/10 bg-white/5">
+          <div className="flex-1 h-0.5 bg-transparent/10" />
+          <div className="w-5 h-5 rounded-full flex items-center justify-center border-[1.5px] border-white/10 bg-transparent/5">
             <span className="text-[8px] text-white/40">90</span>
           </div>
-          <div className="flex-1 h-0.5 bg-white/10" />
-          <div className="w-5 h-5 rounded-full flex items-center justify-center border-[1.5px] border-white/10 bg-white/5">
+          <div className="flex-1 h-0.5 bg-transparent/10" />
+          <div className="w-5 h-5 rounded-full flex items-center justify-center border-[1.5px] border-white/10 bg-transparent/5">
             <span className="text-[8px] text-white/40">120</span>
           </div>
         </div>
 
-        <p className="text-sm text-white/70 leading-relaxed">
+        <p className="t-lead text-white/70 leading-relaxed">
           30 minutes after finishing the glucose drink — take your second paired reading.
         </p>
 
-        <p className="text-xs text-white/40 mt-4 mb-2.5">Setup</p>
+        <p className="t-body2 text-white/40 mt-4 mb-2.5">Setup</p>
         <ol className="space-y-0.5">
           <li className="flex gap-3 py-1">
-            <span className="shrink-0 w-[26px] h-[26px] rounded-full bg-white/5 flex items-center justify-center">
+            <span className="shrink-0 w-[26px] h-[26px] rounded-full bg-transparent/5 flex items-center justify-center">
               <Hand size={12} className="text-white/60" />
             </span>
             <span className="text-[13px] text-white/70 pt-1">Wash and dry your hands</span>
           </li>
           <li className="flex gap-3 py-1">
-            <span className="shrink-0 w-[26px] h-[26px] rounded-full bg-white/5 flex items-center justify-center">
+            <span className="shrink-0 w-[26px] h-[26px] rounded-full bg-transparent/5 flex items-center justify-center">
               <Droplet size={12} className="text-white/60" />
             </span>
             <span className="text-[13px] text-white/70 pt-1">Take glucose reading with glucose strip</span>
           </li>
           <li className="flex gap-3 py-1">
-            <span className="shrink-0 w-[26px] h-[26px] rounded-full bg-white/5 flex items-center justify-center">
+            <span className="shrink-0 w-[26px] h-[26px] rounded-full bg-transparent/5 flex items-center justify-center">
               <Droplets size={12} className="text-white/60" />
             </span>
             <span className="text-[13px] text-white/70 pt-1">Take insulin reading with insulin strip</span>
           </li>
         </ol>
 
-        <div className="h-px bg-white/10 my-3.5" />
+        <div className="h-px bg-transparent/10 my-3.5" />
 
-        <p className="text-xs font-medium mb-2.5" style={{ color: KRAFT_AMBER }}>Your turn</p>
-        <div className="flex gap-3 p-2.5 rounded-lg" style={{ backgroundColor: KRAFT_AMBER_DIM, border: `1px solid ${KRAFT_AMBER_BORDER}` }}>
-          <span className="shrink-0 w-[26px] h-[26px] rounded-full bg-white/10 flex items-center justify-center">
+        <p className="t-body2 font-medium mb-2.5" style={{ color: KRAFT_AMBER }}>Your turn</p>
+        <div className="flex gap-3 p-2.5 rounded-[9px]" style={{ backgroundColor: KRAFT_AMBER_DIM, border: `1px solid ${KRAFT_AMBER_BORDER}` }}>
+          <span className="shrink-0 w-[26px] h-[26px] rounded-full bg-transparent/10 flex items-center justify-center">
             <Pencil size={12} style={{ color: KRAFT_AMBER }} />
           </span>
           <span className="text-[13px] pt-1">Enter both values in the panel</span>
         </div>
 
-        <div className="mt-3.5 p-3 rounded-xl text-xs" style={{ backgroundColor: KRAFT_AMBER_DIM, border: `1px solid ${KRAFT_AMBER_BORDER}` }}>
+        <div className="mt-3.5 p-3 rounded-[10px] t-body2" style={{ backgroundColor: KRAFT_AMBER_DIM, border: `1px solid ${KRAFT_AMBER_BORDER}` }}>
           <strong style={{ color: KRAFT_AMBER }}>Expected:</strong> Glucose rising. Insulin should be rising sharply — a healthy first-phase response peaks between T30 and T60.
         </div>
       </>
@@ -1360,53 +1360,53 @@ const GUIDANCE: Record<string, { title: string; body: React.ReactNode }> = {
           <div className="w-[22px] h-[22px] rounded-full flex items-center justify-center border-[1.5px]" style={{ backgroundColor: KRAFT_AMBER_DIM, borderColor: KRAFT_AMBER_BORDER }}>
             <span className="text-[9px] font-bold" style={{ color: KRAFT_AMBER }}>60</span>
           </div>
-          <div className="flex-1 h-0.5 bg-white/10" />
-          <div className="w-5 h-5 rounded-full flex items-center justify-center border-[1.5px] border-white/10 bg-white/5">
+          <div className="flex-1 h-0.5 bg-transparent/10" />
+          <div className="w-5 h-5 rounded-full flex items-center justify-center border-[1.5px] border-white/10 bg-transparent/5">
             <span className="text-[8px] text-white/40">90</span>
           </div>
-          <div className="flex-1 h-0.5 bg-white/10" />
-          <div className="w-5 h-5 rounded-full flex items-center justify-center border-[1.5px] border-white/10 bg-white/5">
+          <div className="flex-1 h-0.5 bg-transparent/10" />
+          <div className="w-5 h-5 rounded-full flex items-center justify-center border-[1.5px] border-white/10 bg-transparent/5">
             <span className="text-[8px] text-white/40">120</span>
           </div>
         </div>
 
-        <p className="text-sm text-white/70 leading-relaxed">
+        <p className="t-lead text-white/70 leading-relaxed">
           60 minutes since the drink. Most people see glucose at or near its peak here.
         </p>
 
-        <p className="text-xs text-white/40 mt-4 mb-2.5">Setup</p>
+        <p className="t-body2 text-white/40 mt-4 mb-2.5">Setup</p>
         <ol className="space-y-0.5">
           <li className="flex gap-3 py-1">
-            <span className="shrink-0 w-[26px] h-[26px] rounded-full bg-white/5 flex items-center justify-center">
+            <span className="shrink-0 w-[26px] h-[26px] rounded-full bg-transparent/5 flex items-center justify-center">
               <Hand size={12} className="text-white/60" />
             </span>
             <span className="text-[13px] text-white/70 pt-1">Wash and dry your hands</span>
           </li>
           <li className="flex gap-3 py-1">
-            <span className="shrink-0 w-[26px] h-[26px] rounded-full bg-white/5 flex items-center justify-center">
+            <span className="shrink-0 w-[26px] h-[26px] rounded-full bg-transparent/5 flex items-center justify-center">
               <Droplet size={12} className="text-white/60" />
             </span>
             <span className="text-[13px] text-white/70 pt-1">Take glucose reading</span>
           </li>
           <li className="flex gap-3 py-1">
-            <span className="shrink-0 w-[26px] h-[26px] rounded-full bg-white/5 flex items-center justify-center">
+            <span className="shrink-0 w-[26px] h-[26px] rounded-full bg-transparent/5 flex items-center justify-center">
               <Droplets size={12} className="text-white/60" />
             </span>
             <span className="text-[13px] text-white/70 pt-1">Take insulin reading</span>
           </li>
         </ol>
 
-        <div className="h-px bg-white/10 my-3.5" />
+        <div className="h-px bg-transparent/10 my-3.5" />
 
-        <p className="text-xs font-medium mb-2.5" style={{ color: KRAFT_AMBER }}>Your turn</p>
-        <div className="flex gap-3 p-2.5 rounded-lg" style={{ backgroundColor: KRAFT_AMBER_DIM, border: `1px solid ${KRAFT_AMBER_BORDER}` }}>
-          <span className="shrink-0 w-[26px] h-[26px] rounded-full bg-white/10 flex items-center justify-center">
+        <p className="t-body2 font-medium mb-2.5" style={{ color: KRAFT_AMBER }}>Your turn</p>
+        <div className="flex gap-3 p-2.5 rounded-[9px]" style={{ backgroundColor: KRAFT_AMBER_DIM, border: `1px solid ${KRAFT_AMBER_BORDER}` }}>
+          <span className="shrink-0 w-[26px] h-[26px] rounded-full bg-transparent/10 flex items-center justify-center">
             <Pencil size={12} style={{ color: KRAFT_AMBER }} />
           </span>
           <span className="text-[13px] pt-1">Enter both values in the panel</span>
         </div>
 
-        <div className="mt-3.5 flex gap-2.5 p-3 rounded-xl text-[13px]" style={{ backgroundColor: KRAFT_AMBER_DIM, border: `1px solid ${KRAFT_AMBER_BORDER}` }}>
+        <div className="mt-3.5 flex gap-2.5 p-3 rounded-[10px] text-[13px]" style={{ backgroundColor: KRAFT_AMBER_DIM, border: `1px solid ${KRAFT_AMBER_BORDER}` }}>
           <Bell size={14} className="shrink-0 mt-0.5" style={{ color: KRAFT_AMBER }} />
           <span>Set a reminder for your T+90 reading — 30 minutes from now.</span>
         </div>
@@ -1434,49 +1434,49 @@ const GUIDANCE: Record<string, { title: string; body: React.ReactNode }> = {
           <div className="w-[22px] h-[22px] rounded-full flex items-center justify-center border-[1.5px]" style={{ backgroundColor: KRAFT_AMBER_DIM, borderColor: KRAFT_AMBER_BORDER }}>
             <span className="text-[9px] font-bold" style={{ color: KRAFT_AMBER }}>90</span>
           </div>
-          <div className="flex-1 h-0.5 bg-white/10" />
-          <div className="w-5 h-5 rounded-full flex items-center justify-center border-[1.5px] border-white/10 bg-white/5">
+          <div className="flex-1 h-0.5 bg-transparent/10" />
+          <div className="w-5 h-5 rounded-full flex items-center justify-center border-[1.5px] border-white/10 bg-transparent/5">
             <span className="text-[8px] text-white/40">120</span>
           </div>
         </div>
 
-        <p className="text-sm text-white/70 leading-relaxed">
+        <p className="t-lead text-white/70 leading-relaxed">
           90 minutes since the drink. Glucose should be declining. Insulin patterns here help classify your response type.
         </p>
 
-        <p className="text-xs text-white/40 mt-4 mb-2.5">Setup</p>
+        <p className="t-body2 text-white/40 mt-4 mb-2.5">Setup</p>
         <ol className="space-y-0.5">
           <li className="flex gap-3 py-1">
-            <span className="shrink-0 w-[26px] h-[26px] rounded-full bg-white/5 flex items-center justify-center">
+            <span className="shrink-0 w-[26px] h-[26px] rounded-full bg-transparent/5 flex items-center justify-center">
               <Hand size={12} className="text-white/60" />
             </span>
             <span className="text-[13px] text-white/70 pt-1">Wash and dry your hands</span>
           </li>
           <li className="flex gap-3 py-1">
-            <span className="shrink-0 w-[26px] h-[26px] rounded-full bg-white/5 flex items-center justify-center">
+            <span className="shrink-0 w-[26px] h-[26px] rounded-full bg-transparent/5 flex items-center justify-center">
               <Droplet size={12} className="text-white/60" />
             </span>
             <span className="text-[13px] text-white/70 pt-1">Take glucose reading</span>
           </li>
           <li className="flex gap-3 py-1">
-            <span className="shrink-0 w-[26px] h-[26px] rounded-full bg-white/5 flex items-center justify-center">
+            <span className="shrink-0 w-[26px] h-[26px] rounded-full bg-transparent/5 flex items-center justify-center">
               <Droplets size={12} className="text-white/60" />
             </span>
             <span className="text-[13px] text-white/70 pt-1">Take insulin reading</span>
           </li>
         </ol>
 
-        <div className="h-px bg-white/10 my-3.5" />
+        <div className="h-px bg-transparent/10 my-3.5" />
 
-        <p className="text-xs font-medium mb-2.5" style={{ color: KRAFT_AMBER }}>Your turn</p>
-        <div className="flex gap-3 p-2.5 rounded-lg" style={{ backgroundColor: KRAFT_AMBER_DIM, border: `1px solid ${KRAFT_AMBER_BORDER}` }}>
-          <span className="shrink-0 w-[26px] h-[26px] rounded-full bg-white/10 flex items-center justify-center">
+        <p className="t-body2 font-medium mb-2.5" style={{ color: KRAFT_AMBER }}>Your turn</p>
+        <div className="flex gap-3 p-2.5 rounded-[9px]" style={{ backgroundColor: KRAFT_AMBER_DIM, border: `1px solid ${KRAFT_AMBER_BORDER}` }}>
+          <span className="shrink-0 w-[26px] h-[26px] rounded-full bg-transparent/10 flex items-center justify-center">
             <Pencil size={12} style={{ color: KRAFT_AMBER }} />
           </span>
           <span className="text-[13px] pt-1">Enter both values in the panel</span>
         </div>
 
-        <div className="mt-3.5 p-3 rounded-xl text-xs" style={{ backgroundColor: KRAFT_AMBER_DIM, border: `1px solid ${KRAFT_AMBER_BORDER}` }}>
+        <div className="mt-3.5 p-3 rounded-[10px] t-body2" style={{ backgroundColor: KRAFT_AMBER_DIM, border: `1px solid ${KRAFT_AMBER_BORDER}` }}>
           One more reading after this — at T+120 min. Almost done.
         </div>
       </>
@@ -1509,43 +1509,43 @@ const GUIDANCE: Record<string, { title: string; body: React.ReactNode }> = {
           </div>
         </div>
 
-        <p className="text-sm text-white/70 leading-relaxed">
+        <p className="t-lead text-white/70 leading-relaxed">
           The final reading. 2 hours since your glucose drink — this is your last paired measurement.
         </p>
 
-        <p className="text-xs text-white/40 mt-4 mb-2.5">Setup</p>
+        <p className="t-body2 text-white/40 mt-4 mb-2.5">Setup</p>
         <ol className="space-y-0.5">
           <li className="flex gap-3 py-1">
-            <span className="shrink-0 w-[26px] h-[26px] rounded-full bg-white/5 flex items-center justify-center">
+            <span className="shrink-0 w-[26px] h-[26px] rounded-full bg-transparent/5 flex items-center justify-center">
               <Hand size={12} className="text-white/60" />
             </span>
             <span className="text-[13px] text-white/70 pt-1">Wash and dry your hands</span>
           </li>
           <li className="flex gap-3 py-1">
-            <span className="shrink-0 w-[26px] h-[26px] rounded-full bg-white/5 flex items-center justify-center">
+            <span className="shrink-0 w-[26px] h-[26px] rounded-full bg-transparent/5 flex items-center justify-center">
               <Droplet size={12} className="text-white/60" />
             </span>
             <span className="text-[13px] text-white/70 pt-1">Take glucose reading</span>
           </li>
           <li className="flex gap-3 py-1">
-            <span className="shrink-0 w-[26px] h-[26px] rounded-full bg-white/5 flex items-center justify-center">
+            <span className="shrink-0 w-[26px] h-[26px] rounded-full bg-transparent/5 flex items-center justify-center">
               <Droplets size={12} className="text-white/60" />
             </span>
             <span className="text-[13px] text-white/70 pt-1">Take insulin reading</span>
           </li>
         </ol>
 
-        <div className="h-px bg-white/10 my-3.5" />
+        <div className="h-px bg-transparent/10 my-3.5" />
 
-        <p className="text-xs font-medium mb-2.5" style={{ color: KRAFT_AMBER }}>Your turn</p>
-        <div className="flex gap-3 p-2.5 rounded-lg" style={{ backgroundColor: KRAFT_AMBER_DIM, border: `1px solid ${KRAFT_AMBER_BORDER}` }}>
-          <span className="shrink-0 w-[26px] h-[26px] rounded-full bg-white/10 flex items-center justify-center">
+        <p className="t-body2 font-medium mb-2.5" style={{ color: KRAFT_AMBER }}>Your turn</p>
+        <div className="flex gap-3 p-2.5 rounded-[9px]" style={{ backgroundColor: KRAFT_AMBER_DIM, border: `1px solid ${KRAFT_AMBER_BORDER}` }}>
+          <span className="shrink-0 w-[26px] h-[26px] rounded-full bg-transparent/10 flex items-center justify-center">
             <Pencil size={12} style={{ color: KRAFT_AMBER }} />
           </span>
           <span className="text-[13px] pt-1">Enter both values in the panel</span>
         </div>
 
-        <div className="mt-3.5 p-3 rounded-xl text-xs" style={{ backgroundColor: KRAFT_AMBER_DIM, border: `1px solid ${KRAFT_AMBER_BORDER}` }}>
+        <div className="mt-3.5 p-3 rounded-[10px] t-body2" style={{ backgroundColor: KRAFT_AMBER_DIM, border: `1px solid ${KRAFT_AMBER_BORDER}` }}>
           <strong style={{ color: KRAFT_AMBER }}>After this:</strong> Your 5-point Kraft curve will be submitted automatically. You're done — you can eat normally.
         </div>
       </>
@@ -1569,14 +1569,14 @@ const GUIDANCE: Record<string, { title: string; body: React.ReactNode }> = {
           ))}
         </div>
 
-        <div className="flex gap-3 p-3 rounded-lg bg-emerald-400/10 border border-emerald-400/20 mb-4">
+        <div className="flex gap-3 p-3 rounded-[9px] bg-emerald-400/10 border border-emerald-400/20 mb-4">
           <CircleCheck size={20} className="text-emerald-400 shrink-0" />
-          <p className="text-sm leading-relaxed">
+          <p className="t-lead leading-relaxed">
             All 5 timepoints captured. Your Kraft curve is being submitted and will appear in the Analysis tab shortly.
           </p>
         </div>
 
-        <p className="text-xs text-white/40 mb-2.5">Kraft patterns</p>
+        <p className="t-body2 text-white/40 mb-2.5">Kraft patterns</p>
 
         <div className="space-y-0.5">
           {[
@@ -1621,11 +1621,11 @@ const GUIDANCE: Record<string, { title: string; body: React.ReactNode }> = {
       <>
         <p>Your glucose and lipid readings are only meaningful in a fasted state. Eating raises blood sugar and triglycerides for hours, which would make your BAS inaccurate.</p>
 
-        <div className="flex gap-3 p-3 rounded-lg border border-emerald-400/20 bg-emerald-400/10">
-          <span className="shrink-0 w-7 h-7 rounded-full bg-white/10 flex items-center justify-center">
+        <div className="flex gap-3 p-3 rounded-[9px] border border-emerald-400/20 bg-emerald-400/10">
+          <span className="shrink-0 w-7 h-7 rounded-full bg-transparent/10 flex items-center justify-center">
             <Droplet size={15} className="text-emerald-400" />
           </span>
-          <span className="text-sm pt-1.5">
+          <span className="t-lead pt-1.5">
             <strong>What counts as fasting:</strong> Water is fine. Plain medication is fine. Everything else — food, coffee, juice, supplements — breaks the fast.
           </span>
         </div>
@@ -1637,50 +1637,50 @@ const GUIDANCE: Record<string, { title: string; body: React.ReactNode }> = {
     title: 'Step 1 — Fasting Blood Glucose',
     body: (
       <>
-        <p className="text-xs text-white/40 mb-2">Setup</p>
+        <p className="t-body2 text-white/40 mb-2">Setup</p>
 
         <ol className="space-y-1">
           <li className="flex gap-3 py-1.5">
-            <span className="shrink-0 w-7 h-7 rounded-full bg-white/5 flex items-center justify-center">
+            <span className="shrink-0 w-7 h-7 rounded-full bg-transparent/5 flex items-center justify-center">
               <Hand size={15} className="text-white/60" />
             </span>
-            <span className="text-sm text-white/70 pt-1.5">Wash and dry your hands</span>
+            <span className="t-lead text-white/70 pt-1.5">Wash and dry your hands</span>
           </li>
 
           <li className="flex gap-3 py-1.5">
-            <span className="shrink-0 w-7 h-7 rounded-full bg-white/5 flex items-center justify-center">
+            <span className="shrink-0 w-7 h-7 rounded-full bg-transparent/5 flex items-center justify-center">
               <Layers size={15} className="text-white/60" />
             </span>
-            <span className="text-sm text-white/70 pt-1.5">Insert the glucose strip into your meter</span>
+            <span className="t-lead text-white/70 pt-1.5">Insert the glucose strip into your meter</span>
           </li>
 
           <li className="flex gap-3 py-1.5">
-            <span className="shrink-0 w-7 h-7 rounded-full bg-white/5 flex items-center justify-center">
+            <span className="shrink-0 w-7 h-7 rounded-full bg-transparent/5 flex items-center justify-center">
               <Droplet size={15} className="text-white/60" />
             </span>
-            <span className="text-sm text-white/70 pt-1.5">Prick the side of your fingertip with the lancet</span>
+            <span className="t-lead text-white/70 pt-1.5">Prick the side of your fingertip with the lancet</span>
           </li>
 
           <li className="flex gap-3 py-1.5">
-            <span className="shrink-0 w-7 h-7 rounded-full bg-white/5 flex items-center justify-center">
+            <span className="shrink-0 w-7 h-7 rounded-full bg-transparent/5 flex items-center justify-center">
               <Droplets size={15} className="text-white/60" />
             </span>
-            <span className="text-sm text-white/70 pt-1.5">Apply a small drop of blood to the strip</span>
+            <span className="t-lead text-white/70 pt-1.5">Apply a small drop of blood to the strip</span>
           </li>
         </ol>
 
-        <div className="h-px bg-white/10 my-4" />
+        <div className="h-px bg-transparent/10 my-4" />
 
-        <p className="text-xs font-medium text-emerald-400 mb-2">Your turn — read the result</p>
+        <p className="t-body2 font-medium text-emerald-400 mb-2">Your turn — read the result</p>
 
-        <div className="flex gap-3 p-3 rounded-lg border border-emerald-400/20 bg-emerald-400/10">
-          <span className="shrink-0 w-7 h-7 rounded-full bg-white/10 flex items-center justify-center">
+        <div className="flex gap-3 p-3 rounded-[9px] border border-emerald-400/20 bg-emerald-400/10">
+          <span className="shrink-0 w-7 h-7 rounded-full bg-transparent/10 flex items-center justify-center">
             <Clock size={15} className="text-emerald-400" />
           </span>
-          <span className="text-sm pt-1.5">Wait for the reading — note the number before entering it</span>
+          <span className="t-lead pt-1.5">Wait for the reading — note the number before entering it</span>
         </div>
 
-        <div className="mt-3 flex gap-2 p-3 rounded-lg text-xs text-white/60" style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}>
+        <div className="mt-3 flex gap-2 p-3 rounded-[9px] t-body2 text-white/60" style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}>
           <Info size={14} className="shrink-0 mt-0.5 text-white/40" />
           <span>
             <strong className="text-white/70">Normal fasting range:</strong> 3.9–5.5 mmol/L<br />
@@ -1694,54 +1694,54 @@ const GUIDANCE: Record<string, { title: string; body: React.ReactNode }> = {
     title: 'Step 2 — Lipid Panel',
     body: (
       <>
-        <p className="text-xs text-white/40 mb-2">Setup</p>
+        <p className="t-body2 text-white/40 mb-2">Setup</p>
 
         <ol className="space-y-1">
           <li className="flex gap-3 py-1.5">
-            <span className="shrink-0 w-7 h-7 rounded-full bg-white/5 flex items-center justify-center">
+            <span className="shrink-0 w-7 h-7 rounded-full bg-transparent/5 flex items-center justify-center">
               <Layers size={15} className="text-white/60" />
             </span>
-            <span className="text-sm text-white/70 pt-1.5">Insert the lipid test strip into your meter</span>
+            <span className="t-lead text-white/70 pt-1.5">Insert the lipid test strip into your meter</span>
           </li>
 
           <li className="flex gap-3 py-1.5">
-            <span className="shrink-0 w-7 h-7 rounded-full bg-white/5 flex items-center justify-center">
+            <span className="shrink-0 w-7 h-7 rounded-full bg-transparent/5 flex items-center justify-center">
               <Droplet size={15} className="text-white/60" />
             </span>
-            <span className="text-sm text-white/70 pt-1.5">Prick your finger again (or reuse the same drop within 30 seconds)</span>
+            <span className="t-lead text-white/70 pt-1.5">Prick your finger again (or reuse the same drop within 30 seconds)</span>
           </li>
 
           <li className="flex gap-3 py-1.5">
-            <span className="shrink-0 w-7 h-7 rounded-full bg-white/5 flex items-center justify-center">
+            <span className="shrink-0 w-7 h-7 rounded-full bg-transparent/5 flex items-center justify-center">
               <Droplets size={15} className="text-white/60" />
             </span>
-            <span className="text-sm text-white/70 pt-1.5">Apply blood to the strip</span>
+            <span className="t-lead text-white/70 pt-1.5">Apply blood to the strip</span>
           </li>
 
           <li className="flex gap-3 py-1.5">
-            <span className="shrink-0 w-7 h-7 rounded-full bg-white/5 flex items-center justify-center">
+            <span className="shrink-0 w-7 h-7 rounded-full bg-transparent/5 flex items-center justify-center">
               <Clock size={15} className="text-white/60" />
             </span>
-            <span className="text-sm text-white/70 pt-1.5">
+            <span className="t-lead text-white/70 pt-1.5">
               Do not move the meter — <b>wait 3 minutes</b>
             </span>
           </li>
         </ol>
 
-        <div className="h-px bg-white/10 my-4" />
+        <div className="h-px bg-transparent/10 my-4" />
 
-        <p className="text-xs font-medium text-emerald-400 mb-2">Your turn — enter the results</p>
+        <p className="t-body2 font-medium text-emerald-400 mb-2">Your turn — enter the results</p>
 
-        <div className="flex gap-3 p-3 rounded-lg border border-emerald-400/20 bg-emerald-400/10">
-          <span className="shrink-0 w-7 h-7 rounded-full bg-white/10 flex items-center justify-center">
+        <div className="flex gap-3 p-3 rounded-[9px] border border-emerald-400/20 bg-emerald-400/10">
+          <span className="shrink-0 w-7 h-7 rounded-full bg-transparent/10 flex items-center justify-center">
             <ClipboardList size={15} className="text-emerald-400" />
           </span>
-          <span className="text-sm pt-1.5">
+          <span className="t-lead pt-1.5">
             The meter will show TG, HDL, LDL in sequence — write all values down before entering
           </span>
         </div>
 
-        <div className="mt-3 flex gap-2 p-3 rounded-lg text-xs text-white/60" style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}>
+        <div className="mt-3 flex gap-2 p-3 rounded-[9px] t-body2 text-white/60" style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}>
           <Info size={14} className="shrink-0 mt-0.5 text-white/40" />
           <span>If your meter also shows Total Cholesterol (TC), enter it too — it improves accuracy.</span>
         </div>
@@ -1752,13 +1752,13 @@ const GUIDANCE: Record<string, { title: string; body: React.ReactNode }> = {
     title: 'Step 3 — Body Measurements',
     body: (
       <>
-        <div className="flex gap-3 p-3 rounded-xl bg-white/5">
+        <div className="flex gap-3 p-3 rounded-[10px] bg-transparent/5">
           <span className="shrink-0 w-9 h-9 rounded-full bg-emerald-400/10 flex items-center justify-center">
             <Ruler size={18} className="text-emerald-400" />
           </span>
           <div>
-            <p className="text-sm font-medium mb-1.5">How to measure your waist</p>
-            <p className="text-sm text-white/70 leading-relaxed">
+            <p className="t-lead font-medium mb-1.5">How to measure your waist</p>
+            <p className="t-lead text-white/70 leading-relaxed">
               Stand relaxed. Wrap a tape measure around your bare abdomen at navel height.
               Breathe out naturally — don't hold your breath or pull the tape tight. Read the number.
             </p>
@@ -1767,7 +1767,7 @@ const GUIDANCE: Record<string, { title: string; body: React.ReactNode }> = {
 
         <div className="mt-3 flex gap-2.5 pl-3 border-l-2 border-white/15">
           <Info size={14} className="shrink-0 mt-0.5 text-white/40" />
-          <p className="text-xs text-white/60">
+          <p className="t-body2 text-white/60">
             Height and weight can be from a recent measurement if you don't have scales handy.
           </p>
         </div>
@@ -1778,29 +1778,29 @@ const GUIDANCE: Record<string, { title: string; body: React.ReactNode }> = {
     title: 'Your Results',
     body: (
       <>
-        <p className="text-sm text-white/70 leading-relaxed">
+        <p className="t-lead text-white/70 leading-relaxed">
           Your BAS is a composite score combining fasting glucose, your lipid panel, and an estimate of visceral fat from your measurements.
         </p>
 
         <div className="grid grid-cols-2 gap-2.5 mt-4">
-          <div className="p-3 rounded-lg bg-emerald-400/10 border border-emerald-400/20">
+          <div className="p-3 rounded-[9px] bg-emerald-400/10 border border-emerald-400/20">
             <TrendingDown size={18} className="text-emerald-400" />
             <p className="text-[13px] font-medium mt-2 mb-1 text-emerald-400">BAS lower than your age</p>
-            <p className="text-xs text-white/60">Metabolically younger than your years</p>
+            <p className="t-body2 text-white/60">Metabolically younger than your years</p>
           </div>
 
-          <div className="p-3 rounded-lg bg-amber-400/10 border border-amber-400/20">
+          <div className="p-3 rounded-[9px] bg-amber-400/10 border border-amber-400/20">
             <TrendingUp size={18} className="text-amber-400" />
             <p className="text-[13px] font-medium mt-2 mb-1 text-amber-400">BAS higher than your age</p>
-            <p className="text-xs text-white/60">Room to improve — MeO will explain the levers</p>
+            <p className="t-body2 text-white/60">Room to improve — MeO will explain the levers</p>
           </div>
         </div>
 
-        <div className="mt-4 flex gap-3 p-3 rounded-lg bg-emerald-400/10 border border-emerald-400/20">
-          <span className="shrink-0 w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
+        <div className="mt-4 flex gap-3 p-3 rounded-[9px] bg-emerald-400/10 border border-emerald-400/20">
+          <span className="shrink-0 w-8 h-8 rounded-full bg-transparent/10 flex items-center justify-center">
             <Copy size={15} className="text-emerald-400" />
           </span>
-          <span className="text-sm pt-1.5">
+          <span className="t-lead pt-1.5">
             Copy your data and paste it into Personalise to store it permanently and unlock your Analysis tab
           </span>
         </div>
@@ -1831,7 +1831,7 @@ function ProgressTrack({ protocolState, colors }: { protocolState: string; color
             )}
             <div className="flex flex-col items-center gap-0.5 flex-shrink-0">
               <motion.div
-                className="w-6 h-6 rounded-full flex items-center justify-center border text-xs font-bold"
+                className="w-6 h-6 rounded-full flex items-center justify-center border t-body2 font-bold"
                 animate={{
                   backgroundColor: done || active ? accent : 'transparent',
                   borderColor: done || active ? accent : colors.cardBorder,
@@ -1842,7 +1842,7 @@ function ProgressTrack({ protocolState, colors }: { protocolState: string; color
               >
                 {done ? <CheckCircle2 className="h-3.5 w-3.5" /> : active ? <Icon className="h-3 w-3" /> : <span>{i + 1}</span>}
               </motion.div>
-              <span className="text-[10px] font-medium" style={{ color: active ? (isKraft ? KRAFT_AMBER : colors.foreground) : colors.muted }}>
+              <span className="t-meta font-medium" style={{ color: active ? (isKraft ? KRAFT_AMBER : colors.foreground) : colors.muted }}>
                 {step.label}
               </span>
             </div>
@@ -1958,11 +1958,11 @@ export function ProtocolPanel({ protocolState, onSubmit, onExit }: ProtocolPanel
               <CheckCircle2 className="h-5 w-5" style={{ color: colors.primary }} />
             </div>
             <div>
-              <p className="font-semibold text-sm" style={{ color: colors.foreground }}>Kraft Test Complete</p>
-              <p className="text-xs mt-0.5" style={{ color: colors.muted }}>Your readings have been sent for analysis.</p>
+              <p className="font-semibold t-lead" style={{ color: colors.foreground }}>Kraft Test Complete</p>
+              <p className="t-body2 mt-0.5" style={{ color: colors.muted }}>Your readings have been sent for analysis.</p>
             </div>
           </div>
-          <button onClick={onExit} className="py-3 rounded-xl text-sm font-medium border mt-auto" style={{ borderColor: colors.cardBorder, color: colors.muted }}>Return to chat</button>
+          <button onClick={onExit} className="py-3 rounded-[10px] t-lead font-medium border mt-auto" style={{ borderColor: colors.cardBorder, color: colors.muted }}>Return to chat</button>
         </div>
       );
       default: return null;
@@ -1987,7 +1987,7 @@ export function ProtocolPanel({ protocolState, onSubmit, onExit }: ProtocolPanel
       >
         <button
           onClick={onExit}
-          className="flex items-center gap-1.5 text-xs transition-colors hover:opacity-70 flex-shrink-0"
+          className="flex items-center gap-1.5 t-body2 transition-colors hover:opacity-70 flex-shrink-0"
           style={{ color: colors.muted }}
         >
           <X className="h-3.5 w-3.5" />
@@ -2002,7 +2002,7 @@ export function ProtocolPanel({ protocolState, onSubmit, onExit }: ProtocolPanel
         </div>
 
         <div
-          className="flex-shrink-0 text-xs font-semibold px-2.5 py-1 rounded-full"
+          className="flex-shrink-0 t-body2 font-semibold px-2.5 py-1 rounded-full"
           style={{ backgroundColor: isKraft ? KRAFT_AMBER_DIM : `${colors.primary}20`, color: isKraft ? KRAFT_AMBER : colors.primary, border: `1px solid ${isKraft ? KRAFT_AMBER_BORDER : colors.primary + '30'}` }}
         >
           {testLabel}
@@ -2026,10 +2026,10 @@ export function ProtocolPanel({ protocolState, onSubmit, onExit }: ProtocolPanel
 
           {guidance && (
             <>
-              <h2 className="font-bold text-sm leading-snug" style={{ color: colors.foreground }}>
+              <h2 className="font-bold t-lead leading-snug" style={{ color: colors.foreground }}>
                 {guidance.title}
               </h2>
-              <div className="text-xs leading-relaxed space-y-2" style={{ color: colors.muted }}>
+              <div className="t-body2 leading-relaxed space-y-2" style={{ color: colors.muted }}>
                 {guidance.body}
               </div>
             </>

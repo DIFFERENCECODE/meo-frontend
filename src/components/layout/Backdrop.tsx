@@ -44,8 +44,10 @@ export function Backdrop() {
       <div
         className="absolute"
         style={{
-          left: '30%',
-          top: '-380px',
+          // Absolute, as drawn: a proportional offset pushes the glow
+          // right and up on a wide screen and the corner reads flat.
+          left: '340px',
+          top: '-260px',
           width: '1100px',
           height: '1100px',
           borderRadius: '50%',

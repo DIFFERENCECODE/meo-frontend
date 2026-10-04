@@ -55,7 +55,7 @@ export function ProfileMenu() {
           onClick={() => setOpen((v) => !v)}
           aria-label="Profile menu"
           aria-expanded={open}
-          className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold transition-opacity hover:opacity-80 focus:outline-none focus-visible:ring-2"
+          className="w-9 h-9 rounded-full flex items-center justify-center t-lead font-bold transition-opacity hover:opacity-80 focus:outline-none focus-visible:ring-2"
           style={{
             background: colors.primary,
             color: colors.primaryForeground,
@@ -65,7 +65,7 @@ export function ProfileMenu() {
         </button>
         {/* Name tooltip — appears below the avatar */}
         <span
-          className="pointer-events-none absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2.5 py-1 rounded-lg text-xs font-medium whitespace-nowrap
+          className="pointer-events-none absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2.5 py-1 rounded-[9px] t-body2 font-medium whitespace-nowrap
             opacity-0 translate-y-1 group-hover:opacity-100 group-hover:translate-y-0
             transition-all duration-150 z-[300]"
           style={{
@@ -82,7 +82,7 @@ export function ProfileMenu() {
       {/* Dropdown */}
       {open && (
         <div
-          className="absolute right-0 mt-2 w-56 rounded-xl shadow-xl border py-1.5 z-[200]"
+          className="absolute right-0 mt-2 w-56 rounded-[10px] shadow-xl border py-1.5 z-[200]"
           style={{
             background: colors.card,
             borderColor: colors.cardBorder,
@@ -90,7 +90,7 @@ export function ProfileMenu() {
         >
           {/* Email header */}
           <div
-            className="px-4 py-2.5 text-xs truncate border-b mb-1"
+            className="px-4 py-2.5 t-body2 truncate border-b mb-1"
             style={{ color: colors.muted, borderColor: colors.cardBorder }}
           >
             {email}
@@ -99,7 +99,7 @@ export function ProfileMenu() {
           <Link
             href="/profile"
             onClick={() => setOpen(false)}
-            className="flex items-center gap-3 px-4 py-2.5 text-sm transition-colors hover:bg-white/5"
+            className="flex items-center gap-3 px-4 py-2.5 t-lead transition-colors hover:bg-transparent/5"
             style={{ color: colors.foreground }}
           >
             <User className="h-4 w-4 shrink-0" style={{ color: colors.primary }} />
@@ -109,7 +109,7 @@ export function ProfileMenu() {
           <Link
             href="/pricing"
             onClick={() => setOpen(false)}
-            className="flex items-center gap-3 px-4 py-2.5 text-sm transition-colors hover:bg-white/5"
+            className="flex items-center gap-3 px-4 py-2.5 t-lead transition-colors hover:bg-transparent/5"
             style={{ color: colors.foreground }}
           >
             <CreditCard className="h-4 w-4 shrink-0" style={{ color: colors.primary }} />
@@ -118,7 +118,7 @@ export function ProfileMenu() {
 
           <button
             onClick={() => { toggleColorMode(); setOpen(false); }}
-            className="w-full flex items-center justify-between px-4 py-2.5 text-sm transition-colors hover:bg-white/5"
+            className="w-full flex items-center justify-between px-4 py-2.5 t-lead transition-colors hover:bg-transparent/5"
             style={{ color: colors.foreground }}
           >
             <span className="flex items-center gap-3">
@@ -128,7 +128,7 @@ export function ProfileMenu() {
               {colorMode === 'dark' ? 'Dark mode' : 'Light mode'}
             </span>
             <span
-              className="text-xs px-1.5 py-0.5 rounded"
+              className="t-body2 px-1.5 py-0.5 rounded"
               style={{ background: colors.primary + '25', color: colors.primary }}
             >
               {colorMode === 'dark' ? 'ON' : 'OFF'}
@@ -139,7 +139,7 @@ export function ProfileMenu() {
 
           <button
             onClick={handleSignOut}
-            className="w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors hover:bg-red-500/10"
+            className="w-full flex items-center gap-3 px-4 py-2.5 t-lead transition-colors hover:bg-red-500/10"
             style={{ color: '#ef4444' }}
           >
             <LogOut className="h-4 w-4 shrink-0" />

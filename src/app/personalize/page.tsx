@@ -416,7 +416,7 @@ export default function PersonalizePage() {
           <div className="mb-8">
             <Link
               href="/"
-              className="inline-flex items-center gap-2 mb-4 text-sm hover:underline"
+              className="inline-flex items-center gap-2 mb-4 t-lead hover:underline"
               style={{ color: colors.muted }}
             >
               <ArrowLeft className="h-4 w-4" />
@@ -430,10 +430,10 @@ export default function PersonalizePage() {
                 <Sparkles className="h-6 w-6" style={{ color: colors.primary }} />
               </div>
               <div>
-                <h1 className="text-2xl font-bold" style={{ color: colors.foreground }}>
+                <h1 className="t-head font-bold" style={{ color: colors.foreground }}>
                   Personalize Your Data
                 </h1>
-                <p className="text-sm" style={{ color: colors.muted }}>
+                <p className="t-lead" style={{ color: colors.muted }}>
                   Paste measurements in any format. AI will structure them for you.
                 </p>
               </div>
@@ -456,17 +456,17 @@ export default function PersonalizePage() {
                   <CheckCircle2 className="h-5 w-5" style={{ color: colors.primary }} />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold" style={{ color: colors.foreground }}>
+                  <p className="t-lead font-semibold" style={{ color: colors.foreground }}>
                     {success}
                   </p>
-                  <p className="text-xs mt-1" style={{ color: colors.muted }}>
+                  <p className="t-body2 mt-1" style={{ color: colors.muted }}>
                     Your measurements are saved. Start a new chat to ask MeO what they mean.
                   </p>
                 </div>
               </div>
               <button
                 onClick={() => router.push('/?newChat=1')}
-                className="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-sm font-semibold transition-all hover:opacity-90 active:scale-[0.98]"
+                className="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-[10px] t-lead font-semibold transition-all hover:opacity-90 active:scale-[0.98]"
                 style={{ background: colors.primary, color: colors.primaryForeground }}
               >
                 <MessageSquare className="h-4 w-4" />
@@ -485,7 +485,7 @@ export default function PersonalizePage() {
               }}
             >
               <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" style={{ color: '#ef4444' }} />
-              <p className="text-sm" style={{ color: '#ef4444' }}>
+              <p className="t-lead" style={{ color: '#ef4444' }}>
                 {error}
               </p>
             </div>
@@ -496,7 +496,7 @@ export default function PersonalizePage() {
             <div className="flex gap-2 mb-4">
               <button
                 onClick={() => { setMode('paste'); setError(null); }}
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold transition-colors border"
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-[10px] t-lead font-semibold transition-colors border"
                 style={{
                   background: mode === 'paste' ? colors.primary : colors.card,
                   color: mode === 'paste' ? colors.primaryForeground : colors.foreground,
@@ -508,7 +508,7 @@ export default function PersonalizePage() {
               </button>
               <button
                 onClick={() => { setMode('form'); setError(null); }}
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold transition-colors border"
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-[10px] t-lead font-semibold transition-colors border"
                 style={{
                   background: mode === 'form' ? colors.primary : colors.card,
                   color: mode === 'form' ? colors.primaryForeground : colors.foreground,
@@ -531,12 +531,12 @@ export default function PersonalizePage() {
               }}
             >
               <div className="flex items-center justify-between mb-3">
-                <label className="text-sm font-semibold" style={{ color: colors.foreground }}>
+                <label className="t-lead font-semibold" style={{ color: colors.foreground }}>
                   Paste your measurements
                 </label>
                 <button
                   onClick={useExample}
-                  className="text-xs px-3 py-1 rounded-full border transition-colors"
+                  className="t-body2 px-3 py-1 rounded-full border transition-colors"
                   style={{
                     color: colors.primary,
                     borderColor: colors.primary + '50',
@@ -551,7 +551,7 @@ export default function PersonalizePage() {
                 onChange={(e) => setText(e.target.value)}
                 placeholder="Paste your Kraft test results, biomarker values, or any measurement data here. The AI will figure out the structure."
                 rows={14}
-                className="w-full rounded-xl p-4 text-sm font-mono resize-y outline-none transition-colors"
+                className="w-full rounded-[10px] p-4 t-lead font-mono resize-y outline-none transition-colors"
                 style={{
                   background: colors.background,
                   color: colors.foreground,
@@ -559,13 +559,13 @@ export default function PersonalizePage() {
                 }}
               />
               <div className="flex items-center justify-between mt-4">
-                <p className="text-xs" style={{ color: colors.muted }}>
+                <p className="t-body2" style={{ color: colors.muted }}>
                   Times will be interpreted in your local timezone ({mounted ? timezone : '...'}) and converted to UTC.
                 </p>
                 <button
                   onClick={handleParse}
                   disabled={parsing || !text.trim()}
-                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-colors disabled:opacity-50"
+                  className="flex items-center gap-2 px-5 py-2.5 rounded-[10px] font-semibold t-lead transition-colors disabled:opacity-50"
                   style={{
                     background: colors.primary,
                     color: colors.primaryForeground,
@@ -596,19 +596,19 @@ export default function PersonalizePage() {
                 borderColor: colors.cardBorder,
               }}
             >
-              <label className="text-sm font-semibold block mb-3" style={{ color: colors.foreground }}>
+              <label className="t-lead font-semibold block mb-3" style={{ color: colors.foreground }}>
                 Add measurements manually
               </label>
 
               {/* Date and subject */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
                 <div>
-                  <label className="text-xs block mb-1" style={{ color: colors.muted }}>Date</label>
+                  <label className="t-body2 block mb-1" style={{ color: colors.muted }}>Date</label>
                   <input
                     type="date"
                     value={formDate}
                     onChange={(e) => setFormDate(e.target.value)}
-                    className="w-full rounded-lg px-3 py-2 text-sm outline-none"
+                    className="w-full rounded-[9px] px-3 py-2 t-lead outline-none"
                     style={{
                       background: colors.background,
                       color: colors.foreground,
@@ -617,13 +617,13 @@ export default function PersonalizePage() {
                   />
                 </div>
                 <div>
-                  <label className="text-xs block mb-1" style={{ color: colors.muted }}>Subject ID (optional)</label>
+                  <label className="t-body2 block mb-1" style={{ color: colors.muted }}>Subject ID (optional)</label>
                   <input
                     type="text"
                     value={formSubjectId}
                     onChange={(e) => setFormSubjectId(e.target.value)}
                     placeholder="e.g. uk202603111645aaa"
-                    className="w-full rounded-lg px-3 py-2 text-sm outline-none"
+                    className="w-full rounded-[9px] px-3 py-2 t-lead outline-none"
                     style={{
                       background: colors.background,
                       color: colors.foreground,
@@ -638,18 +638,18 @@ export default function PersonalizePage() {
                 {formRows.map((row, i) => (
                   <div
                     key={i}
-                    className="grid grid-cols-12 gap-2 items-end p-3 rounded-lg"
+                    className="grid grid-cols-12 gap-2 items-end p-3 rounded-[9px]"
                     style={{ background: colors.background }}
                   >
                     <div className="col-span-12 sm:col-span-3">
-                      <label className="text-xs block mb-1" style={{ color: colors.muted }}>Analyte</label>
+                      <label className="t-body2 block mb-1" style={{ color: colors.muted }}>Analyte</label>
                       <select
                         value={row.name}
                         onChange={(e) => {
                           const found = COMMON_ANALYTES.find((a) => a.name === e.target.value);
                           updateFormRow(i, { name: e.target.value, unit: found?.unit || row.unit });
                         }}
-                        className="w-full rounded-lg px-2 py-1.5 text-sm outline-none"
+                        className="w-full rounded-[9px] px-2 py-1.5 t-lead outline-none"
                         style={{
                           background: colors.card,
                           color: colors.foreground,
@@ -662,14 +662,14 @@ export default function PersonalizePage() {
                       </select>
                     </div>
                     <div className="col-span-6 sm:col-span-2">
-                      <label className="text-xs block mb-1" style={{ color: colors.muted }}>Value</label>
+                      <label className="t-body2 block mb-1" style={{ color: colors.muted }}>Value</label>
                       <input
                         type="number"
                         step="any"
                         value={row.value}
                         onChange={(e) => updateFormRow(i, { value: e.target.value })}
                         placeholder="0.0"
-                        className="w-full rounded-lg px-2 py-1.5 text-sm outline-none"
+                        className="w-full rounded-[9px] px-2 py-1.5 t-lead outline-none"
                         style={{
                           background: colors.card,
                           color: colors.foreground,
@@ -678,12 +678,12 @@ export default function PersonalizePage() {
                       />
                     </div>
                     <div className="col-span-6 sm:col-span-2">
-                      <label className="text-xs block mb-1" style={{ color: colors.muted }}>Unit</label>
+                      <label className="t-body2 block mb-1" style={{ color: colors.muted }}>Unit</label>
                       <input
                         type="text"
                         value={row.unit}
                         onChange={(e) => updateFormRow(i, { unit: e.target.value })}
-                        className="w-full rounded-lg px-2 py-1.5 text-sm outline-none"
+                        className="w-full rounded-[9px] px-2 py-1.5 t-lead outline-none"
                         style={{
                           background: colors.card,
                           color: colors.foreground,
@@ -692,12 +692,12 @@ export default function PersonalizePage() {
                       />
                     </div>
                     <div className="col-span-6 sm:col-span-2">
-                      <label className="text-xs block mb-1" style={{ color: colors.muted }}>Time (optional)</label>
+                      <label className="t-body2 block mb-1" style={{ color: colors.muted }}>Time (optional)</label>
                       <input
                         type="time"
                         value={row.time}
                         onChange={(e) => updateFormRow(i, { time: e.target.value })}
-                        className="w-full rounded-lg px-2 py-1.5 text-sm outline-none"
+                        className="w-full rounded-[9px] px-2 py-1.5 t-lead outline-none"
                         style={{
                           background: colors.card,
                           color: colors.foreground,
@@ -706,11 +706,11 @@ export default function PersonalizePage() {
                       />
                     </div>
                     <div className="col-span-5 sm:col-span-2">
-                      <label className="text-xs block mb-1" style={{ color: colors.muted }}>State</label>
+                      <label className="t-body2 block mb-1" style={{ color: colors.muted }}>State</label>
                       <select
                         value={row.state}
                         onChange={(e) => updateFormRow(i, { state: e.target.value as any })}
-                        className="w-full rounded-lg px-2 py-1.5 text-sm outline-none"
+                        className="w-full rounded-[9px] px-2 py-1.5 t-lead outline-none"
                         style={{
                           background: colors.card,
                           color: colors.foreground,
@@ -725,7 +725,7 @@ export default function PersonalizePage() {
                       <button
                         onClick={() => removeFormRow(i)}
                         disabled={formRows.length === 1}
-                        className="p-1.5 rounded-lg transition-colors disabled:opacity-30"
+                        className="p-1.5 rounded-[9px] transition-colors disabled:opacity-30"
                         style={{ color: colors.error || '#ef4444' }}
                         aria-label="Remove row"
                       >
@@ -740,7 +740,7 @@ export default function PersonalizePage() {
               <div className="flex items-center justify-between mt-4">
                 <button
                   onClick={addFormRow}
-                  className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 rounded-[10px] t-lead font-medium transition-colors"
                   style={{
                     background: colors.background,
                     color: colors.foreground,
@@ -753,7 +753,7 @@ export default function PersonalizePage() {
                 <button
                   onClick={handleParseForm}
                   disabled={parsing}
-                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-colors disabled:opacity-50"
+                  className="flex items-center gap-2 px-5 py-2.5 rounded-[10px] font-semibold t-lead transition-colors disabled:opacity-50"
                   style={{
                     background: colors.primary,
                     color: colors.primaryForeground,
@@ -793,7 +793,7 @@ export default function PersonalizePage() {
                     <h2 className="text-base font-semibold" style={{ color: colors.foreground }}>
                       Review parsed measurements
                     </h2>
-                    <p className="text-xs mt-0.5" style={{ color: colors.muted }}>
+                    <p className="t-body2 mt-0.5" style={{ color: colors.muted }}>
                       {payload.items.length} measurement{payload.items.length !== 1 ? 's' : ''} ·{' '}
                       Subject: {payload.subjectEmail}
                     </p>
@@ -801,19 +801,19 @@ export default function PersonalizePage() {
                 </div>
 
                 <div className="px-4 py-3" style={{ borderTop: `1px solid ${colors.cardBorder}`, background: colors.background }}>
-                  <p className="text-xs" style={{ color: colors.muted }}>
+                  <p className="t-body2" style={{ color: colors.muted }}>
                     {'\u270F'} Click any field to edit. Trash icon removes a row.
                   </p>
                 </div>
                 <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
+                  <table className="w-full t-lead">
                     <thead>
                       <tr style={{ borderBottom: `1px solid ${colors.cardBorder}`, background: colors.background }}>
-                        <th className="text-left px-3 py-2 text-xs font-medium uppercase tracking-wider" style={{ color: colors.muted }}>Time (UTC)</th>
-                        <th className="text-left px-3 py-2 text-xs font-medium uppercase tracking-wider" style={{ color: colors.muted }}>Analyte</th>
-                        <th className="text-right px-3 py-2 text-xs font-medium uppercase tracking-wider" style={{ color: colors.muted }}>Value</th>
-                        <th className="text-left px-3 py-2 text-xs font-medium uppercase tracking-wider" style={{ color: colors.muted }}>Unit</th>
-                        <th className="text-left px-3 py-2 text-xs font-medium uppercase tracking-wider" style={{ color: colors.muted }}>State</th>
+                        <th className="text-left px-3 py-2 t-body2 font-medium uppercase tracking-wider" style={{ color: colors.muted }}>Time (UTC)</th>
+                        <th className="text-left px-3 py-2 t-body2 font-medium uppercase tracking-wider" style={{ color: colors.muted }}>Analyte</th>
+                        <th className="text-right px-3 py-2 t-body2 font-medium uppercase tracking-wider" style={{ color: colors.muted }}>Value</th>
+                        <th className="text-left px-3 py-2 t-body2 font-medium uppercase tracking-wider" style={{ color: colors.muted }}>Unit</th>
+                        <th className="text-left px-3 py-2 t-body2 font-medium uppercase tracking-wider" style={{ color: colors.muted }}>State</th>
                         <th className="px-3 py-2"></th>
                       </tr>
                     </thead>
@@ -835,7 +835,7 @@ export default function PersonalizePage() {
                                   const newDate = e.target.value + ':00Z';
                                   updatePayloadItem(idx, { date: newDate });
                                 }}
-                                className="w-full rounded px-2 py-1 text-xs outline-none"
+                                className="w-full rounded px-2 py-1 t-body2 outline-none"
                                 style={inputStyle}
                               />
                             </td>
@@ -854,7 +854,7 @@ export default function PersonalizePage() {
                                     unit: found?.unit || item.unit,
                                   });
                                 }}
-                                className="w-full rounded px-2 py-1 text-sm font-medium outline-none"
+                                className="w-full rounded px-2 py-1 t-lead font-medium outline-none"
                                 style={inputStyle}
                               >
                                 {COMMON_ANALYTES.map((a) => (
@@ -874,7 +874,7 @@ export default function PersonalizePage() {
                                   const v = parseFloat(e.target.value);
                                   updatePayloadItem(idx, { value: isNaN(v) ? 0 : v });
                                 }}
-                                className="w-full rounded px-2 py-1 text-sm text-right outline-none font-semibold"
+                                className="w-full rounded px-2 py-1 t-lead text-right outline-none font-semibold"
                                 style={{ ...inputStyle, color: colors.primary }}
                               />
                             </td>
@@ -883,7 +883,7 @@ export default function PersonalizePage() {
                                 type="text"
                                 value={item.unit}
                                 onChange={(e) => updatePayloadItem(idx, { unit: e.target.value })}
-                                className="w-full rounded px-2 py-1 text-xs outline-none"
+                                className="w-full rounded px-2 py-1 t-body2 outline-none"
                                 style={inputStyle}
                                 placeholder="min 2"
                               />
@@ -892,7 +892,7 @@ export default function PersonalizePage() {
                               <select
                                 value={item.subjectState}
                                 onChange={(e) => updatePayloadItem(idx, { subjectState: e.target.value })}
-                                className="w-full rounded px-2 py-1 text-xs outline-none"
+                                className="w-full rounded px-2 py-1 t-body2 outline-none"
                                 style={inputStyle}
                               >
                                 <option value="FASTING">Fasting</option>
@@ -902,7 +902,7 @@ export default function PersonalizePage() {
                             <td className="px-3 py-2 text-right">
                               <button
                                 onClick={() => removePayloadItem(idx)}
-                                className="p-1 rounded transition-colors hover:bg-white/5"
+                                className="p-1 rounded transition-colors hover:bg-transparent/5"
                                 style={{ color: '#ef4444' }}
                                 aria-label="Remove row"
                                 title="Remove this row"
@@ -926,7 +926,7 @@ export default function PersonalizePage() {
                   borderColor: colors.cardBorder,
                 }}
               >
-                <label className="text-xs font-semibold uppercase tracking-wider block mb-2" style={{ color: colors.muted }}>
+                <label className="t-body2 font-semibold uppercase tracking-wider block mb-2" style={{ color: colors.muted }}>
                   Need to make changes? Just describe them
                 </label>
                 <div className="flex gap-2">
@@ -936,7 +936,7 @@ export default function PersonalizePage() {
                     onChange={(e) => setRefineText(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleRefine()}
                     placeholder='e.g. "change all glucose units to mg/dL" or "remove the 12:50 reading"'
-                    className="flex-1 rounded-xl px-4 py-2.5 text-sm outline-none"
+                    className="flex-1 rounded-[10px] px-4 py-2.5 t-lead outline-none"
                     style={{
                       background: colors.background,
                       color: colors.foreground,
@@ -946,7 +946,7 @@ export default function PersonalizePage() {
                   <button
                     onClick={handleRefine}
                     disabled={parsing || !refineText.trim()}
-                    className="px-4 py-2.5 rounded-xl text-sm font-medium transition-colors disabled:opacity-50"
+                    className="px-4 py-2.5 rounded-[10px] t-lead font-medium transition-colors disabled:opacity-50"
                     style={{
                       background: colors.background,
                       color: colors.foreground,
@@ -963,7 +963,7 @@ export default function PersonalizePage() {
                 <button
                   onClick={handleCancel}
                   disabled={submitting}
-                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium transition-colors disabled:opacity-50"
+                  className="flex items-center gap-2 px-5 py-2.5 rounded-[10px] t-lead font-medium transition-colors disabled:opacity-50"
                   style={{
                     background: colors.background,
                     color: colors.foreground,
@@ -976,7 +976,7 @@ export default function PersonalizePage() {
                 <button
                   onClick={handleSubmit}
                   disabled={submitting}
-                  className="flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-semibold transition-colors disabled:opacity-50"
+                  className="flex items-center gap-2 px-6 py-2.5 rounded-[10px] t-lead font-semibold transition-colors disabled:opacity-50"
                   style={{
                     background: colors.primary,
                     color: colors.primaryForeground,

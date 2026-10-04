@@ -23,31 +23,31 @@ function PlanInner() {
   const plan = (notes ?? []).filter((n) => n.kind === 'plan');
 
   return (
-    <div className="w-full max-w-3xl mx-auto px-5 py-8">
+    <div className="w-full px-7 py-8">
       <header className="mb-6">
-        <h1 className="text-2xl font-bold">My plan</h1>
-        <p className="text-sm mt-1" style={{ color: colors.muted }}>
+        <h1 className="t-head font-bold">My plan</h1>
+        <p className="t-lead mt-1" style={{ color: colors.muted }}>
           Written by your practitioner. MeO checks each line against your own
           data where it can, and says so where it can&apos;t.
         </p>
       </header>
 
-      {state === 'loading' && <p className="text-sm opacity-70">Loading your plan…</p>}
-      {state === 'error' && <p className="text-sm opacity-70">Couldn&apos;t load your plan.</p>}
+      {state === 'loading' && <p className="t-lead opacity-70">Loading your plan…</p>}
+      {state === 'error' && <p className="t-lead opacity-70">Couldn&apos;t load your plan.</p>}
 
       {state === 'ready' && plan.length === 0 && (
         <div
           className="rounded-2xl p-5"
           style={{ backgroundColor: colors.card, border: `1px solid ${colors.cardBorder}` }}
         >
-          <p className="text-sm font-medium">No plan yet.</p>
-          <p className="text-sm mt-1" style={{ color: colors.muted }}>
+          <p className="t-lead font-medium">No plan yet.</p>
+          <p className="t-lead mt-1" style={{ color: colors.muted }}>
             A plan appears here after a consultation, written by the practitioner
             you book with. Nothing on this screen is generated.
           </p>
           <Link
             href="/marketplace"
-            className="inline-block mt-4 px-4 py-2.5 rounded-xl text-sm font-semibold"
+            className="inline-block mt-4 px-4 py-2.5 rounded-[10px] t-lead font-semibold"
             style={{ backgroundColor: colors.primary, color: colors.primaryForeground }}
           >
             Find a practitioner

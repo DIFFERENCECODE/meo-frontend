@@ -41,8 +41,8 @@ export default function TimelinePage() {
       {state === 'ready' && record ? (
         <Timeline record={record} />
       ) : (
-        <div className="w-full max-w-3xl mx-auto px-5 py-10">
-          <p className="text-sm opacity-70">
+        <div className="w-full px-7 py-10">
+          <p className="t-lead opacity-70">
             {state === 'loading'
               ? 'Loading your timeline…'
               : state === 'empty'

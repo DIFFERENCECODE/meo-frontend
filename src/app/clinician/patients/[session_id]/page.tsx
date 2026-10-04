@@ -102,7 +102,7 @@ function AssistantBubble({
     <div className="flex items-start gap-3 max-w-[88%]">
       {/* Avatar */}
       <div
-        className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg mt-0.5"
+        className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-[9px] mt-0.5"
         style={{ background: `${colors.primary}20` }}
       >
         <Sparkles className="h-3.5 w-3.5" style={{ color: colors.primary }} />
@@ -110,7 +110,7 @@ function AssistantBubble({
 
       {/* Bubble */}
       <div
-        className="flex-1 min-w-0 rounded-2xl rounded-tl-sm px-4 py-3 text-sm"
+        className="flex-1 min-w-0 rounded-2xl rounded-tl-sm px-4 py-3 t-lead"
         style={{
           background: 'rgba(255,255,255,0.05)',
           border: `1px solid rgba(255,255,255,0.1)`,
@@ -129,19 +129,19 @@ function AssistantBubble({
                 </h1>
               ),
               h2: ({ children }) => (
-                <h2 className="text-sm font-bold mt-4 mb-2 first:mt-0"
+                <h2 className="t-lead font-bold mt-4 mb-2 first:mt-0"
                   style={{ color: colors.primary }}>
                   {children}
                 </h2>
               ),
               h3: ({ children }) => (
-                <h3 className="text-xs font-semibold uppercase tracking-wide mt-3 mb-1.5"
+                <h3 className="t-body2 font-semibold uppercase tracking-wide mt-3 mb-1.5"
                   style={{ color: colors.muted }}>
                   {children}
                 </h3>
               ),
               p: ({ children }) => (
-                <p className="text-sm leading-relaxed mb-2 last:mb-0"
+                <p className="t-lead leading-relaxed mb-2 last:mb-0"
                   style={{ color: colors.foreground }}>
                   {children}
                 </p>
@@ -153,7 +153,7 @@ function AssistantBubble({
                 <ol className="my-2 space-y-1 pl-3 list-decimal">{children}</ol>
               ),
               li: ({ children }) => (
-                <li className="text-sm flex items-start gap-2" style={{ color: colors.foreground }}>
+                <li className="t-lead flex items-start gap-2" style={{ color: colors.foreground }}>
                   <span className="mt-2 h-1 w-1 rounded-full flex-shrink-0"
                     style={{ background: colors.primary }} />
                   <span>{children}</span>
@@ -168,22 +168,22 @@ function AssistantBubble({
                 <em className="italic" style={{ color: colors.muted }}>{children}</em>
               ),
               table: ({ children }) => (
-                <div className="my-3 overflow-x-auto rounded-lg border"
+                <div className="my-3 overflow-x-auto rounded-[9px] border"
                   style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
-                  <table className="w-full text-xs">{children}</table>
+                  <table className="w-full t-body2">{children}</table>
                 </div>
               ),
               thead: ({ children }) => (
                 <thead style={{ background: 'rgba(255,255,255,0.05)' }}>{children}</thead>
               ),
               th: ({ children }) => (
-                <th className="text-left py-2 px-3 font-semibold text-xs"
+                <th className="text-left py-2 px-3 font-semibold t-body2"
                   style={{ color: colors.muted }}>
                   {children}
                 </th>
               ),
               td: ({ children }) => (
-                <td className="py-2 px-3 text-xs border-t"
+                <td className="py-2 px-3 t-body2 border-t"
                   style={{ color: colors.foreground, borderColor: 'rgba(255,255,255,0.06)' }}>
                   {children}
                 </td>
@@ -198,14 +198,14 @@ function AssistantBubble({
                 const isBlock = !!className;
                 if (isBlock) {
                   return (
-                    <code className="block my-2 p-3 rounded-lg text-xs font-mono overflow-x-auto"
+                    <code className="block my-2 p-3 rounded-[9px] t-body2 font-mono overflow-x-auto"
                       style={{ background: 'rgba(0,0,0,0.3)', color: '#6ee7b7' }}>
                       {children}
                     </code>
                   );
                 }
                 return (
-                  <code className="px-1.5 py-0.5 rounded text-xs font-mono"
+                  <code className="px-1.5 py-0.5 rounded t-body2 font-mono"
                     style={{ background: 'rgba(0,0,0,0.25)', color: '#6ee7b7' }}>
                     {children}
                   </code>
@@ -228,7 +228,7 @@ function UserBubble({ content, colors }: { content: string; colors: ReturnType<t
   return (
     <div className="flex justify-end">
       <div
-        className="max-w-[75%] rounded-2xl rounded-tr-sm px-4 py-2.5 text-sm"
+        className="max-w-[75%] rounded-2xl rounded-tr-sm px-4 py-2.5 t-lead"
         style={{ background: `${colors.primary}22`, color: colors.foreground }}
       >
         {content}
@@ -264,7 +264,7 @@ function PatientPanel({
       >
         <Link
           href="/clinician/patients"
-          className="inline-flex items-center gap-1.5 text-xs transition-opacity hover:opacity-70"
+          className="inline-flex items-center gap-1.5 t-body2 transition-opacity hover:opacity-70"
           style={{ color: colors.muted }}
         >
           <ArrowLeft className="h-3.5 w-3.5" />
@@ -280,7 +280,7 @@ function PatientPanel({
           />
         </div>
       ) : !patient ? (
-        <div className="p-6 text-center text-sm" style={{ color: colors.muted }}>
+        <div className="p-6 text-center t-lead" style={{ color: colors.muted }}>
           Patient not found.
         </div>
       ) : (
@@ -289,18 +289,18 @@ function PatientPanel({
           <div className="p-5 border-b" style={{ borderColor: 'rgba(255,255,255,0.07)' }}>
             <div className="flex items-start gap-3 mb-4">
               <div
-                className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl text-sm font-bold"
+                className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-[10px] t-lead font-bold"
                 style={{ background: `${colors.primary}20`, color: colors.primary }}
               >
                 {initials}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-sm leading-tight mb-1"
+                <p className="font-semibold t-lead leading-tight mb-1"
                   style={{ color: colors.foreground }}>
                   {patient.patient_name || 'Anonymous'}
                 </p>
                 <span
-                  className="inline-block text-xs px-2 py-0.5 rounded-full"
+                  className="inline-block t-body2 px-2 py-0.5 rounded-full"
                   style={{ background: `${colors.primary}15`, color: colors.primary }}
                 >
                   {patient.vendor_id}
@@ -310,19 +310,19 @@ function PatientPanel({
 
             {/* Stats */}
             <div className="grid grid-cols-2 gap-2">
-              <div className="rounded-lg p-2.5" style={{ background: 'rgba(255,255,255,0.05)' }}>
+              <div className="rounded-[9px] p-2.5" style={{ background: 'rgba(255,255,255,0.05)' }}>
                 <div className="flex items-center gap-1.5 mb-1">
                   <MessageSquare className="h-3 w-3" style={{ color: colors.muted }} />
-                  <span className="text-xs" style={{ color: colors.muted }}>Turns</span>
+                  <span className="t-body2" style={{ color: colors.muted }}>Turns</span>
                 </div>
                 <p className="text-base font-bold" style={{ color: colors.foreground }}>
                   {patient.turn_count}
                 </p>
               </div>
-              <div className="rounded-lg p-2.5" style={{ background: 'rgba(255,255,255,0.05)' }}>
+              <div className="rounded-[9px] p-2.5" style={{ background: 'rgba(255,255,255,0.05)' }}>
                 <div className="flex items-center gap-1.5 mb-1">
                   <Activity className="h-3 w-3" style={{ color: colors.muted }} />
-                  <span className="text-xs" style={{ color: colors.muted }}>Status</span>
+                  <span className="t-body2" style={{ color: colors.muted }}>Status</span>
                 </div>
                 <p className="text-base font-bold" style={{ color: '#6ee7b7' }}>
                   Active
@@ -336,7 +336,7 @@ function PatientPanel({
             <div className="p-4 border-b" style={{ borderColor: 'rgba(255,255,255,0.07)' }}>
               <div className="flex items-center gap-1.5 mb-2.5">
                 <Target className="h-3.5 w-3.5" style={{ color: colors.muted }} />
-                <p className="text-xs font-semibold uppercase tracking-wider"
+                <p className="t-body2 font-semibold uppercase tracking-wider"
                   style={{ color: colors.muted }}>
                   Goals
                 </p>
@@ -345,7 +345,7 @@ function PatientPanel({
                 {patient.metabolic_goals.map((g, i) => (
                   <span
                     key={i}
-                    className="text-xs px-2 py-1 rounded-md"
+                    className="t-body2 px-2 py-1 rounded-md"
                     style={{ background: 'rgba(255,255,255,0.07)', color: colors.foreground }}
                   >
                     {g}
@@ -360,12 +360,12 @@ function PatientPanel({
             <div className="p-4 border-b" style={{ borderColor: 'rgba(255,255,255,0.07)' }}>
               <div className="flex items-center gap-1.5 mb-2.5">
                 <TrendingUp className="h-3.5 w-3.5" style={{ color: colors.muted }} />
-                <p className="text-xs font-semibold uppercase tracking-wider"
+                <p className="t-body2 font-semibold uppercase tracking-wider"
                   style={{ color: colors.muted }}>
                   Latest Scores
                 </p>
               </div>
-              <p className="text-xs italic" style={{ color: colors.muted }}>
+              <p className="t-body2 italic" style={{ color: colors.muted }}>
                 Available via Clinical AI brief
               </p>
             </div>
@@ -373,7 +373,7 @@ function PatientPanel({
 
           {patient.grafana_error && (
             <div
-              className="mx-4 mt-3 rounded-lg p-2.5 flex items-start gap-2"
+              className="mx-4 mt-3 rounded-[9px] p-2.5 flex items-start gap-2"
               style={{
                 background: 'rgba(252,165,165,0.06)',
                 border: '1px solid rgba(252,165,165,0.15)',
@@ -381,7 +381,7 @@ function PatientPanel({
             >
               <AlertTriangle className="h-3.5 w-3.5 flex-shrink-0 mt-0.5"
                 style={{ color: '#fca5a5' }} />
-              <p className="text-xs" style={{ color: '#fca5a5' }}>
+              <p className="t-body2" style={{ color: '#fca5a5' }}>
                 Scores unavailable
               </p>
             </div>
@@ -389,8 +389,8 @@ function PatientPanel({
 
           {/* Session ID */}
           <div className="mt-auto p-4 border-t" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
-            <p className="text-xs mb-1" style={{ color: colors.muted }}>Session</p>
-            <p className="text-xs font-mono break-all" style={{ color: `${colors.muted}80` }}>
+            <p className="t-body2 mb-1" style={{ color: colors.muted }}>Session</p>
+            <p className="t-body2 font-mono break-all" style={{ color: `${colors.muted}80` }}>
               {patient.session_id}
             </p>
           </div>
@@ -537,16 +537,16 @@ export default function PatientSessionPage() {
               <ArrowLeft className="h-4 w-4" />
             </Link>
             <div
-              className="flex h-8 w-8 items-center justify-center rounded-lg"
+              className="flex h-8 w-8 items-center justify-center rounded-[9px]"
               style={{ background: `${colors.primary}18` }}
             >
               <Sparkles className="h-4 w-4" style={{ color: colors.primary }} />
             </div>
             <div>
-              <p className="text-sm font-semibold" style={{ color: colors.foreground }}>
+              <p className="t-lead font-semibold" style={{ color: colors.foreground }}>
                 Clinical AI
               </p>
-              <p className="text-xs" style={{ color: colors.muted }}>
+              <p className="t-body2" style={{ color: colors.muted }}>
                 {patientLoading ? 'Loading…' : `Reviewing ${patientLabel}`}
               </p>
             </div>
@@ -555,7 +555,7 @@ export default function PatientSessionPage() {
           {/* Engagement chip */}
           {patient && (
             <div
-              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs"
+              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full t-body2"
               style={{
                 background: 'rgba(110,231,183,0.08)',
                 border: '1px solid rgba(110,231,183,0.2)',
@@ -592,7 +592,7 @@ export default function PatientSessionPage() {
                     ? 'Loading patient…'
                     : `Ready to brief on ${patientLabel}`}
                 </p>
-                <p className="text-sm" style={{ color: colors.muted }}>
+                <p className="t-lead" style={{ color: colors.muted }}>
                   Generate a pre-consultation brief or ask a specific question about this patient.
                 </p>
               </div>
@@ -604,11 +604,11 @@ export default function PatientSessionPage() {
                     key={label}
                     onClick={() => sendMessage(prompt)}
                     disabled={sending || patientLoading}
-                    className="flex items-start gap-3 p-3.5 rounded-xl text-left transition-all hover:opacity-80 disabled:opacity-40 active:scale-[0.98]"
+                    className="flex items-start gap-3 p-3.5 rounded-[10px] text-left transition-all hover:opacity-80 disabled:opacity-40 active:scale-[0.98]"
                     style={{ background: bg, border: `1px solid ${border}` }}
                   >
                     <Icon className="h-4 w-4 flex-shrink-0 mt-0.5" style={{ color }} />
-                    <span className="text-xs font-medium leading-snug"
+                    <span className="t-body2 font-medium leading-snug"
                       style={{ color: colors.foreground }}>
                       {label}
                     </span>
@@ -663,7 +663,7 @@ export default function PatientSessionPage() {
                   key={label}
                   onClick={() => sendMessage(prompt)}
                   disabled={sending}
-                  className="flex-shrink-0 text-xs px-3 py-1.5 rounded-full border transition-all hover:opacity-80 disabled:opacity-40 whitespace-nowrap"
+                  className="flex-shrink-0 t-body2 px-3 py-1.5 rounded-full border transition-all hover:opacity-80 disabled:opacity-40 whitespace-nowrap"
                   style={{
                     borderColor: `${color}30`,
                     color,
@@ -685,7 +685,7 @@ export default function PatientSessionPage() {
               placeholder="Ask about this patient or request a brief…"
               rows={1}
               disabled={sending || patientLoading}
-              className="flex-1 resize-none rounded-xl px-4 py-3 text-sm outline-none transition-all disabled:opacity-50"
+              className="flex-1 resize-none rounded-[10px] px-4 py-3 t-lead outline-none transition-all disabled:opacity-50"
               style={{
                 background: 'rgba(255,255,255,0.07)',
                 border: `1px solid rgba(255,255,255,0.12)`,
@@ -702,14 +702,14 @@ export default function PatientSessionPage() {
             <button
               onClick={() => sendMessage(input)}
               disabled={!input.trim() || sending || patientLoading}
-              className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl transition-all disabled:opacity-40 active:scale-95"
+              className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-[10px] transition-all disabled:opacity-40 active:scale-95"
               style={{ background: colors.primary }}
             >
               <Send className="h-4 w-4" style={{ color: colors.primaryForeground || '#1a3a3a' }} />
             </button>
           </div>
 
-          <p className="text-xs mt-2 text-center" style={{ color: `${colors.muted}60` }}>
+          <p className="t-body2 mt-2 text-center" style={{ color: `${colors.muted}60` }}>
             Summarises data only · Not a clinical decision support tool · For informational use
           </p>
         </div>

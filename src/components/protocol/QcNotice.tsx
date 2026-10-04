@@ -30,18 +30,18 @@ export function QcNotice({
 }) {
   if (verdict.level === 'ok') return null;
   const amber = verdict.level === 'suspect';
-  const colour = amber ? '#f0a05a' : '#e57373';
+  const colour = amber ? '#f97316' : '#e57373';
 
   return (
     <div className="flex items-start gap-2 mt-2" role="status">
       <AlertTriangle className="h-3.5 w-3.5 shrink-0 mt-0.5" style={{ color: colour }} />
       <div className="min-w-0">
-        <p className="text-xs" style={{ color: colour }}>{verdict.message}</p>
+        <p className="t-body2" style={{ color: colour }}>{verdict.message}</p>
         {verdict.suggestion && onAccept && (
           <button
             type="button"
             onClick={() => onAccept(verdict.suggestion!.value)}
-            className="inline-flex items-center gap-1 mt-1 text-xs font-medium underline underline-offset-2"
+            className="inline-flex items-center gap-1 mt-1 t-body2 font-medium underline underline-offset-2"
             style={{ color: colour }}
           >
             {verdict.suggestion.label}

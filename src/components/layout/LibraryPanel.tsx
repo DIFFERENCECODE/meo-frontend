@@ -74,12 +74,12 @@ export default function LibraryPanel({ onClose, onAskMeO }: LibraryPanelProps) {
             className="flex items-center justify-between px-4 py-3 border-b flex-shrink-0"
             style={{ borderColor: colors.cardBorder }}
           >
-            <span className="text-sm font-medium" style={{ color: colors.foreground }}>
+            <span className="t-lead font-medium" style={{ color: colors.foreground }}>
               The Thin Guide to Fat
             </span>
             <button
               onClick={() => setViewingPdf(null)}
-              className="p-1.5 rounded-lg hover:bg-white/10 transition-colors"
+              className="p-1.5 rounded-[9px] hover:bg-transparent/10 transition-colors"
               style={{ color: colors.muted }}
               aria-label="Close viewer"
             >
@@ -104,7 +104,7 @@ export default function LibraryPanel({ onClose, onAskMeO }: LibraryPanelProps) {
         </div>
         <button
           onClick={onClose}
-          className="p-1.5 rounded-lg transition-colors hover:bg-white/10"
+          className="p-1.5 rounded-[9px] transition-colors hover:bg-transparent/10"
           style={{ color: colors.muted }}
           aria-label="Close library"
         >
@@ -119,18 +119,18 @@ export default function LibraryPanel({ onClose, onAskMeO }: LibraryPanelProps) {
           return (
             <div
               key={item.id}
-              className="rounded-xl border overflow-hidden"
+              className="rounded-[10px] border overflow-hidden"
               style={{ borderColor: colors.cardBorder, backgroundColor: colors.card }}
             >
               {/* Item header row */}
               <button
-                className="w-full text-left p-4 flex items-start gap-3 hover:bg-white/5 transition-colors"
+                className="w-full text-left p-4 flex items-start gap-3 hover:bg-transparent/5 transition-colors"
                 onClick={() => setExpanded(isExpanded ? null : item.id)}
                 aria-expanded={isExpanded}
               >
                 {/* Icon */}
                 <div
-                  className="p-2 rounded-lg flex-shrink-0 mt-0.5"
+                  className="p-2 rounded-[9px] flex-shrink-0 mt-0.5"
                   style={{ backgroundColor: `${colors.primary}18` }}
                 >
                   {item.type === 'book' ? (
@@ -142,9 +142,9 @@ export default function LibraryPanel({ onClose, onAskMeO }: LibraryPanelProps) {
 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-medium text-sm leading-tight">{item.title}</span>
+                    <span className="font-medium t-lead leading-tight">{item.title}</span>
                     <span
-                      className="text-xs px-1.5 py-0.5 rounded-full border capitalize"
+                      className="t-body2 px-1.5 py-0.5 rounded-full border capitalize"
                       style={{
                         borderColor: `${colors.primary}40`,
                         color: colors.primary,
@@ -154,11 +154,11 @@ export default function LibraryPanel({ onClose, onAskMeO }: LibraryPanelProps) {
                       {item.type}
                     </span>
                   </div>
-                  <p className="text-xs mt-0.5" style={{ color: colors.muted }}>
+                  <p className="t-body2 mt-0.5" style={{ color: colors.muted }}>
                     {item.author}
                   </p>
                   {!isExpanded && (
-                    <p className="text-xs mt-1.5 line-clamp-2" style={{ color: `${colors.foreground}99` }}>
+                    <p className="t-body2 mt-1.5 line-clamp-2" style={{ color: `${colors.foreground}99` }}>
                       {item.description}
                     </p>
                   )}
@@ -173,13 +173,13 @@ export default function LibraryPanel({ onClose, onAskMeO }: LibraryPanelProps) {
               {/* Expanded content */}
               {isExpanded && (
                 <div className="px-4 pb-4 space-y-4">
-                  <p className="text-sm leading-relaxed" style={{ color: `${colors.foreground}cc` }}>
+                  <p className="t-lead leading-relaxed" style={{ color: `${colors.foreground}cc` }}>
                     {item.description}
                   </p>
 
                   {/* Ask MeO prompts */}
                   <div>
-                    <p className="text-xs font-medium mb-2" style={{ color: colors.muted }}>
+                    <p className="t-body2 font-medium mb-2" style={{ color: colors.muted }}>
                       Ask MeO about this
                     </p>
                     <div className="space-y-1.5">
@@ -190,7 +190,7 @@ export default function LibraryPanel({ onClose, onAskMeO }: LibraryPanelProps) {
                             onAskMeO(prompt);
                             onClose();
                           }}
-                          className="w-full text-left flex items-center gap-2 px-3 py-2 rounded-lg border text-xs transition-all hover:bg-white/5 group"
+                          className="w-full text-left flex items-center gap-2 px-3 py-2 rounded-[9px] border t-body2 transition-all hover:bg-transparent/5 group"
                           style={{
                             borderColor: colors.cardBorder,
                             color: colors.foreground,
@@ -210,7 +210,7 @@ export default function LibraryPanel({ onClose, onAskMeO }: LibraryPanelProps) {
                   {item.viewUrl && (
                     <button
                       onClick={() => setViewingPdf(item.viewUrl)}
-                      className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-medium transition-colors w-full justify-center"
+                      className="flex items-center gap-2 px-4 py-2 rounded-[9px] t-body2 font-medium transition-colors w-full justify-center"
                       style={{
                         backgroundColor: `${colors.primary}20`,
                         color: colors.primary,
@@ -230,7 +230,7 @@ export default function LibraryPanel({ onClose, onAskMeO }: LibraryPanelProps) {
 
       {/* Footer note */}
       <div
-        className="px-5 py-3 text-xs border-t flex-shrink-0"
+        className="px-5 py-3 t-body2 border-t flex-shrink-0"
         style={{ borderColor: colors.cardBorder, color: colors.muted }}
       >
         MeO can answer questions about all resources in this library.

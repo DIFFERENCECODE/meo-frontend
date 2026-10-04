@@ -138,7 +138,7 @@ export function RightPanel({
                   <h2 className="font-bold text-lg" style={{ color: theme.colors.foreground }}>
                     {isPractitionerMode ? 'Practitioner Workspace' : showAnalysis ? 'Metabolic Analysis' : showSolution ? 'Recommended Support' : analysisContent ? 'My Dashboard' : 'Details'}
                   </h2>
-                  <p className="text-xs mt-0.5" style={{ color: theme.colors.muted }}>
+                  <p className="t-body2 mt-0.5" style={{ color: theme.colors.muted }}>
                     {isPractitionerMode
                       ? selectedPatientId
                         ? `Viewing: ${clinicianData?.patient_name || selectedPatientId}`
@@ -150,7 +150,7 @@ export function RightPanel({
                       : ''}
                   </p>
                 </div>
-                <button onClick={handleClose} className="p-2 rounded-lg transition-colors" style={{ color: theme.colors.muted }} aria-label="Close panel">
+                <button onClick={handleClose} className="p-2 rounded-[9px] transition-colors" style={{ color: theme.colors.muted }} aria-label="Close panel">
                   {isPractitionerMode ? <PanelRightClose className="h-5 w-5" /> : <X className="h-5 w-5" />}
                 </button>
               </div>
@@ -188,7 +188,7 @@ export function RightPanel({
                         />
                       </>
                     ) : (
-                      <p className="text-sm text-center py-8" style={{ color: theme.colors.muted }}>
+                      <p className="t-lead text-center py-8" style={{ color: theme.colors.muted }}>
                         Select a patient to view details
                       </p>
                     )}

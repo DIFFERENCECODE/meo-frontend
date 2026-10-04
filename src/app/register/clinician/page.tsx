@@ -39,14 +39,14 @@ interface Form {
 const EMPTY: Form = { fullName: '', profBody: '', regNumber: '', specialties: [], clinicName: '', clinicAddress: '', website: '', bio: '', reasonForJoining: '' };
 
 // ── Shared input style ──────────────────────────────────────────────────────
-const inputBase = "w-full rounded-lg border px-3.5 py-2.5 text-sm outline-none bg-white transition-colors";
-const iS = { borderColor: '#e5e7eb', color: '#111827', fontSize: '16px' };
+const inputBase = "w-full rounded-lg border px-3.5 py-2.5 text-sm outline-none transition-colors";
+const iS = { borderColor: 'rgba(255,255,255,0.14)', color: '#ffffff', background: 'rgba(0,0,0,0.26)', fontSize: '16px' };
 const onFocus = (e: React.FocusEvent<any>) => (e.currentTarget.style.borderColor = '#a4d65e');
-const onBlur  = (e: React.FocusEvent<any>) => (e.currentTarget.style.borderColor = '#e5e7eb');
+const onBlur  = (e: React.FocusEvent<any>) => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.14)');
 
 function Label({ text, required }: { text: string; required?: boolean }) {
   return (
-    <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>
+    <label className="block text-sm font-medium mb-1.5" style={{ color: '#c3d0d0' }}>
       {text}{required && <span style={{ color: '#a4d65e' }}> *</span>}
     </label>
   );
@@ -259,11 +259,11 @@ export default function ClinicianRegisterPage() {
   };
 
   if (redirecting) return (
-    <div className="min-h-screen flex items-center justify-center bg-white">
+    <div className="min-h-screen flex items-center justify-center bg-transparent">
       <div className="text-center space-y-3">
         <Loader2 className="h-9 w-9 mx-auto animate-spin" style={{ color: '#1a3a3a' }} />
-        <p className="text-sm font-medium" style={{ color: '#374151' }}>Redirecting to secure payment…</p>
-        <p className="text-xs" style={{ color: '#9ca3af' }}>£99/month · Cancel any time</p>
+        <p className="text-sm font-medium" style={{ color: '#c3d0d0' }}>Redirecting to secure payment…</p>
+        <p className="text-xs" style={{ color: '#a3b4b4' }}>£99/month · Cancel any time</p>
       </div>
     </div>
   );
@@ -273,13 +273,13 @@ export default function ClinicianRegisterPage() {
   return (
     <div className="min-h-screen flex flex-col">
       {/* Progress bar */}
-      <div className="h-[3px] w-full flex-shrink-0" style={{ background: '#e5e7eb' }}>
+      <div className="h-[3px] w-full flex-shrink-0" style={{ background: 'rgba(255,255,255,0.14)' }}>
         <div className="h-full transition-all duration-500" style={{ width: `${progress}%`, background: '#a4d65e' }} />
       </div>
 
       <div className="flex flex-1">
         {/* ── Left: form ─────────────────────────────────────── */}
-        <div className="flex flex-col w-full lg:w-[500px] xl:w-[540px] flex-shrink-0 bg-white px-8 sm:px-12 py-10 min-h-screen lg:min-h-0">
+        <div className="flex flex-col w-full lg:w-[500px] xl:w-[540px] flex-shrink-0 bg-transparent px-8 sm:px-12 py-10 min-h-screen lg:min-h-0">
           {/* Logo — pinned top */}
           <div className="flex items-center gap-2 mb-auto pb-0">
             <div className="flex h-7 w-7 items-center justify-center rounded-md" style={{ background: '#1a3a3a' }}>
@@ -293,11 +293,11 @@ export default function ClinicianRegisterPage() {
           <div className="w-full max-w-sm mx-auto">
 
           {/* Step counter */}
-          <p className="text-xs font-medium mb-3" style={{ color: '#9ca3af' }}>Step {step + 1} of {TOTAL}</p>
+          <p className="text-xs font-medium mb-3" style={{ color: '#a3b4b4' }}>Step {step + 1} of {TOTAL}</p>
 
           {/* Title */}
-          <h1 className="text-2xl font-bold mb-1.5" style={{ color: '#111827' }}>{STEPS[step].title}</h1>
-          <p className="text-sm mb-8" style={{ color: '#6b7280' }}>{STEPS[step].subtitle}</p>
+          <h1 className="text-2xl font-bold mb-1.5" style={{ color: '#ffffff' }}>{STEPS[step].title}</h1>
+          <p className="text-sm mb-8" style={{ color: '#a3b4b4' }}>{STEPS[step].subtitle}</p>
 
           {/* ── Inline OTP auth (shown instead of form when not signed in) ── */}
           {!token && (
@@ -305,10 +305,10 @@ export default function ClinicianRegisterPage() {
               {authScreen === 'email' ? (
                 <form onSubmit={sendOtp} className="flex flex-col gap-4 max-w-sm">
                   <div>
-                    <p className="text-sm mb-4" style={{ color: '#6b7280' }}>
+                    <p className="text-sm mb-4" style={{ color: '#a3b4b4' }}>
                       Create your account to continue your application. We'll send a verification code to your email.
                     </p>
-                    <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>Email address</label>
+                    <label className="block text-sm font-medium mb-1.5" style={{ color: '#c3d0d0' }}>Email address</label>
                     <input
                       type="email" value={authEmail} onChange={e => setAuthEmail(e.target.value)}
                       placeholder="you@example.com" autoFocus
@@ -324,21 +324,21 @@ export default function ClinicianRegisterPage() {
                 </form>
               ) : (
                 <form onSubmit={verifyOtp} className="flex flex-col gap-4 max-w-sm">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-full mb-1" style={{ background: '#f0fdf4' }}>
+                  <div className="flex h-11 w-11 items-center justify-center rounded-full mb-1" style={{ background: 'rgba(164,214,94,0.15)' }}>
                     <Mail className="h-5 w-5" style={{ color: '#16a34a' }} />
                   </div>
                   <div>
-                    <p className="text-sm mb-4" style={{ color: '#6b7280' }}>
-                      Enter the 6-digit code sent to <span className="font-medium" style={{ color: '#111827' }}>{authEmail}</span>
+                    <p className="text-sm mb-4" style={{ color: '#a3b4b4' }}>
+                      Enter the 6-digit code sent to <span className="font-medium" style={{ color: '#ffffff' }}>{authEmail}</span>
                     </p>
                     <input
                       type="text" inputMode="numeric" pattern="[0-9]{6}" maxLength={6}
                       value={authOtp} onChange={e => setAuthOtp(e.target.value.replace(/\D/g, ''))}
                       placeholder="000000" autoFocus suppressHydrationWarning
                       className="w-full rounded-lg border px-3.5 py-3 text-2xl font-bold tracking-[0.4em] text-center outline-none transition-colors"
-                      style={{ borderColor: '#e5e7eb', color: '#111827' }}
+                      style={{ borderColor: 'rgba(255,255,255,0.14)', color: '#ffffff' }}
                       onFocus={e => (e.currentTarget.style.borderColor = '#a4d65e')}
-                      onBlur={e => (e.currentTarget.style.borderColor = '#e5e7eb')}
+                      onBlur={e => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.14)')}
                     />
                   </div>
                   {authError && <p className="text-xs" style={{ color: '#ef4444' }}>{authError}</p>}
@@ -348,7 +348,7 @@ export default function ClinicianRegisterPage() {
                     {authLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <>Verify & continue <ArrowRight className="h-4 w-4" /></>}
                   </button>
                   <button type="button" onClick={() => { setAuthScreen('email'); setAuthOtp(''); setAuthError(''); }}
-                    className="text-xs underline" style={{ color: '#9ca3af' }}>
+                    className="text-xs underline" style={{ color: '#a3b4b4' }}>
                     ← Use a different email
                   </button>
                 </form>
@@ -377,7 +377,7 @@ export default function ClinicianRegisterPage() {
                 <div>
                   <Label text="Registration body" required />
                   <select value={form.profBody} onChange={e => set('profBody', e.target.value)}
-                    className={inputBase + ' appearance-none'} style={{ ...iS, color: form.profBody ? '#111827' : '#9ca3af' }}
+                    className={inputBase + ' appearance-none'} style={{ ...iS, color: form.profBody ? '#ffffff' : '#a3b4b4' }}
                     onFocus={onFocus} onBlur={onBlur}>
                     <option value="">Select your registration body…</option>
                     {PROF_BODIES.map(b => <option key={b} value={b}>{b}</option>)}
@@ -394,14 +394,14 @@ export default function ClinicianRegisterPage() {
             {step === 2 && (
               <div>
                 <Label text="Select your specialties" required />
-                <p className="text-xs mb-3" style={{ color: '#9ca3af' }}>Choose all that apply</p>
+                <p className="text-xs mb-3" style={{ color: '#a3b4b4' }}>Choose all that apply</p>
                 <div className="flex flex-wrap gap-2">
                   {SPECIALTIES.map(s => {
                     const active = form.specialties.includes(s);
                     return (
                       <button key={s} type="button" onClick={() => toggleSpec(s)}
                         className="px-3 py-1.5 rounded-full text-xs transition-all font-medium"
-                        style={{ background: active ? '#f0fdf4' : '#f9fafb', border: `1px solid ${active ? '#a4d65e' : '#e5e7eb'}`, color: active ? '#1a3a3a' : '#374151' }}>
+                        style={{ background: active ? 'rgba(164,214,94,0.15)' : 'rgba(255,255,255,0.04)', border: `1px solid ${active ? '#a4d65e' : 'rgba(255,255,255,0.14)'}`, color: active ? '#1a3a3a' : '#c3d0d0' }}>
                         {active && <Check className="inline h-3 w-3 mr-1" />}{s}
                       </button>
                     );
@@ -437,7 +437,7 @@ export default function ClinicianRegisterPage() {
                   <textarea value={form.bio} onChange={e => set('bio', e.target.value)} rows={4}
                     placeholder="Tell patients about your background, approach, and specialisation…"
                     className={inputBase + ' resize-none'} style={iS} onFocus={onFocus} onBlur={onBlur} />
-                  <p className="text-xs mt-1 text-right" style={{ color: form.bio.length >= 50 ? '#a4d65e' : '#9ca3af' }}>
+                  <p className="text-xs mt-1 text-right" style={{ color: form.bio.length >= 50 ? '#a4d65e' : '#a3b4b4' }}>
                     {form.bio.length} / 50 min {form.bio.length >= 50 ? '✓' : ''}
                   </p>
                 </div>
@@ -463,19 +463,19 @@ export default function ClinicianRegisterPage() {
           <div className="mt-8 flex items-center gap-3">
             {step > 0 && (
               <button onClick={() => { setStep(s => s - 1); setError(''); }}
-                className="flex items-center gap-1.5 px-4 py-2.5 rounded-full text-sm font-medium transition-colors hover:bg-gray-100"
-                style={{ border: '1px solid #e5e7eb', color: '#374151' }}>
+                className="flex items-center gap-1.5 px-4 py-2.5 rounded-full text-sm font-medium transition-colors hover:bg-white/5"
+                style={{ border: '1px solid rgba(255,255,255,0.14)', color: '#c3d0d0' }}>
                 <ArrowLeft className="h-4 w-4" /> Back
               </button>
             )}
             <button onClick={next} disabled={submitting}
               className="flex items-center gap-2 px-6 py-2.5 rounded-full text-sm font-semibold transition-opacity hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
-              style={{ background: '#111827', color: '#ffffff' }}>
+              style={{ background: '#ffffff', color: '#ffffff' }}>
               {submitting ? <><Loader2 className="h-4 w-4 animate-spin" /> Processing…</> : step === TOTAL - 1 ? <>Pay £99/month <ArrowRight className="h-4 w-4" /></> : <>Continue <ArrowRight className="h-4 w-4" /></>}
             </button>
           </div>
 
-          <p className="mt-4 text-xs" style={{ color: '#9ca3af' }}>
+          <p className="mt-4 text-xs" style={{ color: '#a3b4b4' }}>
             {step === TOTAL - 1 ? 'Secure payment via Stripe. Cancel any time.' : `${TOTAL - step - 1} step${TOTAL - step - 1 !== 1 ? 's' : ''} remaining`}
           </p>
           </>}

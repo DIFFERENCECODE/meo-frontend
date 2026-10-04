@@ -612,9 +612,9 @@ function MeOAppInner() {
       <div className="min-h-screen flex items-center justify-center" style={{ background: colors.background }}>
         <div className="text-center">
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full animate-spin" style={{ background: colors.primary }}>
-            <span className="text-2xl font-bold" style={{ color: colors.primaryForeground }}>M</span>
+            <span className="t-head font-bold" style={{ color: colors.primaryForeground }}>M</span>
           </div>
-          <p className="text-sm animate-pulse" style={{ color: colors.muted }}>Loading...</p>
+          <p className="t-lead animate-pulse" style={{ color: colors.muted }}>Loading...</p>
         </div>
       </div>
     );
@@ -635,7 +635,7 @@ function MeOAppInner() {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: colors.background }}>
         <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full animate-spin" style={{ background: colors.primary }}>
-          <span className="text-2xl font-bold" style={{ color: colors.primaryForeground }}>M</span>
+          <span className="t-head font-bold" style={{ color: colors.primaryForeground }}>M</span>
         </div>
       </div>
     );
@@ -667,20 +667,20 @@ function MeOAppInner() {
           </div>
           <div>
             <h2 className="text-lg font-bold" style={{ color: colors.foreground }}>One step left</h2>
-            <p className="text-sm mt-2" style={{ color: colors.muted }}>
+            <p className="t-lead mt-2" style={{ color: colors.muted }}>
               Your application has been received. Complete your £99/month subscription to unlock the Clinician Portal instantly.
             </p>
           </div>
           <button
             onClick={handleSubscribeNow}
-            className="w-full py-3 rounded-xl text-sm font-semibold"
+            className="w-full py-3 rounded-[10px] t-lead font-semibold"
             style={{ background: colors.primary, color: colors.primaryForeground }}
           >
             Subscribe & Activate — £99/month
           </button>
           <button
             onClick={handleLogout}
-            className="w-full py-2.5 rounded-xl text-sm font-medium"
+            className="w-full py-2.5 rounded-[10px] t-lead font-medium"
             style={{ background: 'rgba(255,255,255,0.07)', border: `1px solid ${colors.cardBorder}`, color: colors.muted }}
           >
             Sign Out
@@ -696,7 +696,7 @@ function MeOAppInner() {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: colors.background }}>
         <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full animate-spin" style={{ background: colors.primary }}>
-          <span className="text-2xl font-bold" style={{ color: colors.primaryForeground }}>M</span>
+          <span className="t-head font-bold" style={{ color: colors.primaryForeground }}>M</span>
         </div>
       </div>
     );
@@ -708,7 +708,7 @@ function MeOAppInner() {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: colors.background }}>
         <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full animate-spin" style={{ background: colors.primary }}>
-          <span className="text-2xl font-bold" style={{ color: colors.primaryForeground }}>M</span>
+          <span className="t-head font-bold" style={{ color: colors.primaryForeground }}>M</span>
         </div>
       </div>
     );

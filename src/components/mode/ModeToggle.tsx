@@ -26,7 +26,7 @@ export function ModeToggle({ className }: ModeToggleProps) {
 
   return (
     <div
-      className={`flex rounded-xl p-1 ${className || ''}`}
+      className={`flex rounded-[10px] p-1 ${className || ''}`}
       style={{ backgroundColor: theme.colors.accent }}
     >
       {modeOptions.map((option) => {
@@ -37,7 +37,7 @@ export function ModeToggle({ className }: ModeToggleProps) {
           <button
             key={option.id}
             onClick={() => setMode(option.id)}
-            className="relative flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors"
+            className="relative flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-[9px] t-lead font-medium transition-colors"
             style={{
               color: isActive ? theme.colors.primaryForeground : theme.colors.muted,
             }}
@@ -45,7 +45,7 @@ export function ModeToggle({ className }: ModeToggleProps) {
             {isActive && (
               <motion.div
                 layoutId="modeToggle"
-                className="absolute inset-0 rounded-lg"
+                className="absolute inset-0 rounded-[9px]"
                 style={{ backgroundColor: theme.colors.primary }}
                 transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
               />

@@ -125,7 +125,7 @@ export function AppShell({
 
           {rightPanel && (
             <aside
-              className="hidden lg:flex w-[360px] flex-none flex-col overflow-auto border-l"
+              className="hidden lg:flex w-[372px] flex-none flex-col overflow-auto border-l"
               style={{ borderColor: colors.cardBorder, backgroundColor: 'rgba(16,38,38,0.45)' }}
             >
               {rightPanel}

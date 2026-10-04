@@ -229,7 +229,7 @@ export default function ActivityPage() {
           <div className="mb-8">
             <Link
               href="/"
-              className="inline-flex items-center gap-2 mb-4 text-sm hover:underline"
+              className="inline-flex items-center gap-2 mb-4 t-lead hover:underline"
               style={{ color: colors.muted }}
             >
               <ArrowLeft className="h-4 w-4" />
@@ -248,12 +248,12 @@ export default function ActivityPage() {
                 </div>
                 <div>
                   <h1
-                    className="text-2xl font-bold"
+                    className="t-head font-bold"
                     style={{ color: colors.foreground }}
                   >
                     Recent Activity
                   </h1>
-                  <p className="text-sm" style={{ color: colors.muted }}>
+                  <p className="t-lead" style={{ color: colors.muted }}>
                     Your measurement history
                   </p>
                 </div>
@@ -261,7 +261,7 @@ export default function ActivityPage() {
               <button
                 onClick={loadActivity}
                 disabled={loading}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                className="flex items-center gap-2 px-4 py-2 rounded-[9px] t-lead font-medium transition-colors"
                 style={{
                   background: colors.card,
                   color: colors.foreground,
@@ -287,10 +287,10 @@ export default function ActivityPage() {
                   borderColor: colors.cardBorder,
                 }}
               >
-                <p className="text-xs uppercase tracking-wide mb-1" style={{ color: colors.muted }}>
+                <p className="t-body2 uppercase tracking-wide mb-1" style={{ color: colors.muted }}>
                   Total Measurements
                 </p>
-                <p className="text-2xl font-bold" style={{ color: colors.foreground }}>
+                <p className="t-head font-bold" style={{ color: colors.foreground }}>
                   {measurements.length}
                 </p>
               </div>
@@ -301,10 +301,10 @@ export default function ActivityPage() {
                   borderColor: colors.cardBorder,
                 }}
               >
-                <p className="text-xs uppercase tracking-wide mb-1" style={{ color: colors.muted }}>
+                <p className="t-body2 uppercase tracking-wide mb-1" style={{ color: colors.muted }}>
                   Unique Metrics
                 </p>
-                <p className="text-2xl font-bold" style={{ color: colors.foreground }}>
+                <p className="t-head font-bold" style={{ color: colors.foreground }}>
                   {new Set(measurements.map((m) => m.name)).size}
                 </p>
               </div>
@@ -315,10 +315,10 @@ export default function ActivityPage() {
                   borderColor: colors.cardBorder,
                 }}
               >
-                <p className="text-xs uppercase tracking-wide mb-1" style={{ color: colors.muted }}>
+                <p className="t-body2 uppercase tracking-wide mb-1" style={{ color: colors.muted }}>
                   Latest
                 </p>
-                <p className="text-2xl font-bold" style={{ color: colors.foreground }}>
+                <p className="t-head font-bold" style={{ color: colors.foreground }}>
                   {new Date(measurements[0].time).toLocaleDateString(undefined, {
                     month: 'short',
                     day: 'numeric',
@@ -338,7 +338,7 @@ export default function ActivityPage() {
                   borderTopColor: colors.primary,
                 }}
               />
-              <p className="mt-4 text-sm" style={{ color: colors.muted }}>
+              <p className="mt-4 t-lead" style={{ color: colors.muted }}>
                 Loading your measurements...
               </p>
             </div>
@@ -350,7 +350,7 @@ export default function ActivityPage() {
                 borderColor: colors.cardBorder,
               }}
             >
-              <p className="text-sm" style={{ color: colors.error || '#ef4444' }}>
+              <p className="t-lead" style={{ color: colors.error || '#ef4444' }}>
                 {error}
               </p>
             </div>
@@ -369,7 +369,7 @@ export default function ActivityPage() {
               <h2 className="text-lg font-semibold mb-2" style={{ color: colors.foreground }}>
                 No measurements yet
               </h2>
-              <p className="text-sm" style={{ color: colors.muted }}>
+              <p className="t-lead" style={{ color: colors.muted }}>
                 Your measurement history will appear here once you start tracking.
               </p>
             </div>
@@ -378,7 +378,7 @@ export default function ActivityPage() {
               {Object.entries(grouped).map(([date, items]) => (
                 <div key={date}>
                   <h2
-                    className="text-xs font-semibold uppercase tracking-wider mb-3 sticky top-0 py-2"
+                    className="t-body2 font-semibold uppercase tracking-wider mb-3 sticky top-0 py-2"
                     style={{ color: colors.muted, background: colors.background }}
                   >
                     {date}
@@ -408,7 +408,7 @@ export default function ActivityPage() {
                       return (
                         <div
                           key={i}
-                          className="flex items-center gap-3 px-5 py-3 transition-colors hover:bg-white/5"
+                          className="flex items-center gap-3 px-5 py-3 transition-colors hover:bg-transparent/5"
                           style={{
                             borderBottom:
                               i < items.length - 1
@@ -444,7 +444,7 @@ export default function ActivityPage() {
                                       unit: found?.unit || editDraft.unit,
                                     });
                                   }}
-                                  className="col-span-4 rounded px-2 py-1 text-sm font-medium outline-none"
+                                  className="col-span-4 rounded px-2 py-1 t-lead font-medium outline-none"
                                   style={inputStyle}
                                 >
                                   {COMMON_ANALYTES.map((a) => (
@@ -464,7 +464,7 @@ export default function ActivityPage() {
                                       value: parseFloat(e.target.value) || 0,
                                     })
                                   }
-                                  className="col-span-3 rounded px-2 py-1 text-sm font-semibold outline-none"
+                                  className="col-span-3 rounded px-2 py-1 t-lead font-semibold outline-none"
                                   style={{ ...inputStyle, color: colors.primary }}
                                 />
                                 <input
@@ -473,7 +473,7 @@ export default function ActivityPage() {
                                   onChange={(e) =>
                                     setEditDraft({ ...editDraft, unit: e.target.value })
                                   }
-                                  className="col-span-2 rounded px-2 py-1 text-sm outline-none"
+                                  className="col-span-2 rounded px-2 py-1 t-lead outline-none"
                                   style={inputStyle}
                                 />
                                 <input
@@ -485,7 +485,7 @@ export default function ActivityPage() {
                                       time: e.target.value + ':00Z',
                                     })
                                   }
-                                  className="col-span-3 rounded px-2 py-1 text-xs outline-none"
+                                  className="col-span-3 rounded px-2 py-1 t-body2 outline-none"
                                   style={inputStyle}
                                 />
                               </div>
@@ -493,7 +493,7 @@ export default function ActivityPage() {
                                 <button
                                   onClick={() => saveEdit(m)}
                                   disabled={isBusy}
-                                  className="p-2 rounded transition-colors hover:bg-white/5"
+                                  className="p-2 rounded transition-colors hover:bg-transparent/5"
                                   style={{ color: colors.primary }}
                                   aria-label="Save"
                                   title="Save"
@@ -507,7 +507,7 @@ export default function ActivityPage() {
                                 <button
                                   onClick={cancelEdit}
                                   disabled={isBusy}
-                                  className="p-2 rounded transition-colors hover:bg-white/5"
+                                  className="p-2 rounded transition-colors hover:bg-transparent/5"
                                   style={{ color: colors.muted }}
                                   aria-label="Cancel"
                                   title="Cancel"
@@ -520,12 +520,12 @@ export default function ActivityPage() {
                             <>
                               <div className="min-w-0 flex-1">
                                 <p
-                                  className="text-sm font-medium truncate"
+                                  className="t-lead font-medium truncate"
                                   style={{ color: colors.foreground }}
                                 >
                                   {m.name}
                                 </p>
-                                <p className="text-xs mt-0.5" style={{ color: colors.muted }}>
+                                <p className="t-body2 mt-0.5" style={{ color: colors.muted }}>
                                   {time}
                                 </p>
                               </div>
@@ -536,7 +536,7 @@ export default function ActivityPage() {
                                 >
                                   {typeof m.value === 'number' ? m.value.toFixed(2) : m.value}
                                 </p>
-                                <p className="text-xs" style={{ color: colors.muted }}>
+                                <p className="t-body2" style={{ color: colors.muted }}>
                                   {m.unit}
                                 </p>
                               </div>
@@ -544,7 +544,7 @@ export default function ActivityPage() {
                                 <button
                                   onClick={() => startEdit(m)}
                                   disabled={isBusy}
-                                  className="p-2 rounded transition-colors hover:bg-white/5"
+                                  className="p-2 rounded transition-colors hover:bg-transparent/5"
                                   style={{ color: colors.muted }}
                                   aria-label="Edit"
                                   title="Edit"
@@ -554,7 +554,7 @@ export default function ActivityPage() {
                                 <button
                                   onClick={() => deleteMeasurement(m)}
                                   disabled={isBusy}
-                                  className="p-2 rounded transition-colors hover:bg-white/5"
+                                  className="p-2 rounded transition-colors hover:bg-transparent/5"
                                   style={{ color: '#ef4444' }}
                                   aria-label="Delete"
                                   title="Delete"

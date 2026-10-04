@@ -59,13 +59,13 @@ export function AskBar({ placeholder = 'Ask MeO…', context }: AskBarProps) {
         value={value}
         onChange={(e) => setValue(e.target.value)}
         placeholder={placeholder}
-        className="flex-1 bg-transparent text-sm outline-none py-2"
+        className="flex-1 bg-transparent t-lead outline-none py-2"
         style={{ color: colors.foreground }}
       />
       <button
         type="button"
         aria-label="Voice mode"
-        className="h-9 w-9 rounded-xl flex items-center justify-center transition-colors"
+        className="h-9 w-9 rounded-[10px] flex items-center justify-center transition-colors"
         style={{ backgroundColor: colors.accent }}
       >
         <Mic className="h-4 w-4" style={{ color: colors.foreground }} />
@@ -73,7 +73,7 @@ export function AskBar({ placeholder = 'Ask MeO…', context }: AskBarProps) {
       <button
         type="submit"
         aria-label="Send"
-        className="h-9 w-9 rounded-xl flex items-center justify-center transition-colors"
+        className="h-9 w-9 rounded-[10px] flex items-center justify-center transition-colors"
         style={{ backgroundColor: colors.primary }}
       >
         <SendHorizontal className="h-4 w-4" style={{ color: colors.primaryForeground }} />

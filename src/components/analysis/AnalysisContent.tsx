@@ -336,16 +336,16 @@ export function AnalysisContent({ graphData: graphDataProp }: AnalysisContentPro
       {/* Header */}
       <div className="flex justify-between items-start">
         <div>
-          <h1 className="text-2xl font-bold" style={{ color: theme.colors.foreground }}>
+          <h1 className="t-head font-bold" style={{ color: theme.colors.foreground }}>
             Metabolic Analysis
           </h1>
-          <p className="text-sm" style={{ color: theme.colors.muted }}>
+          <p className="t-lead" style={{ color: theme.colors.muted }}>
             Based on your latest data
           </p>
           <button
             onClick={handleDownloadReport}
             disabled={downloading}
-            className="mt-3 flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all disabled:opacity-60"
+            className="mt-3 flex items-center gap-2 px-4 py-2 rounded-[9px] t-lead font-medium transition-all disabled:opacity-60"
             style={{
               backgroundColor: theme.colors.primary,
               color: theme.colors.primaryForeground,
@@ -359,7 +359,7 @@ export function AnalysisContent({ graphData: graphDataProp }: AnalysisContentPro
         </div>
         <div className="flex items-center gap-4">
           <div className="text-right">
-            <p className="text-xs" style={{ color: theme.colors.muted }}>
+            <p className="t-body2" style={{ color: theme.colors.muted }}>
               Risk Score
             </p>
             <p className="text-3xl font-bold text-orange-500">{hasRealData ? riskScore : '—'}</p>
@@ -380,7 +380,7 @@ export function AnalysisContent({ graphData: graphDataProp }: AnalysisContentPro
 
       {/* Kraft Curve Card */}
       <div
-        className="rounded-xl border p-6"
+        className="rounded-[10px] border p-6"
         style={{
           backgroundColor: theme.colors.card,
           borderColor: theme.colors.cardBorder,
@@ -391,14 +391,14 @@ export function AnalysisContent({ graphData: graphDataProp }: AnalysisContentPro
             <h2 className="text-xl font-bold" style={{ color: theme.colors.foreground }}>
               Kraft Curve Analysis
             </h2>
-            <p className="text-sm" style={{ color: theme.colors.muted }}>
+            <p className="t-lead" style={{ color: theme.colors.muted }}>
               5-Hour Glucose Tolerance Test
             </p>
           </div>
           <button
             onClick={handleDownloadReport}
             disabled={downloading}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium transition-all disabled:opacity-60"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-full t-body2 font-medium transition-all disabled:opacity-60"
             style={{
               backgroundColor: `${theme.colors.primary}15`,
               color: theme.colors.primary,
@@ -421,8 +421,8 @@ export function AnalysisContent({ graphData: graphDataProp }: AnalysisContentPro
                 type: 'category',
                 data: data.map((d) => d.time),
                 boundaryGap: false,
-                axisLine: { lineStyle: { color: '#374151' } },
-                axisLabel: { color: '#9ca3af', fontSize: 12 },
+                axisLine: { lineStyle: { color: '#c3d0d0' } },
+                axisLabel: { color: '#a3b4b4', fontSize: 12 },
               },
               yAxis: [
                 {
@@ -434,7 +434,7 @@ export function AnalysisContent({ graphData: graphDataProp }: AnalysisContentPro
                   position: 'left',
                   axisLine: { show: true, lineStyle: { color: '#3b82f6' } },
                   axisLabel: { color: '#3b82f6', fontSize: 12 },
-                  splitLine: { lineStyle: { color: '#374151', opacity: 0.3, type: 'dashed' } },
+                  splitLine: { lineStyle: { color: '#c3d0d0', opacity: 0.3, type: 'dashed' } },
                 },
                 {
                   type: 'value',
@@ -449,11 +449,11 @@ export function AnalysisContent({ graphData: graphDataProp }: AnalysisContentPro
               ],
               tooltip: {
                 trigger: 'axis',
-                backgroundColor: '#1f2937',
-                borderColor: '#374151',
+                backgroundColor: '#ffffff',
+                borderColor: '#c3d0d0',
                 textStyle: { color: '#fff' },
               },
-              legend: { data: ['glucose', 'insulin'], bottom: 10, textStyle: { color: '#9ca3af' }, icon: 'circle' },
+              legend: { data: ['glucose', 'insulin'], bottom: 10, textStyle: { color: '#a3b4b4' }, icon: 'circle' },
               dataset: { source: data },
               series: [
                 {
@@ -496,7 +496,7 @@ export function AnalysisContent({ graphData: graphDataProp }: AnalysisContentPro
           ].map((metric, i) => (
             <div
               key={i}
-              className="rounded-lg p-4 border"
+              className="rounded-[9px] p-4 border"
               style={{
                 backgroundColor: theme.colors.accent,
                 borderColor: theme.colors.cardBorder,
@@ -505,7 +505,7 @@ export function AnalysisContent({ graphData: graphDataProp }: AnalysisContentPro
               <p className="text-3xl font-bold" style={{ color: metric.color }}>
                 {metric.value}
               </p>
-              <p className="text-xs" style={{ color: theme.colors.muted }}>
+              <p className="t-body2" style={{ color: theme.colors.muted }}>
                 {metric.label}
               </p>
             </div>

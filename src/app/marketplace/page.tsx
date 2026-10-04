@@ -40,13 +40,13 @@ function BookingModal({ therapist, onClose }: BookingModalProps) {
         >
           <CheckCircle2 className="h-14 w-14 mx-auto" style={{ color: colors.primary }} />
           <h2 className="text-xl font-bold" style={{ color: colors.foreground }}>Booking Confirmed</h2>
-          <p className="text-sm" style={{ color: colors.muted }}>
+          <p className="t-lead" style={{ color: colors.muted }}>
             Your session with <strong style={{ color: colors.foreground }}>{therapist.name}</strong> on{' '}
             <strong style={{ color: colors.foreground }}>{day}</strong> at{' '}
             <strong style={{ color: colors.foreground }}>{selectedSlot}</strong> is confirmed.
           </p>
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wide mb-2.5" style={{ color: colors.muted }}>
+            <p className="t-body2 font-semibold uppercase tracking-wide mb-2.5" style={{ color: colors.muted }}>
               Add to Calendar
             </p>
             <div className="flex flex-col gap-2">
@@ -54,7 +54,7 @@ function BookingModal({ therapist, onClose }: BookingModalProps) {
                 href={googleCalendarUrl(ev)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full py-2.5 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 transition-all hover:opacity-80"
+                className="w-full py-2.5 rounded-[10px] font-semibold t-lead flex items-center justify-center gap-2 transition-all hover:opacity-80"
                 style={{ backgroundColor: colors.accent, color: colors.foreground, border: `1px solid ${colors.cardBorder}` }}
               >
                 <Calendar className="h-4 w-4" />
@@ -62,7 +62,7 @@ function BookingModal({ therapist, onClose }: BookingModalProps) {
               </a>
               <button
                 onClick={() => downloadICS(ev)}
-                className="w-full py-2.5 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 transition-all hover:opacity-80"
+                className="w-full py-2.5 rounded-[10px] font-semibold t-lead flex items-center justify-center gap-2 transition-all hover:opacity-80"
                 style={{ backgroundColor: colors.accent, color: colors.foreground, border: `1px solid ${colors.cardBorder}` }}
               >
                 <Calendar className="h-4 w-4" />
@@ -72,7 +72,7 @@ function BookingModal({ therapist, onClose }: BookingModalProps) {
                 href={outlookCalendarUrl(ev)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full py-2.5 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 transition-all hover:opacity-80"
+                className="w-full py-2.5 rounded-[10px] font-semibold t-lead flex items-center justify-center gap-2 transition-all hover:opacity-80"
                 style={{ backgroundColor: colors.accent, color: colors.foreground, border: `1px solid ${colors.cardBorder}` }}
               >
                 <Calendar className="h-4 w-4" />
@@ -82,7 +82,7 @@ function BookingModal({ therapist, onClose }: BookingModalProps) {
           </div>
           <button
             onClick={onClose}
-            className="w-full py-3 rounded-xl font-semibold text-sm"
+            className="w-full py-3 rounded-[10px] font-semibold t-lead"
             style={{ backgroundColor: colors.primary, color: colors.primaryForeground }}
           >
             Done
@@ -104,14 +104,14 @@ function BookingModal({ therapist, onClose }: BookingModalProps) {
             <img
               src={therapist.image}
               alt={therapist.name}
-              className="w-10 h-10 rounded-xl object-cover flex-shrink-0"
+              className="w-10 h-10 rounded-[10px] object-cover flex-shrink-0"
             />
             <div>
-              <p className="font-bold text-sm" style={{ color: colors.foreground }}>{therapist.name}</p>
-              <p className="text-xs" style={{ color: colors.muted }}>£{therapist.pricePerSession} · {therapist.sessionLength} min</p>
+              <p className="font-bold t-lead" style={{ color: colors.foreground }}>{therapist.name}</p>
+              <p className="t-body2" style={{ color: colors.muted }}>£{therapist.pricePerSession} · {therapist.sessionLength} min</p>
             </div>
           </div>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-white/10">
+          <button onClick={onClose} className="p-1.5 rounded-[9px] hover:bg-transparent/10">
             <X className="h-4 w-4" style={{ color: colors.muted }} />
           </button>
         </div>
@@ -119,19 +119,19 @@ function BookingModal({ therapist, onClose }: BookingModalProps) {
         <div className="px-5 pb-5 space-y-4">
           {/* Day picker */}
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wide mb-2 flex items-center gap-2" style={{ color: colors.muted }}>
+            <p className="t-body2 font-semibold uppercase tracking-wide mb-2 flex items-center gap-2" style={{ color: colors.muted }}>
               <Calendar className="h-3.5 w-3.5" /> Select a day
             </p>
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setDayIndex((i) => Math.max(0, i - 1))}
                 disabled={dayIndex === 0}
-                className="p-1.5 rounded-lg transition-colors hover:bg-white/10 disabled:opacity-30"
+                className="p-1.5 rounded-[9px] transition-colors hover:bg-transparent/10 disabled:opacity-30"
               >
                 <ChevronLeft className="h-4 w-4" style={{ color: colors.muted }} />
               </button>
               <div
-                className="flex-1 text-center py-2 rounded-xl text-sm font-semibold"
+                className="flex-1 text-center py-2 rounded-[10px] t-lead font-semibold"
                 style={{ backgroundColor: colors.accent, color: colors.foreground }}
               >
                 {day}
@@ -139,7 +139,7 @@ function BookingModal({ therapist, onClose }: BookingModalProps) {
               <button
                 onClick={() => setDayIndex((i) => Math.min(SLOT_DAYS.length - 1, i + 1))}
                 disabled={dayIndex === SLOT_DAYS.length - 1}
-                className="p-1.5 rounded-lg transition-colors hover:bg-white/10 disabled:opacity-30"
+                className="p-1.5 rounded-[9px] transition-colors hover:bg-transparent/10 disabled:opacity-30"
               >
                 <ChevronRight className="h-4 w-4" style={{ color: colors.muted }} />
               </button>
@@ -148,7 +148,7 @@ function BookingModal({ therapist, onClose }: BookingModalProps) {
 
           {/* Time slots */}
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wide mb-2 flex items-center gap-2" style={{ color: colors.muted }}>
+            <p className="t-body2 font-semibold uppercase tracking-wide mb-2 flex items-center gap-2" style={{ color: colors.muted }}>
               <Clock className="h-3.5 w-3.5" /> Available times
             </p>
             <div className="grid grid-cols-4 gap-2">
@@ -156,7 +156,7 @@ function BookingModal({ therapist, onClose }: BookingModalProps) {
                 <button
                   key={slot}
                   onClick={() => setSelectedSlot(slot)}
-                  className="py-2 rounded-xl text-xs font-semibold transition-all"
+                  className="py-2 rounded-[10px] t-body2 font-semibold transition-all"
                   style={{
                     backgroundColor: selectedSlot === slot ? colors.primary : colors.accent,
                     color: selectedSlot === slot ? colors.primaryForeground : colors.foreground,
@@ -171,7 +171,7 @@ function BookingModal({ therapist, onClose }: BookingModalProps) {
 
           {/* Note */}
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: colors.muted }}>
+            <p className="t-body2 font-semibold uppercase tracking-wide mb-2" style={{ color: colors.muted }}>
               Note for therapist (optional)
             </p>
             <textarea
@@ -179,7 +179,7 @@ function BookingModal({ therapist, onClose }: BookingModalProps) {
               onChange={(e) => setNote(e.target.value)}
               rows={2}
               placeholder="e.g. I've just had my Kraft test results..."
-              className="w-full rounded-xl px-3 py-2.5 text-sm resize-none outline-none"
+              className="w-full rounded-[10px] px-3 py-2.5 t-lead resize-none outline-none"
               style={{
                 backgroundColor: colors.background,
                 color: colors.foreground,
@@ -191,7 +191,7 @@ function BookingModal({ therapist, onClose }: BookingModalProps) {
           {/* Summary */}
           {selectedSlot && (
             <div
-              className="rounded-xl p-3 text-sm flex items-center justify-between"
+              className="rounded-[10px] p-3 t-lead flex items-center justify-between"
               style={{ backgroundColor: colors.primary + '15', border: `1px solid ${colors.primary}30` }}
             >
               <span style={{ color: colors.muted }}>{day} · {selectedSlot}</span>
@@ -234,7 +234,7 @@ function BookingModal({ therapist, onClose }: BookingModalProps) {
               }
               setConfirmed(true);
             }}
-            className="w-full py-3 rounded-xl font-semibold text-sm transition-all disabled:opacity-40 hover:opacity-90"
+            className="w-full py-3 rounded-[10px] font-semibold t-lead transition-all disabled:opacity-40 hover:opacity-90"
             style={{ backgroundColor: colors.primary, color: colors.primaryForeground }}
           >
             Confirm Booking
@@ -318,9 +318,9 @@ function AIChatPanel({
       >
         <div className="flex items-center gap-2">
           <Sparkles className="h-4 w-4" style={{ color: colors.primary }} />
-          <span className="font-semibold text-sm" style={{ color: colors.foreground }}>Find my therapist</span>
+          <span className="font-semibold t-lead" style={{ color: colors.foreground }}>Find my therapist</span>
         </div>
-        <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-white/10">
+        <button onClick={onClose} className="p-1.5 rounded-[9px] hover:bg-transparent/10">
           <X className="h-4 w-4" style={{ color: colors.muted }} />
         </button>
       </div>
@@ -331,7 +331,7 @@ function AIChatPanel({
           <div key={i}>
             <div className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
               <div
-                className="max-w-[85%] rounded-2xl px-3 py-2 text-sm leading-relaxed"
+                className="max-w-[85%] rounded-2xl px-3 py-2 t-lead leading-relaxed"
                 style={{
                   backgroundColor: m.role === 'user' ? colors.primary : colors.accent,
                   color: m.role === 'user' ? colors.primaryForeground : colors.foreground,
@@ -357,23 +357,23 @@ function AIChatPanel({
                 {m.matches.map((t) => (
                   <div
                     key={t.id}
-                    className="rounded-xl p-3 flex items-center justify-between gap-3"
+                    className="rounded-[10px] p-3 flex items-center justify-between gap-3"
                     style={{ backgroundColor: colors.background, border: `1px solid ${colors.cardBorder}` }}
                   >
                     <div className="flex items-center gap-2 min-w-0">
                       <img
                         src={t.image}
                         alt={t.name}
-                        className="w-8 h-8 rounded-lg object-cover flex-shrink-0"
+                        className="w-8 h-8 rounded-[9px] object-cover flex-shrink-0"
                       />
                       <div className="min-w-0">
-                        <p className="text-xs font-semibold truncate" style={{ color: colors.foreground }}>{t.name}</p>
-                        <p className="text-xs" style={{ color: colors.muted }}>£{t.pricePerSession} · {t.nextAvailable}</p>
+                        <p className="t-body2 font-semibold truncate" style={{ color: colors.foreground }}>{t.name}</p>
+                        <p className="t-body2" style={{ color: colors.muted }}>£{t.pricePerSession} · {t.nextAvailable}</p>
                       </div>
                     </div>
                     <button
                       onClick={() => onBook(t)}
-                      className="px-3 py-1.5 rounded-lg text-xs font-semibold flex-shrink-0"
+                      className="px-3 py-1.5 rounded-[9px] t-body2 font-semibold flex-shrink-0"
                       style={{ backgroundColor: colors.primary, color: colors.primaryForeground }}
                     >
                       Book
@@ -387,7 +387,7 @@ function AIChatPanel({
         {typing && (
           <div className="flex justify-start">
             <div
-              className="rounded-2xl px-4 py-2 text-sm flex items-center gap-1"
+              className="rounded-2xl px-4 py-2 t-lead flex items-center gap-1"
               style={{ backgroundColor: colors.accent, color: colors.muted }}
             >
               <span className="animate-bounce inline-block" style={{ animationDelay: '0ms' }}>·</span>
@@ -412,7 +412,7 @@ function AIChatPanel({
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="e.g. I want to lower my insulin..."
-            className="flex-1 rounded-xl px-3 py-2 text-sm outline-none"
+            className="flex-1 rounded-[10px] px-3 py-2 t-lead outline-none"
             style={{
               backgroundColor: colors.background,
               color: colors.foreground,
@@ -422,7 +422,7 @@ function AIChatPanel({
           <button
             type="submit"
             disabled={!input.trim()}
-            className="p-2 rounded-xl disabled:opacity-40 transition-all"
+            className="p-2 rounded-[10px] disabled:opacity-40 transition-all"
             style={{ backgroundColor: colors.primary, color: colors.primaryForeground }}
           >
             <Send className="h-4 w-4" />
@@ -450,29 +450,29 @@ function TherapistCard({ therapist, onBook }: { therapist: Therapist; onBook: ()
           className="w-14 h-14 rounded-2xl object-cover flex-shrink-0"
         />
         <div className="flex-1 min-w-0">
-          <p className="font-bold text-sm leading-snug" style={{ color: colors.foreground }}>{therapist.name}</p>
-          <p className="text-xs mt-0.5 line-clamp-2" style={{ color: colors.muted }}>{therapist.title}</p>
+          <p className="font-bold t-lead leading-snug" style={{ color: colors.foreground }}>{therapist.name}</p>
+          <p className="t-body2 mt-0.5 line-clamp-2" style={{ color: colors.muted }}>{therapist.title}</p>
           <div className="flex items-center gap-1 mt-1">
             <Star className="h-3 w-3 text-yellow-400 fill-yellow-400" />
-            <span className="text-xs font-semibold" style={{ color: colors.foreground }}>{therapist.rating}</span>
-            <span className="text-xs" style={{ color: colors.muted }}>({therapist.reviews})</span>
+            <span className="t-body2 font-semibold" style={{ color: colors.foreground }}>{therapist.rating}</span>
+            <span className="t-body2" style={{ color: colors.muted }}>({therapist.reviews})</span>
           </div>
         </div>
         <div className="text-right flex-shrink-0">
           <p className="text-base font-bold" style={{ color: colors.primary }}>£{therapist.pricePerSession}</p>
-          <p className="text-xs" style={{ color: colors.muted }}>{therapist.sessionLength} min</p>
+          <p className="t-body2" style={{ color: colors.muted }}>{therapist.sessionLength} min</p>
         </div>
       </div>
 
       {/* Bio */}
-      <p className="text-xs leading-relaxed line-clamp-3" style={{ color: colors.muted }}>{therapist.bio}</p>
+      <p className="t-body2 leading-relaxed line-clamp-3" style={{ color: colors.muted }}>{therapist.bio}</p>
 
       {/* Tags */}
       <div className="flex flex-wrap gap-1.5">
         {therapist.tags.map((tag) => (
           <span
             key={tag}
-            className="px-2 py-0.5 rounded-full text-xs font-medium"
+            className="px-2 py-0.5 rounded-full t-body2 font-medium"
             style={{ backgroundColor: therapist.avatarColor + '20', color: therapist.avatarColor }}
           >
             {tag}
@@ -485,7 +485,7 @@ function TherapistCard({ therapist, onBook }: { therapist: Therapist; onBook: ()
         {therapist.credentials.map((c) => (
           <span
             key={c}
-            className="px-2 py-0.5 rounded text-xs font-medium"
+            className="px-2 py-0.5 rounded t-body2 font-medium"
             style={{ backgroundColor: colors.accent, color: colors.muted, border: `1px solid ${colors.cardBorder}` }}
           >
             {c}
@@ -497,19 +497,19 @@ function TherapistCard({ therapist, onBook }: { therapist: Therapist; onBook: ()
       <div className="flex items-center justify-between mt-auto pt-1 gap-2">
         <div className="flex items-center gap-1.5">
           <div className="w-2 h-2 rounded-full bg-green-400" />
-          <span className="text-xs" style={{ color: colors.muted }}>Next: {therapist.nextAvailable}</span>
+          <span className="t-body2" style={{ color: colors.muted }}>Next: {therapist.nextAvailable}</span>
         </div>
         <div className="flex gap-2">
           <Link
             href={`/marketplace/${therapist.id}`}
-            className="px-3 py-1.5 rounded-xl text-xs font-semibold transition-all hover:opacity-80"
+            className="px-3 py-1.5 rounded-[10px] t-body2 font-semibold transition-all hover:opacity-80"
             style={{ border: `1px solid ${colors.cardBorder}`, color: colors.foreground }}
           >
             Profile
           </Link>
           <button
             onClick={onBook}
-            className="px-4 py-1.5 rounded-xl text-xs font-semibold transition-all hover:opacity-90 active:scale-95"
+            className="px-4 py-1.5 rounded-[10px] t-body2 font-semibold transition-all hover:opacity-90 active:scale-95"
             style={{ backgroundColor: colors.primary, color: colors.primaryForeground }}
           >
             Book
@@ -559,7 +559,7 @@ export default function MarketplacePage() {
       <div className="max-w-7xl mx-auto px-5 py-10 w-full">
         {/* Header */}
         <div className="mb-6">
-          <p className="text-xs font-semibold uppercase tracking-widest mb-1" style={{ color: colors.primary }}>
+          <p className="t-body2 font-semibold uppercase tracking-widest mb-1" style={{ color: colors.primary }}>
             Therapist Marketplace
           </p>
           <div className="flex items-start justify-between gap-4 flex-wrap">
@@ -567,13 +567,13 @@ export default function MarketplacePage() {
               <h1 className="text-3xl font-bold mb-1" style={{ color: colors.foreground }}>
                 Book a Health Session
               </h1>
-              <p className="text-sm" style={{ color: colors.muted }}>
+              <p className="t-lead" style={{ color: colors.muted }}>
                 BANT-registered nutritional therapists specialising in metabolic health — all verified by Meterbolic.
               </p>
             </div>
             <button
               onClick={() => setShowAI(true)}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all hover:opacity-90 flex-shrink-0"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-[10px] t-lead font-semibold transition-all hover:opacity-90 flex-shrink-0"
               style={{ backgroundColor: colors.primary, color: colors.primaryForeground }}
             >
               <Sparkles className="h-4 w-4" />
@@ -586,7 +586,7 @@ export default function MarketplacePage() {
         <div className="flex flex-col sm:flex-row gap-3 mb-6">
           {/* Name / keyword search */}
           <div
-            className="flex items-center gap-2 px-3 py-2 rounded-xl flex-shrink-0 sm:w-64"
+            className="flex items-center gap-2 px-3 py-2 rounded-[10px] flex-shrink-0 sm:w-64"
             style={{ backgroundColor: colors.card, border: `1px solid ${colors.cardBorder}` }}
           >
             <Search className="h-4 w-4 flex-shrink-0" style={{ color: colors.muted }} />
@@ -594,7 +594,7 @@ export default function MarketplacePage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search by name or specialty..."
-              className="flex-1 bg-transparent text-sm outline-none"
+              className="flex-1 bg-transparent t-lead outline-none"
               style={{ color: colors.foreground }}
             />
             {search && (
@@ -610,7 +610,7 @@ export default function MarketplacePage() {
               <button
                 key={f}
                 onClick={() => setFilter(f)}
-                className="px-3 py-1.5 rounded-full text-xs font-medium transition-all whitespace-nowrap"
+                className="px-3 py-1.5 rounded-full t-body2 font-medium transition-all whitespace-nowrap"
                 style={{
                   backgroundColor: filter === f ? colors.primary : colors.accent,
                   color: filter === f ? colors.primaryForeground : colors.muted,
@@ -625,7 +625,7 @@ export default function MarketplacePage() {
 
         {/* Cards — vertical on mobile, grid on larger screens */}
         {filtered.length === 0 ? (
-          <p className="py-12 text-center text-sm" style={{ color: colors.muted }}>
+          <p className="py-12 text-center t-lead" style={{ color: colors.muted }}>
             No therapists match your search. Try a different name or specialty.
           </p>
         ) : (
@@ -649,8 +649,8 @@ export default function MarketplacePage() {
             <div key={item.label} className="flex items-center gap-3">
               <CheckCircle2 className="h-5 w-5 flex-shrink-0" style={{ color: colors.primary }} />
               <div>
-                <p className="text-sm font-semibold" style={{ color: colors.foreground }}>{item.label}</p>
-                <p className="text-xs" style={{ color: colors.muted }}>{item.sub}</p>
+                <p className="t-lead font-semibold" style={{ color: colors.foreground }}>{item.label}</p>
+                <p className="t-body2" style={{ color: colors.muted }}>{item.sub}</p>
               </div>
             </div>
           ))}

@@ -96,7 +96,7 @@ export function BetweenVisits({ patientSessionId, colors }: { patientSessionId: 
                   {r.bas != null ? (
                     <span style={{ fontSize: 12.5, fontWeight: 700, color: '#a4d65e', flexShrink: 0 }}>BAS {r.bas.toFixed(1)}</span>
                   ) : (
-                    <span style={{ fontSize: 11.5, color: '#f0a05a', flexShrink: 0 }}>no score</span>
+                    <span style={{ fontSize: 11.5, color: '#f97316', flexShrink: 0 }}>no score</span>
                   )}
                   <span style={{ fontSize: 11, flexShrink: 0, color: r.captured_by ? 'rgba(255,255,255,.5)' : 'rgba(255,255,255,.3)', fontStyle: r.captured_by ? 'normal' : 'italic' }}>
                     {r.captured_by || 'source not recorded'}
@@ -117,7 +117,7 @@ export function BetweenVisits({ patientSessionId, colors }: { patientSessionId: 
                 <div key={i} style={{ fontSize: 12.5, padding: '5px 0', color: 'rgba(255,255,255,.8)' }}>
                   • {c.commitment || c.category || 'Commitment'}
                   {c.timeframe ? <span style={{ color: 'rgba(255,255,255,.5)' }}> — {c.timeframe}</span> : null}
-                  {c.followed_up ? <span style={{ color: '#a4d65e' }}> · followed up</span> : <span style={{ color: '#f0a05a' }}> · open</span>}
+                  {c.followed_up ? <span style={{ color: '#a4d65e' }}> · followed up</span> : <span style={{ color: '#f97316' }}> · open</span>}
                 </div>
               ))}
             </div>
@@ -146,7 +146,7 @@ export function BetweenVisits({ patientSessionId, colors }: { patientSessionId: 
               frame: say what is missing rather than letting a sparse view read
               as a quiet patient. */}
           {!data.lifestyle_available && (
-            <div style={{ fontSize: 11.5, lineHeight: 1.5, padding: '10px 12px', borderRadius: 8, background: 'rgba(240,160,90,.08)', border: '1px solid rgba(240,160,90,.25)', color: '#f0a05a' }}>
+            <div style={{ fontSize: 11.5, lineHeight: 1.5, padding: '10px 12px', borderRadius: 8, background: 'rgba(249,115,22,.08)', border: '1px solid rgba(249,115,22,.25)', color: '#f97316' }}>
               {data.lifestyle_note} A sparse view here means we cannot see the
               gap, not that nothing happened in it.
             </div>

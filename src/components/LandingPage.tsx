@@ -91,35 +91,36 @@ export default function LandingPage({ onAuthenticated, isExchanging = false }: L
   };
 
   const inputStyle: React.CSSProperties = {
-    borderColor: '#d1d5db', color: '#111827', fontSize: '16px',
+    borderColor: 'rgba(255,255,255,0.14)', color: '#ffffff', fontSize: '16px',
   };
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">
       {/* ── Left panel ─────────────────────────────────────────────── */}
-      <div className="flex flex-col w-full lg:w-[460px] xl:w-[500px] flex-shrink-0 bg-white px-8 sm:px-12 lg:px-14 py-10 justify-between min-h-screen lg:min-h-0">
+      <div className="flex flex-col w-full lg:w-[460px] xl:w-[500px] flex-shrink-0 px-8 sm:px-12 lg:px-14 py-10 justify-between min-h-screen lg:min-h-0"
+        style={{ background: 'rgba(16,38,38,0.72)', borderRight: '1px solid rgba(255,255,255,0.08)' }}>
         {/* Logo */}
         <div className="flex items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg" style={{ background: '#1a3a3a' }}>
             <Activity className="h-4 w-4" style={{ color: '#a4d65e' }} />
           </div>
-          <span className="text-base font-bold tracking-tight" style={{ color: '#1a3a3a' }}>Meterbolic</span>
+          <span className="text-base font-bold tracking-tight" style={{ color: '#ffffff' }}>Meterbolic</span>
         </div>
 
         {/* Form area */}
         <div className="flex-1 flex flex-col justify-center py-10 max-w-sm">
           {isExchanging ? (
             <div className="flex flex-col items-center gap-4 py-12">
-              <Loader2 className="h-10 w-10 animate-spin" style={{ color: '#1a3a3a' }} />
-              <p className="text-sm font-medium" style={{ color: '#374151' }}>Signing you in…</p>
+              <Loader2 className="h-10 w-10 animate-spin" style={{ color: '#a4d65e' }} />
+              <p className="text-sm font-medium" style={{ color: '#c3d0d0' }}>Signing you in…</p>
             </div>
 
           ) : screen === 'email' ? (
             <>
-              <h1 className="text-[1.75rem] font-bold leading-tight" style={{ color: '#111827' }}>
+              <h1 className="text-[1.75rem] font-bold leading-tight" style={{ color: '#ffffff' }}>
                 Welcome to MeO
               </h1>
-              <p className="mt-2 text-sm" style={{ color: '#6b7280' }}>
+              <p className="mt-2 text-sm" style={{ color: '#c3d0d0' }}>
                 Sign in or create a free account to get started.
               </p>
 
@@ -127,8 +128,8 @@ export default function LandingPage({ onAuthenticated, isExchanging = false }: L
               <div className="mt-8 flex flex-col gap-3">
                 <button
                   onClick={() => { window.location.href = getGoogleLoginUrl(); }}
-                  className="w-full flex items-center justify-center gap-3 rounded-lg py-2.5 px-4 text-sm font-semibold transition-colors hover:bg-gray-50"
-                  style={{ border: '1px solid #d1d5db', color: '#111827', background: '#ffffff' }}
+                  className="w-full flex items-center justify-center gap-3 rounded-lg py-2.5 px-4 text-sm font-semibold transition-colors hover:bg-white/5"
+                  style={{ border: '1px solid rgba(255,255,255,0.14)', color: '#ffffff', background: 'rgba(0,0,0,0.26)' }}
                 >
                   <svg width="18" height="18" viewBox="0 0 48 48">
                     <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
@@ -143,9 +144,9 @@ export default function LandingPage({ onAuthenticated, isExchanging = false }: L
 
               {/* Divider */}
               <div className="flex items-center gap-3 my-5">
-                <div className="flex-1 h-px" style={{ background: '#e5e7eb' }} />
-                <span className="text-xs" style={{ color: '#9ca3af' }}>or continue with email</span>
-                <div className="flex-1 h-px" style={{ background: '#e5e7eb' }} />
+                <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.1)' }} />
+                <span className="text-xs" style={{ color: '#a3b4b4' }}>or continue with email</span>
+                <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.1)' }} />
               </div>
 
               <form onSubmit={sendOtp} className="flex flex-col gap-3">
@@ -158,22 +159,22 @@ export default function LandingPage({ onAuthenticated, isExchanging = false }: L
                   className="w-full rounded-lg border px-3.5 py-2.5 text-sm outline-none transition-colors"
                   style={inputStyle}
                   onFocus={(e) => (e.currentTarget.style.borderColor = '#a4d65e')}
-                  onBlur={(e) => (e.currentTarget.style.borderColor = '#d1d5db')}
+                  onBlur={(e) => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.14)')}
                 />
                 {error && <p className="text-xs" style={{ color: '#ef4444' }}>{error}</p>}
                 <button
                   type="submit"
                   disabled={loading}
                   className="w-full flex items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-60"
-                  style={{ background: '#1a3a3a', color: '#ffffff' }}
+                  style={{ background: '#a4d65e', color: '#1a3a3a' }}
                 >
                   {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <>Continue <ArrowRight className="h-4 w-4" /></>}
                 </button>
               </form>
 
-              <p className="mt-5 text-xs text-center" style={{ color: '#9ca3af' }}>
+              <p className="mt-5 text-xs text-center" style={{ color: '#a3b4b4' }}>
                 Are you a clinician?{' '}
-                <a href="/register/clinician" className="underline hover:text-gray-600" style={{ color: '#6b7280' }}>
+                <a href="/register/clinician" className="underline hover:text-[#c3d0d0]" style={{ color: '#c3d0d0' }}>
                   Register your practice
                 </a>
               </p>
@@ -184,20 +185,20 @@ export default function LandingPage({ onAuthenticated, isExchanging = false }: L
               <button
                 onClick={() => { setScreen('email'); setOtp(''); setError(''); }}
                 className="flex items-center gap-1.5 mb-8 text-xs font-medium hover:opacity-70 transition-opacity"
-                style={{ color: '#6b7280' }}
+                style={{ color: '#c3d0d0' }}
               >
                 <ArrowLeft className="h-3.5 w-3.5" /> Back
               </button>
 
-              <div className="flex h-12 w-12 items-center justify-center rounded-full mb-5" style={{ background: '#f0fdf4' }}>
+              <div className="flex h-12 w-12 items-center justify-center rounded-full mb-5" style={{ background: 'rgba(164,214,94,0.15)' }}>
                 <Mail className="h-5 w-5" style={{ color: '#16a34a' }} />
               </div>
 
-              <h1 className="text-[1.75rem] font-bold leading-tight" style={{ color: '#111827' }}>
+              <h1 className="text-[1.75rem] font-bold leading-tight" style={{ color: '#ffffff' }}>
                 Check your email
               </h1>
-              <p className="mt-2 text-sm" style={{ color: '#6b7280' }}>
-                We sent a 6-digit code to <span className="font-medium" style={{ color: '#111827' }}>{email}</span>
+              <p className="mt-2 text-sm" style={{ color: '#c3d0d0' }}>
+                We sent a 6-digit code to <span className="font-medium" style={{ color: '#ffffff' }}>{email}</span>
               </p>
 
               <form onSubmit={verifyOtp} className="mt-8 flex flex-col gap-3">
@@ -212,27 +213,27 @@ export default function LandingPage({ onAuthenticated, isExchanging = false }: L
                   autoFocus
                   suppressHydrationWarning
                   className="w-full rounded-lg border px-3.5 py-3 text-2xl font-bold tracking-[0.4em] text-center outline-none transition-colors"
-                  style={{ borderColor: '#d1d5db', color: '#111827' }}
+                  style={{ borderColor: 'rgba(255,255,255,0.14)', color: '#ffffff' }}
                   onFocus={(e) => (e.currentTarget.style.borderColor = '#a4d65e')}
-                  onBlur={(e) => (e.currentTarget.style.borderColor = '#d1d5db')}
+                  onBlur={(e) => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.14)')}
                 />
                 {error && <p className="text-xs text-center" style={{ color: '#ef4444' }}>{error}</p>}
                 <button
                   type="submit"
                   disabled={loading || otp.length < 6}
                   className="w-full flex items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-60"
-                  style={{ background: '#1a3a3a', color: '#ffffff' }}
+                  style={{ background: '#a4d65e', color: '#1a3a3a' }}
                 >
                   {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <>Verify & sign in <ArrowRight className="h-4 w-4" /></>}
                 </button>
               </form>
 
-              <p className="mt-4 text-xs text-center" style={{ color: '#9ca3af' }}>
+              <p className="mt-4 text-xs text-center" style={{ color: '#a3b4b4' }}>
                 Didn't receive it?{' '}
                 <button
                   onClick={() => { setOtp(''); setError(''); setScreen('email'); }}
-                  className="underline hover:text-gray-600"
-                  style={{ color: '#6b7280' }}
+                  className="underline hover:text-[#c3d0d0]"
+                  style={{ color: '#c3d0d0' }}
                 >
                   Try again
                 </button>
@@ -242,7 +243,7 @@ export default function LandingPage({ onAuthenticated, isExchanging = false }: L
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between text-xs" style={{ color: '#9ca3af' }}>
+        <div className="flex items-center justify-between text-xs" style={{ color: '#a3b4b4' }}>
           <span>© {new Date().getFullYear()} Meterbolic</span>
           <div className="flex gap-4">
             <a href="/privacy" className="hover:underline">Privacy</a>
