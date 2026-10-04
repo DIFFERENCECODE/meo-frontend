@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { AppShell } from '@/components/layout/AppShell';
 import { usePractitionerNotes, PlanLine } from '@/components/record/PractitionerNotes';
 import { useTheme } from '@/theme/ThemeProvider';
+import { ScreenHeader, ScreenBody, Chip } from '@/components/layout/ScreenHeader';
 
 /**
  * My plan — the practitioner's plan, not a generated one.
@@ -23,15 +24,13 @@ function PlanInner() {
   const plan = (notes ?? []).filter((n) => n.kind === 'plan');
 
   return (
-    <div className="w-full px-7 py-8">
-      <header className="mb-6">
-        <h1 className="t-head font-bold">My plan</h1>
-        <p className="t-lead mt-1" style={{ color: colors.muted }}>
-          Written by your practitioner. MeO checks each line against your own
-          data where it can, and says so where it can&apos;t.
-        </p>
-      </header>
-
+    <div className="flex flex-col h-full min-w-0">
+      <ScreenHeader
+        title="My plan"
+        subtitle={plan.length ? 'Set by your practitioner · reviewed at every consult' : 'Written by your practitioner after a consultation'}
+        right={plan.length ? <Chip>{plan.length} lines</Chip> : undefined}
+      />
+      <ScreenBody>
       {state === 'loading' && <p className="t-lead opacity-70">Loading your plan…</p>}
       {state === 'error' && <p className="t-lead opacity-70">Couldn&apos;t load your plan.</p>}
 
@@ -60,6 +59,16 @@ function PlanInner() {
           {plan.map((n) => <PlanLine key={n.id} note={n} />)}
         </ul>
       )}
+
+      {/* The frame's closing line, and the rule it states is the real one:
+          the practitioner sets the plan, MeO only checks it. */}
+      {state === 'ready' && plan.length > 0 && (
+        <p style={{ fontSize: 11.5, color: colors.mutedDim, lineHeight: 1.5, paddingTop: 4 }}>
+          Your practitioner sets the plan. MeO only checks it against what your
+          meter and phone already record — it never writes or changes a line.
+        </p>
+      )}
+      </ScreenBody>
     </div>
   );
 }

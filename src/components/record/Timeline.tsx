@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { FlaskConical, Droplets, Ruler, Circle, Hospital } from 'lucide-react';
 import { useTheme } from '@/theme/ThemeProvider';
+import { ScreenHeader, ScreenBody, Chip } from '@/components/layout/ScreenHeader';
 import { RecordResponse, Reading, CAPTURE_LABEL, fmtDate } from '@/components/record/RecordHome';
 
 /**
@@ -128,14 +129,13 @@ export function Timeline({ record }: { record: RecordResponse }) {
   const shown = filter === 'all' ? readings : readings.filter((r) => r.kind === filter);
 
   return (
-    <div className="w-full px-7 py-8">
-      <header className="mb-5">
-        <h1 className="t-head font-bold">Your timeline</h1>
-        <p className="t-lead mt-1" style={{ color: colors.muted }}>
-          Every reading in one order, each tagged with where it came from.
-        </p>
-      </header>
-
+    <div className="flex flex-col h-full min-w-0">
+      <ScreenHeader
+        title="Your timeline"
+        subtitle="Every reading, every import, every score — in one order"
+        right={<Chip>{readings.length} entries</Chip>}
+      />
+      <ScreenBody gap={10}>
       <div className="flex gap-2 flex-wrap mb-2">
         {FILTERS.map((f) => {
           const active = f.id === filter;
@@ -169,6 +169,7 @@ export function Timeline({ record }: { record: RecordResponse }) {
           ))}
         </ul>
       )}
+      </ScreenBody>
     </div>
   );
 }

@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { ArrowDown, ArrowUp, Minus, TrendingUp, MessageSquare, Lock } from 'lucide-react';
 import { useTheme } from '@/theme/ThemeProvider';
+import { ScreenHeader, ScreenBody } from '@/components/layout/ScreenHeader';
 import {
   RecordResponse,
   LABELS,
@@ -114,21 +115,14 @@ export function ReadingComplete({ record }: { record: RecordResponse }) {
   const capture = latest.captured_by ? CAPTURE_LABEL[latest.captured_by] : null;
 
   return (
-    <div className="w-full px-7 py-8 space-y-5">
-      <header>
-        <p className="t-body2 uppercase tracking-wider mb-1" style={{ color: colors.primary }}>
-          Reading saved
-        </p>
-        <h1 className="t-head font-bold">
-          Reading {record.panel_count}
-        </h1>
-        <p className="t-lead mt-1" style={{ color: colors.muted }}>
-          {fmtDate(latest.date)}
-          {latest.fasted ? ' · fasted' : ''}
-          {capture ? ` · ${capture}` : ''}
-        </p>
-      </header>
-
+    <div className="flex flex-col h-full min-w-0">
+      <ScreenHeader
+        title={`Reading ${record.panel_count} saved`}
+        subtitle={[fmtDate(latest.date), latest.fasted ? 'fasted' : null, capture]
+          .filter(Boolean)
+          .join(' · ')}
+      />
+      <ScreenBody>
       {/* Score. A reading with no score is the common case, not an error state —
           the engine refuses rather than guessing when inputs fall outside the
           range the score is valid over, and saying so is the honest screen. */}
@@ -197,6 +191,7 @@ export function ReadingComplete({ record }: { record: RecordResponse }) {
           <MessageSquare className="h-4 w-4" /> Ask MeO what this means
         </Link>
       </div>
+      </ScreenBody>
     </div>
   );
 }

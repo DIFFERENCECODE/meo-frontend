@@ -11,9 +11,13 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Light mode - medical-grade palette */
-  --background: oklch(0.99 0.005 180);
-  --foreground: oklch(0.2 0.01 240);
+  /* The product has one ground: the brand teal. There is no light surface in
+     the storyboard, and the root used to carry a near-black --foreground that
+     only .dark overrode — so every element that set no colour of its own
+     inherited black text on a dark background. The JS theme already said
+     #ffffff; the CSS disagreed with it. */
+  --background: #2C5858;
+  --foreground: #ffffff;
 
   --medical-bg: oklch(0.98 0.01 180);
   --medical-accent: oklch(0.96 0.02 180);

@@ -78,7 +78,7 @@ export default function DashboardPage() {
     <main style={{ flex: 1, minWidth: 0, overflowY: 'auto', padding: '32px 40px 44px' }}>
 
       {/* Greeting */}
-      <h1 style={{ margin: 0, fontSize: 29, fontWeight: 800, letterSpacing: '-.025em' }}>{greeting}</h1>
+      <h1 style={{ margin: 0, fontSize: 29, fontWeight: 800, letterSpacing: '-.025em', color: '#ffffff' }}>{greeting}</h1>
       <div style={{ marginTop: 7, fontSize: 14, color: 'rgba(255,255,255,.6)' }}>
         {dateStr} · {upcomingBookings.length || 0} sessions booked this week
       </div>
@@ -103,7 +103,7 @@ export default function DashboardPage() {
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.45)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
           </div>
           <div style={{ fontSize: 32, fontWeight: 800, marginTop: 14, lineHeight: 1, color: '#a4d65e' }}>{loading ? '…' : triage.length}</div>
-          <div style={{ fontSize: 13.5, fontWeight: 600, marginTop: 7 }}>Active patients</div>
+          <div style={{ fontSize: 13.5, fontWeight: 600, marginTop: 7, color: '#ffffff' }}>Active patients</div>
           <div style={{ fontSize: 12.5, color: 'rgba(255,255,255,.55)', marginTop: 2 }}>{flagged.length} flagged today</div>
         </div>
 
@@ -119,7 +119,7 @@ export default function DashboardPage() {
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.45)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
           </div>
           <div style={{ fontSize: 32, fontWeight: 800, marginTop: 14, lineHeight: 1, color: '#8b8df6' }}>{listings.length}</div>
-          <div style={{ fontSize: 13.5, fontWeight: 600, marginTop: 7 }}>Listings</div>
+          <div style={{ fontSize: 13.5, fontWeight: 600, marginTop: 7, color: '#ffffff' }}>Listings</div>
           <div style={{ fontSize: 12.5, color: 'rgba(255,255,255,.55)', marginTop: 2 }}>{listings.filter((l) => l.isActive).length} active · {listings.filter((l) => !l.isActive).length} draft</div>
         </div>
 
@@ -135,7 +135,7 @@ export default function DashboardPage() {
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.45)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
           </div>
           <div style={{ fontSize: 32, fontWeight: 800, marginTop: 14, lineHeight: 1, color: '#f5b942' }}>{upcomingBookings.length}</div>
-          <div style={{ fontSize: 13.5, fontWeight: 600, marginTop: 7 }}>Upcoming bookings</div>
+          <div style={{ fontSize: 13.5, fontWeight: 600, marginTop: 7, color: '#ffffff' }}>Upcoming bookings</div>
           <div style={{ fontSize: 12.5, color: 'rgba(255,255,255,.55)', marginTop: 2 }}>
             {nextBooking ? `Next: ${nextBooking.scheduledDate}, ${nextBooking.scheduledTime}` : 'No upcoming sessions'}
           </div>
@@ -145,7 +145,7 @@ export default function DashboardPage() {
       {/* Panel header */}
       <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginTop: 30 }}>
         <div>
-          <h2 style={{ margin: 0, fontSize: 19, fontWeight: 700, letterSpacing: '-.015em' }}>Your Panel</h2>
+          <h2 style={{ margin: 0, fontSize: 19, fontWeight: 700, letterSpacing: '-.015em', color: '#ffffff' }}>Your Panel</h2>
           <div style={{ marginTop: 5, display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
             <span style={{ fontSize: 13.5, color: 'rgba(255,255,255,.6)' }}>
               Sorted by what changed since you last looked
@@ -196,7 +196,7 @@ export default function DashboardPage() {
                 <span style={{ width: 9, height: 9, flexShrink: 0, borderRadius: 999, background: cfg.dot, boxShadow: `0 0 0 4px ${cfg.halo}`, display: 'block' }} />
                 <div style={{ width: 38, height: 38, flexShrink: 0, borderRadius: 999, background: 'rgba(164,214,94,.16)', color: '#a4d65e', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12.5, fontWeight: 700 }}>{inits}</div>
                 <div style={{ minWidth: 0, flex: 1 }}>
-                  <div style={{ fontSize: 14.5, fontWeight: 600 }}>{p.name || 'Anonymous'}</div>
+                  <div style={{ fontSize: 14.5, fontWeight: 600, color: '#ffffff' }}>{p.name || 'Anonymous'}</div>
                   <div style={{ fontSize: 12.5, color: 'rgba(255,255,255,.6)', marginTop: 3 }}>{p.urgency_reason}</div>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>

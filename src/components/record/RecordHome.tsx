@@ -12,6 +12,7 @@ import {
   Minus,
 } from 'lucide-react';
 import { useTheme } from '@/theme/ThemeProvider';
+import { ScreenHeader, ScreenBody, Chip } from '@/components/layout/ScreenHeader';
 import { TrendChart, TrendPoint } from '@/components/analysis/TrendChart';
 
 export interface Reading {
@@ -169,29 +170,16 @@ export function RecordHome({ record, state }: RecordHomeProps) {
 
   return (
     <div className="flex flex-col h-full min-w-0">
-      {/* Header — 20px 28px 0, exactly as drawn. */}
-      <header className="flex items-center justify-between" style={{ padding: '20px 28px 0' }}>
-        <div>
-          <h1 style={{ fontSize: 22, fontWeight: 700, letterSpacing: '-0.01em' }}>{greeting()}</h1>
-          <p style={{ fontSize: 13, color: colors.muted, marginTop: 3 }}>
-            Reading {record.panel_count} · {fmtDate(latest.date)}
-            {latest.fasted ? ' · fasted' : ''}
-          </p>
-        </div>
-        <div className="flex items-center gap-2.5">
-          <span
-            style={{
-              display: 'inline-block', fontSize: 12, fontWeight: 600, color: colors.muted,
-              background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.14)',
-              borderRadius: 999, padding: '5px 12px', whiteSpace: 'nowrap',
-            }}
-          >
+      <ScreenHeader
+        title={greeting()}
+        subtitle={`Reading ${record.panel_count} · ${fmtDate(latest.date)}${latest.fasted ? ' · fasted' : ''}`}
+        right={
+          <Chip>
             {latest.captured_by ? CAPTURE_LABEL[latest.captured_by] : 'capture not recorded'}
-          </span>
-        </div>
-      </header>
-
-      <div className="flex-1 flex flex-col min-h-0" style={{ padding: '18px 28px 0', gap: 14 }}>
+          </Chip>
+        }
+      />
+      <ScreenBody>
         {/* Score card. */}
         <section
           className="flex items-center"
@@ -202,7 +190,7 @@ export function RecordHome({ record, state }: RecordHomeProps) {
             {bas != null ? (
               <>
                 <div className="flex items-baseline" style={{ gap: 14, marginTop: 6 }}>
-                  <div style={{ fontSize: 68, fontWeight: 800, letterSpacing: '-0.045em', lineHeight: 1 }}>
+                  <div style={{ fontSize: 68, fontWeight: 800, letterSpacing: '-0.045em', lineHeight: 1, color: colors.foreground }}>
                     {bas.toFixed(1)}
                   </div>
                   {basDelta != null && (
@@ -263,7 +251,7 @@ export function RecordHome({ record, state }: RecordHomeProps) {
                 }}
               >
                 <div className="flex-1 min-w-0 truncate" style={{ fontSize: 13.5, color: colors.muted }}>{meta.label}</div>
-                <div style={{ fontSize: 13.5, fontWeight: 600, width: 96, textAlign: 'right' }}>
+                <div style={{ fontSize: 13.5, fontWeight: 600, width: 96, textAlign: 'right', color: colors.foreground }}>
                   {d.from} → {d.to}
                 </div>
                 <div style={{ width: 24, textAlign: 'center', fontSize: 13, fontWeight: 800, color: tone }}>
@@ -320,7 +308,7 @@ export function RecordHome({ record, state }: RecordHomeProps) {
               <Check className="h-4 w-4" style={{ color: colors.primary }} />
             </div>
             <div className="flex-1 min-w-0">
-              <div style={{ fontSize: 13.5, fontWeight: 700 }}>Take a reading</div>
+              <div style={{ fontSize: 13.5, fontWeight: 700, color: colors.foreground }}>Take a reading</div>
               <div style={{ fontSize: 12, color: colors.muted }}>Last: {fmtDate(latest.date)}</div>
             </div>
             <ArrowRight className="h-4 w-4" style={{ color: colors.mutedDim }} />
@@ -335,13 +323,13 @@ export function RecordHome({ record, state }: RecordHomeProps) {
               <Clock className="h-4 w-4" style={{ color: colors.primary }} />
             </div>
             <div className="flex-1 min-w-0">
-              <div style={{ fontSize: 13.5, fontWeight: 700 }}>From your practitioner</div>
+              <div style={{ fontSize: 13.5, fontWeight: 700, color: colors.foreground }}>From your practitioner</div>
               <div style={{ fontSize: 12, color: colors.muted }}>Notes and your plan</div>
             </div>
             <ArrowRight className="h-4 w-4" style={{ color: colors.mutedDim }} />
           </Link>
         </div>
-      </div>
+      </ScreenBody>
     </div>
   );
 }

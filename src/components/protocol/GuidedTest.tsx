@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Droplets, FlaskConical, Ruler, Scale, Clock, AlertTriangle } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useTheme } from '@/theme/ThemeProvider';
+import { ScreenHeader, ScreenBody, Chip } from '@/components/layout/ScreenHeader';
 import { ProtocolPanel } from '@/components/layout/ProtocolPanel';
 import { useProtocolSession } from '@/hooks/useProtocolSession';
 
@@ -59,18 +60,14 @@ export function GuidedTest() {
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
-            className="w-full max-w-3xl mx-auto px-5 py-10 overflow-y-auto"
+            className="flex flex-col h-full min-w-0 overflow-y-auto"
           >
-            <header className="mb-8">
-              <p className="t-body2 uppercase tracking-wider mb-2" style={{ color: colors.primary }}>
-                Guided test
-              </p>
-              <h1 className="text-3xl font-bold">Your BAS reading</h1>
-              <p className="t-lead mt-2 max-w-xl" style={{ color: colors.muted }}>
-                Four measurements, about ten minutes. I&apos;ll take them one at a
-                time and check each one before we move on.
-              </p>
-            </header>
+            <ScreenHeader
+              title="Guided BAS test"
+              subtitle="The only at-home test — BAS + lipid panel"
+              right={<Chip>About 10 minutes</Chip>}
+            />
+            <ScreenBody>
 
             {/* The fasting gate is stated before the kit, not after, because it
                 is the one thing that cannot be fixed once the test has begun. */}
@@ -137,8 +134,9 @@ export function GuidedTest() {
             </div>
 
             {note && (
-              <p className="t-body2 mt-6" style={{ color: colors.muted }}>{note}</p>
+              <p className="t-body2" style={{ color: colors.muted }}>{note}</p>
             )}
+            </ScreenBody>
           </motion.div>
         )}
       </AnimatePresence>

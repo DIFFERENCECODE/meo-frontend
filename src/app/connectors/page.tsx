@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { Smartphone, Globe, Hospital, Check, Minus } from 'lucide-react';
 import { AppShell } from '@/components/layout/AppShell';
 import { useTheme } from '@/theme/ThemeProvider';
+import { ScreenHeader, ScreenBody, Chip } from '@/components/layout/ScreenHeader';
 import { getValidIdToken } from '@/app/lib/auth';
 
 /**
@@ -58,14 +59,13 @@ function ConnectorsInner() {
   }, []);
 
   return (
-    <div className="w-full px-7 py-8">
-      <header className="mb-6">
-        <h1 className="t-head font-bold">Connectors</h1>
-        <p className="t-lead mt-1" style={{ color: colors.muted }}>
-          Where your record gets its data, and whether anything has arrived.
-        </p>
-      </header>
-
+    <div className="flex flex-col h-full min-w-0">
+      <ScreenHeader
+        title="Connectors"
+        subtitle="Everything MeO can read from — connections are made in the app"
+        right={sources ? <Chip>{sources.filter((x) => (x.count ?? 0) > 0).length} live</Chip> : undefined}
+      />
+      <ScreenBody>
       {state === 'loading' && <p className="t-lead opacity-70">Checking your sources…</p>}
       {state === 'error' && <p className="t-lead opacity-70">Couldn&apos;t load your connectors.</p>}
 
@@ -112,11 +112,28 @@ function ConnectorsInner() {
             })}
           </ul>
 
-          <p className="t-body2 mt-5 leading-relaxed" style={{ color: colors.muted }}>
-            {note}
-          </p>
+          {/* The frame's explanation, which is the reason this screen is
+              read-only rather than an omission. */}
+          <div
+            style={{ background: colors.card, border: `1px solid ${colors.cardBorder}`, borderRadius: 16, padding: '16px 18px', marginTop: 4 }}
+          >
+            <div className="t-label" style={{ color: colors.mutedDim, marginBottom: 6 }}>
+              Why connections live in the app
+            </div>
+            <p style={{ fontSize: 12.5, color: colors.muted, lineHeight: 1.55 }}>
+              A browser can&apos;t read Apple Health or pair over Bluetooth. Your
+              phone is the sensor; this screen is where you check it&apos;s working
+              and read the result.
+            </p>
+            <div className="t-label" style={{ color: colors.mutedDim, margin: '14px 0 6px' }}>Sharing</div>
+            <p style={{ fontSize: 12.5, color: colors.muted, lineHeight: 1.55 }}>
+              Readings are always shared with a practitioner you book. Sleep,
+              steps and meals are separate, and off by default.
+            </p>
+          </div>
         </>
       )}
+      </ScreenBody>
     </div>
   );
 }
