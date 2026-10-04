@@ -31,6 +31,7 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { useTheme } from '@/theme/ThemeProvider';
 import { SkeletonChatRow } from '@/components/Skeleton';
+import { SidebarUser } from './SidebarUser';
 import { LanguagePicker } from '@/components/layout/LanguagePicker';
 import { useTranslation } from '@/i18n/LanguageContext';
 import { cn } from '@/lib/utils';
@@ -486,6 +487,10 @@ export function LeftPanel({
                   </motion.div>
                 )}
               </AnimatePresence>
+
+              <div style={{ borderTop: `1px solid ${colors.cardBorder}`, marginTop: 8, paddingTop: 2 }}>
+                <SidebarUser />
+              </div>
             </div>
           </motion.aside>
         </React.Fragment>
