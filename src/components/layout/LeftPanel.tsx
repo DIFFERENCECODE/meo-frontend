@@ -215,6 +215,10 @@ export function LeftPanel({
               </a>
             </div>
 
+            {/* Scroll region: nav + history. The footer stays pinned below it
+                so Settings and sign-out are reachable at any viewport height. */}
+            <div className="flex-1 min-h-0 overflow-y-auto">
+
             {/* Primary navigation.
                 The storyboard puts these ABOVE the chat history, because the
                 record is the app's home and chat is one destination among
@@ -288,7 +292,7 @@ export function LeftPanel({
             <div className="mx-4 my-1" style={{ height: 1, backgroundColor: colors.cardBorder }} />
 
             {/* Chats */}
-            <div className="flex-1 overflow-y-auto px-2 py-2">
+            <div className="px-2 py-2">
               <p className="px-3 py-2 t-body2 font-medium uppercase tracking-wider" style={{ color: colors.muted }}>
                 {t('sidebar.chats')}
               </p>
@@ -346,6 +350,8 @@ export function LeftPanel({
                   </p>
                 )}
               </div>
+            </div>
+
             </div>
 
             {/* Footer.
