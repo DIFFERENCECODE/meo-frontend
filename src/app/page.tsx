@@ -46,15 +46,7 @@ export default function Home() {
       askContext={record?.latest?.series}
       rightPanel={record && state === 'ready' ? <ThisReadingPanel record={record} /> : undefined}
     >
-      <div className="w-full px-7 py-8">
-        <header className="mb-6">
-          <h1 className="t-head font-bold">Your record</h1>
-          <p className="t-lead mt-1 opacity-70">
-            A test tells you where you are. A trend tells you where you&apos;re going.
-          </p>
-        </header>
-        <RecordHome record={record} state={state} />
-      </div>
+      <RecordHome record={record} state={state} />
     </AppShell>
   );
 }

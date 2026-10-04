@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'motion/react';
 import { useTheme } from '@/theme/ThemeProvider';
 import { LeftPanel, ChatListItem } from './LeftPanel';
+import LibraryPanel from './LibraryPanel';
 import { apiFetch, getIdToken } from '@/app/lib/auth';
 import { ProfileMenu } from './ProfileMenu';
 import { Backdrop } from './Backdrop';
@@ -47,6 +48,11 @@ export function AppShell({
   const { theme, colors, isLeftPanelOpen } = useTheme();
   const router = useRouter();
   const [chats, setChats] = useState<ChatListItem[]>([]);
+  // The Library button lives in LeftPanel, which AppShell renders on every
+  // screen — but AppShell never owned the panel, so the button did nothing
+  // anywhere except inside the chat view, which wires its own copy. The
+  // sidebar is shared, so the state it drives has to live here too.
+  const [libraryOpen, setLibraryOpen] = useState(false);
 
   useEffect(() => {
     const token = getIdToken();
@@ -66,6 +72,7 @@ export function AppShell({
     >
       <Backdrop />
       <LeftPanel
+        onLibraryOpen={() => setLibraryOpen(true)}
         onNewChat={() => router.push('/chat')}
         onSettingsClick={() => {}}
         chats={chats}
@@ -133,6 +140,16 @@ export function AppShell({
           )}
         </div>
       </motion.main>
+
+      {libraryOpen && (
+        <LibraryPanel
+          onClose={() => setLibraryOpen(false)}
+          onAskMeO={(prompt) => {
+            setLibraryOpen(false);
+            router.push(`/chat?q=${encodeURIComponent(prompt)}`);
+          }}
+        />
+      )}
     </div>
   );
 }

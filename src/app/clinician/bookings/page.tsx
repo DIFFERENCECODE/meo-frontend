@@ -140,7 +140,7 @@ export default function BookingsPage() {
 
             {/* Modal footer */}
             <div style={{ display: 'flex', gap: 10, padding: '16px 24px', borderTop: '1px solid rgba(255,255,255,.1)' }}>
-              <button style={{ flex: 1, cursor: 'pointer', padding: '11px', border: 0, borderRadius: 999, background: '#a4d65e', color: '#123030', fontSize: 13.5, fontWeight: 700, fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+              <button style={{ flex: 1, cursor: 'pointer', padding: '11px', border: 0, borderRadius: 999, background: '#a4d65e', color: '#1a3a3a', fontSize: 13.5, fontWeight: 700, fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
                 Open in MeO
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/></svg>
               </button>

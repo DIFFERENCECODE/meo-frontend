@@ -82,7 +82,7 @@ export default function ListingsPage() {
           <h1 style={{ margin: 0, fontSize: 28, fontWeight: 800, letterSpacing: '-.025em' }}>Listings</h1>
           <div style={{ marginTop: 7, fontSize: 14, color: 'rgba(255,255,255,.6)' }}>The services patients can book with you inside MeO</div>
         </div>
-        <button onClick={openModal} style={{ display: 'flex', alignItems: 'center', gap: 9, cursor: 'pointer', padding: '12px 22px', border: 0, borderRadius: 999, background: '#a4d65e', color: '#123030', fontSize: 13.5, fontWeight: 700, fontFamily: 'inherit' }}>
+        <button onClick={openModal} style={{ display: 'flex', alignItems: 'center', gap: 9, cursor: 'pointer', padding: '12px 22px', border: 0, borderRadius: 999, background: '#a4d65e', color: '#1a3a3a', fontSize: 13.5, fontWeight: 700, fontFamily: 'inherit' }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>
           Add listing
         </button>
@@ -203,7 +203,7 @@ export default function ListingsPage() {
             {/* Modal footer */}
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, padding: '18px 24px', borderTop: '1px solid rgba(255,255,255,.1)' }}>
               <button onClick={closeModal} style={{ cursor: 'pointer', padding: '11px 20px', borderRadius: 999, background: 'none', border: '1px solid rgba(255,255,255,.2)', color: 'rgba(255,255,255,.75)', fontSize: 13.5, fontWeight: 600, fontFamily: 'inherit' }}>Cancel</button>
-              <button onClick={handleSave} style={{ cursor: 'pointer', padding: '11px 26px', border: 0, borderRadius: 999, background: '#a4d65e', color: '#123030', fontSize: 13.5, fontWeight: 700, fontFamily: 'inherit' }}>Save listing</button>
+              <button onClick={handleSave} style={{ cursor: 'pointer', padding: '11px 26px', border: 0, borderRadius: 999, background: '#a4d65e', color: '#1a3a3a', fontSize: 13.5, fontWeight: 700, fontFamily: 'inherit' }}>Save listing</button>
             </div>
           </div>
         </div>
