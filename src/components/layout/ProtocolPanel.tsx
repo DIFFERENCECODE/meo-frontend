@@ -337,6 +337,11 @@ function KraftDrinkConfirm({ onSubmit, colors }: { onSubmit: (msg: string) => vo
 
 function KraftComplete({ onExit, colors, data }: { onExit: () => void; colors: any; data: CollectedData }) {
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
+  // Bumping this re-runs the submit effect. A failed save is almost always the
+  // measurement service being briefly unreachable, which a retry fixes — unlike
+  // asking the patient to copy a JSON block into another screen, which asks
+  // them to be the integration layer for our outage.
+  const [attempt, setAttempt] = useState(0);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -396,7 +401,7 @@ function KraftComplete({ onExit, colors, data }: { onExit: () => void; colors: a
     };
     autoSubmit();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [attempt]);
 
   const [copied, setCopied] = useState(false);
 
@@ -438,7 +443,7 @@ function KraftComplete({ onExit, colors, data }: { onExit: () => void; colors: a
           <p className="text-xs mt-0.5" style={{ color: colors.muted }}>
             {submitStatus === 'submitting' && 'Saving your 5-point curve…'}
             {submitStatus === 'success' && '10 readings saved to your profile.'}
-            {submitStatus === 'error' && 'Auto-save failed — copy and paste below.'}
+            {submitStatus === 'error' && 'Your readings are safe — saving again.'}
             {submitStatus === 'idle' && 'All readings captured.'}
           </p>
         </div>
@@ -453,8 +458,22 @@ function KraftComplete({ onExit, colors, data }: { onExit: () => void; colors: a
         </div>
       )}
       {submitStatus === 'error' && (
-        <div className="rounded-xl p-3 text-xs leading-relaxed" style={{ backgroundColor: '#ef444420', color: '#ef4444', border: '1px solid #ef444440' }}>
-          Auto-save failed: {submitError}. Copy the block below and submit via Personalise.
+        <div className="rounded-xl p-3 text-xs leading-relaxed" style={{ backgroundColor: '#f0a05a20', color: '#f0a05a', border: '1px solid #f0a05a40' }}>
+          <p className="font-medium">We couldn&apos;t save that just now.</p>
+          <p className="mt-1" style={{ opacity: 0.9 }}>
+            Nothing is lost — your readings are still on this screen. This is
+            usually the measurement service being briefly unreachable.
+          </p>
+          <button
+            onClick={() => setAttempt((n) => n + 1)}
+            className="mt-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-opacity hover:opacity-90"
+            style={{ backgroundColor: '#f0a05a', color: '#1a3a3a' }}
+          >
+            Try saving again
+          </button>
+          {submitError && (
+            <p className="mt-2 text-[10px]" style={{ opacity: 0.7 }}>{submitError}</p>
+          )}
         </div>
       )}
 
@@ -650,14 +669,42 @@ function GlucoseReading({ onSubmit, onData, colors }: { onSubmit: (msg: string) 
   );
 }
 
+/**
+ * The lipid step, as three gates rather than a form.
+ *
+ * A lipid strip needs its full development time and a complete sample. Both
+ * failures are invisible in the number that comes out — a short-developed or
+ * under-filled strip produces a plausible value, not an obviously wrong one,
+ * and that value then becomes a point on a trend the patient is making
+ * decisions against. So the protocol refuses the sample rather than scoring it.
+ *
+ *   timer  -> three minutes, enforced, not advisory
+ *   strip  -> did all three circles fill? a real branch, not a checkbox
+ *   entry  -> the values, with the unit QC from lib/qc.ts
+ *
+ * "No" at the strip gate costs a strip, not a reading: fasting and glucose stay
+ * confirmed and the patient returns to the timer with a fresh strip.
+ */
 function LipidReading({ onSubmit, onData, colors }: { onSubmit: (msg: string) => void; onData: (p: Partial<CollectedData>) => void; colors: any }) {
+  const DEVELOP_SECONDS = 180;
+  const [phase, setPhase] = useState<'timer' | 'strip' | 'entry'>('timer');
+  const [remaining, setRemaining] = useState(DEVELOP_SECONDS);
+  const [running, setRunning] = useState(false);
+  const [retakes, setRetakes] = useState(0);
+
   const [tc, setTc] = useState('');
   const [tg, setTg] = useState('');
   const [hdl, setHdl] = useState('');
   const [ldl, setLdl] = useState('');
-  // A lipid strip reporting mg/dL is the single most common way this panel
-  // goes in wrong, and it is silent: 150 mg/dL of triglycerides is a fine
-  // number that happens to be 85x too large once stored as mmol/L.
+
+  useEffect(() => {
+    if (!running || remaining <= 0) return;
+    const id = setInterval(() => setRemaining((r) => Math.max(0, r - 1)), 1000);
+    return () => clearInterval(id);
+  }, [running, remaining]);
+
+  const mmss = `${Math.floor(remaining / 60)}:${String(remaining % 60).padStart(2, '0')}`;
+
   const tcQc = useQc('Cholesterol', tc);
   const tgQc = useQc('Triglyceride', tg);
   const hdlQc = useQc('HDL', hdl);
@@ -669,11 +716,129 @@ function LipidReading({ onSubmit, onData, colors }: { onSubmit: (msg: string) =>
     { label: 'HDL Cholesterol', hint: 'men > 1.0, women > 1.3', value: hdl, set: setHdl, optional: false, qc: hdlQc },
     { label: 'LDL Cholesterol', hint: 'normal < 3.0 mmol/L', value: ldl, set: setLdl, optional: false, qc: ldlQc },
   ];
-
   const ready = tg && hdl && ldl && !fields.some((f) => blocks(f.qc));
 
+  const retake = () => {
+    setRetakes((n) => n + 1);
+    setRemaining(DEVELOP_SECONDS);
+    setRunning(false);
+    setPhase('timer');
+  };
+
+  // ── Gate 1: development time ────────────────────────────────────────────
+  if (phase === 'timer') {
+    return (
+      <div className="flex flex-col gap-5 h-full">
+        <div>
+          <p className="text-sm font-semibold">Let the strip develop</p>
+          <p className="text-xs mt-1" style={{ color: colors.muted }}>
+            Three minutes, from the moment the blood touches the pad. Reading it
+            early gives a number, just not a true one.
+          </p>
+        </div>
+
+        <div
+          className="rounded-2xl py-8 flex flex-col items-center gap-3"
+          style={{ backgroundColor: colors.card, border: `1px solid ${colors.cardBorder}` }}
+        >
+          <Timer className="h-5 w-5" style={{ color: remaining === 0 ? colors.primary : colors.muted }} />
+          <span
+            className="text-5xl font-bold tabular-nums"
+            style={{ color: remaining === 0 ? colors.primary : colors.foreground }}
+          >
+            {mmss}
+          </span>
+          {retakes > 0 && (
+            <span className="text-xs" style={{ color: colors.muted }}>
+              Retake {retakes} · fasting and glucose are still confirmed
+            </span>
+          )}
+        </div>
+
+        {!running ? (
+          <button
+            onClick={() => setRunning(true)}
+            className="py-3 rounded-xl text-sm font-semibold mt-auto"
+            style={{ backgroundColor: colors.primary, color: colors.primaryForeground }}
+          >
+            Start the 3 minutes
+          </button>
+        ) : (
+          <button
+            disabled={remaining > 0}
+            onClick={() => setPhase('strip')}
+            className="py-3 rounded-xl text-sm font-semibold mt-auto flex items-center justify-center gap-2 disabled:opacity-35"
+            style={{ backgroundColor: colors.primary, color: colors.primaryForeground }}
+          >
+            {remaining > 0 ? `Wait ${mmss}` : <>Check the strip <ChevronRight className="h-4 w-4" /></>}
+          </button>
+        )}
+      </div>
+    );
+  }
+
+  // ── Gate 2: the strip check — a real branch ─────────────────────────────
+  if (phase === 'strip') {
+    return (
+      <div className="flex flex-col gap-4 h-full overflow-y-auto">
+        <div>
+          <p className="text-base font-semibold leading-snug">
+            Flip the strip. Are all <span style={{ color: colors.primary }}>three circles</span> fully coloured?
+          </p>
+          <p className="text-xs mt-1.5" style={{ color: colors.muted }}>
+            If any circle is patchy the sample was too small, and this reading
+            can&apos;t be trusted.
+          </p>
+        </div>
+
+        <div
+          className="rounded-2xl p-3 flex justify-center"
+          style={{ backgroundColor: colors.card, border: `1px solid ${colors.cardBorder}` }}
+        >
+          <svg width="260" height="118" viewBox="0 0 400 180" fill="none" stroke={colors.primary} strokeWidth="2.6" role="img" aria-label="Back of the strip showing three fully coloured circles">
+            <rect x="80" y="40" width="240" height="88" rx="10" />
+            <circle cx="140" cy="84" r="20" fill={colors.primary} fillOpacity="0.9" />
+            <circle cx="200" cy="84" r="20" fill={colors.primary} fillOpacity="0.9" />
+            <circle cx="260" cy="84" r="20" fill={colors.primary} fillOpacity="0.9" />
+          </svg>
+        </div>
+
+        <div
+          className="rounded-xl p-3 text-xs leading-relaxed"
+          style={{ backgroundColor: 'rgba(240,160,90,0.1)', border: '1px solid rgba(240,160,90,0.35)', color: '#f0a05a' }}
+        >
+          A patchy circle means MeO will <b>not</b> save this reading or update
+          your score. We would rather have no number than a wrong one — a wrong
+          reading becomes a trend that isn&apos;t real.
+        </div>
+
+        <div className="flex flex-col gap-2 mt-auto">
+          <button
+            onClick={() => setPhase('entry')}
+            className="py-3 rounded-xl text-sm font-semibold"
+            style={{ backgroundColor: colors.primary, color: colors.primaryForeground }}
+          >
+            Yes — all three filled
+          </button>
+          <button
+            onClick={retake}
+            className="py-2.5 rounded-xl text-sm font-medium transition-colors hover:bg-white/5"
+            style={{ color: colors.muted, border: `1px solid ${colors.cardBorder}` }}
+          >
+            No — retake with a new strip
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Gate 3: the values ──────────────────────────────────────────────────
   return (
-    <div className="flex flex-col gap-4 h-full">
+    <div className="flex flex-col gap-4 h-full overflow-y-auto">
+      <div className="flex items-center gap-2">
+        <CircleCheck className="h-4 w-4" style={{ color: colors.primary }} />
+        <p className="text-xs" style={{ color: colors.primary }}>Strip check passed</p>
+      </div>
       <p className="text-xs" style={{ color: colors.muted }}>All values in mmol/L</p>
       {fields.map((f) => (
         <div key={f.label}>
@@ -698,7 +863,7 @@ function LipidReading({ onSubmit, onData, colors }: { onSubmit: (msg: string) =>
         onClick={() => {
           onData({ tc: tc || undefined, tg, hdl, ldl });
           const parts = [tc ? `TC ${tc}` : '', `TG ${tg}`, `HDL ${hdl}`, `LDL ${ldl}`].filter(Boolean).join(', ');
-          onSubmit(`My lipid panel: ${parts} mmol/L.`);
+          onSubmit(`My lipid panel: ${parts} mmol/L. Strip check passed.`);
         }}
         className="py-3 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-2 mt-auto disabled:opacity-35"
         style={{ backgroundColor: colors.primary, color: colors.primaryForeground }}>
@@ -908,20 +1073,30 @@ function BASComplete({ onViewResults, colors, data }: { onViewResults: () => voi
           Auto-save failed: {submitError}. Copy the block below and submit via Personalise.
         </div>
       )}
-      <div className="rounded-xl border overflow-hidden" style={{ borderColor: colors.cardBorder }}>
-        <div className="flex items-center justify-between px-3 py-2 border-b" style={{ borderColor: colors.cardBorder, backgroundColor: colors.card }}>
-          <span className="text-xs font-medium uppercase tracking-wider" style={{ color: colors.muted }}>Paste-ready format</span>
+      {/* Kept, but demoted to a details element and only when saving failed.
+          It is a last-resort escape hatch for someone who needs their numbers
+          out of the app, not a step in the flow. */}
+      {submitStatus === 'error' && (
+      <details className="rounded-xl border overflow-hidden" style={{ borderColor: colors.cardBorder }}>
+        <summary className="flex items-center justify-between px-3 py-2 cursor-pointer text-xs" style={{ color: colors.muted }}>
+          <span className="font-medium uppercase tracking-wider">Copy my readings instead</span>
           <button onClick={handleCopy} className="flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-lg transition-all" style={{ color: copied ? colors.primary : colors.muted, backgroundColor: copied ? `${colors.primary}18` : `${colors.cardBorder}40`, border: `1px solid ${copied ? colors.primary + '50' : 'transparent'}` }}>
             {copied ? <><CheckCircle2 className="h-3 w-3" /> Copied!</> : <><Copy className="h-3 w-3" /> Copy</>}
           </button>
-        </div>
+        </summary>
         <pre className="text-xs p-4 whitespace-pre font-mono leading-relaxed overflow-x-auto" style={{ backgroundColor: colors.background, color: colors.foreground }}>{formattedText}</pre>
-      </div>
+      </details>
+      )}
       <div className="flex gap-3 mt-auto">
-        <button onClick={onViewResults} className="flex-1 py-2.5 rounded-xl text-sm font-medium border transition-all" style={{ borderColor: colors.cardBorder, color: colors.muted }}>View chat</button>
-        <Link href="/personalize" className="flex-1 py-2.5 rounded-xl text-sm font-medium text-center flex items-center justify-center gap-2 transition-all hover:opacity-90" style={{ backgroundColor: colors.primary, color: colors.primaryForeground }}>
-          Go to Personalise <ArrowRight className="h-4 w-4" />
+        <Link href="/chat" className="flex-1 py-2.5 rounded-xl text-sm font-medium text-center border transition-all" style={{ borderColor: colors.cardBorder, color: colors.muted }}>
+          Open chat
         </Link>
+        {/* The reading, not another data-entry screen. Sending someone to
+            Personalise after they just completed a guided test is asking them
+            to enter the same numbers twice. */}
+        <button onClick={onViewResults} className="flex-1 py-2.5 rounded-xl text-sm font-medium text-center flex items-center justify-center gap-2 transition-all hover:opacity-90" style={{ backgroundColor: colors.primary, color: colors.primaryForeground }}>
+          See my reading <ArrowRight className="h-4 w-4" />
+        </button>
       </div>
     </div>
   );
