@@ -24,6 +24,7 @@ import {
   TrendingUp,
   History,
   ClipboardList,
+  Link2,
   UserRound,
   FlaskConical,
 } from 'lucide-react';
@@ -250,6 +251,7 @@ export function LeftPanel({
               {[
                 { href: '/plan', label: 'My plan', Icon: ClipboardList },
                 { href: '/from-practitioner', label: 'From your practitioner', Icon: UserRound },
+                { href: '/connectors', label: 'Connectors', Icon: Link2 },
               ].map(({ href, label, Icon }) => {
                 const active = pathname === href;
                 return (
