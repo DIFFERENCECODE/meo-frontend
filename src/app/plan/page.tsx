@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { AppShell } from '@/components/layout/AppShell';
-import { usePractitionerNotes, PlanLine } from '@/components/record/PractitionerNotes';
+import { usePractitionerNotes, PlanLine, fmtNoteDate } from '@/components/record/PractitionerNotes';
 import { useTheme } from '@/theme/ThemeProvider';
 import { ScreenHeader, ScreenBody, Chip } from '@/components/layout/ScreenHeader';
 
@@ -51,6 +51,46 @@ function PlanInner() {
           >
             Find a practitioner
           </Link>
+        </div>
+      )}
+
+      {/* The frame opens with who wrote the plan and why, in their words. A
+          plan with no author is advice from nobody. */}
+      {state === 'ready' && plan.length > 0 && (
+        <section
+          className="flex items-start"
+          style={{ background: colors.card, border: `1px solid ${colors.cardBorder}`, borderRadius: 16, padding: '18px 22px', gap: 14 }}
+        >
+          <div
+            className="flex items-center justify-center"
+            style={{ width: 44, height: 44, flex: 'none', borderRadius: '50%', background: 'rgba(164,214,94,0.2)', color: colors.primary, fontWeight: 700, fontSize: 16 }}
+          >
+            {(plan[0].practitioner_name || 'P').slice(0, 1).toUpperCase()}
+          </div>
+          <div className="min-w-0 flex-1">
+            <div style={{ fontSize: 15, fontWeight: 700, color: colors.foreground }}>
+              {plan[0].practitioner_name || 'Your practitioner'}
+            </div>
+            <div style={{ fontSize: 12.5, color: colors.mutedDim, marginTop: 2 }}>
+              wrote this plan on {fmtNoteDate(plan[plan.length - 1].created_at)}
+            </div>
+          </div>
+          <span
+            style={{
+              fontSize: 10.5, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase',
+              color: colors.device, background: 'rgba(124,197,216,0.12)',
+              border: '1px solid rgba(124,197,216,0.3)', borderRadius: 999, padding: '3px 9px', whiteSpace: 'nowrap',
+            }}
+          >
+            your practitioner
+          </span>
+        </section>
+      )}
+
+      {state === 'ready' && plan.length > 0 && (
+        <div className="flex items-baseline" style={{ gap: 10 }}>
+          <div className="t-label" style={{ color: colors.mutedDim }}>What they asked for</div>
+          <div style={{ fontSize: 11.5, color: colors.mutedDim }}>MeO checks each one</div>
         </div>
       )}
 

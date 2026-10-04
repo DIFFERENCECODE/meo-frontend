@@ -2,7 +2,8 @@
 
 import React from 'react';
 import { AppShell } from '@/components/layout/AppShell';
-import { usePractitionerNotes, NoteCard } from '@/components/record/PractitionerNotes';
+import Link from 'next/link';
+import { usePractitionerNotes, NoteCard, fmtNoteDate } from '@/components/record/PractitionerNotes';
 import { useTheme } from '@/theme/ThemeProvider';
 import { ScreenHeader, ScreenBody, Chip } from '@/components/layout/ScreenHeader';
 
@@ -41,6 +42,71 @@ function NotesInner() {
             write appears here — with their name on it.
           </p>
         </div>
+      )}
+
+      {/* The frame leads with who this is, not with the notes. A feed of
+          anonymous advice is the thing we are trying not to be. */}
+      {state === 'ready' && feed.length > 0 && (
+        <section
+          className="flex items-start"
+          style={{ background: colors.card, border: `1px solid ${colors.cardBorder}`, borderRadius: 16, padding: '18px 22px', gap: 14 }}
+        >
+          <div
+            className="flex items-center justify-center"
+            style={{ width: 44, height: 44, flex: 'none', borderRadius: '50%', background: 'rgba(164,214,94,0.2)', color: colors.primary, fontWeight: 700, fontSize: 16 }}
+          >
+            {(feed[0].practitioner_name || 'P').slice(0, 1).toUpperCase()}
+          </div>
+          <div className="min-w-0 flex-1">
+            <div style={{ fontSize: 15, fontWeight: 700, color: colors.foreground }}>
+              {feed[0].practitioner_name || 'Your practitioner'} reviewed your record
+            </div>
+            <div style={{ fontSize: 12.5, color: colors.mutedDim, marginTop: 2 }}>
+              {fmtNoteDate(feed[0].created_at)} · {feed.length} note{feed.length === 1 ? '' : 's'} on file
+            </div>
+            <p style={{ fontSize: 13.5, color: colors.muted, lineHeight: 1.6, marginTop: 10 }}>
+              “{feed[0].body}”
+            </p>
+            <div className="flex" style={{ gap: 8, marginTop: 12 }}>
+              <Link
+                href={`/chat?q=${encodeURIComponent('Help me prepare questions for my next consultation')}`}
+                className="no-underline"
+                style={{
+                  fontSize: 12, fontWeight: 700, color: colors.primary,
+                  background: 'rgba(164,214,94,0.12)', border: '1px solid rgba(164,214,94,0.3)',
+                  borderRadius: 999, padding: '5px 12px', whiteSpace: 'nowrap',
+                }}
+              >
+                Ask MeO to prepare questions
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* "What they see — the same data you do." The frame's point is that
+          nothing is hidden in either direction. */}
+      {state === 'ready' && feed.length > 0 && (
+        <section
+          style={{ background: colors.card, border: `1px solid ${colors.cardBorder}`, borderRadius: 16, padding: '18px 22px' }}
+        >
+          <div className="t-label" style={{ color: colors.mutedDim, marginBottom: 12 }}>
+            What they see — the same data you do
+          </div>
+          <div className="flex flex-wrap" style={{ gap: 28 }}>
+            {[
+              { k: 'Your readings', v: 'all of them', s: 'every panel on your record' },
+              { k: 'Your plan', v: `${(notes ?? []).filter((n) => n.kind === 'plan').length} lines`, s: 'with what happened beside each' },
+              { k: 'Flags', v: 'their thresholds', s: 'not a population range' },
+            ].map((m) => (
+              <div key={m.k}>
+                <div style={{ fontSize: 11.5, color: colors.mutedDim }}>{m.k}</div>
+                <div style={{ fontSize: 19, fontWeight: 800, color: colors.foreground, letterSpacing: '-0.025em', marginTop: 2 }}>{m.v}</div>
+                <div style={{ fontSize: 11.5, color: colors.mutedDim }}>{m.s}</div>
+              </div>
+            ))}
+          </div>
+        </section>
       )}
 
       {state === 'ready' && feed.length > 0 && (

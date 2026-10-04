@@ -1,7 +1,10 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Smartphone, Globe, Hospital, Check, Minus } from 'lucide-react';
+import {
+  Smartphone, Hospital, HeartPulse, FlaskConical, Utensils,
+  PencilLine, Activity, Droplets, Flame,
+} from 'lucide-react';
 import { AppShell } from '@/components/layout/AppShell';
 import { useTheme } from '@/theme/ThemeProvider';
 import { ScreenHeader, ScreenBody, Chip } from '@/components/layout/ScreenHeader';
@@ -24,21 +27,22 @@ interface Source {
   id: string;
   label: string;
   detail: string;
-  count: number | null;
-  last_seen: string | null;
+  status: 'connected' | 'available' | 'planned' | string;
+  status_text: string;
   connect_on: 'phone' | 'web' | 'clinic' | string;
 }
 
-const WHERE: Record<string, { label: string; Icon: typeof Smartphone }> = {
-  phone: { label: 'Set up on your phone', Icon: Smartphone },
-  web: { label: 'Entered here', Icon: Globe },
-  clinic: { label: 'Comes from your clinic', Icon: Hospital },
+const ICON: Record<string, typeof Smartphone> = {
+  apple_health: HeartPulse, meter: FlaskConical, food_log: Utensils,
+  clinic: Hospital, typed: PencilLine, health_connect: Activity,
+  samsung: Smartphone, cgm: Droplets, ketone: Flame,
 };
 
 function ConnectorsInner() {
   const { colors } = useTheme();
   const [sources, setSources] = useState<Source[] | null>(null);
   const [note, setNote] = useState('');
+  const [sharingNote, setSharingNote] = useState('');
   const [state, setState] = useState<'loading' | 'ready' | 'error'>('loading');
 
   useEffect(() => {
@@ -51,6 +55,7 @@ function ConnectorsInner() {
         const data = await res.json();
         setSources(data.sources || []);
         setNote(data.note || '');
+        setSharingNote(data.sharing_note || '');
         setState('ready');
       } catch {
         setState('error');
@@ -58,81 +63,86 @@ function ConnectorsInner() {
     })();
   }, []);
 
+  const live = (sources ?? []).filter((s) => s.status === 'connected').length;
+
   return (
     <div className="flex flex-col h-full min-w-0">
       <ScreenHeader
         title="Connectors"
         subtitle="Everything MeO can read from — connections are made in the app"
-        right={sources ? <Chip>{sources.filter((x) => (x.count ?? 0) > 0).length} live</Chip> : undefined}
+        right={
+          <span
+            style={{
+              display: 'inline-block', fontSize: 12, fontWeight: 700, color: colors.primary,
+              background: 'rgba(164,214,94,0.12)', border: '1px solid rgba(164,214,94,0.3)',
+              borderRadius: 999, padding: '5px 12px', whiteSpace: 'nowrap',
+            }}
+          >
+            {live} live
+          </span>
+        }
       />
-      <ScreenBody>
-      {state === 'loading' && <p className="t-lead opacity-70">Checking your sources…</p>}
-      {state === 'error' && <p className="t-lead opacity-70">Couldn&apos;t load your connectors.</p>}
 
-      {state === 'ready' && sources && (
-        <>
-          <ul className="space-y-3 p-0 m-0">
-            {sources.map((s) => {
-              const where = WHERE[s.connect_on] ?? WHERE.phone;
-              const { Icon } = where;
-              const unknown = s.count === null;
-              const has = !unknown && (s.count ?? 0) > 0;
-              return (
-                <li
-                  key={s.id}
-                  className="rounded-2xl p-4 list-none flex items-start gap-3"
-                  style={{ backgroundColor: colors.card, border: `1px solid ${colors.cardBorder}` }}
-                >
+      <ScreenBody gap={18}>
+        {state === 'loading' && <p style={{ fontSize: 13, color: colors.muted }}>Checking your sources…</p>}
+        {state === 'error' && <p style={{ fontSize: 13, color: colors.muted }}>Couldn&apos;t load your connectors.</p>}
+
+        {state === 'ready' && sources && (
+          <div className="flex" style={{ gap: 18, alignItems: 'flex-start' }}>
+            {/* Source list — frame geometry: 38px icon at radius 11, 14px rows,
+                hairline at 0.07, status right-aligned with a 9px dot. */}
+            <div
+              className="flex-1 min-w-0"
+              style={{ background: colors.card, border: `1px solid ${colors.cardBorder}`, borderRadius: 16, padding: '8px 22px 18px' }}
+            >
+              {sources.map((s, i) => {
+                const Icon = ICON[s.id] ?? Smartphone;
+                const on = s.status === 'connected';
+                const planned = s.status === 'planned';
+                return (
                   <div
-                    className="h-9 w-9 shrink-0 rounded-[10px] flex items-center justify-center"
-                    style={{ backgroundColor: has ? 'rgba(164,214,94,0.12)' : 'rgba(255,255,255,0.05)' }}
+                    key={s.id}
+                    className="flex items-center"
+                    style={{
+                      gap: 14, padding: '14px 0',
+                      borderBottom: i === sources.length - 1 ? undefined : '1px solid rgba(255,255,255,0.07)',
+                      opacity: planned ? 0.72 : 1,
+                    }}
                   >
-                    {has ? (
-                      <Check className="h-4 w-4" style={{ color: colors.primary }} />
-                    ) : (
-                      <Minus className="h-4 w-4" style={{ color: colors.muted }} />
+                    <div
+                      className="flex items-center justify-center"
+                      style={{ width: 38, height: 38, flex: 'none', borderRadius: 11, background: 'rgba(255,255,255,0.06)' }}
+                    >
+                      <Icon className="h-4 w-4" style={{ color: on ? colors.primary : colors.mutedDim }} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div style={{ fontSize: 14, fontWeight: 600, color: colors.foreground }}>{s.label}</div>
+                      <div style={{ fontSize: 12, color: colors.mutedDim, marginTop: 2 }}>{s.detail}</div>
+                    </div>
+                    <div style={{ fontSize: 12.5, fontWeight: 600, color: on ? colors.primary : colors.mutedDim, textAlign: 'right' }}>
+                      {s.status_text}
+                    </div>
+                    {on && (
+                      <span style={{ width: 9, height: 9, borderRadius: '50%', background: colors.primary, marginLeft: 4, flex: 'none' }} />
                     )}
                   </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="t-lead font-semibold">{s.label}</p>
-                    <p className="t-body2 mt-0.5" style={{ color: colors.muted }}>{s.detail}</p>
-                    <p className="t-body2 mt-2" style={{ color: has ? colors.primary : colors.muted }}>
-                      {unknown
-                        ? 'Not visible from the web — check in the app'
-                        : has
-                          ? `${s.count} on your record${s.last_seen ? ` · latest ${s.last_seen}` : ''}`
-                          : 'Nothing on your record yet'}
-                    </p>
-                    <p className="t-body2 mt-1.5 flex items-center gap-1.5" style={{ color: colors.muted }}>
-                      <Icon className="h-3.5 w-3.5" /> {where.label}
-                    </p>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-
-          {/* The frame's explanation, which is the reason this screen is
-              read-only rather than an omission. */}
-          <div
-            style={{ background: colors.card, border: `1px solid ${colors.cardBorder}`, borderRadius: 16, padding: '16px 18px', marginTop: 4 }}
-          >
-            <div className="t-label" style={{ color: colors.mutedDim, marginBottom: 6 }}>
-              Why connections live in the app
+                );
+              })}
             </div>
-            <p style={{ fontSize: 12.5, color: colors.muted, lineHeight: 1.55 }}>
-              A browser can&apos;t read Apple Health or pair over Bluetooth. Your
-              phone is the sensor; this screen is where you check it&apos;s working
-              and read the result.
-            </p>
-            <div className="t-label" style={{ color: colors.mutedDim, margin: '14px 0 6px' }}>Sharing</div>
-            <p style={{ fontSize: 12.5, color: colors.muted, lineHeight: 1.55 }}>
-              Readings are always shared with a practitioner you book. Sleep,
-              steps and meals are separate, and off by default.
-            </p>
+
+            {/* Right column — the frame's two explanations. */}
+            <div style={{ width: 340, flex: 'none', display: 'flex', flexDirection: 'column', gap: 14 }}>
+              <div style={{ background: colors.card, border: `1px solid ${colors.cardBorder}`, borderRadius: 16, padding: '18px 20px' }}>
+                <div className="t-label" style={{ color: colors.mutedDim }}>Why connections live in the app</div>
+                <p style={{ fontSize: 13, color: colors.muted, lineHeight: 1.55, marginTop: 9 }}>{note}</p>
+              </div>
+              <div style={{ background: colors.card, border: `1px solid ${colors.cardBorder}`, borderRadius: 16, padding: '18px 20px' }}>
+                <div className="t-label" style={{ color: colors.mutedDim }}>Sharing</div>
+                <p style={{ fontSize: 13, color: colors.muted, lineHeight: 1.55, marginTop: 9 }}>{sharingNote}</p>
+              </div>
+            </div>
           </div>
-        </>
-      )}
+        )}
       </ScreenBody>
     </div>
   );

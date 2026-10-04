@@ -35,43 +35,62 @@ const FILTERS: { id: string; label: string }[] = [
   { id: 'body', label: 'Measurements' },
 ];
 
+const SOURCE_CHIP: Record<string, { label: string; color: string; bg: string; bd: string }> = {
+  panel:   { label: 'meter',  color: '#a4d65e', bg: 'rgba(164,214,94,0.12)', bd: 'rgba(164,214,94,0.3)' },
+  insulin: { label: 'clinic', color: '#7cc5d8', bg: 'rgba(124,197,216,0.12)', bd: 'rgba(124,197,216,0.3)' },
+  body:    { label: 'typed',  color: '#c3d0d0', bg: 'rgba(255,255,255,0.07)', bd: 'rgba(255,255,255,0.14)' },
+  other:   { label: 'entry',  color: '#a3b4b4', bg: 'rgba(255,255,255,0.05)', bd: 'rgba(255,255,255,0.12)' },
+};
+
 function Row({ reading, colors }: { reading: Reading & { kind?: string }; colors: Record<string, string> }) {
   const kind = KINDS[reading.kind ?? 'other'] ?? KINDS.other;
   const { Icon } = kind;
+  const chip = SOURCE_CHIP[reading.kind ?? 'other'] ?? SOURCE_CHIP.other;
   const capture = reading.captured_by ? CAPTURE_LABEL[reading.captured_by] : null;
   const markers = Object.keys(reading.values).length;
+  const time = reading.time ? reading.time.slice(11, 16) : null;
 
   return (
-    <li className="flex gap-3 py-4" style={{ borderTop: `1px solid ${colors.cardBorder}` }}>
+    <li className="flex items-center" style={{ gap: 14, padding: '14px 0', borderTop: `1px solid ${colors.cardBorder}` }}>
+      {/* Date column, as the frame has it: the day over the time. */}
+      <div style={{ width: 86, flex: 'none' }}>
+        <div style={{ fontSize: 12.5, fontWeight: 600, color: colors.foreground }}>{fmtDate(reading.date)}</div>
+        {time && <div style={{ fontSize: 11.5, color: colors.mutedDim }}>{time}</div>}
+      </div>
+
       <div
-        className="h-9 w-9 shrink-0 rounded-[10px] flex items-center justify-center"
-        style={{ backgroundColor: 'rgba(164,214,94,0.12)' }}
+        className="flex items-center justify-center"
+        style={{ width: 34, height: 34, flex: 'none', borderRadius: 10, background: 'rgba(255,255,255,0.06)' }}
       >
         <Icon className="h-4 w-4" style={{ color: colors.primary }} />
       </div>
+
       <div className="min-w-0 flex-1">
-        <div className="flex items-baseline gap-2 flex-wrap">
-          <span className="t-lead font-semibold">{kind.label}</span>
+        <div className="flex items-baseline" style={{ gap: 8, flexWrap: 'wrap' }}>
+          <span style={{ fontSize: 13.5, fontWeight: 600, color: colors.foreground }}>{kind.label}</span>
           {reading.bas != null && (
-            <span className="t-lead" style={{ color: colors.primary }}>
-              BAS {reading.bas.toFixed(1)}
-            </span>
+            <span style={{ fontSize: 13.5, color: colors.primary }}>BAS {reading.bas.toFixed(1)}</span>
           )}
           {reading.is_panel && reading.bas == null && (
-            <span className="t-body2" style={{ color: '#f97316' }}>
-              no score
-            </span>
+            <span style={{ fontSize: 11.5, color: colors.warning }}>no score</span>
           )}
         </div>
-        <p className="t-body2 mt-1" style={{ color: colors.muted }}>
+        <div style={{ fontSize: 11.5, color: colors.mutedDim, marginTop: 2 }}>
           {markers} value{markers === 1 ? '' : 's'}
           {reading.fasted ? ' · fasted' : ''}
           {capture ? ` · ${capture}` : ' · capture not recorded'}
-        </p>
+        </div>
       </div>
-      <time className="t-body2 shrink-0 tabular-nums" style={{ color: colors.muted }}>
-        {fmtDate(reading.date)}
-      </time>
+
+      <span
+        style={{
+          fontSize: 10.5, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase',
+          color: chip.color, background: chip.bg, border: `1px solid ${chip.bd}`,
+          borderRadius: 999, padding: '3px 9px', whiteSpace: 'nowrap', flex: 'none',
+        }}
+      >
+        {chip.label}
+      </span>
     </li>
   );
 }

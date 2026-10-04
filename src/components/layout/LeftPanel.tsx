@@ -270,15 +270,19 @@ export function LeftPanel({
                   </Link>
                 );
               })}
-              <button
+              <Link
                 data-tour="library-nav"
-                onClick={onLibraryOpen}
-                className="w-full flex items-center gap-3 px-3 py-2 rounded-[9px] t-lead transition-colors hover:bg-transparent/5"
-                style={{ color: colors.muted }}
+                href="/library"
+                className="w-full flex items-center gap-3 px-3 py-2 rounded-[9px] t-lead transition-colors hover:bg-white/5"
+                style={{
+                  color: pathname === '/library' ? colors.primary : colors.muted,
+                  backgroundColor: pathname === '/library' ? colors.accent : undefined,
+                  fontWeight: pathname === '/library' ? 600 : 400,
+                }}
               >
                 <BookOpen className="h-5 w-5" />
                 <span>Library</span>
-              </button>
+              </Link>
             </nav>
 
             <div className="mx-4 my-1" style={{ height: 1, backgroundColor: colors.cardBorder }} />
@@ -560,14 +564,13 @@ export function LeftPanel({
               <RailTooltip label="Timeline" />
             </Link>
 
-            <button
-              data-tour="library-nav"
-              onClick={onLibraryOpen}
-              className="relative group p-3 rounded-[9px] transition-colors hover:bg-transparent/10 w-full flex justify-center"
+            <Link
+              href="/library"
+              className="relative group p-3 rounded-[9px] transition-colors hover:bg-white/10 w-full flex justify-center"
             >
               <BookOpen className="h-5 w-5" style={{ color: colors.muted }} />
               <RailTooltip label="Library" />
-            </button>
+            </Link>
 
             <Link
               data-tour="marketplace-nav"
