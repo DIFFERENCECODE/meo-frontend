@@ -16,8 +16,8 @@ const FILTERS: { value: Filter; label: string }[] = [
 const STATUS_BADGE: Record<ClinicianBooking['status'], { bg: string; fg: string }> = {
   upcoming:  { bg: 'rgba(164,214,94,.16)',  fg: '#a4d65e' },
   completed: { bg: 'rgba(74,222,128,.16)',  fg: '#4ade80' },
-  cancelled: { bg: 'rgba(248,113,113,.16)', fg: '#f87171' },
-  'no-show': { bg: 'rgba(245,158,11,.16)',  fg: '#f5b942' },
+  cancelled: { bg: 'rgba(248,113,113,.16)', fg: '#f97316' },
+  'no-show': { bg: 'rgba(245,158,11,.16)',  fg: '#eab839' },
 };
 
 function initials(name: string) {
@@ -43,7 +43,7 @@ export default function BookingsPage() {
     <main style={{ flex: 1, minWidth: 0, position: 'relative', overflowY: 'auto', padding: '34px 40px' }}>
 
       <h1 style={{ margin: 0, fontSize: 28, fontWeight: 800, letterSpacing: '-.025em' }}>Bookings</h1>
-      <div style={{ marginTop: 7, fontSize: 14, color: 'rgba(255,255,255,.6)' }}>Sessions booked through your MeO listings</div>
+      <div style={{ marginTop: 7, fontSize: 14, color: '#a3b4b4' }}>Sessions booked through your MeO listings</div>
 
       {/* Filter pills */}
       <div style={{ display: 'flex', gap: 8, marginTop: 22 }}>
@@ -58,9 +58,9 @@ export default function BookingsPage() {
       </div>
 
       {/* Table */}
-      <div style={{ marginTop: 20, borderRadius: 12, background: 'rgba(40,70,70,.8)', border: '1px solid rgba(255,255,255,.1)', overflow: 'hidden' }}>
+      <div style={{ marginTop: 20, borderRadius: 10, background: 'rgba(40,70,70,.82)', border: '1px solid rgba(255,255,255,.12)', overflow: 'hidden' }}>
         {/* Header */}
-        <div style={{ display: 'grid', gridTemplateColumns: '2.1fr 1.5fr 1.3fr .9fr .7fr', gap: 16, padding: '14px 22px', borderBottom: '1px solid rgba(255,255,255,.1)', fontSize: 11, fontWeight: 700, letterSpacing: '.12em', textTransform: 'uppercase', color: 'rgba(255,255,255,.45)' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '2.1fr 1.5fr 1.3fr .9fr .7fr', gap: 16, padding: '14px 22px', borderBottom: '1px solid rgba(255,255,255,.12)', fontSize: 11, fontWeight: 700, letterSpacing: '.12em', textTransform: 'uppercase', color: '#a3b4b4' }}>
           <div>Patient</div><div>Service</div><div>Date &amp; time</div><div>Status</div><div />
         </div>
 
@@ -81,7 +81,7 @@ export default function BookingsPage() {
                   <div style={{ width: 34, height: 34, flexShrink: 0, borderRadius: 999, background: 'rgba(164,214,94,.16)', color: '#a4d65e', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11.5, fontWeight: 700 }}>{inits}</div>
                   <div style={{ minWidth: 0 }}>
                     <div style={{ fontSize: 13.5, fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{b.patientName}</div>
-                    <div style={{ fontSize: 11.5, color: 'rgba(255,255,255,.5)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{b.patientEmail}</div>
+                    <div style={{ fontSize: 11.5, color: '#a3b4b4', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{b.patientEmail}</div>
                   </div>
                 </div>
                 <div style={{ fontSize: 13, color: 'rgba(255,255,255,.85)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{b.listingTitle}</div>
@@ -90,9 +90,9 @@ export default function BookingsPage() {
                   <span style={{ display: 'inline-block', fontSize: 11, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase', padding: '5px 11px', borderRadius: 999, background: badge.bg, color: badge.fg }}>{b.status}</span>
                 </div>
                 <div style={{ textAlign: 'right' }}>
-                  <button onClick={() => setSelected(b)} style={{ cursor: 'pointer', padding: '7px 16px', borderRadius: 999, background: 'none', border: '1px solid rgba(255,255,255,.2)', color: 'rgba(255,255,255,.8)', fontSize: 12.5, fontWeight: 600, fontFamily: 'inherit' }}
+                  <button onClick={() => setSelected(b)} style={{ cursor: 'pointer', padding: '7px 16px', borderRadius: 999, background: 'none', border: '1px solid rgba(255,255,255,.2)', color: '#c3d0d0', fontSize: 12.5, fontWeight: 600, fontFamily: 'inherit' }}
                     onMouseEnter={(e) => { e.currentTarget.style.color = '#a4d65e'; e.currentTarget.style.borderColor = 'rgba(164,214,94,.6)'; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.color = 'rgba(255,255,255,.8)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,.2)'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.color = '#c3d0d0'; e.currentTarget.style.borderColor = 'rgba(255,255,255,.2)'; }}
                   >View</button>
                 </div>
               </div>
@@ -106,11 +106,11 @@ export default function BookingsPage() {
         <div onClick={() => setSelected(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(10,26,26,.72)', backdropFilter: 'blur(3px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 40, zIndex: 50 }}>
           <div onClick={(e) => e.stopPropagation()} style={{ width: 520, borderRadius: 16, background: '#22494a', border: '1px solid rgba(255,255,255,.14)', boxShadow: '0 30px 80px -20px rgba(0,0,0,.7)' }}>
             {/* Modal header */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 13, padding: '22px 24px', borderBottom: '1px solid rgba(255,255,255,.1)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 13, padding: '22px 24px', borderBottom: '1px solid rgba(255,255,255,.12)' }}>
               <div style={{ width: 42, height: 42, flexShrink: 0, borderRadius: 999, background: 'rgba(164,214,94,.16)', color: '#a4d65e', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700 }}>{initials(selected.patientName)}</div>
               <div style={{ minWidth: 0, flex: 1 }}>
                 <div style={{ fontSize: 16, fontWeight: 700 }}>{selected.patientName}</div>
-                <div style={{ fontSize: 12.5, color: 'rgba(255,255,255,.55)', marginTop: 2 }}>{selected.patientEmail}</div>
+                <div style={{ fontSize: 12.5, color: '#a3b4b4', marginTop: 2 }}>{selected.patientEmail}</div>
               </div>
               <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase', padding: '5px 11px', borderRadius: 999, background: STATUS_BADGE[selected.status].bg, color: STATUS_BADGE[selected.status].fg }}>{selected.status}</span>
             </div>
@@ -124,27 +124,27 @@ export default function BookingsPage() {
                   { label: 'Price', value: `£${selected.price}` },
                   { label: 'Duration', value: `${selected.duration} mins` },
                 ].map(({ label, value }) => (
-                  <div key={label} style={{ padding: '13px 15px', borderRadius: 11, background: 'rgba(20,45,45,.5)', border: '1px solid rgba(255,255,255,.1)' }}>
-                    <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,.45)' }}>{label}</div>
+                  <div key={label} style={{ padding: '13px 15px', borderRadius: 11, background: 'rgba(20,45,45,.5)', border: '1px solid rgba(255,255,255,.12)' }}>
+                    <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: '#a3b4b4' }}>{label}</div>
                     <div style={{ fontSize: 14, fontWeight: 600, marginTop: 6 }}>{value}</div>
                   </div>
                 ))}
               </div>
               {selected.notes && (
-                <div style={{ padding: '13px 15px', borderRadius: 11, background: 'rgba(20,45,45,.5)', border: '1px solid rgba(255,255,255,.1)' }}>
-                  <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,.45)', marginBottom: 6 }}>Patient notes</div>
-                  <div style={{ fontSize: 13.5, color: 'rgba(255,255,255,.8)', lineHeight: 1.5 }}>{selected.notes}</div>
+                <div style={{ padding: '13px 15px', borderRadius: 11, background: 'rgba(20,45,45,.5)', border: '1px solid rgba(255,255,255,.12)' }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: '#a3b4b4', marginBottom: 6 }}>Patient notes</div>
+                  <div style={{ fontSize: 13.5, color: '#c3d0d0', lineHeight: 1.5 }}>{selected.notes}</div>
                 </div>
               )}
             </div>
 
             {/* Modal footer */}
-            <div style={{ display: 'flex', gap: 10, padding: '16px 24px', borderTop: '1px solid rgba(255,255,255,.1)' }}>
+            <div style={{ display: 'flex', gap: 10, padding: '16px 24px', borderTop: '1px solid rgba(255,255,255,.12)' }}>
               <button style={{ flex: 1, cursor: 'pointer', padding: '11px', border: 0, borderRadius: 999, background: '#a4d65e', color: '#1a3a3a', fontSize: 13.5, fontWeight: 700, fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
                 Open in MeO
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/></svg>
               </button>
-              <button onClick={() => setSelected(null)} style={{ padding: '11px 20px', borderRadius: 999, background: 'rgba(248,113,113,.08)', border: '1px solid rgba(248,113,113,.5)', color: '#f87171', fontSize: 13.5, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+              <button onClick={() => setSelected(null)} style={{ padding: '11px 20px', borderRadius: 999, background: 'rgba(248,113,113,.08)', border: '1px solid rgba(248,113,113,.5)', color: '#f97316', fontSize: 13.5, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
                 Cancel booking
               </button>
             </div>

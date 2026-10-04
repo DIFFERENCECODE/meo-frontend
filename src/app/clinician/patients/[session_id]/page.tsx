@@ -124,7 +124,7 @@ function AssistantBubble({
             components={{
               h1: ({ children }) => (
                 <h1 className="text-base font-bold mt-4 mb-2 first:mt-0 pb-1.5 border-b"
-                  style={{ color: colors.foreground, borderColor: 'rgba(255,255,255,0.1)' }}>
+                  style={{ color: colors.foreground, borderColor: 'rgba(255,255,255,0.12)' }}>
                   {children}
                 </h1>
               ),
@@ -169,7 +169,7 @@ function AssistantBubble({
               ),
               table: ({ children }) => (
                 <div className="my-3 overflow-x-auto rounded-[9px] border"
-                  style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
+                  style={{ borderColor: 'rgba(255,255,255,0.12)' }}>
                   <table className="w-full t-body2">{children}</table>
                 </div>
               ),

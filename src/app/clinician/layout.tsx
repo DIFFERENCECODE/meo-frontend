@@ -13,7 +13,7 @@ const T = {
   bg:      '#1a3a3a',
   sidebar: '#163333',
   card:    'rgba(40,70,70,0.8)',
-  border:  'rgba(255,255,255,0.1)',
+  border:  'rgba(255,255,255,0.12)',
   accent:  '#a4d65e',
   accentInk: '#123030',
   text:    '#ffffff',
@@ -138,16 +138,16 @@ export default function ClinicianLayout({ children }: { children: React.ReactNod
           </div>
           <div style={{ minWidth: 0 }}>
             <div style={{ fontSize: 15, fontWeight: 700, letterSpacing: '-.01em' }}>Clinician Portal</div>
-            <div style={{ fontSize: 11.5, color: 'rgba(255,255,255,.55)', marginTop: 1 }}>Powered by MeO</div>
+            <div style={{ fontSize: 11.5, color: '#a3b4b4', marginTop: 1 }}>Powered by MeO</div>
           </div>
         </div>
 
         {/* Practitioner card */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 11, margin: '14px 12px 6px', padding: '11px 12px', borderRadius: 12, background: T.card, border: `1px solid ${T.border}` }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 11, margin: '14px 12px 6px', padding: '11px 12px', borderRadius: 10, background: T.card, border: `1px solid ${T.border}` }}>
           <div style={{ width: 34, height: 34, flexShrink: 0, borderRadius: 999, background: T.accent, color: T.accentInk, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12.5, fontWeight: 800, letterSpacing: '.02em' }}>{initials}</div>
           <div style={{ minWidth: 0 }}>
             <div style={{ fontSize: 13, fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{firstName} {profile.name?.split(' ').slice(1).join(' ')}</div>
-            <div style={{ fontSize: 11, color: 'rgba(255,255,255,.55)' }}>Metabolic clinician</div>
+            <div style={{ fontSize: 11, color: '#a3b4b4' }}>Metabolic clinician</div>
           </div>
         </div>
 
@@ -158,7 +158,7 @@ export default function ClinicianLayout({ children }: { children: React.ReactNod
             return (
               <Link key={href} href={href} style={{
                 display: 'flex', alignItems: 'center', gap: 12, width: '100%',
-                padding: '11px 12px', borderRadius: 12, textDecoration: 'none',
+                padding: '11px 12px', borderRadius: 10, textDecoration: 'none',
                 fontSize: 14, fontWeight: 600,
                 background: isActive ? 'rgba(164,214,94,.12)' : 'transparent',
                 color: isActive ? T.accent : 'rgba(255,255,255,.65)',
@@ -177,11 +177,11 @@ export default function ClinicianLayout({ children }: { children: React.ReactNod
 
         {/* Footer */}
         <div style={{ marginTop: 'auto', padding: '14px 12px 18px', display: 'flex', flexDirection: 'column', gap: 2, borderTop: `1px solid ${T.border}` }}>
-          <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', borderRadius: 10, fontSize: 13.5, color: 'rgba(255,255,255,.6)', textDecoration: 'none' }}>
+          <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', borderRadius: 10, fontSize: 13.5, color: '#a3b4b4', textDecoration: 'none' }}>
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>
             Back to MeO
           </Link>
-          <button onClick={() => { clearIdToken(); window.location.href = getLogoutUrl(); }} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', borderRadius: 10, fontSize: 13.5, color: 'rgba(255,255,255,.6)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', width: '100%', textAlign: 'left' }}>
+          <button onClick={() => { clearIdToken(); window.location.href = getLogoutUrl(); }} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', borderRadius: 10, fontSize: 13.5, color: '#a3b4b4', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', width: '100%', textAlign: 'left' }}>
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
             Sign out
           </button>

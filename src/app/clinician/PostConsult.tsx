@@ -102,9 +102,9 @@ export function PostConsult({ patientSessionId, colors }: { patientSessionId: st
   });
 
   return (
-    <div style={{ padding: 16, borderRadius: 12, background: 'rgba(255,255,255,.03)', border: `1px solid ${colors.cardBorder}` }}>
+    <div style={{ padding: 16, borderRadius: 10, background: 'rgba(255,255,255,.03)', border: `1px solid ${colors.cardBorder}` }}>
       <div style={{ fontSize: 13.5, fontWeight: 700, marginBottom: 2 }}>After the consult</div>
-      <div style={{ fontSize: 12, color: 'rgba(255,255,255,.6)', marginBottom: 12 }}>
+      <div style={{ fontSize: 12, color: '#a3b4b4', marginBottom: 12 }}>
         Goes straight onto the patient&apos;s record, in your name and your words.
         Nothing here is written or rephrased by MeO.
       </div>
@@ -138,7 +138,7 @@ export function PostConsult({ patientSessionId, colors }: { patientSessionId: st
               color: '#fff', fontSize: 13, fontFamily: 'inherit',
             }}
           />
-          <div style={{ fontSize: 11, color: 'rgba(255,255,255,.55)', margin: '10px 0 6px' }}>
+          <div style={{ fontSize: 11, color: '#a3b4b4', margin: '10px 0 6px' }}>
             Checked against
           </div>
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
@@ -165,19 +165,59 @@ export function PostConsult({ patientSessionId, colors }: { patientSessionId: st
       </button>
 
       {existing.length > 0 && (
-        <div style={{ marginTop: 16, borderTop: `1px solid ${colors.cardBorder}`, paddingTop: 12 }}>
-          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.14em', textTransform: 'uppercase', color: 'rgba(255,255,255,.5)', marginBottom: 8 }}>
-            Already on their record
+        <div style={{ marginTop: 16, borderTop: `1px solid ${colors.cardBorder}`, paddingTop: 14 }}>
+          {/* The frame's heading, and it is the right one: these are not notes
+              on file, they are things the system will check. */}
+          <div className="t-label" style={{ color: '#a3b4b4', marginBottom: 10 }}>
+            What MeO will hold them to
           </div>
-          {existing.slice(0, 5).map((n) => (
-            <div key={n.id} style={{ fontSize: 12.5, color: 'rgba(255,255,255,.75)', padding: '5px 0' }}>
-              <span style={{ color: n.kind === 'plan' ? '#a4d65e' : 'rgba(255,255,255,.5)' }}>
-                {n.kind === 'plan' ? '◆' : '•'}
-              </span>{' '}
-              {n.body}
-              {n.target ? <span style={{ color: '#a4d65e' }}> — {n.target}</span> : null}
-            </div>
-          ))}
+          {existing.map((n, i) => {
+            const src = SOURCES.find((x) => x.id === n.source);
+            return (
+              <div
+                key={n.id}
+                style={{
+                  display: 'flex', alignItems: 'flex-start', gap: 10, padding: '9px 0',
+                  borderBottom: i === existing.length - 1 ? undefined : '1px solid rgba(255,255,255,0.07)',
+                }}
+              >
+                <span
+                  style={{
+                    width: 20, height: 20, flex: 'none', borderRadius: 6, marginTop: 1,
+                    background: n.kind === 'plan' ? 'rgba(164,214,94,0.15)' : 'rgba(255,255,255,0.06)',
+                    color: n.kind === 'plan' ? '#a4d65e' : '#a3b4b4',
+                    fontSize: 11, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}
+                >
+                  {n.kind === 'plan' ? '✓' : '•'}
+                </span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 12.5, color: '#ffffff' }}>
+                    {n.body}
+                    {n.target ? <span style={{ color: '#a4d65e' }}> — {n.target}</span> : null}
+                  </div>
+                  <div style={{ fontSize: 11, color: '#a3b4b4', marginTop: 2 }}>
+                    {n.kind === 'plan'
+                      ? (src && n.source !== 'none'
+                          ? `checked from ${src.label.toLowerCase()}`
+                          : 'not automatically checked')
+                      : 'note — visible to them, not checked'}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+
+          {/* The frame carries a "Not built yet" banner here. It is now out of
+              date: this screen writes into the patient's record, and /plan and
+              /from-practitioner read it back. Said plainly rather than left for
+              someone to wonder. */}
+          <p style={{ fontSize: 11.5, color: '#a3b4b4', marginTop: 12, lineHeight: 1.5 }}>
+            Everything above is on their record now — they see it under
+            <b style={{ color: '#ffffff' }}> My plan</b> and
+            <b style={{ color: '#ffffff' }}> From your practitioner</b>, in your
+            name and your words.
+          </p>
         </div>
       )}
     </div>

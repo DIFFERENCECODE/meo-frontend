@@ -8,13 +8,14 @@ import { getPersona } from '../persona';
 import { LensSwitcher } from '../LensSwitcher';
 import { PostConsult } from '../PostConsult';
 import { BetweenVisits } from '../BetweenVisits';
+import { BriefProvenance } from '../BriefProvenance';
 import { getIdToken } from '@/app/lib/auth';
 
 // Design tokens matching the clinician portal handoff
 const COLORS = {
   background: '#1a3a3a',
   card: 'rgba(40,70,70,0.8)',
-  cardBorder: 'rgba(255,255,255,0.1)',
+  cardBorder: 'rgba(255,255,255,0.12)',
   foreground: '#ffffff',
   muted: 'rgba(255,255,255,0.6)',
   primary: '#a4d65e',
@@ -123,8 +124,8 @@ function getUrgency(p: TriagePatient): Urgency {
 }
 
 const URGENCY_BORDER: Record<Urgency, string> = {
-  red: '#f87171',
-  orange: '#f5b942',
+  red: '#f97316',
+  orange: '#eab839',
   none: 'rgba(255,255,255,0.07)',
 };
 
@@ -209,7 +210,7 @@ const QUICK_ACTIONS = [
 
 function BriefSkeleton({ colors }: { colors: typeof COLORS }) {
   return (
-    <div style={{ background: colors.card, border: `1px solid ${colors.cardBorder}`, borderRadius: 12, overflow: 'hidden' }}>
+    <div style={{ background: colors.card, border: `1px solid ${colors.cardBorder}`, borderRadius: 10, overflow: 'hidden' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '12px 16px', borderBottom: `1px solid ${colors.cardBorder}` }}>
         <Sparkles className="h-3.5 w-3.5" style={{ color: colors.primary }} />
         <span style={{ fontSize: 13, fontWeight: 700, color: colors.foreground }}>Pre-Session Brief</span>
@@ -217,8 +218,8 @@ function BriefSkeleton({ colors }: { colors: typeof COLORS }) {
       </div>
       <div style={{ padding: 16, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
         {[80, 60, 90, 50].map((w, i) => (
-          <div key={i} style={{ padding: '10px 12px', borderRadius: 8, background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', flexDirection: 'column', gap: 6 }}>
-            <div className="animate-pulse" style={{ height: 9, width: `${w * 0.6}%`, borderRadius: 4, background: 'rgba(255,255,255,0.1)' }} />
+          <div key={i} style={{ padding: '10px 12px', borderRadius: 9, background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <div className="animate-pulse" style={{ height: 9, width: `${w * 0.6}%`, borderRadius: 4, background: 'rgba(255,255,255,0.12)' }} />
             <div className="animate-pulse" style={{ height: 11, width: `${w}%`, borderRadius: 4, background: 'rgba(255,255,255,0.06)' }} />
             <div className="animate-pulse" style={{ height: 11, width: `${w * 0.75}%`, borderRadius: 4, background: 'rgba(255,255,255,0.05)' }} />
           </div>
@@ -262,7 +263,7 @@ function BriefCard({
   const hasStats = stats && (stats.turnCount != null || stats.daysSinceLastMessage != null || stats.unfollowedCommitments > 0);
 
   return (
-    <div style={{ background: colors.card, border: `1px solid ${colors.cardBorder}`, borderRadius: 12, overflow: 'hidden' }}>
+    <div style={{ background: colors.card, border: `1px solid ${colors.cardBorder}`, borderRadius: 10, overflow: 'hidden' }}>
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '13px 16px', borderBottom: `1px solid ${colors.cardBorder}` }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -375,7 +376,7 @@ function BiomarkerFlagsCard({
   );
 
   return (
-    <div style={{ background: colors.card, border: `1px solid ${colors.cardBorder}`, borderRadius: 12, overflow: 'hidden' }}>
+    <div style={{ background: colors.card, border: `1px solid ${colors.cardBorder}`, borderRadius: 10, overflow: 'hidden' }}>
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', borderBottom: expanded ? `1px solid ${colors.cardBorder}` : 'none' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
@@ -439,6 +440,15 @@ function BiomarkerFlagsCard({
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              {/* Column head — the frame's six columns, stated once. */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '0 10px', fontSize: 10.5, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)' }}>
+                <span style={{ flex: 1 }}>Measure</span>
+                <span style={{ width: 86, textAlign: 'right' }}>Value</span>
+                <span style={{ width: 92, textAlign: 'right' }}>Your target</span>
+                <span style={{ width: 58, textAlign: 'center' }}>Status</span>
+                <span style={{ width: 92, textAlign: 'right' }}>Source</span>
+                <span style={{ width: 96, textAlign: 'right' }}>Change</span>
+              </div>
               {Object.entries(byCategory).map(([cat, items]) => (
                 <div key={cat}>
                   <p style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 7 }}>
@@ -453,18 +463,19 @@ function BiomarkerFlagsCard({
                         <span style={{ flex: 1, fontSize: 13, color: colors.foreground, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                           {f.display_name}
                         </span>
-                        <span style={{ fontSize: 13, fontWeight: 600, color: colors.foreground, flexShrink: 0 }}>
+                        <span style={{ width: 86, textAlign: 'right', fontSize: 13, fontWeight: 600, color: colors.foreground, flexShrink: 0 }}>
                           {f.value}&thinsp;<span style={{ fontSize: 11, color: colors.muted, fontWeight: 400 }}>{f.unit}</span>
                         </span>
                         <span style={{
-                          fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 4, flexShrink: 0,
+                          width: 58, textAlign: 'center',
+                          fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 3, flexShrink: 0,
                           background: f.status === 'high' ? 'rgba(239,68,68,0.15)' : 'rgba(249,115,22,0.15)',
                           color: f.status === 'high' ? '#ef4444' : '#f97316',
                         }}>
                           {f.status === 'high' ? '↑ HIGH' : '↓ LOW'}
                         </span>
-                        <span style={{ fontSize: 11, color: colors.muted, flexShrink: 0, whiteSpace: 'nowrap' }}>
-                          Optimal {rangeStr(f.optimal_low, f.optimal_high, f.unit)}
+                        <span style={{ width: 92, textAlign: 'right', fontSize: 11.5, color: colors.muted, flexShrink: 0, whiteSpace: 'nowrap' }}>
+                          {rangeStr(f.optimal_low, f.optimal_high, f.unit)}
                         </span>
                         {/* Source, always shown — including when it was never
                             recorded. A flag whose origin is blank reads as a lab
@@ -479,8 +490,8 @@ function BiomarkerFlagsCard({
                                 : 'No source recorded for this value'
                           }
                           style={{
-                            fontSize: 10, fontWeight: 600, padding: '2px 6px', borderRadius: 4,
-                            flexShrink: 0, whiteSpace: 'nowrap',
+                            width: 92, textAlign: 'right',
+                            fontSize: 10.5, fontWeight: 600, flexShrink: 0, whiteSpace: 'nowrap',
                             background: 'rgba(255,255,255,0.06)',
                             color: f.source ? colors.muted : 'rgba(255,255,255,0.35)',
                             fontStyle: f.source ? 'normal' : 'italic',
@@ -489,8 +500,8 @@ function BiomarkerFlagsCard({
                           {f.source === 'guided_test' ? 'home test' : f.source === 'lab_panel' ? 'lab' : 'source not recorded'}
                         </span>
                         {f.trend && f.trend !== 'stable' && (
-                          <span style={{ fontSize: 11, flexShrink: 0, color: f.trend === 'worsening' ? '#ef4444' : '#22c55e', whiteSpace: 'nowrap' }}>
-                            {f.trend === 'worsening' ? '↑' : '↓'} {f.trend}
+                          <span style={{ width: 96, textAlign: 'right', fontSize: 11.5, flexShrink: 0, color: f.trend === 'worsening' ? '#f97316' : '#a4d65e', whiteSpace: 'nowrap' }}>
+                            {f.trend}
                           </span>
                         )}
                       </div>
@@ -599,7 +610,7 @@ function AddLabResultsModal({
               type="date"
               value={testDate}
               onChange={(e) => setTestDate(e.target.value)}
-              style={{ width: '100%', padding: '7px 10px', borderRadius: 8, background: 'rgba(255,255,255,0.05)', border: `1px solid ${colors.cardBorder}`, color: colors.foreground, fontSize: 12, outline: 'none', fontFamily: 'inherit' }}
+              style={{ width: '100%', padding: '7px 10px', borderRadius: 9, background: 'rgba(255,255,255,0.05)', border: `1px solid ${colors.cardBorder}`, color: colors.foreground, fontSize: 12, outline: 'none', fontFamily: 'inherit' }}
             />
           </div>
           <div style={{ flex: 1 }}>
@@ -608,7 +619,7 @@ function AddLabResultsModal({
               value={sourceLab}
               onChange={(e) => setSourceLab(e.target.value)}
               placeholder="e.g. Thriva"
-              style={{ width: '100%', padding: '7px 10px', borderRadius: 8, background: 'rgba(255,255,255,0.05)', border: `1px solid ${colors.cardBorder}`, color: colors.foreground, fontSize: 12, outline: 'none', fontFamily: 'inherit' }}
+              style={{ width: '100%', padding: '7px 10px', borderRadius: 9, background: 'rgba(255,255,255,0.05)', border: `1px solid ${colors.cardBorder}`, color: colors.foreground, fontSize: 12, outline: 'none', fontFamily: 'inherit' }}
             />
           </div>
         </div>
@@ -617,7 +628,7 @@ function AddLabResultsModal({
           {refLoading ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {[0, 1, 2].map((i) => (
-                <div key={i} className="animate-pulse" style={{ height: 32, borderRadius: 8, background: 'rgba(255,255,255,0.04)' }} />
+                <div key={i} className="animate-pulse" style={{ height: 32, borderRadius: 9, background: 'rgba(255,255,255,0.04)' }} />
               ))}
             </div>
           ) : (
@@ -652,13 +663,13 @@ function AddLabResultsModal({
           <span style={{ fontSize: 11, color: colors.muted, flex: 1 }}>
             {error ? <span style={{ color: '#ef4444' }}>{error}</span> : `${filledCount} value${filledCount === 1 ? '' : 's'} entered`}
           </span>
-          <button onClick={onClose} style={{ padding: '9px 16px', borderRadius: 8, background: 'rgba(255,255,255,0.06)', border: `1px solid ${colors.cardBorder}`, color: colors.muted, fontSize: 13, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit' }}>
+          <button onClick={onClose} style={{ padding: '9px 16px', borderRadius: 9, background: 'rgba(255,255,255,0.06)', border: `1px solid ${colors.cardBorder}`, color: colors.muted, fontSize: 13, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit' }}>
             Cancel
           </button>
           <button
             onClick={handleSubmit}
             disabled={saving || refLoading || filledCount === 0}
-            style={{ padding: '9px 18px', borderRadius: 8, background: colors.primary, border: 'none', color: colors.primaryForeground ?? '#1a3a3a', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', opacity: (saving || refLoading || filledCount === 0) ? 0.5 : 1 }}
+            style={{ padding: '9px 18px', borderRadius: 9, background: colors.primary, border: 'none', color: colors.primaryForeground ?? '#1a3a3a', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', opacity: (saving || refLoading || filledCount === 0) ? 0.5 : 1 }}
           >
             {saving ? 'Saving…' : 'Save results'}
           </button>
@@ -801,10 +812,10 @@ function ProtocolConfigSheet({
         </div>
 
         <div style={{ padding: '12px 20px', borderTop: `1px solid ${colors.cardBorder}`, display: 'flex', gap: 8, flexShrink: 0 }}>
-          <button onClick={onClose} style={{ flex: 1, padding: '9px', borderRadius: 8, background: 'rgba(255,255,255,0.06)', border: `1px solid ${colors.cardBorder}`, color: colors.muted, fontSize: 13, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit' }}>
+          <button onClick={onClose} style={{ flex: 1, padding: '9px', borderRadius: 9, background: 'rgba(255,255,255,0.06)', border: `1px solid ${colors.cardBorder}`, color: colors.muted, fontSize: 13, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit' }}>
             Cancel
           </button>
-          <button onClick={handleSave} style={{ flex: 2, padding: '9px', borderRadius: 8, background: saved ? '#22c55e' : colors.primary, border: 'none', color: colors.primaryForeground ?? '#1a3a3a', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, transition: 'background 0.2s' }}>
+          <button onClick={handleSave} style={{ flex: 2, padding: '9px', borderRadius: 9, background: saved ? '#22c55e' : colors.primary, border: 'none', color: colors.primaryForeground ?? '#1a3a3a', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, transition: 'background 0.2s' }}>
             {saved ? <><CheckCircle2 className="h-3.5 w-3.5" /> Saved</> : 'Save instructions'}
           </button>
         </div>
@@ -898,7 +909,7 @@ function PatientWorkspace({
         <div style={{ flex: 1 }} />
         <button
           onClick={() => setProtocolOpen(true)}
-          style={{ padding: '6px 12px', borderRadius: 8, background: `${colors.primary}10`, border: `1px solid ${colors.primary}25`, color: colors.primary, fontSize: 12, fontWeight: 500, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontFamily: 'inherit' }}
+          style={{ padding: '6px 12px', borderRadius: 9, background: `${colors.primary}10`, border: `1px solid ${colors.primary}25`, color: colors.primary, fontSize: 12, fontWeight: 500, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontFamily: 'inherit' }}
         >
           <Layers className="h-3.5 w-3.5" />
           MeO Instructions
@@ -910,9 +921,14 @@ function PatientWorkspace({
         {/* The lens sits on the brief, not in a settings page: the claim is
             that the same record reads three ways, and that is only legible if
             switching is one click from the thing being re-read. */}
-        <div style={{ padding: '12px 14px', borderRadius: 10, background: 'rgba(255,255,255,.03)', border: `1px solid ${colors.cardBorder}` }}>
+        <div style={{ padding: '14px 16px', borderRadius: 10, background: 'rgba(255,255,255,.03)', border: `1px solid ${colors.cardBorder}` }}>
+          <div className="t-label" style={{ color: '#a3b4b4', marginBottom: 8 }}>Written for</div>
           <LensSwitcher onChange={onRegenerate} compact />
+          <div style={{ fontSize: 11.5, color: '#a3b4b4', marginTop: 8 }}>
+            Same data · different sections, thresholds and vocabulary
+          </div>
         </div>
+        <BriefProvenance patientSessionId={patient.session_id} colors={colors} />
         <BetweenVisits patientSessionId={patient.session_id} colors={colors} />
         <PostConsult patientSessionId={patient.session_id} colors={colors} />
         <BriefCard
@@ -976,7 +992,7 @@ function PatientWorkspace({
             placeholder={`Ask MeO about ${patientLabel}…`}
             rows={1}
             disabled={sending || detailLoading}
-            style={{ flex: 1, resize: 'none', borderRadius: 12, padding: '10px 14px', fontSize: 14, background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)', color: colors.foreground, outline: 'none', maxHeight: 100, fontFamily: 'inherit', opacity: (sending || detailLoading) ? 0.5 : 1 }}
+            style={{ flex: 1, resize: 'none', borderRadius: 10, padding: '10px 14px', fontSize: 14, background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)', color: colors.foreground, outline: 'none', maxHeight: 100, fontFamily: 'inherit', opacity: (sending || detailLoading) ? 0.5 : 1 }}
             onInput={(e) => {
               const t = e.currentTarget;
               t.style.height = 'auto';
@@ -1202,7 +1218,7 @@ export default function PatientsPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search patients…"
-              style={{ width: '100%', padding: '7px 10px 7px 28px', borderRadius: 8, background: 'rgba(255,255,255,0.05)', border: `1px solid ${colors.cardBorder}`, color: colors.foreground, fontSize: 12, outline: 'none', fontFamily: 'inherit' }}
+              style={{ width: '100%', padding: '7px 10px 7px 28px', borderRadius: 9, background: 'rgba(255,255,255,0.05)', border: `1px solid ${colors.cardBorder}`, color: colors.foreground, fontSize: 12, outline: 'none', fontFamily: 'inherit' }}
             />
           </div>
         </div>
@@ -1259,7 +1275,7 @@ export default function PatientsPage() {
         />
       ) : (
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12 }}>
-          <div style={{ width: 40, height: 40, borderRadius: 12, background: `${colors.primary}10`, border: `1px solid ${colors.primary}20`, display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: 0.6 }}>
+          <div style={{ width: 40, height: 40, borderRadius: 10, background: `${colors.primary}10`, border: `1px solid ${colors.primary}20`, display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: 0.6 }}>
             <Users className="h-5 w-5" style={{ color: colors.primary }} />
           </div>
           <div style={{ textAlign: 'center', maxWidth: 260 }}>
