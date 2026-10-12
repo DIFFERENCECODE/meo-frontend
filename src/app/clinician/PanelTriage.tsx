@@ -29,6 +29,13 @@ export interface PanelRow {
   headline?: string | null;
   trend?: string;
   last_reading?: string | null;
+  /**
+   * Values on the latest panel that are kept but not believed (an HDL no home
+   * strip should read, a waist typed in inches). They are excluded from the
+   * headline and the flags, so the row says so instead of looking calmer than
+   * the data is.
+   */
+  needs_review?: string[];
 }
 
 const TREND: Record<string, { label: string; color: string }> = {
@@ -116,7 +123,17 @@ export function PanelRows({ rows }: { rows: PanelRow[] }) {
               </div>
             </div>
 
-            <div style={{ width: 160, fontSize: 12.5, color: '#c3d0d0' }}>{r.headline ?? '—'}</div>
+            <div style={{ width: 160, fontSize: 12.5, color: '#c3d0d0' }}>
+              {r.headline ?? '—'}
+              {(r.needs_review?.length ?? 0) > 0 && (
+                <div
+                  title={r.needs_review!.join('\n')}
+                  style={{ fontSize: 11, color: '#eab839', marginTop: 2 }}
+                >
+                  {r.needs_review!.length} value{r.needs_review!.length === 1 ? '' : 's'} to confirm
+                </div>
+              )}
+            </div>
 
             <div style={{ width: 100, flex: 'none' }}>
               <span

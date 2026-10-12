@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
@@ -28,7 +28,8 @@ import {
   UserRound,
   FlaskConical,
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
+import { useModalFocus } from '@/hooks/useModalFocus';
+import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
 import { useTheme } from '@/theme/ThemeProvider';
 import { SkeletonChatRow } from '@/components/Skeleton';
 import { SidebarUser } from './SidebarUser';
@@ -76,7 +77,7 @@ function RailTooltip({ label }: { label: string }) {
   return (
     <span
       className="pointer-events-none absolute left-full top-1/2 -translate-y-1/2 ml-2 px-2.5 py-1 rounded-[9px] t-body2 font-medium whitespace-nowrap
-        opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0
+        opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 group-focus-within:opacity-100 group-focus-within:translate-x-0
         transition-all duration-150 z-[60]"
       style={{
         backgroundColor: 'var(--rail-tip-bg)',
@@ -105,6 +106,7 @@ export function LeftPanel({
   const {
     isLeftPanelOpen,
     toggleLeftPanel,
+    setLeftPanelOpen,
     isRightPanelOpen,
     theme,
     colors,
@@ -113,7 +115,34 @@ export function LeftPanel({
     vendor,
     setVendor,
   } = useTheme();
+  const reducedMotion = useReducedMotion();
+  const [drawerElement, setDrawerElement] = useState<HTMLElement | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const query = window.matchMedia('(max-width: 767px)');
+    const update = () => setIsMobile(query.matches);
+    update();
+    query.addEventListener('change', update);
+    return () => query.removeEventListener('change', update);
+  }, []);
+  useModalFocus(drawerElement, isLeftPanelOpen && isMobile);
   const pathname = usePathname();
+  const previousPath = useRef(pathname);
+  useEffect(() => {
+    if (previousPath.current !== pathname && window.matchMedia('(max-width: 767px)').matches) {
+      setLeftPanelOpen(false);
+    }
+    previousPath.current = pathname;
+  }, [pathname, setLeftPanelOpen]);
+
+  useEffect(() => {
+    if (!isLeftPanelOpen) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setLeftPanelOpen(false);
+    };
+    window.addEventListener('keydown', closeOnEscape);
+    return () => window.removeEventListener('keydown', closeOnEscape);
+  }, [isLeftPanelOpen, setLeftPanelOpen]);
   const { t } = useTranslation();
   const [showSettings, setShowSettings] = useState(false);
   const [showVendorPicker, setShowVendorPicker] = useState(false);
@@ -139,6 +168,9 @@ export function LeftPanel({
           className="md:hidden fixed top-3 left-3 z-30 p-2.5 rounded-[9px] shadow-md"
           style={{ backgroundColor: colors.background, border: `1px solid ${colors.cardBorder}40` }}
           aria-label="Open menu"
+          data-menu-trigger
+          aria-expanded={false}
+          aria-controls="patient-navigation"
         >
           <Menu className="h-5 w-5" style={{ color: colors.foreground }} />
         </button>
@@ -152,6 +184,8 @@ export function LeftPanel({
         <React.Fragment key="expanded">
           {/* Mobile overlay */}
           <motion.div
+            data-menu-backdrop
+            aria-hidden="true"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -160,12 +194,18 @@ export function LeftPanel({
           />
 
           <motion.aside
-            initial={{ width: 0, opacity: 0 }}
+            id="patient-navigation"
+            ref={setDrawerElement}
+            role={isMobile ? 'dialog' : undefined}
+            aria-modal={isMobile ? true : undefined}
+            aria-label="Navigation"
+            tabIndex={-1}
+            initial={reducedMotion ? { opacity: 0 } : { width: 0, opacity: 0 }}
             animate={{ width: 248, opacity: 1 }}
             exit={{ width: 0, opacity: 0 }}
-            transition={{ duration: 0.2, ease: 'easeOut' }}
+            transition={reducedMotion ? { duration: 0 } : { type: 'spring', bounce: 0, duration: 0.3 }}
             className={cn(
-              'h-screen flex flex-col overflow-hidden z-50',
+              'h-dvh flex flex-col overflow-hidden z-50',
               'fixed md:relative left-0 top-0',
               className,
             )}
@@ -178,6 +218,8 @@ export function LeftPanel({
                   onClick={toggleLeftPanel}
                   className="p-2 rounded-[9px] transition-colors hover:bg-transparent/10"
                   aria-label="Close menu"
+                  aria-expanded={true}
+                  aria-controls="patient-navigation"
                 >
                   <Menu className="h-5 w-5" style={{ color: colors.foreground }} />
                 </button>
@@ -192,7 +234,7 @@ export function LeftPanel({
             <div className="px-3 py-2">
               <button
                 data-tour="new-chat"
-                onClick={onNewChat}
+                onClick={() => { onNewChat?.(); if (isMobile) setLeftPanelOpen(false); }}
                 className="flex items-center gap-3 w-full px-4 py-3 rounded-full border transition-colors hover:bg-transparent/5"
                 style={{ borderColor: colors.cardBorder, color: colors.foreground }}
               >
@@ -225,7 +267,9 @@ export function LeftPanel({
                 record is the app's home and chat is one destination among
                 several. They used to sit in the footer under the conversation
                 list, which quietly said the opposite. */}
-            <nav className="px-2 pt-2 pb-1 space-y-0.5">
+            <nav aria-label="Main navigation" className="px-2 pt-2 pb-1 space-y-0.5" onClick={(event) => {
+              if ((event.target as HTMLElement).closest('a') && window.matchMedia('(max-width: 767px)').matches) setLeftPanelOpen(false);
+            }}>
               {[
                 { href: '/', label: 'My record', Icon: Home },
                 { href: '/test', label: 'Guided test', Icon: FlaskConical },
@@ -239,6 +283,7 @@ export function LeftPanel({
                     key={label}
                     data-tour={label === 'Marketplace' ? 'marketplace-nav' : undefined}
                     href={href}
+                    aria-current={active ? 'page' : undefined}
                     className="w-full flex items-center gap-3 px-3 py-2 rounded-[9px] t-lead transition-colors hover:bg-transparent/5"
                     style={{
                       color: active ? colors.primary : colors.muted,
@@ -263,6 +308,7 @@ export function LeftPanel({
                   <Link
                     key={label}
                     href={href}
+                    aria-current={active ? 'page' : undefined}
                     className="w-full flex items-center gap-3 px-3 py-2 rounded-[9px] t-lead transition-colors hover:bg-transparent/5"
                     style={{
                       color: active ? colors.primary : colors.muted,
@@ -278,6 +324,7 @@ export function LeftPanel({
               <Link
                 data-tour="library-nav"
                 href="/library"
+                aria-current={pathname === '/library' ? 'page' : undefined}
                 className="w-full flex items-center gap-3 px-3 py-2 rounded-[9px] t-lead transition-colors hover:bg-white/5"
                 style={{
                   color: pathname === '/library' ? colors.primary : colors.muted,
@@ -316,7 +363,7 @@ export function LeftPanel({
                     >
                       <button
                         type="button"
-                        onClick={() => onSelectChat?.(chat.id)}
+                        onClick={() => { onSelectChat?.(chat.id); if (isMobile) setLeftPanelOpen(false); }}
                         className="w-full text-left px-3 py-2 pr-9 rounded-[9px] t-lead truncate"
                         style={{ color: colors.foreground }}
                       >
@@ -501,7 +548,7 @@ export function LeftPanel({
           initial={{ width: 0, opacity: 0 }}
           animate={{ width: 56, opacity: 1 }}
           exit={{ width: 0, opacity: 0 }}
-          transition={{ duration: 0.2, ease: 'easeOut' }}
+          transition={reducedMotion ? { duration: 0 } : { type: 'spring', bounce: 0, duration: 0.3 }}
           onAnimationStart={() => setRailOverflow('hidden')}
           onAnimationComplete={() => setRailOverflow('visible')}
           className={cn(
@@ -522,13 +569,16 @@ export function LeftPanel({
               onClick={toggleLeftPanel}
               className="relative group p-3 rounded-[9px] transition-colors hover:bg-transparent/10"
               aria-label="Open menu"
+          data-menu-trigger
+          aria-expanded={false}
+          aria-controls="patient-navigation"
             >
               <Menu className="h-5 w-5" style={{ color: colors.foreground }} />
               <RailTooltip label="Menu" />
             </button>
 
             <button
-              onClick={onNewChat}
+              onClick={() => { onNewChat?.(); if (isMobile) setLeftPanelOpen(false); }}
               className="relative group p-3 rounded-[9px] transition-colors hover:bg-transparent/10"
               aria-label={t('sidebar.new_chat')}
             >

@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState, useCallback, useEffect, useRef } from 'react';
+import React, { useState, useCallback, useEffect, useRef, Suspense } from 'react';
 import { toast } from 'sonner';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { ThemeProvider, useTheme } from '@/theme/ThemeProvider';
 import { ThreePanelLayout } from '@/components/layout/ThreePanelLayout';
 import { ChatPanel, Message } from '@/components/layout/ChatPanel';
@@ -11,7 +11,7 @@ import { useLanguage, useTranslation } from '@/i18n/LanguageContext';
 import { AnalysisContent } from '@/components/analysis/AnalysisContent';
 import { SolutionContent } from '@/components/solution/SolutionContent';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
-import { getLoginUrl, getLogoutUrl, exchangeCodeForTokens, storeIdToken, getIdToken, clearIdToken, getSubFromIdToken, storeRefreshToken, getValidIdToken, apiFetch } from '@/app/lib/auth';
+import { getLoginUrl, getLogoutUrl, storeIdToken, getIdToken, clearIdToken, getSubFromIdToken, storeRefreshToken, getValidIdToken, apiFetch, completeSignInFromUrl } from '@/app/lib/auth';
 import LandingPage from '@/components/LandingPage';
 import { ProfileMenu } from '@/components/layout/ProfileMenu';
 import { ProtocolPanel, BAS_STATES, KRAFT_STATES, KRAFT_LEGACY_STATES } from '@/components/layout/ProtocolPanel';
@@ -36,6 +36,8 @@ function MeOAppInner() {
   const { run: tourRun, markSeen: markTourSeen, resetTour } = useTour();
   const { isLeftPanelOpen, toggleLeftPanel } = useTheme();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const requestedChat = searchParams.get('chat');
   // Tracks chats we just created in handleSendMessage — skip history load
   // for these so the optimistic user message doesn't get cleared.
   const skipHistoryLoadRef = useRef<string | null>(null);
@@ -43,6 +45,15 @@ function MeOAppInner() {
   // Chat state
   const [isActive, setIsActive] = useState(false);
   const [input, setInput] = useState('');
+  // Keep questions handed over by record, trends and library as editable drafts.
+  // Do not submit on mount: the patient should see what will be sent first.
+  useEffect(() => {
+    const question = searchParams.get('q');
+    if (!question) return;
+    const context = searchParams.get('context');
+    setInput(context ? `${question}\n\nReading reference: ${context}` : question);
+  }, [searchParams]);
+
   // Global chat language — backed by LanguageContext so the same
   // selection drives the sidebar's picker, the chat input's picker,
   // the voice-input locale, and the user_language field we send to
@@ -66,6 +77,7 @@ function MeOAppInner() {
   const [chats, setChats] = useState<ChatListItem[]>([]);
   const [currentChatId, setCurrentChatId] = useState<string | null>(null);
   const [chatsLoading, setChatsLoading] = useState(false);
+  const [historyLoading, setHistoryLoading] = useState(false);
 
   // Library panel open state — shared between LeftPanel (button) and ChatPanel (drawer)
   const [isLibraryOpen, setIsLibraryOpen] = useState(false);
@@ -136,24 +148,18 @@ function MeOAppInner() {
       setAuthChecked(true);
       return;
     }
-    const url = new URL(window.location.href);
-    const code = url.searchParams.get('code');
-    if (!code) {
+    const pending = completeSignInFromUrl();
+    if (!pending) {
       setAuthChecked(true);
       return;
     }
 
+    // Shared with every other page: one exchange per single-use code.
     setIsExchanging(true);
     (async () => {
       try {
-        const tokens = await exchangeCodeForTokens(code);
-        storeIdToken(tokens.id_token);
-        if (tokens.refresh_token) storeRefreshToken(tokens.refresh_token);
-        setIdToken(tokens.id_token);
-        url.searchParams.delete('code');
-        window.history.replaceState({}, '', url.toString());
-      } catch (err) {
-        console.error('Failed to exchange Cognito code for tokens', err);
+        const token = await pending;
+        if (token) setIdToken(token);
       } finally {
         setIsExchanging(false);
         setAuthChecked(true);
@@ -200,22 +206,37 @@ function MeOAppInner() {
   // When signed in, load chats and ensure we have a current chat
   useEffect(() => {
     if (!idToken) return;
+    let cancelled = false;
     setChatsLoading(true);
+    if (requestedChat) {
+      setCurrentChatId(null);
+      setMessages([]);
+    }
     (async () => {
       try {
         const res = await apiFetch('/api/chats');
+        if (cancelled) return;
         if (!res.ok) {
           setChatsLoading(false);
           return;
         }
         const list: ChatListItem[] = await res.json();
+        if (cancelled) return;
         setChats(list);
+        if (requestedChat) {
+          const selected = list.find((chat) => chat.id === requestedChat);
+          setCurrentChatId(selected?.id ?? null);
+          setIsActive(!!selected);
+          if (!selected) toast.error('This conversation is no longer available. Choose another chat or start a new one.');
+          return;
+        }
         if (list.length > 0 && !currentChatId) {
           setCurrentChatId(list[0].id);
         } else if (list.length === 0) {
           const createRes = await apiFetch('/api/chats', { method: 'POST' });
           if (createRes.ok) {
             const created = await createRes.json();
+            if (cancelled) return;
             setCurrentChatId(created.id);
             setChats([{ id: created.id, title: created.title, created_at: created.created_at, updated_at: created.updated_at }]);
           }
@@ -223,11 +244,12 @@ function MeOAppInner() {
       } catch (err) {
         console.error('Failed to load chats', err);
       } finally {
-        setChatsLoading(false);
+        if (!cancelled) setChatsLoading(false);
       }
     })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- only run when idToken changes; avoid overwriting currentChatId on re-run
-  }, [idToken]);
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- load URL selections without resetting on local chat updates
+  }, [idToken, requestedChat]);
 
   // Ensure left panel is open before the product tour starts so
   // [data-tour="marketplace-nav"] in the expanded panel is in DOM.
@@ -239,6 +261,7 @@ function MeOAppInner() {
   // When currentChatId changes, load history for that chat
   useEffect(() => {
     if (!idToken || !currentChatId) {
+      setHistoryLoading(false);
       if (!currentChatId && idToken) setMessages([]);
       return;
     }
@@ -251,6 +274,7 @@ function MeOAppInner() {
     }
     // Clear messages immediately so UI shows we're switching (then load below)
     setMessages([]);
+    setHistoryLoading(true);
     let cancelled = false;
     (async () => {
       try {
@@ -271,6 +295,8 @@ function MeOAppInner() {
         if (mapped.length > 0) setIsActive(true);
       } catch {
         if (!cancelled) setMessages([]);
+      } finally {
+        if (!cancelled) setHistoryLoading(false);
       }
     })();
     return () => { cancelled = true; };
@@ -584,8 +610,9 @@ function MeOAppInner() {
 
   // When user selects a chat in the sidebar, switch to it (history loads in useEffect)
   const handleSelectChat = useCallback((id: string) => {
-    setCurrentChatId(id);
-  }, []);
+    setInput('');
+    router.push(`/chat?chat=${encodeURIComponent(id)}`);
+  }, [router]);
 
   // Handle refresh
   const handleRefresh = useCallback(() => {
@@ -600,7 +627,7 @@ function MeOAppInner() {
     if (typeof window === 'undefined') return;
     const params = new URLSearchParams(window.location.search);
     if (params.get('newChat') !== '1') return;
-    window.history.replaceState({}, '', '/');
+    window.history.replaceState({}, '', '/chat');
     handleNewChat().then(() => {
       toast.success('Your data is in — ask MeO what it means.', { duration: 5000 });
     });
@@ -760,7 +787,7 @@ function MeOAppInner() {
           <ChatPanel
             messages={messages}
             input={input}
-            loading={loading}
+            loading={loading || chatsLoading || historyLoading}
             isActive={isActive}
             onInputChange={setInput}
             onSendMessage={handleSendMessage}
@@ -789,5 +816,5 @@ function MeOAppInner() {
 
 // Main component (ThemeProvider is in root layout)
 export default function MeOApp() {
-  return <MeOAppInner />;
+  return <Suspense fallback={<div role="status" className="p-6">Loading chat…</div>}><MeOAppInner /></Suspense>;
 }

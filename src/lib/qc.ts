@@ -15,11 +15,20 @@
  * would have been right and useless; 32 is not a typo, it is a correct
  * measurement in the wrong unit, and the reading is recoverable if we say so.
  *
- * So there are three verdicts, not two:
+ * So there are four verdicts:
  *   ok      — inside range, submit it
+ *   confirm — possible in a person, but very unlikely from a home strip or a
+ *             tape (an HDL of 0.17); ask them to re-check, and accept it only
+ *             once they say that is what the meter showed
  *   suspect — outside range, but a single unit conversion lands it inside;
  *             offer the converted value and let the patient confirm
  *   reject   — outside range with no plausible reading; ask them to check
+ *
+ * The `confirm` band mirrors REVIEW_RANGES in app/services/plausibility.py.
+ * A confirmed value is still submitted and still held back from comparisons
+ * server-side until it is corroborated; confirming here only means the
+ * patient has looked twice. It exists because an HDL of 0.17 went in
+ * unquestioned, was scored, and led the practitioner's view as "worsening".
  *
  * The conversions below are unit arithmetic (inches→cm, lb→kg, mg/dL→mmol/L),
  * not clinical inference. Nothing here decides anything about a patient; it
@@ -57,8 +66,22 @@ const RANGES: Record<QcField, Range> = {
   Age:          { min: 16,  max: 120, unit: 'years' },
 };
 
+/** Possible but unlikely from a home test. Mirrors REVIEW_RANGES server-side. */
+const REVIEW: Partial<Record<QcField, { min: number; max: number }>> = {
+  Waist:        { min: 50,  max: 180 },
+  Height:       { min: 120, max: 230 },
+  Weight:       { min: 30,  max: 300 },
+  Glucose:      { min: 2.5, max: 25 },
+  Triglyceride: { min: 0.2, max: 10 },
+  HDL:          { min: 0.4, max: 3.5 },
+  LDL:          { min: 0.3, max: 10 },
+  Cholesterol:  { min: 1.5, max: 15 },
+};
+
 export interface QcVerdict {
-  level: 'ok' | 'suspect' | 'reject';
+  level: 'ok' | 'confirm' | 'suspect' | 'reject';
+  /** Present only on `confirm`: accept the value as typed. */
+  confirm?: () => void;
   message?: string;
   /** Present only on `suspect`: the converted value, ready to accept in one tap. */
   suggestion?: { value: number; label: string };
@@ -75,7 +98,17 @@ export function checkValue(field: QcField, raw: number): QcVerdict {
   if (!Number.isFinite(raw)) return { level: 'reject', message: 'Enter a number.' };
 
   const range = RANGES[field];
-  if (raw >= range.min && raw <= range.max) return OK;
+  if (raw >= range.min && raw <= range.max) {
+    const review = REVIEW[field];
+    if (review && (raw < review.min || raw > review.max)) {
+      const side = raw < review.min ? 'low' : 'high';
+      return {
+        level: 'confirm',
+        message: `${raw.toLocaleString()} ${range.unit} is unusually ${side} for a home test. Re-check the reading before you continue.`,
+      };
+    }
+    return OK;
+  }
 
   // One conversion, tried once. If it lands inside the range, the patient
   // almost certainly measured correctly in a different unit.

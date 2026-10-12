@@ -199,7 +199,7 @@ export default function TherapistDetailPage() {
 
   if (!therapist) {
     return (
-      <AppShell>
+      <AppShell requireAuth={false}>
         <div className="flex flex-col items-center justify-center h-full gap-4">
           <p style={{ color: colors.muted }}>Therapist not found.</p>
           <Link href="/marketplace" className="t-lead underline" style={{ color: colors.primary }}>Back to Marketplace</Link>
@@ -209,7 +209,7 @@ export default function TherapistDetailPage() {
   }
 
   return (
-    <AppShell>
+    <AppShell requireAuth={false}>
       <div className="max-w-4xl mx-auto px-6 py-8 w-full">
         {/* Back */}
         <Link

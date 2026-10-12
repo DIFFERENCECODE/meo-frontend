@@ -157,7 +157,7 @@ export default function PricingPage() {
   };
 
   return (
-    <AppShell>
+    <AppShell requireAuth={false}>
       <div className="flex-1 overflow-auto" style={{ background: 'transparent' }}>
         <div className="max-w-4xl mx-auto px-6 py-8">
           <Link href="/" className="inline-block mb-6 t-lead underline" style={{ color: colors.primary }}>

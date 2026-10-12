@@ -1,5 +1,6 @@
 'use client';
 
+import { MotionConfig } from 'motion/react';
 import React, { createContext, useContext, useState, useCallback, useEffect, useMemo } from 'react';
 import { 
   Vendor, 
@@ -225,7 +226,7 @@ export function ThemeProvider({
 
   return (
     <ThemeContext.Provider value={contextValue}>
-      {children}
+      <MotionConfig reducedMotion="user">{children}</MotionConfig>
     </ThemeContext.Provider>
   );
 }

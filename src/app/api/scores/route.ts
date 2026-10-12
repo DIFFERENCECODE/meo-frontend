@@ -1,12 +1,10 @@
 // src/app/api/scores/route.ts
 //
-// Proxies GET to bang-api's /v2/scores?series=<measurementSeries>.
-// Returns { userid, measurementSeries, bas, vat } where bas and vat are
-// either { value, time } or null.
+// GET ?series=<measurementSeries> -> { measurementSeries, bas, vat } where bas
+// and vat are { value, time } or null. Served from the backend's readings
+// model (see _lib/points.ts for why not bang directly).
 import { NextRequest, NextResponse } from 'next/server';
-
-const BANG_API_BASE =
-  process.env.BANG_API_URL?.replace(/\/$/, '') || 'http://localhost:8000';
+import { fetchScorePoints } from './_lib/points';
 
 export async function GET(req: NextRequest) {
   const auth = req.headers.get('authorization');
@@ -23,13 +21,15 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const url = `${BANG_API_BASE}/v2/scores?series=${encodeURIComponent(series)}`;
-    const res = await fetch(url, {
-      headers: { Authorization: auth },
-      cache: 'no-store',
+    const { status, points, error } = await fetchScorePoints(auth);
+    if (error) return NextResponse.json({ error }, { status });
+    const p = points.find((x) => x.measurementSeries === series);
+    return NextResponse.json({
+      measurementSeries: series,
+      bas: p && p.bas != null ? { value: p.bas, time: p.time } : null,
+      vat: p && p.vat != null ? { value: p.vat, time: p.time } : null,
+      provisional: p?.provisional ?? null,
     });
-    const data = await res.json();
-    return NextResponse.json(data, { status: res.status });
   } catch (e: unknown) {
     const message = e instanceof Error ? e.message : 'Backend unreachable';
     return NextResponse.json({ error: message }, { status: 502 });

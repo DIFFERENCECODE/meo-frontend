@@ -1,10 +1,10 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { LogOut } from 'lucide-react';
+import { LogIn, LogOut } from 'lucide-react';
 import { useTheme } from '@/theme/ThemeProvider';
 import {
-  getIdToken, clearIdToken, getLogoutUrl,
+  clearIdToken, getLogoutUrl, getLoginUrl, getValidIdToken,
   getEmailFromIdToken, getNameFromIdToken,
 } from '@/app/lib/auth';
 
@@ -29,12 +29,24 @@ export function SidebarUser() {
   const { colors } = useTheme();
   const [email, setEmail] = useState<string | null>(null);
   const [name, setName] = useState<string | null>(null);
+  // 'out' is a real state, not a fallback label. This row used to say
+  // "Signed in" whenever it could not read a name, including when there was
+  // no session at all: the app told people they were signed in while every
+  // screen failed for lack of a token.
+  const [session, setSession] = useState<'checking' | 'in' | 'out'>('checking');
 
   useEffect(() => {
-    const token = getIdToken();
-    if (!token) return;
-    setEmail(getEmailFromIdToken(token));
-    setName(getNameFromIdToken(token));
+    let cancelled = false;
+    getValidIdToken().then((token) => {
+      if (cancelled) return;
+      if (!token) return setSession('out');
+      setEmail(getEmailFromIdToken(token));
+      setName(getNameFromIdToken(token));
+      setSession('in');
+    });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const signOut = () => {
@@ -48,7 +60,26 @@ export function SidebarUser() {
     }
   };
 
-  const label = name || email || 'Signed in';
+  if (session === 'out') {
+    return (
+      <div className="flex items-center" style={{ gap: 10, padding: '10px 8px 2px' }}>
+        <button
+          onClick={() => window.location.assign(getLoginUrl())}
+          className="flex flex-1 items-center justify-center transition-colors hover:bg-white/10"
+          style={{
+            gap: 8, height: 34, borderRadius: 9, border: 'none', cursor: 'pointer',
+            background: 'rgba(164,214,94,0.16)', color: colors.primary,
+            fontSize: 12.5, fontWeight: 600,
+          }}
+        >
+          <LogIn className="h-4 w-4" />
+          Sign in
+        </button>
+      </div>
+    );
+  }
+
+  const label = name || email || (session === 'checking' ? '…' : 'Your account');
   const initials = (name || email || '?')
     .replace(/@.*/, '')
     .split(/[.\s_-]+/)
@@ -79,7 +110,7 @@ export function SidebarUser() {
           {label}
         </div>
         <div style={{ fontSize: 10.5, color: colors.mutedDim }}>
-          {email && name ? email : 'Signed in'}
+          {email && name ? email : ''}
         </div>
       </div>
       <button

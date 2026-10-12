@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useRef, useState } from 'react';
+import { useSectionAssistant } from '@/components/assistant/SectionAssistant';
 import { BookOpen, FileText, Plus } from 'lucide-react';
 import { AppShell } from '@/components/layout/AppShell';
 import { ScreenHeader, ScreenBody, Chip } from '@/components/layout/ScreenHeader';
@@ -65,10 +65,10 @@ const RESOURCES: Resource[] = [
 
 function LibraryInner() {
   const { colors } = useTheme();
-  const router = useRouter();
+  const { ask, busy } = useSectionAssistant();
+  const readingPane = useRef<HTMLElement>(null);
   const [open, setOpen] = useState<Resource | null>(null);
 
-  const ask = (q: string) => router.push(`/chat?q=${encodeURIComponent(q)}`);
 
   return (
     <div className="flex flex-col h-full min-w-0">
@@ -79,11 +79,11 @@ function LibraryInner() {
       />
 
       <ScreenBody gap={12}>
-        <div className="flex" style={{ gap: 18, alignItems: 'flex-start', minHeight: 0 }}>
-          <div className="flex-1 min-w-0 flex flex-col" style={{ gap: 12 }}>
-            {RESOURCES.map((r, i) => {
+        <div className="flex flex-col xl:flex-row" style={{ gap: 18, alignItems: 'flex-start', minHeight: 0 }}>
+          <div className="w-full flex-1 min-w-0 flex flex-col" style={{ gap: 12 }}>
+            {RESOURCES.map((r) => {
               const Icon = r.type === 'book' ? BookOpen : FileText;
-              const active = open?.id === r.id || (!open && i === 0);
+              const active = open?.id === r.id;
               return (
                 <section
                   key={r.id}
@@ -108,7 +108,13 @@ function LibraryInner() {
                       </div>
                     </div>
                     <button
-                      onClick={() => setOpen(r)}
+                      onClick={() => {
+                        setOpen(r);
+                        readingPane.current?.focus({ preventScroll: true });
+                        readingPane.current?.scrollIntoView({ block: 'start' });
+                      }}
+                      aria-label={`Open ${r.title}`}
+                      aria-controls="library-reading-pane"
                       style={{
                         fontSize: 12, fontWeight: 700, borderRadius: 999, padding: '5px 12px',
                         whiteSpace: 'nowrap', cursor: 'pointer', fontFamily: 'inherit',
@@ -129,6 +135,7 @@ function LibraryInner() {
                       <button
                         key={q}
                         onClick={() => ask(q)}
+                        disabled={busy}
                         style={{
                           fontSize: 12, fontWeight: 600, color: colors.muted,
                           background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.14)',
@@ -153,7 +160,7 @@ function LibraryInner() {
               <Plus className="h-4 w-4 mt-0.5" style={{ color: colors.mutedDim, flex: 'none' }} />
               <div>
                 <div style={{ fontSize: 13.5, fontWeight: 600, color: colors.foreground }}>
-                  More resources are added as they&apos;re ingested
+                  More resources will be added here
                 </div>
                 <div style={{ fontSize: 12.5, color: colors.mutedDim, marginTop: 2 }}>
                   Protocol guides, practitioner notes and Meterbolic research land here.
@@ -163,7 +170,7 @@ function LibraryInner() {
           </div>
 
           {/* Reading pane. */}
-          <aside style={{ width: 372, flex: 'none', display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <aside id="library-reading-pane" ref={readingPane} tabIndex={-1} aria-label="Reading pane" className="w-full xl:w-[372px] scroll-mt-4" style={{ flex: 'none', display: 'flex', flexDirection: 'column', gap: 12 }}>
             <div className="t-label" style={{ color: colors.mutedDim }}>Reading</div>
             {open?.viewUrl ? (
               <iframe
@@ -177,7 +184,7 @@ function LibraryInner() {
               >
                 <p style={{ fontSize: 13, color: colors.muted, lineHeight: 1.6 }}>
                   {open
-                    ? 'This one has no document to read — it is ingested as knowledge, so ask MeO about it instead.'
+                    ? 'This guide is available through MeO. Choose one of its suggested questions to explore it.'
                     : 'Open a resource to read it here. Ask MeO about anything in the library and the answer cites back to it.'}
                 </p>
               </div>

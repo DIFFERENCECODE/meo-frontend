@@ -22,7 +22,7 @@ import { RecordResponse, Reading, CAPTURE_LABEL, fmtDate } from '@/components/re
  */
 
 const KINDS: Record<string, { label: string; Icon: typeof FlaskConical; note: string }> = {
-  panel: { label: 'Lipid panel', Icon: FlaskConical, note: 'Triglycerides and HDL together — a sitting at the meter' },
+  panel: { label: 'Lipid panel', Icon: FlaskConical, note: 'Triglycerides and HDL together: a sitting at the meter' },
   insulin: { label: 'Insulin panel', Icon: Hospital, note: 'Insulin comes back from a lab, not an at-home meter' },
   body: { label: 'Measurements', Icon: Ruler, note: 'Weight, waist or height' },
   other: { label: 'Entry', Icon: Circle, note: '' },
@@ -71,10 +71,19 @@ function Row({ reading, colors }: { reading: Reading & { kind?: string }; colors
           {reading.bas != null && (
             <span style={{ fontSize: 13.5, color: colors.primary }}>BAS {reading.bas.toFixed(1)}</span>
           )}
+          {reading.bas != null && reading.score_caveat && (
+            <span style={{ fontSize: 11.5, color: colors.warning }} title={reading.score_caveat}>provisional</span>
+          )}
           {reading.is_panel && reading.bas == null && (
             <span style={{ fontSize: 11.5, color: colors.warning }}>no score</span>
           )}
         </div>
+        {reading.is_panel && reading.bas == null && reading.no_score_reason && (
+          <div style={{ fontSize: 11.5, color: colors.warning, marginTop: 2 }}>{reading.no_score_reason}</div>
+        )}
+        {reading.bas != null && reading.score_caveat && (
+          <div style={{ fontSize: 11.5, color: colors.warning, marginTop: 2 }}>{reading.score_caveat}</div>
+        )}
         <div style={{ fontSize: 11.5, color: colors.mutedDim, marginTop: 2 }}>
           {markers} value{markers === 1 ? '' : 's'}
           {reading.fasted ? ' · fasted' : ''}
@@ -151,7 +160,7 @@ export function Timeline({ record }: { record: RecordResponse }) {
     <div className="flex flex-col h-full min-w-0">
       <ScreenHeader
         title="Your timeline"
-        subtitle="Every reading, every import, every score — in one order"
+        subtitle="Every reading, every import, every score, in one order"
         right={<Chip>{readings.length} entries</Chip>}
       />
       <ScreenBody gap={10}>

@@ -38,7 +38,7 @@ export default function ReadingPage() {
   return (
     <AppShell
       askPlaceholder="Ask MeO about this reading…"
-      askContext={record?.latest?.series}
+      askContext={record ? JSON.stringify({ latest: record.latest, previous: record.previous, delta: record.delta }) : undefined}
       rightPanel={record && state === 'ready' ? <ThisReadingPanel record={record} /> : undefined}
     >
       {state === 'ready' && record ? (

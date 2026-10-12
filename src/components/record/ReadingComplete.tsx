@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { useSectionAssistant } from '@/components/assistant/SectionAssistant';
 import { ArrowDown, ArrowUp, Minus, TrendingUp, MessageSquare, Lock } from 'lucide-react';
 import { useTheme } from '@/theme/ThemeProvider';
 import { ScreenHeader, ScreenBody } from '@/components/layout/ScreenHeader';
@@ -76,10 +77,10 @@ function WhatChanged({ record }: { record: RecordResponse }) {
           return (
             <div
               key={key}
-              className="flex items-center gap-3 py-3"
+              className="flex flex-wrap items-center gap-3 py-3"
               style={{ borderTop: i === 0 ? undefined : `1px solid ${colors.cardBorder}` }}
             >
-              <span className="t-lead flex-1 min-w-0 truncate">{meta.label}</span>
+              <span className="t-lead w-full sm:w-auto sm:flex-1">{meta.label}</span>
               <span className="t-lead tabular-nums" style={{ color: colors.foreground }}>
                 {d.from} <span style={{ color: colors.muted }}>→</span>{' '}
                 <span className="font-semibold">{d.to}</span>
@@ -94,16 +95,15 @@ function WhatChanged({ record }: { record: RecordResponse }) {
       </div>
 
       <p className="t-dense mt-4 leading-relaxed" style={{ color: colors.muted }}>
-        Ranked by how far each value moved, not by how much it moved your score.
-        Attributing the score change to individual markers needs the METS-IR →
-        METS-VF calculation, which runs in the measurement engine — in
-        deterministic code, never by the model.
+        Ranked by how far each value moved. This comparison does not show how
+        much each measurement contributed to your score.
       </p>
     </section>
   );
 }
 
 export function ReadingComplete({ record }: { record: RecordResponse }) {
+  const { ask, busy } = useSectionAssistant();
   const { colors } = useTheme();
   const latest = record.latest;
   if (!latest) return null;
@@ -183,13 +183,15 @@ export function ReadingComplete({ record }: { record: RecordResponse }) {
         >
           <TrendingUp className="h-4 w-4" /> See my trend
         </Link>
-        <Link
-          href={`/chat?q=${encodeURIComponent('What does my latest reading mean?')}`}
+        <button
+          type="button"
+          disabled={busy}
+          onClick={() => ask('What does my latest reading mean?')}
           className="inline-flex items-center gap-2 px-4 py-2.5 rounded-[10px] t-lead transition-colors hover:bg-transparent/5"
           style={{ color: colors.foreground, border: `1px solid ${colors.cardBorder}` }}
         >
           <MessageSquare className="h-4 w-4" /> Ask MeO what this means
-        </Link>
+        </button>
       </div>
       </ScreenBody>
     </div>

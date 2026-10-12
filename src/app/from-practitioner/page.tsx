@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { AppShell } from '@/components/layout/AppShell';
-import Link from 'next/link';
+import { useSectionAssistant } from '@/components/assistant/SectionAssistant';
 import { usePractitionerNotes, NoteCard, fmtNoteDate } from '@/components/record/PractitionerNotes';
 import { useTheme } from '@/theme/ThemeProvider';
 import { ScreenHeader, ScreenBody, Chip } from '@/components/layout/ScreenHeader';
@@ -16,6 +16,7 @@ import { ScreenHeader, ScreenBody, Chip } from '@/components/layout/ScreenHeader
  * visits — attributed, verbatim, and never rewritten by the model.
  */
 function NotesInner() {
+  const { ask, busy } = useSectionAssistant();
   const { colors } = useTheme();
   const { notes, state } = usePractitionerNotes();
   const feed = (notes ?? []).filter((n) => n.kind !== 'plan');
@@ -68,8 +69,10 @@ function NotesInner() {
               “{feed[0].body}”
             </p>
             <div className="flex" style={{ gap: 8, marginTop: 12 }}>
-              <Link
-                href={`/chat?q=${encodeURIComponent('Help me prepare questions for my next consultation')}`}
+              <button
+                type="button"
+                disabled={busy}
+                onClick={() => ask('Help me prepare questions for my next consultation')}
                 className="no-underline"
                 style={{
                   fontSize: 12, fontWeight: 700, color: colors.primary,
@@ -78,7 +81,7 @@ function NotesInner() {
                 }}
               >
                 Ask MeO to prepare questions
-              </Link>
+              </button>
             </div>
           </div>
         </section>

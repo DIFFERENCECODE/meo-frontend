@@ -21,7 +21,9 @@ export default function Home() {
   const [record, setRecord] = useState<RecordResponse | null>(null);
   const [state, setState] = useState<'loading' | 'ready' | 'empty' | 'error'>('loading');
 
+  const [attempt, setAttempt] = useState(0);
   useEffect(() => {
+    setState('loading');
     (async () => {
       try {
         const token = await getValidIdToken();
@@ -38,15 +40,15 @@ export default function Home() {
         setState('error');
       }
     })();
-  }, []);
+  }, [attempt]);
 
   return (
     <AppShell
-      askPlaceholder="Ask MeO about this reading…"
-      askContext={record?.latest?.series}
+      askPlaceholder={state === 'ready' ? 'Ask MeO about this reading…' : 'Ask MeO about getting started…'}
+      askContext={record ? JSON.stringify({ latest: record.latest, previous: record.previous, delta: record.delta }) : undefined}
       rightPanel={record && state === 'ready' ? <ThisReadingPanel record={record} /> : undefined}
     >
-      <RecordHome record={record} state={state} />
+      <RecordHome record={record} state={state} onRetry={() => setAttempt((value) => value + 1)} />
     </AppShell>
   );
 }

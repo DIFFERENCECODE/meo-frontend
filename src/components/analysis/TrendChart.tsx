@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useTheme } from '@/theme/ThemeProvider';
 
 export interface TrendPoint {
@@ -39,6 +39,18 @@ export function TrendChart({
   lowerIsBetter = true,
 }: Props) {
   const { colors } = useTheme();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [plotWidth, setPlotWidth] = useState(720);
+  useEffect(() => {
+    const element = containerRef.current;
+    if (!element) return;
+    const observer = new ResizeObserver(([entry]) => {
+      // Draw at the actual container width so SVG labels do not shrink on phones.
+      setPlotWidth(Math.max(200, Math.round(entry.contentRect.width)));
+    });
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [points.length]);
 
   if (points.length === 0) {
     return (
@@ -68,12 +80,13 @@ export function TrendChart({
     );
   }
 
-  const W = 720;
+  const compact = height < 100;
+  const W = plotWidth;
   const H = height;
-  const padL = 44;
+  const padL = compact ? 8 : 44;
   const padR = 16;
-  const padT = 16;
-  const padB = 28;
+  const padT = compact ? 8 : 16;
+  const padB = compact ? 8 : 28;
 
   const values = points.map((p) => p.value);
   const candidates = target != null ? [...values, target] : values;
@@ -102,6 +115,7 @@ export function TrendChart({
   const ticks = [hi - pad, (hi + lo) / 2, lo + pad];
 
   return (
+    <div ref={containerRef} className="min-w-0">
     <svg
       viewBox={`0 0 ${W} ${H}`}
       width="100%"
@@ -111,7 +125,7 @@ export function TrendChart({
         points[points.length - 1].date
       }, ${first} to ${last}${unit ? ` ${unit}` : ''}`}
     >
-      {ticks.map((t, i) => (
+      {!compact && ticks.map((t, i) => (
         <g key={i}>
           <line
             x1={padL}
@@ -186,12 +200,30 @@ export function TrendChart({
         );
       })}
 
-      <text x={padL} y={H - 8} fontSize={11} fill={colors.muted}>
+      {!compact && <><text x={padL} y={H - 8} fontSize={11} fill={colors.muted}>
         {points[0].date}
       </text>
       <text x={W - padR} y={H - 8} fontSize={11} fill={colors.muted} textAnchor="end">
         {points[points.length - 1].date}
       </text>
+      </>}
     </svg>
+    {!compact && (
+      <details className="mt-3" style={{ color: colors.foreground }}>
+        <summary className="min-h-11 cursor-pointer py-3 text-sm font-semibold">View reading values</summary>
+        <div className="max-h-64 overflow-auto rounded-xl" style={{ border: `1px solid ${colors.cardBorder}` }}>
+          <table className="w-full text-left text-sm tabular-nums">
+            <caption className="sr-only">Values used in this trend{unit ? ` (${unit})` : ''}</caption>
+            <thead><tr><th scope="col" className="p-3">Date</th><th scope="col" className="p-3 text-right">Value{unit ? ` (${unit})` : ''}</th></tr></thead>
+            <tbody>{points.map((point, index) => (
+              <tr key={`${point.series ?? point.date}-${index}`} style={{ borderTop: `1px solid ${colors.cardBorder}` }}>
+                <td className="p-3">{point.date}</td><td className="p-3 text-right">{point.value}</td>
+              </tr>
+            ))}</tbody>
+          </table>
+        </div>
+      </details>
+    )}
+    </div>
   );
 }

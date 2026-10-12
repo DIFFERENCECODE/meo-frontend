@@ -1,12 +1,10 @@
 // src/app/api/scores/sessions/route.ts
 //
-// Proxies GET to bang-api's /v2/scores/sessions endpoint. Lists the
-// measurementSeries values for which the logged-in user has a BAS
-// record, sorted most-recent first. Empty array is a valid response.
+// Lists the measurementSeries for which the logged-in user has a BAS, most
+// recent first. Empty array is a valid response. Served from the backend's
+// readings model (see ../_lib/points.ts).
 import { NextRequest, NextResponse } from 'next/server';
-
-const BANG_API_BASE =
-  process.env.BANG_API_URL?.replace(/\/$/, '') || 'http://localhost:8000';
+import { fetchScorePoints } from '../_lib/points';
 
 export async function GET(req: NextRequest) {
   const auth = req.headers.get('authorization');
@@ -15,12 +13,12 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const res = await fetch(`${BANG_API_BASE}/v2/scores/sessions`, {
-      headers: { Authorization: auth },
-      cache: 'no-store',
-    });
-    const data = await res.json();
-    return NextResponse.json(data, { status: res.status });
+    const { status, points, error } = await fetchScorePoints(auth);
+    if (error) return NextResponse.json({ error }, { status });
+    const sessions = [...points]
+      .sort((a, b) => (b.time ?? 0) - (a.time ?? 0))
+      .map((p) => ({ measurementSeries: p.measurementSeries, time: p.time }));
+    return NextResponse.json({ sessions });
   } catch (e: unknown) {
     const message = e instanceof Error ? e.message : 'Backend unreachable';
     return NextResponse.json({ error: message }, { status: 502 });

@@ -34,6 +34,18 @@ export interface Reading {
    */
   capture?: Record<string, string>;
   captured_by?: string | null;
+  /**
+   * Values kept on the record but not believed, with a plain reason: a waist
+   * that is clearly inches, an HDL no home strip should read. They are left
+   * out of every comparison, and the screen says so beside them.
+   */
+  held_back?: Record<string, string>;
+  /** Set when a score was computed from a held-back value. */
+  score_caveat?: string | null;
+  /** Why a lipid panel has no score, in words the patient can act on. */
+  no_score_reason?: string | null;
+  /** A measurement entered more than once in one sitting, and which was used. */
+  conflict_notes?: string[];
 }
 
 interface DeltaEntry {
@@ -109,6 +121,7 @@ export function fmtDate(d: string | null): string {
 interface RecordHomeProps {
   record: RecordResponse | null;
   state: 'loading' | 'ready' | 'empty' | 'error';
+  onRetry?: () => void;
 }
 
 /**
@@ -132,7 +145,7 @@ interface RecordHomeProps {
  *    captured on the phone and the web cannot see them, so it says so instead
  *    of showing numbers.
  */
-export function RecordHome({ record, state }: RecordHomeProps) {
+export function RecordHome({ record, state, onRetry }: RecordHomeProps) {
   const { colors } = useTheme();
 
   if (state === 'loading') {
@@ -144,7 +157,15 @@ export function RecordHome({ record, state }: RecordHomeProps) {
     );
   }
   if (state === 'error') {
-    return <p className="px-7 pt-5 t-lead" style={{ color: colors.muted }}>Couldn&apos;t load your record.</p>;
+    return (
+      <><ScreenHeader title="My record" /><ScreenBody>
+        <section role="alert" className="max-w-xl rounded-2xl p-6" style={{ background: colors.card, border: `1px solid ${colors.cardBorder}` }}>
+          <h2 className="text-lg font-semibold" style={{ color: colors.foreground }}>Your record couldn&apos;t be loaded</h2>
+          <p className="mt-2 text-sm" style={{ color: colors.muted }}>Try again to reconnect. Your saved readings haven&apos;t changed.</p>
+          {onRetry && <button onClick={onRetry} className="mt-5 min-h-11 rounded-xl px-5 font-semibold" style={{ background: colors.primary, color: colors.primaryForeground }}>Try again</button>}
+        </section>
+      </ScreenBody></>
+    );
   }
   if (!record || state === 'empty' || !record.latest) return <DayOne />;
 
@@ -171,7 +192,7 @@ export function RecordHome({ record, state }: RecordHomeProps) {
   return (
     <div className="flex flex-col h-full min-w-0">
       <ScreenHeader
-        title={greeting()}
+        title="My record"
         subtitle={`Reading ${record.panel_count} · ${fmtDate(latest.date)}${latest.fasted ? ' · fasted' : ''}`}
         right={
           <Chip>
@@ -182,14 +203,14 @@ export function RecordHome({ record, state }: RecordHomeProps) {
       <ScreenBody>
         {/* Score card. */}
         <section
-          className="flex items-center"
-          style={{ background: colors.card, border: `1px solid ${colors.cardBorder}`, borderRadius: 16, padding: '20px 24px', gap: 36 }}
+          className="flex flex-col items-stretch gap-5 2xl:flex-row 2xl:items-center"
+          style={{ background: colors.card, border: `1px solid ${colors.cardBorder}`, borderRadius: 16, padding: '20px 24px' }}
         >
           <div>
             <div className="t-label" style={{ color: colors.primary }}>Biological Age Score</div>
             {bas != null ? (
               <>
-                <div className="flex items-baseline" style={{ gap: 14, marginTop: 6 }}>
+                <div className="flex flex-wrap items-baseline" style={{ gap: 14, marginTop: 6 }}>
                   <div style={{ fontSize: 68, fontWeight: 800, letterSpacing: '-0.045em', lineHeight: 1, color: colors.foreground }}>
                     {bas.toFixed(1)}
                   </div>
@@ -204,20 +225,24 @@ export function RecordHome({ record, state }: RecordHomeProps) {
                 </div>
                 {age != null && (
                   <div style={{ fontSize: 13, color: colors.muted, marginTop: 6 }}>
-                    Target <b style={{ color: colors.primary }}>{age.toFixed(0)}</b> — your real age
+                    Target <b style={{ color: colors.primary }}>{age.toFixed(0)}</b>, your real age
+                  </div>
+                )}
+                {latest.score_caveat && (
+                  <div style={{ fontSize: 12.5, color: colors.warning, marginTop: 8, maxWidth: 420, lineHeight: 1.5 }}>
+                    {latest.score_caveat}
                   </div>
                 )}
               </>
             ) : (
               <div style={{ fontSize: 13, color: colors.warning, marginTop: 8, maxWidth: 420, lineHeight: 1.5 }}>
-                This reading has no score. A score needs a full set of plausible
-                fasting values — the engine returns nothing rather than a number
-                it can&apos;t stand behind.
+                {latest.no_score_reason ??
+                  'This reading has no score. A score needs a full set of plausible fasting values.'}
               </div>
             )}
           </div>
 
-          <div className="flex-1 flex flex-col" style={{ gap: 6 }}>
+          <div className="min-w-0 flex-1 flex flex-col" style={{ gap: 6 }}>
             <div className="t-label" style={{ color: colors.mutedDim }}>
               Last {Math.max(basSeries.length, 1)} reading{basSeries.length === 1 ? '' : 's'}
             </div>
@@ -244,23 +269,23 @@ export function RecordHome({ record, state }: RecordHomeProps) {
             return (
               <div
                 key={key}
-                className="flex items-center"
+                className="record-change-row"
                 style={{
                   gap: 14, padding: '10px 0',
                   borderBottom: i === ranked.length - 1 ? undefined : '1px solid rgba(255,255,255,0.08)',
                 }}
               >
-                <div className="flex-1 min-w-0 truncate" style={{ fontSize: 13.5, color: colors.muted }}>{meta.label}</div>
-                <div style={{ fontSize: 13.5, fontWeight: 600, width: 96, textAlign: 'right', color: colors.foreground }}>
+                <div className="record-change-label" style={{ fontSize: 13.5, color: colors.muted }}>{meta.label}</div>
+                <div className="record-change-values" style={{ fontSize: 13.5, fontWeight: 600, textAlign: 'right', color: colors.foreground }}>
                   {d.from} → {d.to}
                 </div>
-                <div style={{ width: 24, textAlign: 'center', fontSize: 13, fontWeight: 800, color: tone }}>
+                <div className="record-change-direction" style={{ width: 24, textAlign: 'center', fontSize: 13, fontWeight: 800, color: tone }}>
                   {d.direction === 'down' ? '▼' : d.direction === 'up' ? '▲' : '—'}
                 </div>
-                <div style={{ width: 96, height: 6, borderRadius: 3, background: 'rgba(255,255,255,0.1)' }}>
+                <div className="record-change-bar" aria-hidden="true" style={{ width: 96, height: 6, borderRadius: 3, background: 'rgba(255,255,255,0.1)' }}>
                   <div style={{ width: `${flat ? 0 : share}%`, height: 6, borderRadius: 3, background: tone }} />
                 </div>
-                <div style={{ width: 104, fontSize: 11.5, color: colors.mutedDim, textAlign: 'right' }}>
+                <div className="record-change-note" style={{ width: 104, fontSize: 11.5, color: colors.mutedDim, textAlign: 'right' }}>
                   {flat ? 'no real change' : NOTE[i] ?? 'small move'}
                 </div>
               </div>
@@ -268,19 +293,18 @@ export function RecordHome({ record, state }: RecordHomeProps) {
           })}
 
           <div style={{ fontSize: 11, color: colors.mutedDim, paddingTop: 10, lineHeight: 1.5 }}>
-            Share of total movement, not share of the score change. The score
-            itself is METS-IR → METS-VF — computed in deterministic code, never
-            by the model.
+            These values are ranked by their relative change. This does not show
+            how much each measurement contributed to your score.
           </div>
 
           {/* "Around it" — exact row, honest contents. */}
           <div
-            className="flex items-center"
-            style={{ gap: 18, marginTop: 14, paddingTop: 14, borderTop: '1px solid rgba(255,255,255,0.1)' }}
+            className="flex flex-wrap items-center"
+            style={{ gap: 12, marginTop: 14, paddingTop: 14, borderTop: '1px solid rgba(255,255,255,0.1)' }}
           >
             <div className="t-label" style={{ color: colors.mutedDim }}>Around it</div>
             <div style={{ fontSize: 12.5, color: colors.muted }}>
-              Sleep, steps and meal timing are captured on your phone — connect it to see them here.
+              Sleep, steps and meal timing are not available in this web view yet.
             </div>
             <div className="flex-1" />
             <Link
@@ -292,13 +316,13 @@ export function RecordHome({ record, state }: RecordHomeProps) {
                 borderRadius: 999, padding: '3px 9px', whiteSpace: 'nowrap',
               }}
             >
-              from the app
+              Connection status
             </Link>
           </div>
         </section>
 
         {/* Two action cards. */}
-        <div className="flex" style={{ gap: 14, paddingBottom: 18 }}>
+        <div className="flex flex-col sm:flex-row" style={{ gap: 14, paddingBottom: 18 }}>
           <Link
             href="/test"
             className="flex items-center no-underline"
@@ -334,30 +358,25 @@ export function RecordHome({ record, state }: RecordHomeProps) {
   );
 }
 
-function greeting(): string {
-  const h = new Date().getHours();
-  return h < 12 ? 'Morning' : h < 18 ? 'Afternoon' : 'Evening';
-}
-
 function DayOne() {
   const { colors } = useTheme();
   return (
-    <div className="max-w-2xl flex flex-col gap-4">
+    <><ScreenHeader title="My record" subtitle="Your readings, together in one place" /><ScreenBody><div className="max-w-2xl flex flex-col gap-4">
       <section
         className="rounded-2xl p-6"
         style={{ backgroundColor: colors.card, border: `1px solid ${colors.cardBorder}` }}
       >
         <h2 className="text-xl font-bold" style={{ color: colors.foreground }}>
-          One reading is a starting point
+          Start with your first reading
         </h2>
         <p className="t-lead mt-2 leading-relaxed" style={{ color: colors.muted }}>
-          Your second reading is when this number starts to mean something — it shows which
-          way you are moving, and which of your numbers is moving it.
+          Take a guided test to add your first reading. As you add more, you can compare
+          your results and see what has changed over time.
         </p>
       </section>
 
       <Link
-        href="/?test=bas"
+        href="/test"
         className="rounded-2xl p-5 flex items-center gap-4"
         style={{ backgroundColor: colors.card, border: `1px solid ${colors.primary}` }}
       >
@@ -369,15 +388,15 @@ function DayOne() {
         </div>
         <div className="flex-1">
           <p className="font-semibold" style={{ color: colors.foreground }}>
-            Take a guided reading
+            Start a guided test
           </p>
           <p className="t-lead" style={{ color: colors.muted }}>
-            Fasted, before breakfast. About 8 minutes, one strip.
+            About 10 minutes. Check what you need before you begin.
           </p>
         </div>
         <ArrowRight className="h-5 w-5" style={{ color: colors.primary }} />
       </Link>
-    </div>
+    </div></ScreenBody></>
   );
 }
 
@@ -417,13 +436,15 @@ export function ThisReadingPanel({ record }: { record: RecordResponse }) {
       <div className="grid grid-cols-2 gap-2">
         {rows.map((key) => {
           const meta = LABELS[key] ?? { label: key, unit: '' };
+          const doubtful = latest.held_back?.[key];
           return (
             <div
               key={key}
               className="rounded-[10px] p-3"
+              title={doubtful}
               style={{
                 backgroundColor: 'rgba(255,255,255,0.05)',
-                border: `1px solid ${colors.cardBorder}`,
+                border: `1px solid ${doubtful ? colors.warning : colors.cardBorder}`,
               }}
             >
               <p className="t-dense" style={{ color: colors.muted }}>
@@ -435,13 +456,23 @@ export function ThisReadingPanel({ record }: { record: RecordResponse }) {
               >
                 {latest.values[key]}
               </p>
-              <p className="t-meta" style={{ color: colors.muted }}>
-                {meta.unit}
+              <p className="t-meta" style={{ color: doubtful ? colors.warning : colors.muted }}>
+                {doubtful ? 'check this value' : meta.unit}
               </p>
             </div>
           );
         })}
       </div>
+
+      {Object.values(latest.held_back ?? {}).length > 0 && (
+        <div className="flex flex-col gap-1">
+          {Object.values(latest.held_back ?? {}).map((why) => (
+            <p key={why} className="t-dense leading-relaxed" style={{ color: colors.warning }}>
+              {why}. Left out of your comparisons until it is confirmed.
+            </p>
+          ))}
+        </div>
+      )}
 
       {!latest.has_score && (
         <div
@@ -452,7 +483,8 @@ export function ThisReadingPanel({ record }: { record: RecordResponse }) {
           }}
         >
           <p className="t-body2 leading-relaxed" style={{ color: colors.muted }}>
-            This reading has no score. A score needs a full set of plausible fasting values.
+            {latest.no_score_reason ??
+              'This reading has no score. A score needs a full set of plausible fasting values.'}
           </p>
         </div>
       )}

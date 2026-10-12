@@ -718,3 +718,43 @@ html {
   letter-spacing: 0.14em;
   text-transform: uppercase;
 }
+
+/* Keep keyboard location visible across the shared patient interface. */
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid #a4d65e;
+  outline-offset: 4px;
+}
+
+/* Patient record: keep measurement names readable before adding visual detail. */
+.record-change-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "label label" "values direction" "bar note"; }
+.record-change-label { grid-area: label; font-weight: 600; }
+.record-change-values { grid-area: values; text-align: left !important; }
+.record-change-direction { grid-area: direction; justify-self: end; }
+.record-change-bar { grid-area: bar; }
+.record-change-note { grid-area: note; justify-self: end; }
+@media (min-width: 1536px) {
+  .record-change-row { grid-template-columns: minmax(8rem, 1fr) 6rem 1.5rem 6rem 6.5rem; grid-template-areas: "label values direction bar note"; }
+  .record-change-values { text-align: right !important; }
+}
+.meo-floating-bar {
+  background: color-mix(in srgb, var(--meo-bar-background) 94%, transparent);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 4px 20px rgb(0 0 0 / 12%);
+}
+:where(button:not(:disabled), a, summary) { touch-action: manipulation; }
+:where(button:not(:disabled), a, summary):active { filter: brightness(0.9); }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+@media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
+  .meo-floating-bar { background: var(--meo-bar-background); backdrop-filter: none; -webkit-backdrop-filter: none; }
+}
+@media (prefers-contrast: more) {
+  .meo-floating-bar { border: 2px solid currentColor !important; }
+}

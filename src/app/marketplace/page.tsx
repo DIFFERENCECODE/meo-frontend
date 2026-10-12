@@ -555,7 +555,7 @@ export default function MarketplacePage() {
   });
 
   return (
-    <AppShell>
+    <AppShell requireAuth={false}>
       <div className="max-w-7xl mx-auto px-5 py-10 w-full">
         {/* Header */}
         <div className="mb-6">

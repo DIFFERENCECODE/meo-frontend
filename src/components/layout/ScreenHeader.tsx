@@ -46,7 +46,7 @@ export function ScreenHeader({
   const { colors } = useTheme();
   return (
     <header
-      className="flex items-center justify-between"
+      className="flex flex-wrap items-center justify-between gap-3"
       style={{ padding: '20px 28px 0' }}
     >
       <div className="min-w-0">

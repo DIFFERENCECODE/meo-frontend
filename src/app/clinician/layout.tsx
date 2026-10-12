@@ -4,8 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
-  getIdToken, clearIdToken, getLogoutUrl, getLoginUrl,
-  exchangeCodeForTokens, storeIdToken, storeRefreshToken,
+  clearIdToken, getLogoutUrl, getLoginUrl, getValidIdToken,
 } from '@/app/lib/auth';
 
 // ─── Design tokens (exact from design handoff) ────────────────────────────────
@@ -55,21 +54,11 @@ export default function ClinicianLayout({ children }: { children: React.ReactNod
       // patient app's exchange in MeOApp never runs here. Without this, a fresh
       // login loops: Cognito redirects back with ?code=, we find no stored
       // token, and bounce straight back to the Hosted UI.
-      const url = new URL(window.location.href);
-      const code = url.searchParams.get('code');
-      if (code && !getIdToken()) {
-        try {
-          const tokens = await exchangeCodeForTokens(code);
-          storeIdToken(tokens.id_token);
-          if (tokens.refresh_token) storeRefreshToken(tokens.refresh_token);
-        } catch (err) {
-          console.error('clinician: Cognito code exchange failed', err);
-        }
-        url.searchParams.delete('code');
-        window.history.replaceState({}, '', url.toString());
-      }
-
-      const token = getIdToken();
+      // getValidIdToken() finishes a pending ?code= exchange first. This used
+      // to exchange only when no token was stored, so a stale, expired token
+      // from an earlier visit skipped the exchange, failed the profile check
+      // and showed "access denied" to a real clinician.
+      const token = await getValidIdToken();
       if (!token) { window.location.assign(getLoginUrl()); return; }
       try {
         const r = await fetch('/api/profile', { headers: { Authorization: `Bearer ${token}` } });

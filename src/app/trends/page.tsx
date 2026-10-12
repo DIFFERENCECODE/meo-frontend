@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import React, { useState, useEffect, useMemo } from 'react';
 import { AppShell } from '@/components/layout/AppShell';
 import { ScreenHeader, ScreenBody, Chip } from '@/components/layout/ScreenHeader';
@@ -40,7 +41,9 @@ export default function TrendsPage() {
   const [state, setState] = useState<'loading' | 'ready' | 'empty' | 'error'>('loading');
   const [metric, setMetric] = useState('BAS');
 
+  const [attempt, setAttempt] = useState(0);
   useEffect(() => {
+    setState('loading');
     (async () => {
       try {
         const token = await getValidIdToken();
@@ -55,7 +58,7 @@ export default function TrendsPage() {
         setState('error');
       }
     })();
-  }, []);
+  }, [attempt]);
 
   const available = useMemo(
     () => METRICS.filter((m) => (record?.series?.[m]?.length ?? 0) > 0),
@@ -72,7 +75,7 @@ export default function TrendsPage() {
   const last = points[points.length - 1]?.value;
 
   return (
-    <AppShell askPlaceholder="Ask MeO why a point moved…">
+    <AppShell askPlaceholder="Ask MeO why a point moved…" askContext={JSON.stringify({ metric: meta.label, unit: meta.unit, points })}>
       <div className="flex flex-col h-full min-w-0">
         <ScreenHeader
           title="Trends"
@@ -82,11 +85,16 @@ export default function TrendsPage() {
 
         <ScreenBody>
           {state === 'loading' && <p style={{ fontSize: 13, color: colors.muted }}>Loading your trends…</p>}
-          {state === 'error' && <p style={{ fontSize: 13, color: colors.muted }}>Couldn&apos;t load your trends.</p>}
+          {state === 'error' && <div role="alert">
+            <p style={{ color: colors.muted }}>Your trends couldn&apos;t be loaded.</p>
+            <button onClick={() => setAttempt((value) => value + 1)} className="mt-3 min-h-11 rounded-xl px-5 font-semibold" style={{ background: colors.primary, color: colors.primaryForeground }}>Try again</button>
+          </div>}
           {state === 'empty' && (
-            <p style={{ fontSize: 13, color: colors.muted }}>
-              Nothing to chart yet. Your first guided test starts the line.
-            </p>
+            <section className="max-w-xl rounded-2xl p-6" style={{ background: colors.card, border: `1px solid ${colors.cardBorder}` }}>
+              <h2 className="text-lg font-semibold" style={{ color: colors.foreground }}>Your first reading starts here</h2>
+              <p className="mt-2 text-sm" style={{ color: colors.muted }}>Add a guided test to start your record. Come back after your next reading to compare results.</p>
+              <Link href="/test" className="mt-5 inline-flex min-h-11 items-center rounded-xl px-5 font-semibold" style={{ background: colors.primary, color: colors.primaryForeground }}>Start a guided test</Link>
+            </section>
           )}
 
           {state === 'ready' && record && (
@@ -98,6 +106,7 @@ export default function TrendsPage() {
                   return (
                     <button
                       key={m}
+                      className="min-h-11"
                       onClick={() => setMetric(m)}
                       aria-pressed={on}
                       style={{
@@ -114,14 +123,14 @@ export default function TrendsPage() {
                 })}
               </div>
 
-              <div className="flex" style={{ gap: 18, alignItems: 'flex-start', minHeight: 0 }}>
+              <div className="flex flex-col xl:flex-row" style={{ gap: 18, alignItems: 'flex-start', minHeight: 0 }}>
                 <section
-                  className="flex-1 min-w-0"
+                  className="w-full flex-1 min-w-0"
                   style={{ background: colors.card, border: `1px solid ${colors.cardBorder}`, borderRadius: 16, padding: '20px 22px' }}
                 >
                   <div style={{ fontSize: 15, fontWeight: 700, color: colors.foreground }}>{meta.label}</div>
                   <div style={{ fontSize: 12.5, color: colors.mutedDim, marginTop: 2 }}>
-                    {points.length} reading{points.length === 1 ? '' : 's'} · fasted · your meter
+                    {points.length} reading{points.length === 1 ? '' : 's'} · from your record
                   </div>
 
                   {first != null && last != null && points.length > 1 && (
@@ -141,9 +150,9 @@ export default function TrendsPage() {
                   </div>
                 </section>
 
-                <aside style={{ width: 340, flex: 'none', display: 'flex', flexDirection: 'column', gap: 14 }}>
+                <aside className="w-full xl:w-[300px]" style={{ flex: 'none', display: 'flex', flexDirection: 'column', gap: 14 }}>
                   <div style={{ background: colors.card, border: `1px solid ${colors.cardBorder}`, borderRadius: 16, padding: '18px 20px' }}>
-                    <div className="t-label" style={{ color: colors.mutedDim, marginBottom: 10 }}>From your meter</div>
+                    <div className="t-label" style={{ color: colors.mutedDim, marginBottom: 10 }}>Recorded measurements</div>
                     {METRICS.filter((m) => m !== 'BAS' && (record.series?.[m]?.length ?? 0) > 0).map((m, i, arr) => {
                       const sm = LABELS[m] ?? { label: m, unit: '' };
                       const pts = record.series[m];
@@ -159,7 +168,7 @@ export default function TrendsPage() {
                             borderBottom: i === arr.length - 1 ? undefined : '1px solid rgba(255,255,255,0.07)',
                           }}
                         >
-                          <div className="flex-1 min-w-0">
+                          <div className="w-full flex-1 min-w-0">
                             <div style={{ fontSize: 13, color: colors.foreground }}>{sm.label}</div>
                             <div style={{ fontSize: 11.5, color: colors.mutedDim }}>{pts.length} readings</div>
                           </div>
@@ -190,9 +199,7 @@ export default function TrendsPage() {
                     </div>
                     <p style={{ fontSize: 12.5, color: colors.muted, lineHeight: 1.55 }}>
                       Sleep, steps, resting heart rate and meal timing are
-                      captured on your phone. Once connected they chart on the
-                      same time axis as this trend — so you can see the lipid
-                      move against the sleep that produced it.
+                      not available in this web view yet. Your recorded measurements are shown here.
                     </p>
                   </div>
                 </aside>

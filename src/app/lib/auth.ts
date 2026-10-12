@@ -166,7 +166,47 @@ export async function refreshIdToken(): Promise<string | null> {
 }
 
 /** Get a valid id_token — auto-refreshes if expired. */
+/** Finish a Cognito sign-in if this page load is the redirect back from it.
+ *
+ *  Cognito returns to `origin + "/"` with `?code=`. That exchange used to live
+ *  only in MeOApp, which was the home page; when the record became the home and
+ *  chat moved to /chat, sign-in started landing on a page that never exchanged
+ *  the code. The person looked signed in (the sidebar said so) and held no
+ *  token, so every screen said it couldn't load and sign-out had nothing to do.
+ *
+ *  Now any caller of getValidIdToken() completes it, wherever the redirect
+ *  lands. The code is single-use, so one exchange per code is shared by every
+ *  caller (React dev mode runs effects twice; a second exchange would fail). */
+let exchange: { code: string; promise: Promise<string | null> } | null = null;
+
+export function completeSignInFromUrl(): Promise<string | null> | null {
+  if (typeof window === 'undefined') return null;
+  const url = new URL(window.location.href);
+  const code = url.searchParams.get('code');
+  if (!code) return exchange?.promise ?? null;
+  if (exchange?.code === code) return exchange.promise;
+  const promise = (async () => {
+    try {
+      const tokens = await exchangeCodeForTokens(code);
+      storeIdToken(tokens.id_token);
+      if (tokens.refresh_token) storeRefreshToken(tokens.refresh_token);
+      return tokens.id_token;
+    } catch (err) {
+      console.error('Failed to exchange Cognito code for tokens', err);
+      return null;
+    } finally {
+      url.searchParams.delete('code');
+      url.searchParams.delete('state');
+      window.history.replaceState({}, '', url.toString());
+    }
+  })();
+  exchange = { code, promise };
+  return promise;
+}
+
 export async function getValidIdToken(): Promise<string | null> {
+  const pending = completeSignInFromUrl();
+  if (pending) await pending;
   const token = getIdToken();
   if (!token) return null;
   if (!isIdTokenExpired(token)) return token;
@@ -192,8 +232,9 @@ export function redirectToLogin(reason?: string): void {
   // Best-effort toast before the navigation — helps users who briefly
   // see the redirect flash understand what's happening. The import is
   // dynamic so the auth module stays usable from server components
-  // that don't bundle sonner.
-  if (typeof window !== 'undefined') {
+  // that don't bundle sonner. Only when there was a session to expire:
+  // a first visit being told its session expired is just confusing.
+  if (reason && typeof window !== 'undefined') {
     // Read the user's preferred language straight from localStorage —
     // we can't call React hooks from this non-component path. Falls
     // back to English if no choice has been persisted yet.
