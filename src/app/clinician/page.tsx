@@ -89,11 +89,6 @@ export default function DashboardPage() {
         <LensSwitcher />
       </div>
 
-      {/* Lens — the practitioner half of "one record, three lenses". */}
-      <div style={{ marginTop: 22, padding: '16px 20px', borderRadius: 10, background: 'rgba(40,70,70,.55)', border: '1px solid rgba(255,255,255,.12)' }}>
-        <LensSwitcher />
-      </div>
-
       {/* The frame's five tiles. */}
       <div style={{ marginTop: 18 }}>
         <PanelTiles rows={triage as PanelRow[]} />
@@ -123,6 +118,11 @@ export default function DashboardPage() {
           Array.from({ length: 3 }).map((_, i) => (
             <div key={i} style={{ height: 62, borderRadius: 10, background: 'rgba(40,70,70,.5)', border: '1px solid rgba(255,255,255,.08)', marginBottom: 7 }} />
           ))
+        ) : triage.length === 0 ? (
+          <div style={{ padding: 20, borderRadius: 10, background: 'rgba(40,70,70,.5)', border: '1px solid rgba(255,255,255,.08)', fontSize: 13, color: '#c3d0d0' }}>
+            No patients linked to you yet. Your caseload is the patients who have
+            been linked to your account; MeO never shows you anyone else&apos;s.
+          </div>
         ) : (
           <PanelRows rows={triage as PanelRow[]} />
         )}
@@ -131,7 +131,7 @@ export default function DashboardPage() {
       {/* All-clear */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, marginTop: 14, padding: 20, borderRadius: 10, border: '1px dashed rgba(255,255,255,.13)', color: 'rgba(255,255,255,.42)', fontSize: 13 }}>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
-        {loading ? 'Loading panel…' : flagged.length === 0 ? 'All patients up to date — nothing needs your attention' : 'All other patients are up to date'}
+        {loading ? 'Loading panel…' : flagged.length === 0 ? 'All patients up to date: nothing needs your attention' : 'All other patients are up to date'}
       </div>
     </main>
   );

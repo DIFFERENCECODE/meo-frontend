@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { getIdToken } from '@/app/lib/auth';
+import { ProgressBadge, type PlanProgress } from '@/components/record/PractitionerNotes';
 
 /**
  * Between visits — the gap, as data.
@@ -38,6 +39,7 @@ interface Note {
   target: string | null;
   practitioner_name: string | null;
   created_at: string;
+  progress?: PlanProgress | null;
 }
 interface Between {
   readings: Reading[];
@@ -69,19 +71,44 @@ export function BetweenVisits({ patientSessionId, colors }: { patientSessionId: 
       .finally(() => setLoading(false));
   }, [patientSessionId]);
 
+  const plan = (data?.notes ?? []).filter((n) => n.kind === 'plan');
+  const otherNotes = (data?.notes ?? []).filter((n) => n.kind !== 'plan');
   const label = { fontSize: 11, fontWeight: 700, letterSpacing: '.14em', textTransform: 'uppercase' as const, color: '#a3b4b4', marginBottom: 8 };
 
   return (
     <div style={{ padding: 16, borderRadius: 10, background: 'rgba(255,255,255,.03)', border: `1px solid ${colors.cardBorder}` }}>
       <div style={{ fontSize: 13.5, fontWeight: 700 }}>Between visits</div>
       <div style={{ fontSize: 12, color: '#a3b4b4', marginTop: 2, marginBottom: 14 }}>
-        What happened since you last saw them. Every row is stored — nothing here is generated.
+        What happened since you last saw them. Every row is stored or counted; nothing here is generated.
       </div>
 
       {loading && <div style={{ fontSize: 12.5, color: '#a3b4b4' }}>Loading…</div>}
 
       {!loading && data && (
         <>
+          {/* The plan leads: the consult starts from what was agreed and how it
+              went, counted by the Truth Engine, before any other evidence. */}
+          <div style={label}>How your plan went</div>
+          {plan.length === 0 ? (
+            <div style={{ fontSize: 12.5, color: '#a3b4b4', marginBottom: 14 }}>
+              No plan lines yet. Lines you write after this consult are tracked here.
+            </div>
+          ) : (
+            <div style={{ marginBottom: 14, display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {plan.map((n) => (
+                <div key={n.id} style={{ fontSize: 12.5, color: '#c3d0d0' }}>
+                  <div>
+                    <span style={{ color: '#a4d65e' }}>◆</span> {n.body}
+                    {n.target ? <span style={{ color: '#a4d65e' }}>: {n.target}</span> : null}
+                  </div>
+                  <div style={{ marginTop: 4, paddingLeft: 16 }}>
+                    <ProgressBadge progress={n.progress} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
           <div style={label}>Readings taken ({data.readings.length})</div>
           {data.readings.length === 0 ? (
             <div style={{ fontSize: 12.5, color: '#a3b4b4', marginBottom: 14 }}>
@@ -106,7 +133,7 @@ export function BetweenVisits({ patientSessionId, colors }: { patientSessionId: 
             </div>
           )}
 
-          <div style={label}>Commitments they made ({data.commitments.length})</div>
+          <div style={label}>Their own commitments, made with the coach ({data.commitments.length})</div>
           {data.commitments.length === 0 ? (
             <div style={{ fontSize: 12.5, color: '#a3b4b4', marginBottom: 14 }}>
               Nothing recorded.
@@ -116,30 +143,24 @@ export function BetweenVisits({ patientSessionId, colors }: { patientSessionId: 
               {data.commitments.map((c, i) => (
                 <div key={i} style={{ fontSize: 12.5, padding: '5px 0', color: '#c3d0d0' }}>
                   • {c.commitment || c.category || 'Commitment'}
-                  {c.timeframe ? <span style={{ color: '#a3b4b4' }}> — {c.timeframe}</span> : null}
+                  {c.timeframe ? <span style={{ color: '#a3b4b4' }}> · {c.timeframe}</span> : null}
                   {c.followed_up ? <span style={{ color: '#a4d65e' }}> · followed up</span> : <span style={{ color: '#f97316' }}> · open</span>}
                 </div>
               ))}
             </div>
           )}
 
-          <div style={label}>What you&apos;ve written ({data.notes.length})</div>
-          {data.notes.length === 0 ? (
-            <div style={{ fontSize: 12.5, color: '#a3b4b4', marginBottom: 14 }}>
-              Nothing yet — use the composer above.
-            </div>
-          ) : (
-            <div style={{ marginBottom: 14 }}>
-              {data.notes.map((n) => (
-                <div key={n.id} style={{ fontSize: 12.5, padding: '5px 0', color: '#c3d0d0' }}>
-                  <span style={{ color: n.kind === 'plan' ? '#a4d65e' : '#a3b4b4' }}>
-                    {n.kind === 'plan' ? '◆' : '•'}
-                  </span>{' '}
-                  {n.body}
-                  {n.target ? <span style={{ color: '#a4d65e' }}> — {n.target}</span> : null}
-                </div>
-              ))}
-            </div>
+          {otherNotes.length > 0 && (
+            <>
+              <div style={label}>Your notes ({otherNotes.length})</div>
+              <div style={{ marginBottom: 14 }}>
+                {otherNotes.map((n) => (
+                  <div key={n.id} style={{ fontSize: 12.5, padding: '5px 0', color: '#c3d0d0' }}>
+                    <span style={{ color: '#a3b4b4' }}>•</span> {n.body}
+                  </div>
+                ))}
+              </div>
+            </>
           )}
 
           {/* The honest handover the storyboard asks for at the end of this

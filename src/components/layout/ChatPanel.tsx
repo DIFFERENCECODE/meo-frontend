@@ -15,6 +15,7 @@ import { useTranslation } from '@/i18n/LanguageContext';
 import { ProfileMenu } from '@/components/layout/ProfileMenu';
 import SuggestionTicker from '@/components/layout/SuggestionTicker';
 import LibraryPanel from '@/components/layout/LibraryPanel';
+import { useMyPractitioner } from '@/components/record/PractitionerNotes';
 
 // Types
 export type Message = {
@@ -195,6 +196,7 @@ export function ChatPanel({
   onLibraryClose: externalCloseLibrary,
 }: ChatPanelProps) {
   const { theme, colors, vendor, isLeftPanelOpen, isRightPanelOpen, toggleRightPanel, userRole } = useTheme();
+  const practitioner = useMyPractitioner();
 
   const stripPhaseTag = (s: string) => s.replace(/^\[[A-Z_]+\]\s*\n?/, '');
 
@@ -582,7 +584,21 @@ export function ChatPanel({
         }}
       >
         {isLeftPanelOpen && (
-          <Logo size="small" onClick={onRefresh} vendor={vendor} />
+          <div className="flex items-center gap-3 min-w-0">
+            <Logo size="small" onClick={onRefresh} vendor={vendor} />
+            {practitioner && (
+              <span
+                title={`MeO works for ${practitioner.name || 'your practitioner'} between visits. Changes to your plan are theirs to make.`}
+                className="t-body2 truncate"
+                style={{
+                  color: colors.muted, border: `1px solid ${colors.cardBorder}`,
+                  borderRadius: 999, padding: '3px 10px',
+                }}
+              >
+                {practitioner.name || 'Your practitioner'}&apos;s assistant
+              </span>
+            )}
+          </div>
         )}
         <div className="flex items-center gap-2 flex-shrink-0">
           <Tip label="Library" position="bottom">

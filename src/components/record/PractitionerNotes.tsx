@@ -29,6 +29,55 @@ export interface PractitionerNote {
   source: string | null;
   reading_series: string | null;
   created_at: string;
+  /** Plan lines only: the Truth Engine's count, computed server-side. */
+  progress?: PlanProgress | null;
+}
+
+export interface PlanProgress {
+  status: string;
+  summary: string;
+  qualifying_days?: number;
+  expected?: number | null;
+  window_days?: number;
+}
+
+/**
+ * The verdict words, fixed here so the patient, the practitioner and the
+ * coach all say the same thing. "Nothing recorded" is deliberately not red:
+ * not logging something is not the same as not doing it.
+ */
+export const PROGRESS_META: Record<string, { label: string; color: string }> = {
+  on_track: { label: 'On track', color: '#a4d65e' },
+  partial: { label: 'Partly there', color: '#eab839' },
+  off_track: { label: 'Behind', color: '#f97316' },
+  no_data: { label: 'Nothing recorded yet', color: '#a3b4b4' },
+  tracked: { label: 'Counting', color: '#7cc5d8' },
+  too_early: { label: 'Too early to tell', color: '#a3b4b4' },
+  not_measurable: { label: 'Not checked automatically', color: '#a3b4b4' },
+  not_shared: { label: 'Data not shared', color: '#a3b4b4' },
+  unavailable: { label: "Couldn't check", color: '#a3b4b4' },
+};
+
+export function ProgressBadge({ progress }: { progress?: PlanProgress | null }) {
+  const { colors } = useTheme();
+  if (!progress) return null;
+  const meta = PROGRESS_META[progress.status] ?? PROGRESS_META.unavailable;
+  return (
+    <div className="flex items-center flex-wrap" style={{ gap: 8 }}>
+      <span
+        style={{
+          fontSize: 11, fontWeight: 700, color: meta.color, whiteSpace: 'nowrap',
+          border: `1px solid ${meta.color}`, borderRadius: 999, padding: '2px 9px',
+          background: 'rgba(255,255,255,0.04)',
+        }}
+      >
+        {meta.label}
+      </span>
+      {progress.summary && progress.status !== 'not_measurable' && (
+        <span style={{ fontSize: 12, color: colors.muted }}>{progress.summary}</span>
+      )}
+    </div>
+  );
 }
 
 /** What a plan line is checked against. "none" is honest, not a failure. */
@@ -82,6 +131,11 @@ export function PlanLine({ note }: { note: PractitionerNote }) {
             <p className="t-lead mt-0.5" style={{ color: colors.primary }}>{note.target}</p>
           )}
           <p className="t-body2 mt-2" style={{ color: colors.muted }}>{meta.label}</p>
+          {note.progress && (
+            <div className="mt-2">
+              <ProgressBadge progress={note.progress} />
+            </div>
+          )}
           <div className="mt-2">
             <Attribution note={note} />
           </div>
@@ -136,4 +190,34 @@ export function usePractitionerNotes() {
   }, []);
 
   return { notes, state };
+}
+
+
+/**
+ * The patient's practitioner, when they have one. Drives the "Dr X's
+ * assistant" identity in chat: the assistant works for a named human and
+ * says so, which is both honest and the reason a plan gets followed.
+ */
+export function useMyPractitioner() {
+  const [practitioner, setPractitioner] = React.useState<{ id: string; name: string | null } | null>(null);
+
+  React.useEffect(() => {
+    (async () => {
+      try {
+        const { getValidIdToken } = await import('@/app/lib/auth');
+        const token = await getValidIdToken();
+        if (!token) return;
+        const res = await fetch('/api/me/practitioner', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        setPractitioner(data?.practitioner ?? null);
+      } catch {
+        /* no practitioner shown; chat works unchanged */
+      }
+    })();
+  }, []);
+
+  return practitioner;
 }

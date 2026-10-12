@@ -105,7 +105,7 @@ function PlanInner() {
       {state === 'ready' && plan.length > 0 && (
         <p style={{ fontSize: 11.5, color: colors.mutedDim, lineHeight: 1.5, paddingTop: 4 }}>
           Your practitioner sets the plan. MeO only checks it against what your
-          meter and phone already record — it never writes or changes a line.
+          meter and phone already record. It never writes or changes a line.
         </p>
       )}
       </ScreenBody>

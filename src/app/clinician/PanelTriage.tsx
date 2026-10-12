@@ -36,6 +36,8 @@ export interface PanelRow {
    * the data is.
    */
   needs_review?: string[];
+  /** The practitioner's own plan, counted by the Truth Engine. Null: no plan. */
+  plan?: { lines: number; on_track: number; off_track: number; judged: number } | null;
 }
 
 const TREND: Record<string, { label: string; color: string }> = {
@@ -52,14 +54,14 @@ export function PanelTiles({ rows }: { rows: PanelRow[] }) {
   const stalled = rows.filter((r) => (r.readings_count ?? 0) === 1).length;
   const notStarted = rows.filter((r) => (r.readings_count ?? 0) === 0).length;
   const onTrack = rows.filter((r) => r.urgency_level === 'low' && (r.readings_count ?? 0) > 1).length;
-  const openCommitments = rows.reduce((n, r) => n + (r.unfollowed_commitments || 0), 0);
+  const planBehind = rows.filter((r) => (r.plan?.off_track ?? 0) > 0).length;
 
   const tiles = [
     { label: 'Need review', n: needReview, sub: 'against your thresholds', color: '#f97316' },
     { label: 'Stalled', n: stalled, sub: 'no second reading', color: '#eab839' },
     { label: 'Not syncing', n: notStarted, sub: 'never started a test', color: '#ef4444' },
     { label: 'On track', n: onTrack, sub: 'trending to target', color: '#a4d65e' },
-    { label: 'Open commitments', n: openCommitments, sub: 'not yet followed up', color: '#ffffff' },
+    { label: 'Plan behind', n: planBehind, sub: 'a line well short, 14 days', color: '#f97316' },
   ];
 
   return (
@@ -145,6 +147,26 @@ export function PanelRows({ rows }: { rows: PanelRow[] }) {
               >
                 {trend.label}
               </span>
+            </div>
+
+            <div style={{ width: 118, flex: 'none' }}>
+              {r.plan ? (
+                <span
+                  title={`${r.plan.lines} plan line${r.plan.lines === 1 ? '' : 's'}; ${r.plan.judged} with enough data to judge`}
+                  style={{
+                    display: 'inline-block', fontSize: 11, fontWeight: 700, whiteSpace: 'nowrap',
+                    color: r.plan.off_track ? '#f97316' : r.plan.judged ? '#a4d65e' : '#a3b4b4',
+                    border: `1px solid ${r.plan.off_track ? '#f97316' : r.plan.judged ? '#a4d65e' : 'rgba(255,255,255,0.2)'}`,
+                    borderRadius: 999, padding: '3px 10px', background: 'rgba(255,255,255,0.06)',
+                  }}
+                >
+                  {r.plan.judged
+                    ? `Plan ${r.plan.on_track}/${r.plan.judged} on track`
+                    : 'Plan: no data yet'}
+                </span>
+              ) : (
+                <span style={{ fontSize: 11, color: '#a3b4b4' }}>No plan yet</span>
+              )}
             </div>
 
             <div style={{ width: 62, textAlign: 'center', fontSize: 13, fontWeight: 800, color: flags ? '#f97316' : '#a3b4b4' }}>
