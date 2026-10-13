@@ -73,9 +73,17 @@ export default function TrendsPage() {
   const meta = LABELS[metric] ?? { label: TAB_LABEL[metric] ?? metric, unit: '' };
   const first = points[0]?.value;
   const last = points[points.length - 1]?.value;
+  // Values arrive at full float precision ("28.903378058211047"); show what a
+  // person reads, never more digits than the measurement can carry.
+  const fmt = (v: number) => String(Number(v.toFixed(Math.abs(v) >= 100 ? 0 : 2)));
 
   return (
-    <AppShell askPlaceholder="Ask MeO why a point moved…" askContext={JSON.stringify({ metric: meta.label, unit: meta.unit, points })}>
+    <AppShell
+      askPlaceholder="Ask MeO why a point moved…"
+      askContext={JSON.stringify({ metric: meta.label, unit: meta.unit, points })}
+      rightPanelLabel="Your measurements"
+      rightPanel={state === 'ready' && record ? <TrendsRail record={record} metric={metric} onPick={setMetric} /> : undefined}
+    >
       <div className="flex flex-col h-full min-w-0">
         <ScreenHeader
           title="Trends"
@@ -106,15 +114,15 @@ export default function TrendsPage() {
                   return (
                     <button
                       key={m}
-                      className="min-h-11"
+                      className="meo-press min-h-9"
                       onClick={() => setMetric(m)}
                       aria-pressed={on}
                       style={{
                         fontSize: 12, fontWeight: on ? 700 : 600, cursor: 'pointer', fontFamily: 'inherit',
                         borderRadius: 999, padding: '5px 12px', whiteSpace: 'nowrap',
-                        color: on ? colors.primary : colors.muted,
-                        background: on ? 'rgba(164,214,94,0.12)' : 'rgba(255,255,255,0.07)',
-                        border: `1px solid ${on ? 'rgba(164,214,94,0.3)' : 'rgba(255,255,255,0.14)'}`,
+                        color: on ? '#1a3a3a' : colors.muted,
+                        background: on ? '#a4d65e' : 'rgba(255,255,255,0.07)',
+                        border: `1px solid ${on ? '#a4d65e' : 'rgba(255,255,255,0.14)'}`,
                       }}
                     >
                       {TAB_LABEL[m] ?? LABELS[m]?.label ?? m}
@@ -123,7 +131,7 @@ export default function TrendsPage() {
                 })}
               </div>
 
-              <div className="flex flex-col xl:flex-row" style={{ gap: 18, alignItems: 'flex-start', minHeight: 0 }}>
+              <div className="flex flex-col" style={{ gap: 18, minHeight: 0 }}>
                 <section
                   className="w-full flex-1 min-w-0"
                   style={{ background: colors.card, border: `1px solid ${colors.cardBorder}`, borderRadius: 16, padding: '20px 22px' }}
@@ -135,7 +143,7 @@ export default function TrendsPage() {
 
                   {first != null && last != null && points.length > 1 && (
                     <div style={{ fontSize: 19, fontWeight: 800, letterSpacing: '-0.025em', color: colors.foreground, marginTop: 10 }}>
-                      {first} <span style={{ color: colors.mutedDim }}>→</span> {last}
+                      {fmt(first)} <span style={{ color: colors.mutedDim }}>→</span> {fmt(last)}
                       <span style={{ fontSize: 12.5, fontWeight: 400, color: colors.mutedDim }}> {meta.unit}</span>
                     </div>
                   )}
@@ -150,64 +158,73 @@ export default function TrendsPage() {
                   </div>
                 </section>
 
-                <aside className="w-full xl:w-[300px]" style={{ flex: 'none', display: 'flex', flexDirection: 'column', gap: 14 }}>
-                  <div style={{ background: colors.card, border: `1px solid ${colors.cardBorder}`, borderRadius: 16, padding: '18px 20px' }}>
-                    <div className="t-label" style={{ color: colors.mutedDim, marginBottom: 10 }}>Recorded measurements</div>
-                    {METRICS.filter((m) => m !== 'BAS' && (record.series?.[m]?.length ?? 0) > 0).map((m, i, arr) => {
-                      const sm = LABELS[m] ?? { label: m, unit: '' };
-                      const pts = record.series[m];
-                      const v = pts[pts.length - 1]?.value;
-                      return (
-                        <button
-                          key={m}
-                          onClick={() => setMetric(m)}
-                          className="w-full flex items-center text-left"
-                          style={{
-                            gap: 12, padding: '9px 0', cursor: 'pointer', background: 'none', fontFamily: 'inherit',
-                            border: 'none',
-                            borderBottom: i === arr.length - 1 ? undefined : '1px solid rgba(255,255,255,0.07)',
-                          }}
-                        >
-                          <div className="w-full flex-1 min-w-0">
-                            <div style={{ fontSize: 13, color: colors.foreground }}>{sm.label}</div>
-                            <div style={{ fontSize: 11.5, color: colors.mutedDim }}>{pts.length} readings</div>
-                          </div>
-                          <div style={{ fontSize: 15, fontWeight: 700, color: colors.foreground }}>
-                            {v}
-                            <span style={{ fontSize: 11, fontWeight: 400, color: colors.mutedDim }}> {sm.unit}</span>
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
 
-                  {/* The frame puts phone data beside meter data on the same
-                      axis. We hold none of it, so this says that rather than
-                      drawing an empty chart. */}
-                  <div style={{ background: colors.card, border: `1px solid ${colors.cardBorder}`, borderRadius: 16, padding: '18px 20px' }}>
-                    <div className="flex items-center justify-between" style={{ marginBottom: 10 }}>
-                      <div className="t-label" style={{ color: colors.mutedDim }}>From your phone</div>
-                      <span
-                        style={{
-                          fontSize: 10.5, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase',
-                          color: colors.device, background: 'rgba(124,197,216,0.12)',
-                          border: '1px solid rgba(124,197,216,0.3)', borderRadius: 999, padding: '3px 9px',
-                        }}
-                      >
-                        from the app
-                      </span>
-                    </div>
-                    <p style={{ fontSize: 12.5, color: colors.muted, lineHeight: 1.55 }}>
-                      Sleep, steps, resting heart rate and meal timing are
-                      not available in this web view yet. Your recorded measurements are shown here.
-                    </p>
-                  </div>
-                </aside>
               </div>
             </>
           )}
         </ScreenBody>
       </div>
     </AppShell>
+  );
+}
+
+
+/** A plain line in its own range: the shape of a series, not a chart. */
+function Spark({ values, color }: { values: number[]; color: string }) {
+  if (values.length < 2) return <svg width={80} height={26} aria-hidden />;
+  const w = 80, h = 26, lo = Math.min(...values), hi = Math.max(...values), span = hi - lo || 1;
+  const pts = values.map((v, i) => `${(i / (values.length - 1)) * w},${h - 3 - ((v - lo) / span) * (h - 6)}`).join(' ');
+  return (
+    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} aria-hidden>
+      <polyline points={pts} fill="none" stroke={color} strokeWidth="1.6" strokeLinejoin="round" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+/**
+ * The frame's right rail: every measurement from the meter with its own
+ * sparkline, then what the phone sends. Picking a row charts it.
+ */
+function TrendsRail({ record, metric, onPick }: { record: RecordResponse; metric: string; onPick: (m: string) => void }) {
+  const rows = METRICS.filter((m) => m !== 'BAS' && (record.series?.[m]?.length ?? 0) > 0);
+  const label = { fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase' as const, color: '#a3b4b4' };
+  return (
+    <div style={{ padding: '20px 20px 24px' }}>
+      <div style={label}>From your meter</div>
+      {rows.map((m) => {
+        const sm = LABELS[m] ?? { label: m, unit: '' };
+        const pts = record.series[m];
+        const v = pts[pts.length - 1]?.value;
+        return (
+          <button
+            key={m}
+            onClick={() => onPick(m)}
+            aria-pressed={m === metric}
+            className="meo-row w-full flex items-center text-left"
+            style={{ gap: 12, padding: '10px 4px', background: 'none', border: 'none', borderBottom: '1px solid rgba(255,255,255,0.08)', cursor: 'pointer', fontFamily: 'inherit' }}
+          >
+            <div className="flex-1 min-w-0">
+              <div style={{ fontSize: 13, fontWeight: 700, color: m === metric ? '#a4d65e' : '#ffffff' }}>{sm.label}</div>
+              <div style={{ fontSize: 11, color: '#a3b4b4' }}>{pts.length} readings</div>
+            </div>
+            <Spark values={pts.map((p) => p.value)} color={(LOWER_IS_BETTER[m] ?? true) ? '#a4d65e' : '#7cc5d8'} />
+            <div style={{ width: 58, textAlign: 'right' }}>
+              <div style={{ fontSize: 15, fontWeight: 800, color: '#ffffff' }}>{v != null ? Number(v.toFixed(2)) : '—'}</div>
+              <div style={{ fontSize: 10.5, color: '#a3b4b4' }}>{sm.unit}</div>
+            </div>
+          </button>
+        );
+      })}
+      <div className="flex items-center justify-between" style={{ marginTop: 22 }}>
+        <div style={label}>From your phone</div>
+        <span style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#7cc5d8', background: 'rgba(124,197,216,0.12)', border: '1px solid rgba(124,197,216,0.3)', borderRadius: 999, padding: '3px 9px' }}>
+          from the app
+        </span>
+      </div>
+      <p style={{ fontSize: 12.5, color: '#c3d0d0', lineHeight: 1.55, marginTop: 10 }}>
+        Sleep, steps, resting heart rate and meal timing are charted in the MeO app on your phone.
+        A plan line that checks them shows its count on <a href="/plan" style={{ color: '#a4d65e' }}>My plan</a>.
+      </p>
+    </div>
   );
 }

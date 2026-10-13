@@ -43,6 +43,11 @@ export function SidebarUser() {
       setEmail(getEmailFromIdToken(token));
       setName(getNameFromIdToken(token));
       setSession('in');
+      // Prefer the profile's name: the token's is often a login handle.
+      fetch('/api/profile', { headers: { Authorization: `Bearer ${token}` } })
+        .then((r) => (r.ok ? r.json() : null))
+        .then((d) => { if (!cancelled && d?.name && /\s/.test(String(d.name).trim())) setName(String(d.name).trim()); })
+        .catch(() => {});
     });
     return () => {
       cancelled = true;
@@ -109,9 +114,11 @@ export function SidebarUser() {
         >
           {label}
         </div>
-        <div style={{ fontSize: 10.5, color: colors.mutedDim }}>
-          {email && name ? email : ''}
-        </div>
+        {/* The plan line the frames show under the name ("Starter · £149").
+            The free tier links to upgrade; paid tiers are not read here yet. */}
+        <a href="/pricing" className="no-underline" style={{ fontSize: 10.5, color: colors.mutedDim }}>
+          Free plan · <span style={{ color: colors.primary }}>Upgrade</span>
+        </a>
       </div>
       <button
         onClick={signOut}

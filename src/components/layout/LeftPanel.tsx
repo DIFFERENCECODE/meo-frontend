@@ -27,6 +27,9 @@ import {
   Link2,
   UserRound,
   FlaskConical,
+  Plus,
+  PanelLeftClose,
+  Smartphone,
 } from 'lucide-react';
 import { useModalFocus } from '@/hooks/useModalFocus';
 import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
@@ -54,6 +57,19 @@ interface LeftPanelProps {
   chatsLoading?: boolean;
   onLibraryOpen?: () => void;
   className?: string;
+}
+
+/** Today / Previous 7 days / Older, newest first, as the frames group them. */
+function groupChats(chats: ChatListItem[]): [string, ChatListItem[]][] {
+  const startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
+  const weekAgo = startOfToday.getTime() - 7 * 86400000;
+  const groups: Record<string, ChatListItem[]> = { Today: [], 'Previous 7 days': [], Older: [] };
+  for (const c of chats) {
+    const t = new Date(c.updated_at || c.created_at || 0).getTime();
+    groups[t >= startOfToday.getTime() ? 'Today' : t >= weekAgo ? 'Previous 7 days' : 'Older'].push(c);
+  }
+  return (Object.entries(groups) as [string, ChatListItem[]][]).filter(([, v]) => v.length > 0);
 }
 
 function formatChatDate(created_at?: string | null): string {
@@ -127,6 +143,29 @@ export function LeftPanel({
   }, []);
   useModalFocus(drawerElement, isLeftPanelOpen && isMobile);
   const pathname = usePathname();
+
+  // How many sources have actually sent data, for the Connectors badge and the
+  // sync card. Counted by the backend from what is on the record, so "2 live"
+  // is never a claim about a pairing that has not delivered anything.
+  const [liveSources, setLiveSources] = useState(0);
+  useEffect(() => {
+    let live = true;
+    (async () => {
+      try {
+        const { getValidIdToken } = await import('@/app/lib/auth');
+        const token = await getValidIdToken();
+        if (!token) return;
+        const res = await fetch('/api/me/connectors', { headers: { Authorization: `Bearer ${token}` } });
+        if (!res.ok) return;
+        const d = await res.json();
+        const n = (d?.sources ?? []).filter((x: { status?: string }) => x.status === 'connected').length;
+        if (live) setLiveSources(n);
+      } catch {
+        /* the badge is a convenience */
+      }
+    })();
+    return () => { live = false; };
+  }, []);
   const previousPath = useRef(pathname);
   useEffect(() => {
     if (previousPath.current !== pathname && window.matchMedia('(max-width: 767px)').matches) {
@@ -211,51 +250,39 @@ export function LeftPanel({
             )}
             style={{ backgroundColor: colors.background }}
           >
-            {/* Header */}
-            <div className="flex items-center justify-between p-3">
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={toggleLeftPanel}
-                  className="p-2 rounded-[9px] transition-colors hover:bg-transparent/10"
-                  aria-label="Close menu"
-                  aria-expanded={true}
-                  aria-controls="patient-navigation"
-                >
-                  <Menu className="h-5 w-5" style={{ color: colors.foreground }} />
-                </button>
-                <span className="font-medium text-base" style={{ color: colors.foreground }}>
-                  {theme.name}
+            {/* Header: the frames open on the MeO mark, not a menu button. The
+                collapse control stays, quietly, for the person who wants room. */}
+            <div className="flex items-center justify-between" style={{ padding: '18px 12px 14px 20px' }}>
+              <Link href="/" className="flex items-center no-underline" style={{ gap: 10 }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/clinician-mark.png" alt="" style={{ width: 30, height: 30, borderRadius: 9 }} />
+                <span>
+                  <span className="block" style={{ fontSize: 14.5, fontWeight: 800, color: '#ffffff' }}>MeO</span>
+                  <span className="block" style={{ fontSize: 10.5, color: '#a3b4b4' }}>by Meterbolic</span>
                 </span>
-                <ChevronRight className="h-4 w-4" style={{ color: colors.muted }} />
-              </div>
-            </div>
-
-            {/* New Chat */}
-            <div className="px-3 py-2">
+              </Link>
               <button
-                data-tour="new-chat"
-                onClick={() => { onNewChat?.(); if (isMobile) setLeftPanelOpen(false); }}
-                className="flex items-center gap-3 w-full px-4 py-3 rounded-full border transition-colors hover:bg-transparent/5"
-                style={{ borderColor: colors.cardBorder, color: colors.foreground }}
+                onClick={toggleLeftPanel}
+                className="meo-press p-2 rounded-[9px] hover:bg-white/5"
+                aria-label="Collapse menu"
+                aria-expanded={true}
+                aria-controls="patient-navigation"
               >
-                <SquarePen className="h-5 w-5" />
-                <span className="font-medium">{t('sidebar.new_chat')}</span>
+                <PanelLeftClose className="h-4 w-4" style={{ color: '#a3b4b4' }} />
               </button>
             </div>
 
-            {/* Free plan */}
-            <div className="px-3 pb-1">
-              <a
-                href="https://www.meterbolic.com/pricing"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border w-fit t-body2 transition-colors hover:bg-transparent/5 no-underline"
-                style={{ borderColor: colors.cardBorder }}
+            {/* New chat: the one filled control in the sidebar, as in the frames. */}
+            <div style={{ padding: '0 12px 10px' }}>
+              <button
+                data-tour="new-chat"
+                onClick={() => { onNewChat?.(); if (isMobile) setLeftPanelOpen(false); }}
+                className="meo-press flex items-center justify-center w-full"
+                style={{ gap: 8, padding: '11px 16px', borderRadius: 10, background: '#a4d65e', color: '#1a3a3a', fontSize: 14, fontWeight: 600, border: 0, cursor: 'pointer' }}
               >
-                <span style={{ color: colors.muted }}>Free plan</span>
-                <span style={{ color: colors.muted }}>·</span>
-                <span className="font-medium" style={{ color: colors.primary }}>Upgrade</span>
-              </a>
+                <Plus className="h-4 w-4" />
+                <span>{t('sidebar.new_chat')}</span>
+              </button>
             </div>
 
             {/* Scroll region: nav + history. The footer stays pinned below it
@@ -267,7 +294,7 @@ export function LeftPanel({
                 record is the app's home and chat is one destination among
                 several. They used to sit in the footer under the conversation
                 list, which quietly said the opposite. */}
-            <nav aria-label="Main navigation" className="px-2 pt-2 pb-1 space-y-0.5" onClick={(event) => {
+            <nav aria-label="Main navigation" className="px-3 pt-1 pb-1" style={{ display: 'flex', flexDirection: 'column', gap: 2 }} onClick={(event) => {
               if ((event.target as HTMLElement).closest('a') && window.matchMedia('(max-width: 767px)').matches) setLeftPanelOpen(false);
             }}>
               {[
@@ -275,129 +302,100 @@ export function LeftPanel({
                 { href: '/test', label: 'Guided test', Icon: FlaskConical },
                 { href: '/trends', label: 'Trends', Icon: TrendingUp },
                 { href: '/timeline', label: 'Timeline', Icon: History },
-                { href: '/marketplace', label: 'Marketplace', Icon: ShoppingBag },
-              ].map(({ href, label, Icon }) => {
-                const active = pathname === href;
-                return (
-                  <Link
-                    key={label}
-                    data-tour={label === 'Marketplace' ? 'marketplace-nav' : undefined}
-                    href={href}
-                    aria-current={active ? 'page' : undefined}
-                    className="w-full flex items-center gap-3 px-3 py-2 rounded-[9px] t-lead transition-colors hover:bg-transparent/5"
-                    style={{
-                      color: active ? colors.primary : colors.muted,
-                      backgroundColor: active ? colors.accent : undefined,
-                      fontWeight: active ? 600 : 400,
-                    }}
-                  >
-                    <Icon className="h-5 w-5" />
-                    <span>{label}</span>
-                  </Link>
-                );
-              })}
-              {/* Secondary: both come from a practitioner, so they sit
-                  together and below the things the patient drives. */}
-              {[
+                { href: '/library', label: 'Library', Icon: BookOpen, tour: 'library-nav' },
+                { href: '/marketplace', label: 'Marketplace', Icon: ShoppingBag, tour: 'marketplace-nav' },
+                { divider: true },
                 { href: '/plan', label: 'My plan', Icon: ClipboardList },
                 { href: '/from-practitioner', label: 'From your practitioner', Icon: UserRound },
-                { href: '/connectors', label: 'Connectors', Icon: Link2 },
-              ].map(({ href, label, Icon }) => {
+                { href: '/connectors', label: 'Connectors', Icon: Link2, badge: liveSources ? `${liveSources} live` : null },
+              ].map((item, i) => {
+                if ('divider' in item) {
+                  return <div key={`d${i}`} style={{ height: 1, background: 'rgba(255,255,255,0.08)', margin: '10px 4px' }} />;
+                }
+                const { href, label, Icon, tour, badge } = item as { href: string; label: string; Icon: typeof Home; tour?: string; badge?: string | null };
                 const active = pathname === href;
                 return (
                   <Link
                     key={label}
+                    data-tour={tour}
                     href={href}
                     aria-current={active ? 'page' : undefined}
-                    className="w-full flex items-center gap-3 px-3 py-2 rounded-[9px] t-lead transition-colors hover:bg-transparent/5"
+                    className="meo-press flex items-center no-underline"
                     style={{
-                      color: active ? colors.primary : colors.muted,
-                      backgroundColor: active ? colors.accent : undefined,
-                      fontWeight: active ? 600 : 400,
+                      gap: 10, padding: '9px 12px', borderRadius: 10, fontSize: 13.5,
+                      fontWeight: active ? 700 : 500,
+                      color: active ? '#a4d65e' : '#c3d0d0',
+                      background: active ? 'rgba(164,214,94,0.12)' : 'transparent',
                     }}
                   >
-                    <Icon className="h-5 w-5" />
-                    <span className="truncate">{label}</span>
+                    <Icon className="h-4 w-4 shrink-0" />
+                    <span className="flex-1 truncate">{label}</span>
+                    {badge && (
+                      <span style={{ fontSize: 10.5, fontWeight: 600, color: '#c3d0d0', border: '1px solid rgba(255,255,255,0.14)', borderRadius: 999, padding: '1px 8px', whiteSpace: 'nowrap' }}>
+                        {badge}
+                      </span>
+                    )}
                   </Link>
                 );
               })}
-              <Link
-                data-tour="library-nav"
-                href="/library"
-                aria-current={pathname === '/library' ? 'page' : undefined}
-                className="w-full flex items-center gap-3 px-3 py-2 rounded-[9px] t-lead transition-colors hover:bg-white/5"
-                style={{
-                  color: pathname === '/library' ? colors.primary : colors.muted,
-                  backgroundColor: pathname === '/library' ? colors.accent : undefined,
-                  fontWeight: pathname === '/library' ? 600 : 400,
-                }}
-              >
-                <BookOpen className="h-5 w-5" />
-                <span>Library</span>
-              </Link>
             </nav>
 
             <div className="mx-4 my-1" style={{ height: 1, backgroundColor: colors.cardBorder }} />
 
-            {/* Chats */}
-            <div className="px-2 py-2">
-              <p className="px-3 py-2 t-body2 font-medium uppercase tracking-wider" style={{ color: colors.muted }}>
-                {t('sidebar.chats')}
-              </p>
-              <div className="space-y-1">
-                {chatsLoading && (!chats || chats.length === 0) ? (
-                  <>
-                    <SkeletonChatRow />
-                    <SkeletonChatRow />
-                    <SkeletonChatRow />
-                    <SkeletonChatRow />
-                  </>
-                ) : chats && chats.length > 0 ? (
-                  chats.map((chat) => (
-                    <div
-                      key={chat.id}
-                      className="group relative w-full rounded-[9px] transition-colors hover:bg-transparent/5"
-                      style={{
-                        backgroundColor: currentChatId === chat.id ? colors.accent || 'transparent' : undefined,
-                      }}
-                    >
-                      <button
-                        type="button"
-                        onClick={() => { onSelectChat?.(chat.id); if (isMobile) setLeftPanelOpen(false); }}
-                        className="w-full text-left px-3 py-2 pr-9 rounded-[9px] t-lead truncate"
-                        style={{ color: colors.foreground }}
+            {/* Chats, grouped by when, titles only, as the frames list them. */}
+            <div className="px-3 pt-2 pb-2">
+              {chatsLoading && (!chats || chats.length === 0) ? (
+                <>
+                  <SkeletonChatRow />
+                  <SkeletonChatRow />
+                  <SkeletonChatRow />
+                </>
+              ) : chats && chats.length > 0 ? (
+                groupChats(chats).map(([group, items]) => (
+                  <div key={group}>
+                    <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#a3b4b4', padding: '12px 12px 4px', margin: 0 }}>
+                      {group}
+                    </p>
+                    {items.map((chat) => (
+                      <div
+                        key={chat.id}
+                        className="group relative w-full meo-row"
+                        style={{ borderRadius: 9, backgroundColor: currentChatId === chat.id ? 'rgba(164,214,94,0.12)' : undefined }}
                       >
-                        <span className="block truncate">{chat.title}</span>
-                        {formatChatDate(chat.updated_at || chat.created_at) && (
-                          <span className="block t-body2 mt-0.5" style={{ color: colors.muted }}>
-                            {formatChatDate(chat.updated_at || chat.created_at)}
-                          </span>
-                        )}
-                      </button>
-                      {onDeleteChat && (
                         <button
                           type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            if (window.confirm(t('chat.delete_confirm', { title: chat.title }))) {
-                              onDeleteChat(chat.id);
-                            }
-                          }}
-                          aria-label={t('sidebar.delete_chat_aria')}
-                          className="absolute right-1.5 top-1/2 -translate-y-1/2 p-1.5 rounded-md opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity hover:bg-red-500/15"
-                          style={{ color: colors.muted }}
+                          onClick={() => { onSelectChat?.(chat.id); if (isMobile) setLeftPanelOpen(false); }}
+                          className="w-full text-left truncate"
+                          style={{ padding: '6px 34px 6px 12px', fontSize: 13, color: '#ffffff', background: 'transparent', border: 0, cursor: 'pointer' }}
+                          title={formatChatDate(chat.updated_at || chat.created_at) || undefined}
                         >
-                          <Trash2 className="h-3.5 w-3.5" />
+                          <span className="block truncate">{chat.title}</span>
                         </button>
-                      )}
-                    </div>
-                  ))
-                ) : (
-                  <p className="px-3 py-2 t-lead" style={{ color: colors.muted }}>
-                    {t('sidebar.empty_chats')}
-                  </p>
-                )}
-              </div>
+                        {onDeleteChat && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (window.confirm(t('chat.delete_confirm', { title: chat.title }))) {
+                                onDeleteChat(chat.id);
+                              }
+                            }}
+                            aria-label={t('sidebar.delete_chat_aria')}
+                            className="absolute right-1.5 top-1/2 -translate-y-1/2 p-1.5 rounded-md opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity hover:bg-red-500/15"
+                            style={{ color: '#a3b4b4' }}
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ))
+              ) : (
+                <p className="px-3 py-2" style={{ fontSize: 13, color: '#a3b4b4' }}>
+                  {t('sidebar.empty_chats')}
+                </p>
+              )}
             </div>
 
             </div>
@@ -536,6 +534,14 @@ export function LeftPanel({
               </AnimatePresence>
 
               <div style={{ borderTop: `1px solid ${colors.cardBorder}`, marginTop: 8, paddingTop: 2 }}>
+                <Link
+                  href="/connectors"
+                  className="meo-press flex items-center no-underline"
+                  style={{ gap: 10, margin: '6px 4px 4px', padding: '9px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', fontSize: 11.5, color: '#c3d0d0' }}
+                >
+                  <Smartphone className="h-4 w-4 shrink-0" style={{ color: liveSources ? '#a4d65e' : '#a3b4b4' }} />
+                  <span className="truncate">{liveSources ? `${liveSources} source${liveSources === 1 ? '' : 's'} sending data` : 'Connect your meter or phone'}</span>
+                </Link>
                 <SidebarUser />
               </div>
             </div>

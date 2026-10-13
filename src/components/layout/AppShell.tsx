@@ -7,7 +7,6 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { LeftPanel, ChatListItem } from './LeftPanel';
 import { SectionAssistant } from '@/components/assistant/SectionAssistant';
 import { apiFetch, getIdToken, getValidIdToken, redirectToLogin } from '@/app/lib/auth';
-import { ProfileMenu } from './ProfileMenu';
 import { Backdrop } from './Backdrop';
 import { AskBar } from './AskBar';
 import { cn } from '@/lib/utils';
@@ -144,18 +143,14 @@ export function AppShell({
       />
       <motion.main
         className={cn(
-          'min-w-0 flex-1 flex flex-col h-full overflow-hidden relative pt-14',
+          'meo-app min-w-0 flex-1 flex flex-col h-full overflow-hidden relative pt-14 md:pt-0',
         )}
         layout
         transition={{ type: 'spring', bounce: 0, duration: 0.3 }}
       >
-        {/* Profile avatar — always top-right, above all content */}
-        <div
-          className="fixed top-0 right-0 z-50 p-3"
-          style={{ paddingTop: 'max(0.75rem, env(safe-area-inset-top))' }}
-        >
-          <ProfileMenu />
-        </div>
+        {/* No floating avatar or top bar: the frames open straight on the
+            screen header, and the account lives at the foot of the sidebar
+            (SidebarUser), where it is always reachable. */}
 
         <div className="flex-1 flex min-h-0 relative">
           <div className="flex-1 flex flex-col min-w-0 min-h-0 overflow-hidden">

@@ -12,6 +12,7 @@ import {
   Minus,
 } from 'lucide-react';
 import { useTheme } from '@/theme/ThemeProvider';
+import { useMyPractitioner } from '@/components/record/PractitionerNotes';
 import { ScreenHeader, ScreenBody, Chip } from '@/components/layout/ScreenHeader';
 import { TrendChart, TrendPoint } from '@/components/analysis/TrendChart';
 
@@ -145,8 +146,33 @@ interface RecordHomeProps {
  *    captured on the phone and the web cannot see them, so it says so instead
  *    of showing numbers.
  */
+/** "Morning, Sarah": the frames greet the person before showing the record. */
+function greeting(name: string | null) {
+  const h = new Date().getHours();
+  const part = h < 12 ? 'Morning' : h < 18 ? 'Afternoon' : 'Evening';
+  return name ? `${part}, ${name}` : 'My record';
+}
+
 export function RecordHome({ record, state, onRetry }: RecordHomeProps) {
   const { colors } = useTheme();
+  const practitioner = useMyPractitioner();
+  const [firstName, setFirstName] = React.useState<string | null>(null);
+  React.useEffect(() => {
+    (async () => {
+      try {
+        // The profile's name, not the login's: a Cognito username is often
+        // an email handle ("alechenuiyoko"), which is not how to greet anyone.
+        const { getValidIdToken } = await import('@/app/lib/auth');
+        const token = await getValidIdToken();
+        if (!token) return;
+        const res = await fetch('/api/profile', { headers: { Authorization: `Bearer ${token}` } });
+        const full: string | undefined = res.ok ? (await res.json())?.name : undefined;
+        if (full && /\s/.test(full.trim())) setFirstName(full.trim().split(/\s+/)[0]);
+      } catch {
+        /* the greeting falls back to "My record" */
+      }
+    })();
+  }, []);
 
   if (state === 'loading') {
     return (
@@ -192,7 +218,7 @@ export function RecordHome({ record, state, onRetry }: RecordHomeProps) {
   return (
     <div className="flex flex-col h-full min-w-0">
       <ScreenHeader
-        title="My record"
+        title={greeting(firstName)}
         subtitle={`Reading ${record.panel_count} · ${fmtDate(latest.date)}${latest.fasted ? ' · fasted' : ''}`}
         right={
           <Chip>
@@ -203,7 +229,7 @@ export function RecordHome({ record, state, onRetry }: RecordHomeProps) {
       <ScreenBody>
         {/* Score card. */}
         <section
-          className="flex flex-col items-stretch gap-5 2xl:flex-row 2xl:items-center"
+          className="flex flex-col items-stretch gap-5 lg:flex-row lg:items-center"
           style={{ background: colors.card, border: `1px solid ${colors.cardBorder}`, borderRadius: 16, padding: '20px 24px' }}
         >
           <div>
@@ -347,8 +373,12 @@ export function RecordHome({ record, state, onRetry }: RecordHomeProps) {
               <Clock className="h-4 w-4" style={{ color: colors.primary }} />
             </div>
             <div className="flex-1 min-w-0">
-              <div style={{ fontSize: 13.5, fontWeight: 700, color: colors.foreground }}>From your practitioner</div>
-              <div style={{ fontSize: 12, color: colors.muted }}>Notes and your plan</div>
+              <div style={{ fontSize: 13.5, fontWeight: 700, color: colors.foreground }}>
+                {practitioner?.name ? `From ${practitioner.name}` : 'From your practitioner'}
+              </div>
+              <div style={{ fontSize: 12, color: colors.muted }}>
+                {practitioner?.name ? 'Their notes and your plan' : 'Notes and your plan appear after a consult'}
+              </div>
             </div>
             <ArrowRight className="h-4 w-4" style={{ color: colors.mutedDim }} />
           </Link>

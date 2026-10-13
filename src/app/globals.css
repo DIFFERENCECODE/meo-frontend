@@ -732,7 +732,7 @@ html {
 .record-change-direction { grid-area: direction; justify-self: end; }
 .record-change-bar { grid-area: bar; }
 .record-change-note { grid-area: note; justify-self: end; }
-@media (min-width: 1536px) {
+@media (min-width: 1024px) {
   .record-change-row { grid-template-columns: minmax(8rem, 1fr) 6rem 1.5rem 6rem 6.5rem; grid-template-areas: "label values direction bar note"; }
   .record-change-values { text-align: right !important; }
 }
@@ -758,3 +758,12 @@ html {
 @media (prefers-contrast: more) {
   .meo-floating-bar { border: 2px solid currentColor !important; }
 }
+
+/* Press feedback on pointer-down, as the apple-design skill puts it: the control
+   answers the touch, not the release. Scale is dropped under reduced motion. */
+.meo-press { transition: transform 100ms ease-out, background-color 120ms ease-out; }
+.meo-press:not(:disabled):active { transform: scale(0.97); }
+.meo-row { transition: background-color 120ms ease-out; }
+.meo-row:hover { background: rgba(255,255,255,0.05); }
+:where(.meo-app) :focus-visible { outline: 2px solid #a4d65e; outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { .meo-press:not(:disabled):active { transform: none; } }

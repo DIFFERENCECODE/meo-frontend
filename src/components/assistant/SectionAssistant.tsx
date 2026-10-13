@@ -128,10 +128,11 @@ export function SectionAssistant({ children, composer, context }: {
   return (
     <AssistantContext.Provider value={{ ask, busy }}>
       {children}
-      <div className="shrink-0 px-4 md:px-5 pb-[max(1rem,env(safe-area-inset-bottom))] pt-2">
-        <div className="max-w-6xl mx-auto">
+      {/* The frames' gutter: 12px 28px 20px, full width of the column. */}
+      <div className="shrink-0 px-4 md:px-7 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-3">
+        <div>
           {turns.length > 0 && (
-            <section aria-label={`MeO answers in ${section}`} className="mb-2 overflow-hidden rounded-2xl" style={{ background: colors.background, border: `1px solid ${colors.cardBorder}`, color: colors.foreground }}>
+            <section aria-label={`MeO answers in ${section}`} className="mb-2 overflow-hidden rounded-2xl" style={{ background: 'rgba(22,48,48,0.9)', backdropFilter: 'blur(18px) saturate(140%)', WebkitBackdropFilter: 'blur(18px) saturate(140%)', border: '1px solid rgba(255,255,255,0.14)', color: colors.foreground, boxShadow: '0 -18px 40px rgba(0,0,0,0.25)' }}>
               <div className="flex items-center justify-between gap-2 px-4">
                 <button type="button" className="flex min-h-11 flex-1 items-center justify-between gap-3 text-left text-sm font-semibold" aria-expanded={expanded} aria-controls="section-answers" onClick={() => setExpanded(value => !value)}>
                   <span>MeO <span className="font-normal" style={{ color: colors.muted }}>· {section}</span></span>

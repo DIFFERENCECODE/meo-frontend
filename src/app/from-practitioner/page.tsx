@@ -1,9 +1,10 @@
 'use client';
 
 import React from 'react';
+import { getValidIdToken } from '@/app/lib/auth';
 import { AppShell } from '@/components/layout/AppShell';
 import { useSectionAssistant } from '@/components/assistant/SectionAssistant';
-import { usePractitionerNotes, NoteCard, fmtNoteDate } from '@/components/record/PractitionerNotes';
+import { usePractitionerNotes, NoteCard, fmtNoteDate, shortPractitionerName } from '@/components/record/PractitionerNotes';
 import { useTheme } from '@/theme/ThemeProvider';
 import { ScreenHeader, ScreenBody, Chip } from '@/components/layout/ScreenHeader';
 
@@ -15,116 +16,125 @@ import { ScreenHeader, ScreenBody, Chip } from '@/components/layout/ScreenHeader
  * the next appointment. This is where a practitioner's words land between
  * visits — attributed, verbatim, and never rewritten by the model.
  */
+interface RecordLite { latest?: { bas: number | null; date: string | null; values: Record<string, number> } | null }
+
 function NotesInner() {
   const { ask, busy } = useSectionAssistant();
   const { colors } = useTheme();
   const { notes, state } = usePractitionerNotes();
   const feed = (notes ?? []).filter((n) => n.kind !== 'plan');
+  const plan = (notes ?? []).filter((n) => n.kind === 'plan');
+  const author = feed[0]?.practitioner_name || plan[0]?.practitioner_name || null;
+  const first = shortPractitionerName(author);
+  const initial = (author || 'P').replace(/^(dr|prof)\.?\s+/i, '').slice(0, 1).toUpperCase();
+  const since = (notes ?? []).length ? fmtNoteDate((notes ?? [])[(notes ?? []).length - 1].created_at) : null;
+
+  // The same record the practitioner reads, for the "what they see" tiles.
+  const [record, setRecord] = React.useState<RecordLite | null>(null);
+  React.useEffect(() => {
+    (async () => {
+      try {
+        const token = await getValidIdToken();
+        if (!token) return;
+        const res = await fetch('/api/readings', { headers: { Authorization: `Bearer ${token}` } });
+        if (res.ok) setRecord(await res.json());
+      } catch { /* tiles fall back to dashes */ }
+    })();
+  }, []);
+  const bas = record?.latest?.bas;
+  const age = record?.latest?.values?.Age;
+
+  const tiles = [
+    { k: 'Biological Age Score', v: bas != null ? bas.toFixed(1) : '—', s: age != null ? `target ${Math.round(age)}, your real age` : 'from your latest reading' },
+    // Lines with a count first: a tile of dashes tells the patient less than "5/8".
+    ...[...plan].sort((a, b) => Number((b.progress?.expected ?? null) != null && b.progress?.status !== 'no_data')
+                              - Number((a.progress?.expected ?? null) != null && a.progress?.status !== 'no_data')).slice(0, 2).map((n) => {
+      const p = n.progress;
+      const counted = p && p.expected != null && !['no_data', 'too_early', 'not_measurable'].includes(p.status);
+      return { k: n.body, v: counted ? `${p!.qualifying_days ?? 0}/${p!.expected}` : '—', s: counted ? `${n.target ?? ''} agreed`.trim() : 'nothing recorded yet' };
+    }),
+    { k: 'Plan lines', v: String(plan.length), s: 'checked by MeO, set by them' },
+  ];
 
   return (
     <div className="flex flex-col h-full min-w-0">
       <ScreenHeader
-        title="From your practitioner"
-        subtitle="What they've written between appointments, in their words"
-        right={feed.length ? <Chip>{feed.length} notes</Chip> : undefined}
+        title={author ? `From ${author}` : 'From your practitioner'}
+        subtitle={author ? `Your practitioner${since ? ` since ${since}` : ''}` : "What they've written between appointments, in their words"}
+        right={author ? (
+          <div className="flex items-center justify-center" style={{ width: 34, height: 34, borderRadius: '50%', background: 'rgba(164,214,94,0.2)', color: colors.primary, fontWeight: 700 }}>
+            {initial}
+          </div>
+        ) : undefined}
       />
       <ScreenBody>
-      {state === 'loading' && <p className="t-lead opacity-70">Loading…</p>}
-      {state === 'error' && <p className="t-lead opacity-70">Couldn&apos;t load your notes.</p>}
+      {state === 'loading' && <p style={{ fontSize: 13.5, color: colors.mutedDim }}>Loading…</p>}
+      {state === 'error' && <p style={{ fontSize: 13.5, color: colors.muted }}>Couldn&apos;t load your notes. Refresh to try again.</p>}
 
       {state === 'ready' && feed.length === 0 && (
-        <div
-          className="rounded-2xl p-5"
-          style={{ backgroundColor: colors.card, border: `1px solid ${colors.cardBorder}` }}
-        >
-          <p className="t-lead font-medium">Nothing here yet.</p>
-          <p className="t-lead mt-1" style={{ color: colors.muted }}>
-            When a practitioner reviews your record between visits, what they
-            write appears here — with their name on it.
+        <section style={{ background: colors.card, border: `1px solid ${colors.cardBorder}`, borderRadius: 16, padding: '18px 22px', maxWidth: 560 }}>
+          <p style={{ fontSize: 14, fontWeight: 700, margin: 0 }}>Nothing here yet</p>
+          <p style={{ fontSize: 13.5, color: colors.muted, margin: '6px 0 0', lineHeight: 1.55 }}>
+            When a practitioner reviews your record between visits, what they write appears here, with their name on it.
           </p>
-        </div>
+        </section>
       )}
 
-      {/* The frame leads with who this is, not with the notes. A feed of
-          anonymous advice is the thing we are trying not to be. */}
+      {/* The frame leads with who this is, then their words in their own box.
+          A feed of anonymous advice is the thing we are trying not to be. */}
       {state === 'ready' && feed.length > 0 && (
-        <section
-          className="flex items-start"
-          style={{ background: colors.card, border: `1px solid ${colors.cardBorder}`, borderRadius: 16, padding: '18px 22px', gap: 14 }}
-        >
-          <div
-            className="flex items-center justify-center"
-            style={{ width: 44, height: 44, flex: 'none', borderRadius: '50%', background: 'rgba(164,214,94,0.2)', color: colors.primary, fontWeight: 700, fontSize: 16 }}
-          >
-            {(feed[0].practitioner_name || 'P').slice(0, 1).toUpperCase()}
+        <section style={{ background: colors.card, border: `1px solid ${colors.cardBorder}`, borderRadius: 16, padding: '18px 24px' }}>
+          <div className="flex items-center" style={{ gap: 12 }}>
+            <div className="flex items-center justify-center" style={{ width: 36, height: 36, flex: 'none', borderRadius: '50%', background: 'rgba(164,214,94,0.2)', color: colors.primary, fontWeight: 700 }}>
+              {initial}
+            </div>
+            <div className="min-w-0">
+              <div style={{ fontSize: 14, fontWeight: 700 }}>{author || 'Your practitioner'} reviewed your record</div>
+              <div style={{ fontSize: 11.5, color: colors.mutedDim }}>{fmtNoteDate(feed[0].created_at)} · {feed.length} note{feed.length === 1 ? '' : 's'} on file</div>
+            </div>
           </div>
-          <div className="min-w-0 flex-1">
-            <div style={{ fontSize: 15, fontWeight: 700, color: colors.foreground }}>
-              {feed[0].practitioner_name || 'Your practitioner'} reviewed your record
-            </div>
-            <div style={{ fontSize: 12.5, color: colors.mutedDim, marginTop: 2 }}>
-              {fmtNoteDate(feed[0].created_at)} · {feed.length} note{feed.length === 1 ? '' : 's'} on file
-            </div>
-            <p style={{ fontSize: 13.5, color: colors.muted, lineHeight: 1.6, marginTop: 10 }}>
-              “{feed[0].body}”
-            </p>
-            <div className="flex" style={{ gap: 8, marginTop: 12 }}>
-              <button
-                type="button"
-                disabled={busy}
-                onClick={() => ask('Help me prepare questions for my next consultation')}
-                className="no-underline"
-                style={{
-                  fontSize: 12, fontWeight: 700, color: colors.primary,
-                  background: 'rgba(164,214,94,0.12)', border: '1px solid rgba(164,214,94,0.3)',
-                  borderRadius: 999, padding: '5px 12px', whiteSpace: 'nowrap',
-                }}
-              >
-                Ask MeO to prepare questions
-              </button>
-            </div>
+          <p style={{ fontSize: 15, lineHeight: 1.6, color: '#ffffff', margin: '14px 0 0', padding: '14px 20px', borderRadius: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', whiteSpace: 'pre-wrap' }}>
+            &ldquo;{feed[0].body}&rdquo;
+          </p>
+          <div className="flex flex-wrap" style={{ gap: 10, marginTop: 14 }}>
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => ask(`Help me prepare questions for my next consultation with ${author || 'my practitioner'}`)}
+              className="meo-press"
+              style={{ fontSize: 14, fontWeight: 600, color: '#ffffff', background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.14)', borderRadius: 12, padding: '10px 18px', cursor: 'pointer' }}
+            >
+              Ask MeO to prepare questions
+            </button>
           </div>
         </section>
       )}
 
-      {/* "What they see — the same data you do." The frame's point is that
-          nothing is hidden in either direction. */}
-      {state === 'ready' && feed.length > 0 && (
-        <section
-          style={{ background: colors.card, border: `1px solid ${colors.cardBorder}`, borderRadius: 16, padding: '18px 22px' }}
-        >
-          <div className="t-label" style={{ color: colors.mutedDim, marginBottom: 12 }}>
-            What they see — the same data you do
+      {/* "What they see: the same data you do." Nothing is hidden in either direction. */}
+      {state === 'ready' && (feed.length > 0 || plan.length > 0) && (
+        <section style={{ background: colors.card, border: `1px solid ${colors.cardBorder}`, borderRadius: 16, padding: '18px 24px' }}>
+          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: colors.mutedDim, marginBottom: 12 }}>
+            What {first} sees · the same data you do
           </div>
-          <div className="flex flex-wrap" style={{ gap: 28 }}>
-            {[
-              { k: 'Your readings', v: 'all of them', s: 'every panel on your record' },
-              { k: 'Your plan', v: `${(notes ?? []).filter((n) => n.kind === 'plan').length} lines`, s: 'with what happened beside each' },
-              { k: 'Flags', v: 'their thresholds', s: 'not a population range' },
-            ].map((m) => (
-              <div key={m.k}>
-                <div style={{ fontSize: 11.5, color: colors.mutedDim }}>{m.k}</div>
-                <div style={{ fontSize: 19, fontWeight: 800, color: colors.foreground, letterSpacing: '-0.025em', marginTop: 2 }}>{m.v}</div>
-                <div style={{ fontSize: 11.5, color: colors.mutedDim }}>{m.s}</div>
+          <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
+            {tiles.map((m) => (
+              <div key={m.k} style={{ borderRadius: 12, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', padding: '12px 16px' }}>
+                <div className="truncate" style={{ fontSize: 11.5, color: colors.mutedDim }}>{m.k}</div>
+                <div style={{ fontSize: 26, fontWeight: 800, letterSpacing: '-0.025em', marginTop: 2 }}>{m.v}</div>
+                <div className="truncate" style={{ fontSize: 11.5, color: colors.mutedDim }}>{m.s}</div>
               </div>
             ))}
           </div>
+          <p style={{ fontSize: 12.5, color: colors.muted, margin: '12px 0 0' }}>
+            MeO summarises. <b style={{ color: '#ffffff' }}>{first} decides.</b>
+          </p>
         </section>
       )}
 
-      {state === 'ready' && feed.length > 0 && (
+      {state === 'ready' && feed.length > 1 && (
         <ul className="space-y-3 p-0 m-0">
-          {feed.map((n) => <NoteCard key={n.id} note={n} />)}
+          {feed.slice(1).map((n) => <NoteCard key={n.id} note={n} />)}
         </ul>
-      )}
-
-      {/* The frame states the division of labour out loud. It is the whole
-          safety argument for this screen in four words. */}
-      {state === 'ready' && feed.length > 0 && (
-        <p style={{ fontSize: 11.5, color: colors.mutedDim, lineHeight: 1.5, paddingTop: 4 }}>
-          <b style={{ color: colors.foreground }}>MeO summarises. Your practitioner decides.</b>{' '}
-          Nothing on this screen is written or reworded by the model.
-        </p>
       )}
       </ScreenBody>
     </div>

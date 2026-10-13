@@ -117,7 +117,7 @@ export function DataSources({ record }: { record: RecordResponse }) {
   ];
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4" style={{ padding: '20px 20px 24px' }}>
       <div>
         <p className="t-label" style={{ color: colors.mutedDim }}>
           Where your data comes from
@@ -128,8 +128,8 @@ export function DataSources({ record }: { record: RecordResponse }) {
         {rows.map((r) => (
           <div
             key={r.label}
-            className="flex items-center gap-3 rounded-[10px] px-3 py-2.5"
-            style={{ backgroundColor: colors.card, border: `1px solid ${colors.cardBorder}` }}
+            className="flex items-center gap-3"
+            style={{ backgroundColor: colors.card, border: `1px solid ${colors.cardBorder}`, borderRadius: 12, padding: '13px 16px' }}
           >
             <div className="min-w-0 flex-1">
               <p className="t-lead font-medium truncate">{r.label}</p>
@@ -142,7 +142,7 @@ export function DataSources({ record }: { record: RecordResponse }) {
         ))}
       </div>
 
-      <p className="t-dense leading-relaxed" style={{ color: colors.muted }}>
+      <p className="t-dense leading-relaxed" style={{ color: colors.muted, background: colors.card, border: `1px solid ${colors.cardBorder}`, borderRadius: 12, padding: '12px 16px' }}>
         Nothing here is inferred. Every row is something a device measured, you
         entered, or a lab reported.
       </p>

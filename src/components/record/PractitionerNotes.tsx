@@ -221,3 +221,20 @@ export function useMyPractitioner() {
 
   return practitioner;
 }
+
+
+/**
+ * How the patient refers to their practitioner in a sentence: "Dr Sen" when
+ * the name carries a title (a consultant is not "Arup" to his patients), the
+ * first name otherwise, as a nutritional therapist usually is.
+ */
+export function shortPractitionerName(full?: string | null): string {
+  const name = (full || '').trim();
+  if (!name) return 'your practitioner';
+  const m = name.match(/^(dr|prof)\.?\s+(.+)$/i);
+  if (m) {
+    const parts = m[2].trim().split(/\s+/);
+    return `${m[1].charAt(0).toUpperCase()}${m[1].slice(1).toLowerCase()} ${parts[parts.length - 1]}`;
+  }
+  return name.split(/\s+/)[0];
+}
