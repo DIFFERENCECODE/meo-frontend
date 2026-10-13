@@ -201,7 +201,7 @@ function Shell({ pathname, profile, children }: { pathname: string; profile: Pro
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 8px 0' }}>
           <div style={{ width: 30, height: 30, flex: 'none', borderRadius: '50%', background: 'rgba(164,214,94,0.2)', color: K.lime, fontWeight: 700, fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            {name.slice(0, 1).toUpperCase()}
+            {(name.replace(/^(dr|prof|mr|mrs|ms|mx)\.?\s+/i, '') || name).slice(0, 1).toUpperCase()}
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontSize: 12.5, fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{name}</div>
