@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { ChevronRight } from 'lucide-react';
 
 /**
@@ -49,19 +49,18 @@ const TREND: Record<string, { label: string; color: string }> = {
   'not started':{ label: 'not started', color: '#ef4444' },
 };
 
-export function PanelTiles({ rows }: { rows: PanelRow[] }) {
-  const needReview = rows.filter((r) => r.urgency_level === 'high').length;
+export function PanelTiles({ rows, consults }: { rows: PanelRow[]; consults: number }) {
+  const needReview = rows.filter((r) => r.urgency_level !== 'low').length;
   const stalled = rows.filter((r) => (r.readings_count ?? 0) === 1).length;
   const notStarted = rows.filter((r) => (r.readings_count ?? 0) === 0).length;
   const onTrack = rows.filter((r) => r.urgency_level === 'low' && (r.readings_count ?? 0) > 1).length;
-  const planBehind = rows.filter((r) => (r.plan?.off_track ?? 0) > 0).length;
 
   const tiles = [
-    { label: 'Need review', n: needReview, sub: 'against your thresholds', color: '#f97316' },
+    { label: 'Need review', n: needReview, sub: 'against what MeO flags on', color: '#f97316' },
     { label: 'Stalled', n: stalled, sub: 'no second reading', color: '#eab839' },
     { label: 'Not syncing', n: notStarted, sub: 'never started a test', color: '#ef4444' },
     { label: 'On track', n: onTrack, sub: 'trending to target', color: '#a4d65e' },
-    { label: 'Plan behind', n: planBehind, sub: 'a line well short, 14 days', color: '#f97316' },
+    { label: 'Consults this week', n: consults, sub: 'from your bookings', color: '#ffffff' },
   ];
 
   return (
@@ -71,10 +70,10 @@ export function PanelTiles({ rows }: { rows: PanelRow[] }) {
           key={t.label}
           style={{
             background: 'rgba(40,70,70,0.82)', border: '1px solid rgba(255,255,255,0.12)',
-            borderRadius: 16, flex: 1, padding: '15px 20px',
+            borderRadius: 16, flex: 1, padding: '15px 20px', minWidth: 0,
           }}
         >
-          <div className="t-label" style={{ color: '#a3b4b4' }}>{t.label}</div>
+          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#a3b4b4' }}>{t.label}</div>
           <div style={{ fontSize: 30, fontWeight: 800, letterSpacing: '-0.025em', marginTop: 2, color: t.color }}>
             {t.n}
           </div>
@@ -85,9 +84,16 @@ export function PanelTiles({ rows }: { rows: PanelRow[] }) {
   );
 }
 
-export function PanelRows({ rows }: { rows: PanelRow[] }) {
-  const router = useRouter();
+/** The row's right-hand sentence: why it is where it is, then how the plan is going. */
+function reasonLine(r: PanelRow): string {
+  const parts = [r.urgency_reason].filter(Boolean);
+  if (r.plan) {
+    parts.push(r.plan.judged ? `plan ${r.plan.on_track}/${r.plan.judged} on track` : 'plan set, nothing recorded yet');
+  }
+  return parts.join(' · ');
+}
 
+export function PanelRows({ rows, to = '' }: { rows: PanelRow[]; to?: string }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
       {rows.map((r) => {
@@ -97,13 +103,13 @@ export function PanelRows({ rows }: { rows: PanelRow[] }) {
           .filter(Boolean).slice(0, 2).map((w) => w[0]).join('').toUpperCase() || 'P';
         const attention = r.urgency_level !== 'low';
         return (
-          <button
+          <Link
             key={r.session_id}
-            onClick={() => router.push(`/clinician/patients?selected=${r.session_id}`)}
+            href={`/clinician/patients/${r.session_id}${to}`}
+            className="mc-row"
             style={{
-              display: 'flex', alignItems: 'center', gap: 14, width: '100%', textAlign: 'left',
-              padding: '12px 16px', borderRadius: 10, color: '#ffffff', cursor: 'pointer',
-              fontFamily: 'inherit',
+              display: 'flex', alignItems: 'center', gap: 14, textDecoration: 'none',
+              padding: '12px 16px', borderRadius: 12, color: '#ffffff',
               background: attention ? 'rgba(164,214,94,0.1)' : 'rgba(255,255,255,0.03)',
               border: `1px solid ${attention ? 'rgba(164,214,94,0.35)' : 'rgba(255,255,255,0.08)'}`,
             }}
@@ -119,25 +125,22 @@ export function PanelRows({ rows }: { rows: PanelRow[] }) {
             </div>
 
             <div style={{ width: 148, flex: 'none' }}>
-              <div style={{ fontSize: 13.5, fontWeight: 700, color: '#ffffff' }}>{r.name || 'Unknown'}</div>
+              <div style={{ fontSize: 13.5, fontWeight: 700 }}>{r.name || 'Unknown'}</div>
               <div style={{ fontSize: 11, color: '#a3b4b4' }}>
-                {r.readings_count ?? 0} reading{(r.readings_count ?? 0) === 1 ? '' : 's'} · no lifestyle
+                {r.readings_count ?? 0} reading{(r.readings_count ?? 0) === 1 ? '' : 's'} · {r.plan ? 'plan tracked' : 'no plan yet'}
               </div>
             </div>
 
-            <div style={{ width: 160, fontSize: 12.5, color: '#c3d0d0' }}>
+            <div style={{ width: 140, flex: 'none', fontSize: 12.5, color: '#c3d0d0' }}>
               {r.headline ?? '—'}
               {(r.needs_review?.length ?? 0) > 0 && (
-                <div
-                  title={r.needs_review!.join('\n')}
-                  style={{ fontSize: 11, color: '#eab839', marginTop: 2 }}
-                >
+                <div title={r.needs_review!.join('\n')} style={{ fontSize: 11, color: '#eab839', marginTop: 2 }}>
                   {r.needs_review!.length} value{r.needs_review!.length === 1 ? '' : 's'} to confirm
                 </div>
               )}
             </div>
 
-            <div style={{ width: 100, flex: 'none' }}>
+            <div style={{ width: 92, flex: 'none' }}>
               <span
                 style={{
                   display: 'inline-block', fontSize: 11, fontWeight: 700, color: trend.color,
@@ -149,34 +152,15 @@ export function PanelRows({ rows }: { rows: PanelRow[] }) {
               </span>
             </div>
 
-            <div style={{ width: 118, flex: 'none' }}>
-              {r.plan ? (
-                <span
-                  title={`${r.plan.lines} plan line${r.plan.lines === 1 ? '' : 's'}; ${r.plan.judged} with enough data to judge`}
-                  style={{
-                    display: 'inline-block', fontSize: 11, fontWeight: 700, whiteSpace: 'nowrap',
-                    color: r.plan.off_track ? '#f97316' : r.plan.judged ? '#a4d65e' : '#a3b4b4',
-                    border: `1px solid ${r.plan.off_track ? '#f97316' : r.plan.judged ? '#a4d65e' : 'rgba(255,255,255,0.2)'}`,
-                    borderRadius: 999, padding: '3px 10px', background: 'rgba(255,255,255,0.06)',
-                  }}
-                >
-                  {r.plan.judged
-                    ? `Plan ${r.plan.on_track}/${r.plan.judged} on track`
-                    : 'Plan: no data yet'}
-                </span>
-              ) : (
-                <span style={{ fontSize: 11, color: '#a3b4b4' }}>No plan yet</span>
-              )}
+            <div title="Commitments they made with the coach that MeO has not followed up yet"
+              style={{ width: 62, flex: 'none', textAlign: 'center', fontSize: 13, fontWeight: 800, color: flags ? '#f97316' : '#a3b4b4' }}>
+              {flags} open
             </div>
 
-            <div style={{ width: 62, textAlign: 'center', fontSize: 13, fontWeight: 800, color: flags ? '#f97316' : '#a3b4b4' }}>
-              {flags} flag{flags === 1 ? '' : 's'}
-            </div>
-
-            <div style={{ flex: 1, fontSize: 12, color: '#c3d0d0', textAlign: 'right' }}>{r.urgency_reason}</div>
+            <div style={{ flex: 1, minWidth: 0, fontSize: 12, color: '#c3d0d0', textAlign: 'right' }}>{reasonLine(r)}</div>
 
             <ChevronRight className="h-4 w-4" style={{ color: '#a3b4b4', flexShrink: 0 }} />
-          </button>
+          </Link>
         );
       })}
     </div>

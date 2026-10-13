@@ -3,6 +3,10 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { LogOut } from 'lucide-react';
+import { PortalStyles, T as K, usePersona } from './ui';
+import { PERSONAS } from './persona';
+import { PanelProvider, usePanel } from './panel-context';
 import {
   clearIdToken, getLogoutUrl, getLoginUrl, getValidIdToken,
 } from '@/app/lib/auth';
@@ -18,25 +22,6 @@ const T = {
   text:    '#ffffff',
   muted:   'rgba(255,255,255,0.6)',
 };
-
-const NAV = [
-  {
-    href: '/clinician', label: 'Dashboard', exact: true,
-    d: 'M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM9 22V12h6v10',
-  },
-  {
-    href: '/clinician/patients', label: 'Patients',
-    d: 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 3a4 4 0 1 1 0 8 4 4 0 0 1 0-8M22 21v-2a4 4 0 0 0-3-3.87',
-  },
-  {
-    href: '/clinician/listings', label: 'Listings',
-    d: 'M9 6h12M9 12h12M9 18h12M3 6l1.4 1.4L7 5M3 12l1.4 1.4L7 11M3 18l1.4 1.4L7 17',
-  },
-  {
-    href: '/clinician/bookings', label: 'Bookings',
-    d: 'M4 5h16v16H4zM4 10h16M9 3v4M15 3v4',
-  },
-];
 
 interface Profile { name?: string; email?: string; role?: string }
 
@@ -74,10 +59,6 @@ export default function ClinicianLayout({ children }: { children: React.ReactNod
     })();
   }, []);
 
-  const initials = (profile.name || profile.email || 'DR')
-    .split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase();
-  const firstName = profile.name?.split(' ')[0] || 'Doctor';
-
   if (checking || (!authorized && !denied)) {
     return (
       <div style={{ width: '100%', height: '100vh', background: T.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -108,79 +89,135 @@ export default function ClinicianLayout({ children }: { children: React.ReactNod
   }
 
   return (
-    // Root: full viewport, no overflow — scroll lives on inner panes only
+    <PanelProvider>
+      <Shell pathname={pathname} profile={profile}>{children}</Shell>
+    </PanelProvider>
+  );
+}
+
+// ─── Shell (storyboard p00: 248px translucent sidebar over the gradient) ──────
+
+const NAV: { href: string; label: string; d: string; match: (p: string) => boolean; badge?: boolean }[] = [
+  { href: '/clinician', label: 'Panel', d: 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 3a4 4 0 1 1 0 8 4 4 0 0 1 0-8',
+    match: (p) => p === '/clinician' },
+  { href: '/clinician/review', label: 'Needs review', d: 'M4 22V4M4 4h13l-2 4 2 4H4', badge: true,
+    match: (p) => p === '/clinician/review' || /\/clinician\/patients\/[^/]+\/review$/.test(p) },
+  { href: '/clinician/bookings', label: 'Bookings', d: 'M4 5h16v16H4zM4 10h16M9 3v4M15 3v4',
+    match: (p) => p.startsWith('/clinician/bookings') },
+  { href: '/clinician/patients', label: 'Briefs', d: 'M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8zM14 3v5h5',
+    match: (p) => p.startsWith('/clinician/patients') && !/\/review$/.test(p) },
+  { href: '/clinician/listings', label: 'My listing', d: 'M4 4h16v6H4zM4 14h16v6H4zM8 7h.01M8 17h.01',
+    match: (p) => p.startsWith('/clinician/listings') },
+];
+
+// What the panel actually flags on today, stated rather than implied. These
+// are MeO's rules (app/db/db_utils.py, app/services/plan_progress.py), not yet
+// per-practitioner settings, so there is no edit link until there is an editor.
+const FLAG_RULES = ['Plan line well short · 14 days', 'No contact · 14 days', 'Biomarkers · optimal ranges', 'Safety · emailed at once'];
+
+function Shell({ pathname, profile, children }: { pathname: string; profile: Profile; children: React.ReactNode }) {
+  const [persona, setPersonaValue] = usePersona();
+  const [lensOpen, setLensOpen] = useState(false);
+  const { rows } = usePanel();
+  const needReview = rows.filter((r) => r.urgency_level !== 'low').length;
+  const name = profile.name || profile.email || 'Practitioner';
+  const lens = PERSONAS.find((x) => x.id === persona) ?? PERSONAS[0];
+
+  return (
     <div
+      className="mc-portal"
       style={{
-        width: '100%', height: '100vh', minWidth: 1200,
-        display: 'flex', background: T.bg, color: T.text,
-        fontFamily: '"Plus Jakarta Sans", system-ui, sans-serif',
-        overflow: 'hidden', position: 'relative',
+        position: 'relative', width: '100%', height: '100vh', minWidth: 1200, overflow: 'hidden',
+        display: 'flex', color: K.text, fontFamily: '"Plus Jakarta Sans", system-ui, sans-serif',
+        WebkitFontSmoothing: 'antialiased',
+        background: 'linear-gradient(140deg, #1a3a3a 0%, #264545 55%, #2a5555 100%)',
       }}
     >
-      {/* ── Sidebar ── */}
-      <aside style={{ width: 224, flex: '0 0 224px', display: 'flex', flexDirection: 'column', background: T.sidebar, borderRight: `1px solid ${T.border}` }}>
+      <PortalStyles />
+      <div aria-hidden style={{ position: 'absolute', inset: 0, pointerEvents: 'none', opacity: 0.55, backgroundImage: 'linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px)', backgroundSize: '72px 72px' }} />
+      <div aria-hidden style={{ position: 'absolute', left: 340, top: -260, width: 1100, height: 1100, borderRadius: '50%', pointerEvents: 'none', background: 'radial-gradient(circle, rgba(164,214,94,0.15) 0%, rgba(164,214,94,0.045) 35%, rgba(164,214,94,0) 65%)' }} />
 
-        {/* Logo */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '20px 18px', borderBottom: `1px solid ${T.border}` }}>
-          <div style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(164,214,94,.15)', border: '1px solid rgba(164,214,94,.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke={T.accent} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M4 3v6a4 4 0 0 0 8 0V3"/><path d="M8 13v3a5 5 0 0 0 10 0v-2"/><circle cx="18" cy="11" r="2"/></svg>
+      <aside style={{ position: 'relative', width: 248, flex: 'none', boxSizing: 'border-box', background: 'rgba(16,38,38,0.72)', borderRight: '1px solid rgba(255,255,255,0.08)', display: 'flex', flexDirection: 'column', padding: '18px 12px 14px' }}>
+        <Link href="/clinician" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '0 8px 16px', textDecoration: 'none', color: K.text }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/clinician-mark.png" alt="" style={{ width: 30, height: 30, borderRadius: 9 }} />
+          <div>
+            <div style={{ fontSize: 14.5, fontWeight: 800 }}>Clinician Portal</div>
+            <div style={{ fontSize: 10.5, color: K.dim }}>Powered by MeO</div>
           </div>
-          <div style={{ minWidth: 0 }}>
-            <div style={{ fontSize: 15, fontWeight: 700, letterSpacing: '-.01em' }}>Clinician Portal</div>
-            <div style={{ fontSize: 11.5, color: '#a3b4b4', marginTop: 1 }}>Powered by MeO</div>
-          </div>
-        </div>
+        </Link>
 
-        {/* Practitioner card */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 11, margin: '14px 12px 6px', padding: '11px 12px', borderRadius: 10, background: T.card, border: `1px solid ${T.border}` }}>
-          <div style={{ width: 34, height: 34, flexShrink: 0, borderRadius: 999, background: T.accent, color: T.accentInk, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12.5, fontWeight: 800, letterSpacing: '.02em' }}>{initials}</div>
-          <div style={{ minWidth: 0 }}>
-            <div style={{ fontSize: 13, fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{firstName} {profile.name?.split(' ').slice(1).join(' ')}</div>
-            <div style={{ fontSize: 11, color: '#a3b4b4' }}>Metabolic clinician</div>
-          </div>
-        </div>
-
-        {/* Nav */}
-        <nav style={{ display: 'flex', flexDirection: 'column', gap: 4, padding: '10px 12px' }}>
-          {NAV.map(({ href, label, d, exact }) => {
-            const isActive = exact ? pathname === href : pathname.startsWith(href);
+        <nav style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+          {NAV.map((n) => {
+            const active = n.match(pathname);
             return (
-              <Link key={href} href={href} style={{
-                display: 'flex', alignItems: 'center', gap: 12, width: '100%',
-                padding: '11px 12px', borderRadius: 10, textDecoration: 'none',
-                fontSize: 14, fontWeight: 600,
-                background: isActive ? 'rgba(164,214,94,.12)' : 'transparent',
-                color: isActive ? T.accent : 'rgba(255,255,255,.65)',
-                boxShadow: isActive ? 'inset 3px 0 0 0 #a4d65e' : 'none',
-              }}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                  {d.split('M').filter(Boolean).map((seg, i) => (
-                    <path key={i} d={`M${seg}`} />
-                  ))}
+              <Link key={n.href} href={n.href} className="mc-press" aria-current={active ? 'page' : undefined}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px', borderRadius: 10,
+                  fontSize: 13.5, fontWeight: active ? 700 : 500, textDecoration: 'none',
+                  color: active ? K.lime : K.muted, background: active ? 'rgba(164,214,94,0.12)' : 'transparent',
+                }}>
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                  {n.d.split('M').filter(Boolean).map((seg, i) => <path key={i} d={`M${seg}`} />)}
                 </svg>
-                {label}
+                <span style={{ flex: 1 }}>{n.label}</span>
+                {n.badge && needReview > 0 && (
+                  <span style={{ fontSize: 10.5, fontWeight: 700, color: K.ink, background: K.lime, borderRadius: 999, padding: '2px 8px' }}>{needReview}</span>
+                )}
               </Link>
             );
           })}
         </nav>
 
-        {/* Footer */}
-        <div style={{ marginTop: 'auto', padding: '14px 12px 18px', display: 'flex', flexDirection: 'column', gap: 2, borderTop: `1px solid ${T.border}` }}>
-          <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', borderRadius: 10, fontSize: 13.5, color: '#a3b4b4', textDecoration: 'none' }}>
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>
-            Back to MeO
-          </Link>
-          <button onClick={() => { clearIdToken(); window.location.href = getLogoutUrl(); }} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', borderRadius: 10, fontSize: 13.5, color: '#a3b4b4', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', width: '100%', textAlign: 'left' }}>
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
-            Sign out
+        <div style={{ height: 1, background: 'rgba(255,255,255,0.08)', margin: '14px 4px' }} />
+
+        <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: K.dim, padding: '4px 12px 6px' }}>Your view</div>
+        <div style={{ padding: '0 12px', position: 'relative' }}>
+          <button className="mc-press" aria-haspopup="listbox" aria-expanded={lensOpen} onClick={() => setLensOpen((o) => !o)}
+            style={{ fontSize: 11, fontWeight: 700, color: K.lime, background: 'rgba(164,214,94,0.12)', border: '1px solid rgba(164,214,94,0.3)', borderRadius: 999, padding: '5px 12px', cursor: 'pointer', fontFamily: 'inherit' }}>
+            {lens.label}
+          </button>
+          {lensOpen && (
+            <div role="listbox" aria-label="Brief lens" className="mc-sheet"
+              style={{ transformOrigin: 'top left', position: 'absolute', zIndex: 5, top: 'calc(100% + 6px)', left: 12, width: 210, background: 'rgba(22,48,48,0.96)', border: `1px solid ${K.chipBorder}`, borderRadius: 12, padding: 6, boxShadow: '0 12px 30px rgba(0,0,0,0.3)' }}>
+              {PERSONAS.map((p) => (
+                <button key={p.id} role="option" aria-selected={p.id === persona} className="mc-press"
+                  onClick={() => { setPersonaValue(p.id); setLensOpen(false); }}
+                  style={{ display: 'block', width: '100%', textAlign: 'left', background: p.id === persona ? 'rgba(164,214,94,0.12)' : 'transparent', border: 0, borderRadius: 9, padding: '8px 10px', cursor: 'pointer', fontFamily: 'inherit' }}>
+                  <div style={{ fontSize: 12.5, fontWeight: 700, color: p.id === persona ? K.lime : K.text }}>{p.label}</div>
+                  <div style={{ fontSize: 11, color: K.dim, marginTop: 1 }}>{p.blurb}</div>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: K.dim, padding: '14px 12px 6px' }}>MeO flags on</div>
+        <div style={{ padding: '0 12px', fontSize: 12, color: K.muted, lineHeight: 1.6 }}>
+          {FLAG_RULES.map((r) => <div key={r}>{r}</div>)}
+        </div>
+
+        <div style={{ flex: 1 }} />
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 8px 0' }}>
+          <div style={{ width: 30, height: 30, flex: 'none', borderRadius: '50%', background: 'rgba(164,214,94,0.2)', color: K.lime, fontWeight: 700, fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            {name.slice(0, 1).toUpperCase()}
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 12.5, fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{name}</div>
+            <div style={{ fontSize: 10.5, color: K.dim }}>{lens.label} · {rows.length} client{rows.length === 1 ? '' : 's'}</div>
+          </div>
+          <button aria-label="Sign out" title="Sign out" className="mc-press"
+            onClick={() => { clearIdToken(); window.location.href = getLogoutUrl(); }}
+            style={{ background: 'transparent', border: 0, color: K.dim, cursor: 'pointer', padding: 6, borderRadius: 8 }}>
+            <LogOut size={15} />
           </button>
         </div>
       </aside>
 
-      {/* ── Page content — each child is responsible for its own scroll ── */}
-      <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+      <main style={{ position: 'relative', flex: 1, minWidth: 0, display: 'flex', overflow: 'hidden' }}>
         {children}
-      </div>
+      </main>
     </div>
   );
 }
