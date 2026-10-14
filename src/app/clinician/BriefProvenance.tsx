@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { FlaskConical, Activity, Utensils, PencilLine, Hospital } from 'lucide-react';
-import { getIdToken } from '@/app/lib/auth';
+import { apiFetch } from '@/app/lib/auth';
 
 /**
  * "Where these numbers came from" — the provenance card from p01–p03.
@@ -23,9 +23,8 @@ export function BriefProvenance({ patientSessionId, colors }: { patientSessionId
   const [rows, setRows] = useState<Row[] | null>(null);
 
   useEffect(() => {
-    const token = getIdToken();
-    if (!token || !patientSessionId) return;
-    fetch(`/api/clinician/${patientSessionId}/between`, { headers: { Authorization: `Bearer ${token}` } })
+    if (!patientSessionId) return;
+    apiFetch(`/api/clinician/${patientSessionId}/between`)
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => {
         if (!d) return;

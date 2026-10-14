@@ -11,7 +11,7 @@
 
 import React, { useState } from 'react';
 import { Check, Plus, X } from 'lucide-react';
-import { getIdToken } from '@/app/lib/auth';
+import { apiFetch } from '@/app/lib/auth';
 import { Btn, Card, Label, Screen, T, firstName, useAuthed, usePatient } from '../../../ui';
 import { usePanel } from '../../../panel-context';
 import { Columns, Note, PatientHeader, SOURCE_LABEL, VERDICT, fmtDay, usePatientId } from '../shared';
@@ -45,9 +45,9 @@ export default function AfterPage() {
     setDrafts((ds) => ds.map((d) => (d.key === key ? { ...d, ...patch } : d)));
 
   const post = async (payload: object) => {
-    const res = await fetch(`/api/clinician/${id}/note`, {
+    const res = await apiFetch(`/api/clinician/${id}/note`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getIdToken()}` },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
     if (!res.ok) {

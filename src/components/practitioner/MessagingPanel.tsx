@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Send, Paperclip, MoreVertical, Loader2 } from 'lucide-react';
 import { useTheme } from '@/theme/ThemeProvider';
-import { getIdToken } from '@/app/lib/auth';
+import { apiFetch } from '@/app/lib/auth';
 
 interface ChatMessage {
   sender: 'user' | 'meo';
@@ -27,13 +27,9 @@ export function MessagingPanel({ patientSessionId, patientName, className }: Mes
       setMessages([]);
       return;
     }
-    const token = getIdToken();
-    if (!token) return;
 
     setLoading(true);
-    fetch(`/api/history/${patientSessionId}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
+    apiFetch(`/api/history/${patientSessionId}`)
       .then((res) => (res.ok ? res.json() : []))
       .then((data: ChatMessage[]) => setMessages(data))
       .catch(() => setMessages([]))

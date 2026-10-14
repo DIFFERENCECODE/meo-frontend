@@ -8,7 +8,7 @@
  */
 
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
-import { getIdToken } from '@/app/lib/auth';
+import { apiFetch } from '@/app/lib/auth';
 import type { PanelRow } from './PanelTriage';
 
 interface PanelState {
@@ -27,10 +27,8 @@ export function PanelProvider({ children }: { children: React.ReactNode }) {
   const [n, setN] = useState(0);
 
   useEffect(() => {
-    const token = getIdToken();
-    if (!token) return;
     setLoading(true);
-    fetch('/api/patients/panel', { headers: { Authorization: `Bearer ${token}` } })
+    apiFetch('/api/patients/panel')
       .then((r) => (r.ok ? r.json() : []))
       .then((d) => { setRows(Array.isArray(d) ? d : []); setLoadedAt(new Date()); })
       .catch(() => {})

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { getIdToken } from '@/app/lib/auth';
+import { apiFetch } from '@/app/lib/auth';
 import { ProgressBadge, type PlanProgress } from '@/components/record/PractitionerNotes';
 
 /**
@@ -61,10 +61,9 @@ export function BetweenVisits({ patientSessionId, colors }: { patientSessionId: 
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = getIdToken();
-    if (!token || !patientSessionId) return;
+    if (!patientSessionId) return;
     setLoading(true);
-    fetch(`/api/clinician/${patientSessionId}/between`, { headers: { Authorization: `Bearer ${token}` } })
+    apiFetch(`/api/clinician/${patientSessionId}/between`)
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => setData(d))
       .catch(() => {})

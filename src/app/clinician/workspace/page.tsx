@@ -9,7 +9,7 @@ import { LensSwitcher } from '../LensSwitcher';
 import { PostConsult } from '../PostConsult';
 import { BetweenVisits } from '../BetweenVisits';
 import { BriefProvenance } from '../BriefProvenance';
-import { getIdToken } from '@/app/lib/auth';
+import { apiFetch } from '@/app/lib/auth';
 
 // Design tokens matching the clinician portal handoff
 const COLORS = {
@@ -537,9 +537,7 @@ function AddLabResultsModal({
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const token = getIdToken();
-    if (!token) return;
-    fetch('/api/biomarkers/reference', { headers: { Authorization: `Bearer ${token}` } })
+    apiFetch('/api/biomarkers/reference')
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => setReference(Array.isArray(data?.biomarkers) ? data.biomarkers : []))
       .catch(() => setReference([]))
@@ -555,8 +553,7 @@ function AddLabResultsModal({
   const filledCount = Object.values(values).filter((v) => v.trim() !== '').length;
 
   const handleSubmit = async () => {
-    const token = getIdToken();
-    if (!token || !reference) return;
+    if (!reference) return;
     const results = reference
       .filter((b) => values[b.name]?.trim())
       .map((b) => ({ biomarker_name: b.name, value: parseFloat(values[b.name]), unit: b.unit }))
@@ -570,9 +567,9 @@ function AddLabResultsModal({
     setSaving(true);
     setError(null);
     try {
-      const res = await fetch(`/api/patients/${sessionId}/labs`, {
+      const res = await apiFetch(`/api/patients/${sessionId}/labs`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ test_date: testDate, results, source_lab: sourceLab || undefined }),
       });
       if (!res.ok) {
@@ -1044,13 +1041,11 @@ export default function PatientsPage() {
 
   // Load triage feed
   useEffect(() => {
-    const token = getIdToken();
-    if (!token) return;
-    fetch('/api/patients/panel', { headers: { Authorization: `Bearer ${token}` } })
+    apiFetch('/api/patients/panel')
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
         if (Array.isArray(data)) { setPatients(data); return; }
-        return fetch('/api/patients', { headers: { Authorization: `Bearer ${token}` } })
+        return apiFetch('/api/patients')
           .then((r) => (r.ok ? r.json() : []))
           .then((raw: Omit<TriagePatient, 'last_message_at' | 'days_since_last_message' | 'unfollowed_commitments' | 'tags' | 'urgency_level' | 'urgency_reason' | 'signal_tags' | 'recent_activity_7d'>[]) =>
             setPatients(raw.map((p) => ({ ...p, last_message_at: null, days_since_last_message: null, unfollowed_commitments: 0, recent_activity_7d: 0, urgency_level: 'low' as const, urgency_reason: 'No data', signal_tags: [], tags: [] })))
@@ -1062,11 +1057,9 @@ export default function PatientsPage() {
 
   // Fetch brief for a given patient
   const fetchBrief = useCallback((sessionId: string) => {
-    const token = getIdToken();
-    if (!token) return;
     setBriefContent(null);
     setBriefLoading(true);
-    fetch(`/api/clinician/${sessionId}/brief?persona=${getPersona()}`, { headers: { Authorization: `Bearer ${token}` } })
+    apiFetch(`/api/clinician/${sessionId}/brief?persona=${getPersona()}`)
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => setBriefContent(data?.response || 'Unable to generate brief — try asking manually below.'))
       .catch(() => setBriefContent('Brief unavailable. Ask a question below.'))
@@ -1077,10 +1070,8 @@ export default function PatientsPage() {
   // {test_dates, flags, all_results} — not a bare array — so this must be
   // stored as that shape, not unwrapped, for the card to ever render.
   const fetchLabFlags = useCallback((sessionId: string) => {
-    const token = getIdToken();
-    if (!token) return;
     setLabFlagsLoading(true);
-    fetch(`/api/patients/${sessionId}/labs/flags`, { headers: { Authorization: `Bearer ${token}` } })
+    apiFetch(`/api/patients/${sessionId}/labs/flags`)
       .then((r) => (r.ok ? r.json() : null))
       .then((data: LabFlagsResponse | null) => setLabFlagsData(data))
       .catch(() => setLabFlagsData(null))
@@ -1098,14 +1089,11 @@ export default function PatientsPage() {
       return;
     }
 
-    const token = getIdToken();
-    if (!token) return;
-
     setMessages([]);
     setLabFlagsData(null);
     setDetailLoading(true);
 
-    fetch(`/api/clinician?session_id=${selectedId}`, { headers: { Authorization: `Bearer ${token}` } })
+    apiFetch(`/api/clinician?session_id=${selectedId}`)
       .then((r) => (r.ok ? r.json() : null))
       .then(setDetail)
       .catch(() => {})
@@ -1118,8 +1106,6 @@ export default function PatientsPage() {
   const sendMessage = useCallback(async (text: string) => {
     const trimmed = text.trim();
     if (!trimmed || sending || !selectedId) return;
-    const token = getIdToken();
-    if (!token) return;
 
     const userMsg: Message = { id: `u-${Date.now()}`, role: 'user', content: trimmed };
     const loadingMsg: Message = { id: `l-${Date.now()}`, role: 'assistant', content: '', isLoading: true };
@@ -1128,9 +1114,9 @@ export default function PatientsPage() {
     setSending(true);
 
     try {
-      const res = await fetch(`/api/clinician/${selectedId}/chat`, {
+      const res = await apiFetch(`/api/clinician/${selectedId}/chat`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: trimmed }),
       });
       const data = await res.json();

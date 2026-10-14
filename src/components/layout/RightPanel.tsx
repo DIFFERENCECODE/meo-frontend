@@ -4,7 +4,7 @@ import React, { useState, useCallback } from 'react';
 import { X, PanelRightClose, PanelRight, Loader2 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useTheme } from '@/theme/ThemeProvider';
-import { getIdToken } from '@/app/lib/auth';
+import { apiFetch } from '@/app/lib/auth';
 import { cn } from '@/lib/utils';
 
 import { PatientList } from '@/components/practitioner/PatientList';
@@ -46,15 +46,8 @@ export function RightPanel({
   const handleSelectPatient = useCallback(async (sessionId: string) => {
     setSelectedPatientId(sessionId);
     setClinicianLoading(true);
-    const token = getIdToken();
-    if (!token) {
-      setClinicianLoading(false);
-      return;
-    }
     try {
-      const res = await fetch(`/api/clinician?session_id=${sessionId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await apiFetch(`/api/clinician?session_id=${sessionId}`);
       if (res.ok) {
         setClinicianData(await res.json());
       }

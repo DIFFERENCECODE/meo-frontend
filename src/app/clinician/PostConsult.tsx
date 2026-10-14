@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { getIdToken } from '@/app/lib/auth';
+import { apiFetch } from '@/app/lib/auth';
 
 /**
  * The post-consult composer — the practitioner end of the loop.
@@ -47,9 +47,8 @@ export function PostConsult({ patientSessionId, colors }: { patientSessionId: st
   const [existing, setExisting] = useState<Note[]>([]);
 
   const load = useCallback(() => {
-    const token = getIdToken();
-    if (!token || !patientSessionId) return;
-    fetch(`/api/clinician/${patientSessionId}/notes`, { headers: { Authorization: `Bearer ${token}` } })
+    if (!patientSessionId) return;
+    apiFetch(`/api/clinician/${patientSessionId}/notes`)
       .then((r) => (r.ok ? r.json() : []))
       .then((d) => setExisting(Array.isArray(d) ? d : []))
       .catch(() => {});
@@ -63,10 +62,9 @@ export function PostConsult({ patientSessionId, colors }: { patientSessionId: st
     setSaving(true);
     setError(null);
     try {
-      const token = getIdToken();
-      const res = await fetch(`/api/clinician/${patientSessionId}/note`, {
+      const res = await apiFetch(`/api/clinician/${patientSessionId}/note`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           body: text,
           kind,

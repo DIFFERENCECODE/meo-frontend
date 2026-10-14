@@ -18,7 +18,7 @@ import { usePathname } from 'next/navigation';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Mic, SendHorizontal, X } from 'lucide-react';
-import { getIdToken } from '@/app/lib/auth';
+import { apiFetch } from '@/app/lib/auth';
 import { getPersona, setPersona, type Persona } from './persona';
 
 export const T = {
@@ -173,12 +173,10 @@ export function useAuthed<D>(url: string | null) {
 
   useEffect(() => {
     if (!url) return;
-    const token = getIdToken();
-    if (!token) return;
     let live = true;
     setLoading(true);
     setError(null);
-    fetch(url, { headers: { Authorization: `Bearer ${token}` } })
+    apiFetch(url)
       .then(async (r) => {
         if (!r.ok) throw new Error(r.status === 403 ? 'This patient is not in your caseload.' : `Couldn't load (${r.status}).`);
         return r.json();
@@ -288,9 +286,9 @@ export function AskBar({ patientId, placeholder }: { patientId: string; placehol
     setTurns((t) => [...t, { q, a: null }]);
     let a: string;
     try {
-      const res = await fetch(`/api/clinician/${patientId}/chat`, {
+      const res = await apiFetch(`/api/clinician/${patientId}/chat`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getIdToken()}` },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: q }),
       });
       const d = await res.json().catch(() => ({}));

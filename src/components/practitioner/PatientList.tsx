@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { User, Search, ChevronRight, Circle, Loader2 } from 'lucide-react';
 import { useTheme } from '@/theme/ThemeProvider';
-import { getIdToken } from '@/app/lib/auth';
+import { apiFetch } from '@/app/lib/auth';
 
 interface Patient {
   session_id: string;
@@ -26,12 +26,7 @@ export function PatientList({ onSelectPatient, selectedPatientId, className }: P
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
-    const token = getIdToken();
-    if (!token) {
-      setLoading(false);
-      return;
-    }
-    fetch('/api/patients', { headers: { Authorization: `Bearer ${token}` } })
+    apiFetch('/api/patients')
       .then((res) => (res.ok ? res.json() : []))
       .then((data: Patient[]) => setPatients(data))
       .catch(() => {})
