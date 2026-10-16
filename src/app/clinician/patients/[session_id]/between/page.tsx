@@ -10,9 +10,10 @@
  */
 
 import React, { useState } from 'react';
-import { Card, Label, Pill, Screen, State, T } from '../../../ui';
+import { Card, Label, Pill, Screen, State, T, usePersona } from '../../../ui';
+import { LensPanel } from '../../../LensCharts';
 import {
-  Between, CantTellCard, Columns, PatientAsk, PatientHeader, VERDICT, fmtDay, fraction, plans,
+  Between, CantTellCard, Columns, basPoints, planCutoff, PatientAsk, PatientHeader, VERDICT, fmtDay, fraction, plans,
   useBetween, usePatientId,
 } from '../shared';
 
@@ -102,6 +103,7 @@ function Adherence({ b }: { b: Between | null }) {
 export default function BetweenPage() {
   const id = usePatientId();
   const between = useBetween(id);
+  const [persona] = usePersona();
   const all = between.data ? events(between.data) : [];
   // The frame is the weeks since the last session; older events fold away
   // behind one control rather than pushing the gap off the screen.
@@ -156,6 +158,7 @@ export default function BetweenPage() {
         right={
           <>
             <Adherence b={between.data} />
+            <LensPanel patientId={id} persona={persona} basPoints={basPoints(between.data)} planCutoff={planCutoff(between.data)} />
             <CantTellCard between={between.data} name="they" />
           </>
         }

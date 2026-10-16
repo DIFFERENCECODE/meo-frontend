@@ -13,8 +13,9 @@
 import React, { useMemo } from 'react';
 import { Card, Label, Markdown, Pill, Screen, State, T, useAuthed, usePersona } from '../../ui';
 import { PERSONAS } from '../../persona';
+import { LensPanel } from '../../LensCharts';
 import {
-  CantTellCard, Columns, CommittedCard, JudgementCard, PatientAsk, PatientHeader, ProvenanceCard,
+  CantTellCard, basPoints, planCutoff, Columns, CommittedCard, JudgementCard, PatientAsk, PatientHeader, ProvenanceCard,
   useBetween, usePatientId,
 } from './shared';
 
@@ -83,6 +84,9 @@ export default function BriefPage() {
 
       <Columns
         left={
+          <>
+          {/* The lens view leads: what this practitioner works on, drawn. */}
+          <LensPanel patientId={id} persona={persona} basPoints={basPoints(between.data)} planCutoff={planCutoff(between.data)} />
           <State loading={brief.loading && !brief.data} error={brief.error}>
             {sections.map((s) => (
               <Card key={s.title} style={{ padding: '14px 18px', scrollMarginTop: 12 }}>
@@ -99,6 +103,7 @@ export default function BriefPage() {
               </Card>
             )}
           </State>
+          </>
         }
         right={
           <>

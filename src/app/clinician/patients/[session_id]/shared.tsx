@@ -231,3 +231,22 @@ export function Columns({ left, right }: { left: React.ReactNode; right: React.R
     </div>
   );
 }
+
+
+/** The plan's dinner cut-off ("Dinner before 21:00" -> "21:00"), for the chart. */
+export function planCutoff(b?: Between | null): string | null {
+  for (const l of plans(b)) {
+    if (l.source !== 'meals') continue;
+    const m = l.body.match(/before\s+(\d{1,2})[:.](\d{2})/i);
+    if (m) return `${m[1].padStart(2, '0')}:${m[2]}`;
+  }
+  return null;
+}
+
+/** Scored readings, oldest first, for the physician's line. */
+export function basPoints(b?: Between | null): { date: string; value: number }[] {
+  return (b?.readings ?? [])
+    .filter((r) => r.bas != null && r.date)
+    .map((r) => ({ date: r.date as string, value: r.bas as number }))
+    .reverse();
+}
