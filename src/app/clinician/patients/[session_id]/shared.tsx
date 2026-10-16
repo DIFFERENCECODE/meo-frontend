@@ -120,6 +120,11 @@ export function PatientAsk({ id, example }: { id: string; example: string }) {
 
 /** Where the numbers came from. A source with nothing behind it reads as such. */
 export function ProvenanceCard({ between }: { between: Between | null }) {
+  const id = usePatientId();
+  // The patient's logs, counted the same way as the lens charts.
+  const life = useAuthed<{ nutrition: { status: string; days_logged?: number }; activity: { status: string; steps_days?: number; sleep_nights?: number } }>(
+    id ? `/api/clinician/${encodeURIComponent(id)}/lifestyle` : null,
+  );
   const readings = between?.readings ?? [];
   const n = (k: string) => readings.filter((r) => r.kind === k).length;
   const lines = plans(between);
@@ -132,9 +137,9 @@ export function ProvenanceCard({ between }: { between: Between | null }) {
     { label: 'Meter, at home', Icon: FlaskConical, value: n('panel') ? `${n('panel')} readings` : null },
     { label: 'Lab / clinic', Icon: Hospital, value: n('insulin') ? `${n('insulin')} panel${n('insulin') === 1 ? '' : 's'}` : null },
     { label: 'Typed by the patient', Icon: PencilLine, value: n('body') ? `${n('body')} entries` : null },
-    { label: 'Food log', Icon: Utensils, value: lifestyle('meals') },
-    { label: 'Steps', Icon: Footprints, value: lifestyle('steps') },
-    { label: 'Sleep', Icon: Moon, value: lifestyle('sleep') },
+    { label: 'Food log', Icon: Utensils, value: life.data?.nutrition.status === 'ok' ? `${life.data.nutrition.days_logged} of 14 days` : lifestyle('meals') },
+    { label: 'Steps', Icon: Footprints, value: life.data?.activity.status === 'ok' && life.data.activity.steps_days ? `${life.data.activity.steps_days} of 14 days` : lifestyle('steps') },
+    { label: 'Sleep', Icon: Moon, value: life.data?.activity.status === 'ok' && life.data.activity.sleep_nights ? `${life.data.activity.sleep_nights} of 14 nights` : lifestyle('sleep') },
   ];
   return (
     <Card>
@@ -196,7 +201,7 @@ export function CantTellCard({ between, name }: { between: Between | null; name:
   const short = lines.filter((l) => l.progress && ['partial', 'off_track'].includes(l.progress.status));
   const said: string[] = [];
   if (short.length) {
-    said.push(`Why "${short[0].body}" is landing ${short[0].progress?.status === 'partial' ? 'some nights but not others' : 'so rarely'}: the log shows when, not why.`);
+    said.push(`Why "${short[0].body}" is met ${short[0].progress?.status === 'partial' ? 'on some days but not others' : 'so rarely'}: the record shows what happened, not why.`);
   }
   if (silent.length) {
     said.push(`Whether "${silent[0].body}" is happening. Nothing was recorded, which is not the same as not done.`);

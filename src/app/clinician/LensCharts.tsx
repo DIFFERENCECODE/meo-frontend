@@ -47,7 +47,7 @@ function lastNDays(n: number): string[] {
 const dayLabel = (iso: string) => new Date(`${iso}T12:00:00`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
 const toMin = (hhmm: string) => { const [h, m] = hhmm.split(':').map(Number); return h * 60 + m; };
 
-const W = 520, H = 170, L = 44, R = 12, TOP = 14, B = 26;
+const W = 680, H = 190, L = 48, R = 12, TOP = 12, B = 26;
 
 function Frame({ children, ticks, days }: { children: React.ReactNode; ticks: { y: number; label: string }[]; days: string[] }) {
   return (
@@ -106,7 +106,6 @@ export function DinnerTimes({ daily, cutoff }: { daily: DayN[]; cutoff: string |
         {cut != null && (
           <g>
             <line x1={L} x2={W - R} y1={y(cut)} y2={y(cut)} stroke={INK} strokeDasharray="4 4" strokeWidth={1.5} />
-            <text x={W - R} y={y(cut) - 6} textAnchor="end" fontSize={11} fontWeight={700} fill={INK}>Plan: before {cutoff}</text>
           </g>
         )}
         {pts.map(({ d, i, t }) => {
@@ -126,7 +125,7 @@ export function DinnerTimes({ daily, cutoff }: { daily: DayN[]; cutoff: string |
       <Legend items={[
         { mark: <circle cx="6" cy="6" r="5" fill={GOOD} />, label: 'In time' },
         { mark: <circle cx="6" cy="6" r="4" fill="none" stroke={SHORT} strokeWidth="2" />, label: 'Late' },
-        { mark: <line x1="0" x2="12" y1="6" y2="6" stroke={INK} strokeDasharray="3 2" />, label: 'Plan cut-off' },
+        ...(cutoff ? [{ mark: <line x1="0" x2="12" y1="6" y2="6" stroke={INK} strokeDasharray="3 2" />, label: `Plan: before ${cutoff}` }] : []),
       ]} />
       <TableView head={['Day', 'Dinner logged']} rows={pts.map(({ d, t }) => [dayLabel(d), t ?? 'not logged'])} />
     </>
@@ -167,13 +166,13 @@ export function DailyBars({ values, target, unit, format, belowLabel, aboveLabel
         {target != null && (
           <g>
             <line x1={L} x2={W - R} y1={y(target)} y2={y(target)} stroke={INK} strokeDasharray="4 4" strokeWidth={1.5} />
-            <text x={W - R} y={y(target) - 6} textAnchor="end" fontSize={11} fontWeight={700} fill={INK}>Target {format(target)}</text>
           </g>
         )}
       </Frame>
       <Legend items={[
         { mark: <rect width="12" height="12" rx="3" fill={GOOD} />, label: aboveLabel },
         { mark: <rect width="12" height="12" rx="3" fill={SHORT} />, label: belowLabel },
+        ...(target != null ? [{ mark: <line x1="0" x2="12" y1="6" y2="6" stroke={INK} strokeDasharray="3 2" />, label: `Target ${format(target)}` }] : []),
       ]} />
       <TableView head={['Day', unit]} rows={days.map((d, i) => [dayLabel(d), vals[i] == null ? 'not recorded' : format(vals[i] as number)])} />
     </>
