@@ -116,7 +116,7 @@ export function AskBar({ placeholder = 'Ask MeO…' }: AskBarProps) {
             background: listening ? 'rgba(164,214,94,0.25)' : 'rgba(255,255,255,0.08)',
           }}
         >
-          <Mic className="h-4 w-4" style={{ color: listening ? '#a4d65e' : '#c3d0d0' }} />
+          <Mic className="h-4 w-4" style={{ color: listening ? '#a4d65e' : '#ffffff' }} />
         </button>
       )}
       <button

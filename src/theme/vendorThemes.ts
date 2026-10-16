@@ -85,8 +85,9 @@ export const meterbolicTheme: VendorTheme = {
     cardBorder: 'rgba(255, 255, 255, 0.12)',
     
     foreground: '#ffffff',
-    muted: '#c3d0d0',
-    mutedDim: '#a3b4b4',
+    // White text throughout (2026-10-17); emphasis by weight, not grey.
+    muted: '#ffffff',
+    mutedDim: '#ffffff',
     caution: '#eab839',
     device: '#7cc5d8',
     
@@ -117,8 +118,9 @@ export const meterbolicTheme: VendorTheme = {
     cardBorder: 'rgba(255, 255, 255, 0.12)',
 
     foreground: '#e8f5e8',
-    muted: '#c3d0d0',
-    mutedDim: '#a3b4b4',
+    // White text throughout (2026-10-17); emphasis by weight, not grey.
+    muted: '#ffffff',
+    mutedDim: '#ffffff',
     caution: '#eab839',
     device: '#7cc5d8',
 

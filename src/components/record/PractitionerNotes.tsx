@@ -50,12 +50,12 @@ export const PROGRESS_META: Record<string, { label: string; color: string }> = {
   on_track: { label: 'On track', color: '#a4d65e' },
   partial: { label: 'Partly there', color: '#eab839' },
   off_track: { label: 'Behind', color: '#f97316' },
-  no_data: { label: 'Nothing recorded yet', color: '#a3b4b4' },
+  no_data: { label: 'Nothing recorded yet', color: '#ffffff' },
   tracked: { label: 'Counting', color: '#7cc5d8' },
-  too_early: { label: 'Too early to tell', color: '#a3b4b4' },
-  not_measurable: { label: 'Not checked automatically', color: '#a3b4b4' },
-  not_shared: { label: 'Data not shared', color: '#a3b4b4' },
-  unavailable: { label: "Couldn't check", color: '#a3b4b4' },
+  too_early: { label: 'Too early to tell', color: '#ffffff' },
+  not_measurable: { label: 'Not checked automatically', color: '#ffffff' },
+  not_shared: { label: 'Data not shared', color: '#ffffff' },
+  unavailable: { label: "Couldn't check", color: '#ffffff' },
 };
 
 export function ProgressBadge({ progress }: { progress?: PlanProgress | null }) {

@@ -187,7 +187,7 @@ function Spark({ values, color }: { values: number[]; color: string }) {
  */
 function TrendsRail({ record, metric, onPick }: { record: RecordResponse; metric: string; onPick: (m: string) => void }) {
   const rows = METRICS.filter((m) => m !== 'BAS' && (record.series?.[m]?.length ?? 0) > 0);
-  const label = { fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase' as const, color: '#a3b4b4' };
+  const label = { fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase' as const, color: '#ffffff' };
   return (
     <div style={{ padding: '20px 20px 24px' }}>
       <div style={label}>From your meter</div>
@@ -205,12 +205,12 @@ function TrendsRail({ record, metric, onPick }: { record: RecordResponse; metric
           >
             <div className="flex-1 min-w-0">
               <div style={{ fontSize: 13, fontWeight: 700, color: m === metric ? '#a4d65e' : '#ffffff' }}>{sm.label}</div>
-              <div style={{ fontSize: 11, color: '#a3b4b4' }}>{pts.length} readings</div>
+              <div style={{ fontSize: 11, color: '#ffffff' }}>{pts.length} readings</div>
             </div>
             <Spark values={pts.map((p) => p.value)} color={(LOWER_IS_BETTER[m] ?? true) ? '#a4d65e' : '#7cc5d8'} />
             <div style={{ width: 58, textAlign: 'right' }}>
               <div style={{ fontSize: 15, fontWeight: 800, color: '#ffffff' }}>{v != null ? Number(v.toFixed(2)) : '—'}</div>
-              <div style={{ fontSize: 10.5, color: '#a3b4b4' }}>{sm.unit}</div>
+              <div style={{ fontSize: 10.5, color: '#ffffff' }}>{sm.unit}</div>
             </div>
           </button>
         );
@@ -221,7 +221,7 @@ function TrendsRail({ record, metric, onPick }: { record: RecordResponse; metric
           from the app
         </span>
       </div>
-      <p style={{ fontSize: 12.5, color: '#c3d0d0', lineHeight: 1.55, marginTop: 10 }}>
+      <p style={{ fontSize: 12.5, color: '#ffffff', lineHeight: 1.55, marginTop: 10 }}>
         Sleep, steps, resting heart rate and meal timing are charted in the MeO app on your phone.
         A plan line that checks them shows its count on <a href="/plan" style={{ color: '#a4d65e' }}>My plan</a>.
       </p>

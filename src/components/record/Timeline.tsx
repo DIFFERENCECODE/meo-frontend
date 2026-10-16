@@ -38,8 +38,8 @@ const FILTERS: { id: string; label: string }[] = [
 const SOURCE_CHIP: Record<string, { label: string; color: string; bg: string; bd: string }> = {
   panel:   { label: 'meter',  color: '#a4d65e', bg: 'rgba(164,214,94,0.12)', bd: 'rgba(164,214,94,0.3)' },
   insulin: { label: 'clinic', color: '#7cc5d8', bg: 'rgba(124,197,216,0.12)', bd: 'rgba(124,197,216,0.3)' },
-  body:    { label: 'typed',  color: '#c3d0d0', bg: 'rgba(255,255,255,0.07)', bd: 'rgba(255,255,255,0.14)' },
-  other:   { label: 'entry',  color: '#a3b4b4', bg: 'rgba(255,255,255,0.05)', bd: 'rgba(255,255,255,0.12)' },
+  body:    { label: 'typed',  color: '#ffffff', bg: 'rgba(255,255,255,0.07)', bd: 'rgba(255,255,255,0.14)' },
+  other:   { label: 'entry',  color: '#ffffff', bg: 'rgba(255,255,255,0.05)', bd: 'rgba(255,255,255,0.12)' },
 };
 
 function Row({ reading, colors }: { reading: Reading & { kind?: string }; colors: Record<string, string> }) {

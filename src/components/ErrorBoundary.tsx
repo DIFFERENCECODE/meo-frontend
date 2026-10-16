@@ -37,7 +37,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
             </svg>
           </div>
-          <p className="t-lead text-[#a3b4b4] mb-2">Something went wrong{this.props.name ? ` in ${this.props.name}` : ''}</p>
+          <p className="t-lead text-[#ffffff] mb-2">Something went wrong{this.props.name ? ` in ${this.props.name}` : ''}</p>
           <button
             onClick={() => this.setState({ hasError: false, error: null })}
             className="t-body2 text-emerald-400 underline hover:text-emerald-300"

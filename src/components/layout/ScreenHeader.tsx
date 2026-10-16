@@ -10,8 +10,8 @@ import { useTheme } from '@/theme/ThemeProvider';
  *
  *   header  padding: 20px 28px 0; flex; align-items:center; justify-content:space-between
  *   title   22px / 700 / -0.01em
- *   sub     13px / #c3d0d0 / margin-top: 3px
- *   chip    12px / 600 / #c3d0d0 on rgba(255,255,255,.07), 1px rgba(255,255,255,.14),
+ *   sub     13px / #ffffff / margin-top: 3px
+ *   chip    12px / 600 / #ffffff on rgba(255,255,255,.07), 1px rgba(255,255,255,.14),
  *           radius 999, padding 5px 12px
  *
  * Title and subtitle set their colours explicitly rather than inheriting. The

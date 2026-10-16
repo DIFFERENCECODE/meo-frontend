@@ -421,8 +421,8 @@ export function AnalysisContent({ graphData: graphDataProp }: AnalysisContentPro
                 type: 'category',
                 data: data.map((d) => d.time),
                 boundaryGap: false,
-                axisLine: { lineStyle: { color: '#c3d0d0' } },
-                axisLabel: { color: '#a3b4b4', fontSize: 12 },
+                axisLine: { lineStyle: { color: '#ffffff' } },
+                axisLabel: { color: '#ffffff', fontSize: 12 },
               },
               yAxis: [
                 {
@@ -434,7 +434,7 @@ export function AnalysisContent({ graphData: graphDataProp }: AnalysisContentPro
                   position: 'left',
                   axisLine: { show: true, lineStyle: { color: '#3b82f6' } },
                   axisLabel: { color: '#3b82f6', fontSize: 12 },
-                  splitLine: { lineStyle: { color: '#c3d0d0', opacity: 0.3, type: 'dashed' } },
+                  splitLine: { lineStyle: { color: '#ffffff', opacity: 0.3, type: 'dashed' } },
                 },
                 {
                   type: 'value',
@@ -450,10 +450,10 @@ export function AnalysisContent({ graphData: graphDataProp }: AnalysisContentPro
               tooltip: {
                 trigger: 'axis',
                 backgroundColor: '#ffffff',
-                borderColor: '#c3d0d0',
+                borderColor: '#ffffff',
                 textStyle: { color: '#fff' },
               },
-              legend: { data: ['glucose', 'insulin'], bottom: 10, textStyle: { color: '#a3b4b4' }, icon: 'circle' },
+              legend: { data: ['glucose', 'insulin'], bottom: 10, textStyle: { color: '#ffffff' }, icon: 'circle' },
               dataset: { source: data },
               series: [
                 {

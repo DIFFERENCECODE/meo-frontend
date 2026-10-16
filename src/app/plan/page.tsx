@@ -21,7 +21,7 @@ import { ScreenHeader, ScreenBody, Chip } from '@/components/layout/ScreenHeader
 
 const C = {
   card: 'rgba(40,70,70,0.82)', border: 'rgba(255,255,255,0.12)', lime: '#a4d65e',
-  muted: '#c3d0d0', dim: '#a3b4b4', row: 'rgba(255,255,255,0.08)',
+  muted: '#ffffff', dim: '#ffffff', row: 'rgba(255,255,255,0.08)',
 };
 
 const FROM: Record<string, string> = {

@@ -112,7 +112,7 @@ export default function LandingPage({ onAuthenticated, isExchanging = false }: L
           {isExchanging ? (
             <div className="flex flex-col items-center gap-4 py-12">
               <Loader2 className="h-10 w-10 animate-spin" style={{ color: '#a4d65e' }} />
-              <p className="text-sm font-medium" style={{ color: '#c3d0d0' }}>Signing you in…</p>
+              <p className="text-sm font-medium" style={{ color: '#ffffff' }}>Signing you in…</p>
             </div>
 
           ) : screen === 'email' ? (
@@ -120,7 +120,7 @@ export default function LandingPage({ onAuthenticated, isExchanging = false }: L
               <h1 className="text-[1.75rem] font-bold leading-tight" style={{ color: '#ffffff' }}>
                 Welcome to MeO
               </h1>
-              <p className="mt-2 text-sm" style={{ color: '#c3d0d0' }}>
+              <p className="mt-2 text-sm" style={{ color: '#ffffff' }}>
                 Sign in or create a free account to get started.
               </p>
 
@@ -145,7 +145,7 @@ export default function LandingPage({ onAuthenticated, isExchanging = false }: L
               {/* Divider */}
               <div className="flex items-center gap-3 my-5">
                 <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.1)' }} />
-                <span className="text-xs" style={{ color: '#a3b4b4' }}>or continue with email</span>
+                <span className="text-xs" style={{ color: '#ffffff' }}>or continue with email</span>
                 <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.1)' }} />
               </div>
 
@@ -172,9 +172,9 @@ export default function LandingPage({ onAuthenticated, isExchanging = false }: L
                 </button>
               </form>
 
-              <p className="mt-5 text-xs text-center" style={{ color: '#a3b4b4' }}>
+              <p className="mt-5 text-xs text-center" style={{ color: '#ffffff' }}>
                 Are you a clinician?{' '}
-                <a href="/register/clinician" className="underline hover:text-[#c3d0d0]" style={{ color: '#c3d0d0' }}>
+                <a href="/register/clinician" className="underline hover:text-[#ffffff]" style={{ color: '#ffffff' }}>
                   Register your practice
                 </a>
               </p>
@@ -185,7 +185,7 @@ export default function LandingPage({ onAuthenticated, isExchanging = false }: L
               <button
                 onClick={() => { setScreen('email'); setOtp(''); setError(''); }}
                 className="flex items-center gap-1.5 mb-8 text-xs font-medium hover:opacity-70 transition-opacity"
-                style={{ color: '#c3d0d0' }}
+                style={{ color: '#ffffff' }}
               >
                 <ArrowLeft className="h-3.5 w-3.5" /> Back
               </button>
@@ -197,7 +197,7 @@ export default function LandingPage({ onAuthenticated, isExchanging = false }: L
               <h1 className="text-[1.75rem] font-bold leading-tight" style={{ color: '#ffffff' }}>
                 Check your email
               </h1>
-              <p className="mt-2 text-sm" style={{ color: '#c3d0d0' }}>
+              <p className="mt-2 text-sm" style={{ color: '#ffffff' }}>
                 We sent a 6-digit code to <span className="font-medium" style={{ color: '#ffffff' }}>{email}</span>
               </p>
 
@@ -228,12 +228,12 @@ export default function LandingPage({ onAuthenticated, isExchanging = false }: L
                 </button>
               </form>
 
-              <p className="mt-4 text-xs text-center" style={{ color: '#a3b4b4' }}>
+              <p className="mt-4 text-xs text-center" style={{ color: '#ffffff' }}>
                 Didn't receive it?{' '}
                 <button
                   onClick={() => { setOtp(''); setError(''); setScreen('email'); }}
-                  className="underline hover:text-[#c3d0d0]"
-                  style={{ color: '#c3d0d0' }}
+                  className="underline hover:text-[#ffffff]"
+                  style={{ color: '#ffffff' }}
                 >
                   Try again
                 </button>
@@ -243,7 +243,7 @@ export default function LandingPage({ onAuthenticated, isExchanging = false }: L
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between text-xs" style={{ color: '#a3b4b4' }}>
+        <div className="flex items-center justify-between text-xs" style={{ color: '#ffffff' }}>
           <span>© {new Date().getFullYear()} Meterbolic</span>
           <div className="flex gap-4">
             <a href="/privacy" className="hover:underline">Privacy</a>

@@ -75,10 +75,10 @@ const iB    = (e: React.FocusEvent<any>) => (e.currentTarget.style.borderColor =
 function Lbl({ text, required, hint }: { text: string; required?: boolean; hint?: string }) {
   return (
     <div className="mb-1.5">
-      <label className="t-lead font-medium" style={{ color: '#c3d0d0' }}>
+      <label className="t-lead font-medium" style={{ color: '#ffffff' }}>
         {text}{required && <span style={{ color: '#a4d65e' }}> *</span>}
       </label>
-      {hint && <p className="t-body2 mt-0.5" style={{ color: '#a3b4b4' }}>{hint}</p>}
+      {hint && <p className="t-body2 mt-0.5" style={{ color: '#ffffff' }}>{hint}</p>}
     </div>
   );
 }
@@ -96,7 +96,7 @@ function Sel({ value, onChange, options, placeholder }: {
 }) {
   return (
     <select value={value} onChange={e => onChange(e.target.value)} onFocus={iF} onBlur={iB}
-      className={iBase + ' appearance-none'} style={{ ...iS, color: value ? '#ffffff' : '#a3b4b4' }}>
+      className={iBase + ' appearance-none'} style={{ ...iS, color: value ? '#ffffff' : '#ffffff' }}>
       {placeholder && <option value="">{placeholder}</option>}
       {options.map(o => <option key={o} value={o}>{o}</option>)}
     </select>
@@ -124,7 +124,7 @@ function Chips({ values, onChange, options, single }: {
         return (
           <button key={o} type="button" onClick={() => toggle(o)}
             className="px-3 py-1.5 rounded-full t-body2 font-medium transition-all"
-            style={{ background: on ? 'rgba(164,214,94,0.15)' : 'rgba(255,255,255,0.04)', border: `1px solid ${on ? '#a4d65e' : 'rgba(255,255,255,0.14)'}`, color: on ? '#1a3a3a' : '#c3d0d0' }}>
+            style={{ background: on ? 'rgba(164,214,94,0.15)' : 'rgba(255,255,255,0.04)', border: `1px solid ${on ? '#a4d65e' : 'rgba(255,255,255,0.14)'}`, color: on ? '#1a3a3a' : '#ffffff' }}>
             {on && <Check className="inline h-3 w-3 mr-1" />}{o}
           </button>
         );
@@ -142,12 +142,12 @@ function Rating({ value, onChange, low = 'Not interested', high = 'Very interest
         {[1,2,3,4,5].map(n => (
           <button key={n} type="button" onClick={() => onChange(n)}
             className="flex-1 h-10 rounded-[9px] t-lead font-semibold transition-all"
-            style={{ background: value === n ? '#1a3a3a' : 'rgba(255,255,255,0.04)', border: `1px solid ${value === n ? '#1a3a3a' : 'rgba(255,255,255,0.14)'}`, color: value === n ? '#fff' : '#c3d0d0' }}>
+            style={{ background: value === n ? '#1a3a3a' : 'rgba(255,255,255,0.04)', border: `1px solid ${value === n ? '#1a3a3a' : 'rgba(255,255,255,0.14)'}`, color: value === n ? '#fff' : '#ffffff' }}>
             {n}
           </button>
         ))}
       </div>
-      <div className="flex justify-between t-body2" style={{ color: '#a3b4b4' }}>
+      <div className="flex justify-between t-body2" style={{ color: '#ffffff' }}>
         <span>{low}</span><span>{high}</span>
       </div>
     </div>
@@ -298,9 +298,9 @@ export default function OnboardingPage() {
           </div>
 
           {/* Step counter */}
-          <p className="t-body2 font-medium mb-3 flex-shrink-0" style={{ color: '#a3b4b4' }}>Step {step + 1} of {TOTAL}</p>
+          <p className="t-body2 font-medium mb-3 flex-shrink-0" style={{ color: '#ffffff' }}>Step {step + 1} of {TOTAL}</p>
           <h1 className="t-head font-bold mb-1.5 flex-shrink-0" style={{ color: '#ffffff' }}>{STEPS[step].title}</h1>
-          <p className="t-lead mb-8 flex-shrink-0" style={{ color: '#a3b4b4' }}>{STEPS[step].subtitle}</p>
+          <p className="t-lead mb-8 flex-shrink-0" style={{ color: '#ffffff' }}>{STEPS[step].subtitle}</p>
 
           {/* ── Step content ─── */}
           <div className="space-y-5">
@@ -376,8 +376,8 @@ export default function OnboardingPage() {
                       style={{ background: data.recarbProtocol ? '#a4d65e' : '#fff', border: `2px solid ${data.recarbProtocol ? '#a4d65e' : 'rgba(255,255,255,0.14)'}` }}>
                       {data.recarbProtocol && <Check size={12} color="#1a3a3a" strokeWidth={3} />}
                     </span>
-                    <span className="t-lead" style={{ color: '#c3d0d0' }}>
-                      <strong>Recarb protocol</strong> — I commit to following the dietary guidance provided by the Meterbolic team before and during testing. <span style={{ color: '#a3b4b4' }}>Required *</span>
+                    <span className="t-lead" style={{ color: '#ffffff' }}>
+                      <strong>Recarb protocol</strong> — I commit to following the dietary guidance provided by the Meterbolic team before and during testing. <span style={{ color: '#ffffff' }}>Required *</span>
                     </span>
                   </button>
                 </div>
@@ -451,8 +451,8 @@ export default function OnboardingPage() {
                     style={{ background: data.disclaimerAccepted ? '#a4d65e' : '#fff', border: `2px solid ${data.disclaimerAccepted ? '#a4d65e' : 'rgba(255,255,255,0.14)'}` }}>
                     {data.disclaimerAccepted && <Check size={12} color="#1a3a3a" strokeWidth={3} />}
                   </span>
-                  <span className="t-lead" style={{ color: '#c3d0d0' }}>
-                    I acknowledge that Meterbolic provides informational insights and is not a substitute for medical advice. I agree to the <span style={{ color: '#1a3a3a', fontWeight: 600 }}>Terms of Service</span> and <span style={{ color: '#1a3a3a', fontWeight: 600 }}>Privacy Policy</span>. <span style={{ color: '#a3b4b4' }}>Required *</span>
+                  <span className="t-lead" style={{ color: '#ffffff' }}>
+                    I acknowledge that Meterbolic provides informational insights and is not a substitute for medical advice. I agree to the <span style={{ color: '#1a3a3a', fontWeight: 600 }}>Terms of Service</span> and <span style={{ color: '#1a3a3a', fontWeight: 600 }}>Privacy Policy</span>. <span style={{ color: '#ffffff' }}>Required *</span>
                   </span>
                 </button>
 
@@ -477,7 +477,7 @@ export default function OnboardingPage() {
             {step > 0 && (
               <button onClick={back}
                 className="flex items-center gap-1.5 px-4 py-2.5 rounded-full t-lead font-medium hover:bg-white/5 transition-colors"
-                style={{ border: '1px solid rgba(255,255,255,0.14)', color: '#c3d0d0' }}>
+                style={{ border: '1px solid rgba(255,255,255,0.14)', color: '#ffffff' }}>
                 <ArrowLeft className="h-4 w-4" /> Back
               </button>
             )}
@@ -487,7 +487,7 @@ export default function OnboardingPage() {
               {submitting ? 'Saving…' : step === TOTAL - 1 ? <>Complete <Check className="h-4 w-4" /></> : <>Continue <ArrowRight className="h-4 w-4" /></>}
             </button>
           </div>
-          <p className="mt-3 t-body2" style={{ color: '#a3b4b4' }}>
+          <p className="mt-3 t-body2" style={{ color: '#ffffff' }}>
             {step === TOTAL - 1 ? 'Your data is encrypted and stored securely.' : `${TOTAL - step - 1} step${TOTAL - step - 1 !== 1 ? 's' : ''} remaining`}
           </p>
         </div>

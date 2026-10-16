@@ -258,7 +258,7 @@ export function LeftPanel({
                 <img src="/droplet-logo.png" alt="" style={{ width: 28, height: 28, objectFit: 'contain' }} />
                 <span>
                   <span className="block" style={{ fontSize: 14.5, fontWeight: 800, color: '#ffffff' }}>MeO</span>
-                  <span className="block" style={{ fontSize: 10.5, color: '#a3b4b4' }}>by Meterbolic</span>
+                  <span className="block" style={{ fontSize: 10.5, color: '#ffffff' }}>by Meterbolic</span>
                 </span>
               </Link>
               <button
@@ -268,7 +268,7 @@ export function LeftPanel({
                 aria-expanded={true}
                 aria-controls="patient-navigation"
               >
-                <PanelLeftClose className="h-4 w-4" style={{ color: '#a3b4b4' }} />
+                <PanelLeftClose className="h-4 w-4" style={{ color: '#ffffff' }} />
               </button>
             </div>
 
@@ -324,14 +324,14 @@ export function LeftPanel({
                     style={{
                       gap: 10, padding: '9px 12px', borderRadius: 10, fontSize: 13.5,
                       fontWeight: active ? 700 : 500,
-                      color: active ? '#a4d65e' : '#c3d0d0',
+                      color: active ? '#a4d65e' : '#ffffff',
                       background: active ? 'rgba(164,214,94,0.12)' : 'transparent',
                     }}
                   >
                     <Icon className="h-4 w-4 shrink-0" />
                     <span className="flex-1 truncate">{label}</span>
                     {badge && (
-                      <span style={{ fontSize: 10.5, fontWeight: 600, color: '#c3d0d0', border: '1px solid rgba(255,255,255,0.14)', borderRadius: 999, padding: '1px 8px', whiteSpace: 'nowrap' }}>
+                      <span style={{ fontSize: 10.5, fontWeight: 600, color: '#ffffff', border: '1px solid rgba(255,255,255,0.14)', borderRadius: 999, padding: '1px 8px', whiteSpace: 'nowrap' }}>
                         {badge}
                       </span>
                     )}
@@ -353,7 +353,7 @@ export function LeftPanel({
               ) : chats && chats.length > 0 ? (
                 groupChats(chats).map(([group, items]) => (
                   <div key={group}>
-                    <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#a3b4b4', padding: '12px 12px 4px', margin: 0 }}>
+                    <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#ffffff', padding: '12px 12px 4px', margin: 0 }}>
                       {group}
                     </p>
                     {items.map((chat) => (
@@ -382,7 +382,7 @@ export function LeftPanel({
                             }}
                             aria-label={t('sidebar.delete_chat_aria')}
                             className="absolute right-1.5 top-1/2 -translate-y-1/2 p-1.5 rounded-md opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity hover:bg-red-500/15"
-                            style={{ color: '#a3b4b4' }}
+                            style={{ color: '#ffffff' }}
                           >
                             <Trash2 className="h-3.5 w-3.5" />
                           </button>
@@ -392,7 +392,7 @@ export function LeftPanel({
                   </div>
                 ))
               ) : (
-                <p className="px-3 py-2" style={{ fontSize: 13, color: '#a3b4b4' }}>
+                <p className="px-3 py-2" style={{ fontSize: 13, color: '#ffffff' }}>
                   {t('sidebar.empty_chats')}
                 </p>
               )}
@@ -537,9 +537,9 @@ export function LeftPanel({
                 <Link
                   href="/connectors"
                   className="meo-press flex items-center no-underline"
-                  style={{ gap: 10, margin: '6px 4px 4px', padding: '9px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', fontSize: 11.5, color: '#c3d0d0' }}
+                  style={{ gap: 10, margin: '6px 4px 4px', padding: '9px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', fontSize: 11.5, color: '#ffffff' }}
                 >
-                  <Smartphone className="h-4 w-4 shrink-0" style={{ color: liveSources ? '#a4d65e' : '#a3b4b4' }} />
+                  <Smartphone className="h-4 w-4 shrink-0" style={{ color: liveSources ? '#a4d65e' : '#ffffff' }} />
                   <span className="truncate">{liveSources ? `${liveSources} source${liveSources === 1 ? '' : 's'} sending data` : 'Connect your meter or phone'}</span>
                 </Link>
                 <SidebarUser />

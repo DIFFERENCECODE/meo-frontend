@@ -168,7 +168,7 @@ function GaugeCard({
           splitLine: {
             distance: -22,
             length: 8,
-            lineStyle: { color: '#a3b4b4', width: 2 },
+            lineStyle: { color: '#ffffff', width: 2 },
           },
           axisLabel: {
             distance: -20,
