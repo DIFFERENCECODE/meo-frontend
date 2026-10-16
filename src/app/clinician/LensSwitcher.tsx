@@ -42,7 +42,7 @@ export function LensSwitcher({
             fontWeight: 700,
             letterSpacing: '.14em',
             textTransform: 'uppercase',
-            color: '#a3b4b4',
+            color: '#ffffff',
             marginBottom: 8,
           }}
         >
@@ -77,7 +77,7 @@ export function LensSwitcher({
         })}
       </div>
       {!compact && (
-        <div style={{ fontSize: 11.5, color: '#a3b4b4', marginTop: 8, lineHeight: 1.5 }}>
+        <div style={{ fontSize: 11.5, color: '#ffffff', marginTop: 8, lineHeight: 1.5 }}>
           Changes what leads and how it reads. Never changes a value, a threshold,
           or whether a flag is raised.
         </div>

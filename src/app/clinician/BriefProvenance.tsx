@@ -45,7 +45,7 @@ export function BriefProvenance({ patientSessionId, colors }: { patientSessionId
 
   return (
     <div style={{ padding: 16, borderRadius: 10, background: 'rgba(255,255,255,.03)', border: `1px solid ${colors.cardBorder}` }}>
-      <div className="t-label" style={{ color: '#a3b4b4', marginBottom: 10 }}>
+      <div className="t-label" style={{ color: '#ffffff', marginBottom: 10 }}>
         Where these numbers came from
       </div>
 
@@ -64,14 +64,14 @@ export function BriefProvenance({ patientSessionId, colors }: { patientSessionId
               display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}
           >
-            <r.Icon className="h-3.5 w-3.5" style={{ color: r.known ? colors.primary : '#a3b4b4' }} />
+            <r.Icon className="h-3.5 w-3.5" style={{ color: r.known ? colors.primary : '#ffffff' }} />
           </div>
-          <div style={{ flex: 1, fontSize: 12.5, color: '#c3d0d0' }}>{r.label}</div>
-          <div style={{ fontSize: 12.5, fontWeight: 600, color: r.known ? '#ffffff' : '#a3b4b4' }}>{r.count}</div>
+          <div style={{ flex: 1, fontSize: 12.5, color: '#ffffff' }}>{r.label}</div>
+          <div style={{ fontSize: 12.5, fontWeight: 600, color: r.known ? '#ffffff' : '#ffffff' }}>{r.count}</div>
         </div>
       ))}
 
-      <p style={{ fontSize: 11.5, color: '#a3b4b4', marginTop: 12, lineHeight: 1.5 }}>
+      <p style={{ fontSize: 11.5, color: '#ffffff', marginTop: 12, lineHeight: 1.5 }}>
         No value in this brief was inferred by a model. Clinical figures are
         computed in deterministic code; the model arranges and explains them.
       </p>

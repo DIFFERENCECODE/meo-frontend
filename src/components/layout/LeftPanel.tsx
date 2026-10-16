@@ -255,7 +255,7 @@ export function LeftPanel({
             <div className="flex items-center justify-between" style={{ padding: '18px 12px 14px 20px' }}>
               <Link href="/" className="flex items-center no-underline" style={{ gap: 10 }}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/clinician-mark.png" alt="" style={{ width: 30, height: 30, borderRadius: 9 }} />
+                <img src="/droplet-logo.png" alt="" style={{ width: 28, height: 28, objectFit: 'contain' }} />
                 <span>
                   <span className="block" style={{ fontSize: 14.5, fontWeight: 800, color: '#ffffff' }}>MeO</span>
                   <span className="block" style={{ fontSize: 10.5, color: '#a3b4b4' }}>by Meterbolic</span>

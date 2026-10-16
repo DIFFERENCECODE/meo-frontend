@@ -4,7 +4,7 @@
  * The practitioner portal's design kit, taken from the storyboard frames
  * (~/Downloads/MeO-Practitioner-Storyboard) rather than from Tailwind defaults.
  * docs/storyboard-vs-implementation.md measured the drift; these values close it:
- * the half-pixel type scale, two muted tones (#c3d0d0 for sentences, #a3b4b4 for
+ * the half-pixel type scale, two muted tones (#ffffff for sentences, #ffffff for
  * labels and metadata), 10px default radius, 16px cards, 0.82 card fill.
  *
  * Interaction follows the apple-design skill: feedback on press, not on release
@@ -26,8 +26,12 @@ export const T = {
   limeHover: '#c5e98f',
   ink: '#1a3a3a',
   text: '#ffffff',
-  muted: '#c3d0d0',
-  dim: '#a3b4b4',
+  // All text is white (founder decision, 2026-10-17): grey on teal was hard
+  // to read. Hierarchy comes from size and weight, not from dimmer tones.
+  // All text is white (2026-10-17): grey on teal was hard to read.
+  // Hierarchy comes from size and weight, not from dimmer tones.
+  muted: '#ffffff',
+  dim: '#ffffff',
   orange: '#f97316',
   amber: '#eab839',
   red: '#ef4444',

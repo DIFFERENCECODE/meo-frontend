@@ -102,7 +102,7 @@ export function PostConsult({ patientSessionId, colors }: { patientSessionId: st
   return (
     <div style={{ padding: 16, borderRadius: 10, background: 'rgba(255,255,255,.03)', border: `1px solid ${colors.cardBorder}` }}>
       <div style={{ fontSize: 13.5, fontWeight: 700, marginBottom: 2 }}>After the consult</div>
-      <div style={{ fontSize: 12, color: '#a3b4b4', marginBottom: 12 }}>
+      <div style={{ fontSize: 12, color: '#ffffff', marginBottom: 12 }}>
         Goes straight onto the patient&apos;s record, in your name and your words.
         Nothing here is written or rephrased by MeO.
       </div>
@@ -136,7 +136,7 @@ export function PostConsult({ patientSessionId, colors }: { patientSessionId: st
               color: '#fff', fontSize: 13, fontFamily: 'inherit',
             }}
           />
-          <div style={{ fontSize: 11, color: '#a3b4b4', margin: '10px 0 6px' }}>
+          <div style={{ fontSize: 11, color: '#ffffff', margin: '10px 0 6px' }}>
             Checked against
           </div>
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
@@ -166,7 +166,7 @@ export function PostConsult({ patientSessionId, colors }: { patientSessionId: st
         <div style={{ marginTop: 16, borderTop: `1px solid ${colors.cardBorder}`, paddingTop: 14 }}>
           {/* The frame's heading, and it is the right one: these are not notes
               on file, they are things the system will check. */}
-          <div className="t-label" style={{ color: '#a3b4b4', marginBottom: 10 }}>
+          <div className="t-label" style={{ color: '#ffffff', marginBottom: 10 }}>
             What MeO will hold them to
           </div>
           {existing.map((n, i) => {
@@ -183,7 +183,7 @@ export function PostConsult({ patientSessionId, colors }: { patientSessionId: st
                   style={{
                     width: 20, height: 20, flex: 'none', borderRadius: 6, marginTop: 1,
                     background: n.kind === 'plan' ? 'rgba(164,214,94,0.15)' : 'rgba(255,255,255,0.06)',
-                    color: n.kind === 'plan' ? '#a4d65e' : '#a3b4b4',
+                    color: n.kind === 'plan' ? '#a4d65e' : '#ffffff',
                     fontSize: 11, display: 'flex', alignItems: 'center', justifyContent: 'center',
                   }}
                 >
@@ -194,7 +194,7 @@ export function PostConsult({ patientSessionId, colors }: { patientSessionId: st
                     {n.body}
                     {n.target ? <span style={{ color: '#a4d65e' }}> — {n.target}</span> : null}
                   </div>
-                  <div style={{ fontSize: 11, color: '#a3b4b4', marginTop: 2 }}>
+                  <div style={{ fontSize: 11, color: '#ffffff', marginTop: 2 }}>
                     {n.kind === 'plan'
                       ? (src && n.source !== 'none'
                           ? `checked from ${src.label.toLowerCase()}`
@@ -210,7 +210,7 @@ export function PostConsult({ patientSessionId, colors }: { patientSessionId: st
               date: this screen writes into the patient's record, and /plan and
               /from-practitioner read it back. Said plainly rather than left for
               someone to wonder. */}
-          <p style={{ fontSize: 11.5, color: '#a3b4b4', marginTop: 12, lineHeight: 1.5 }}>
+          <p style={{ fontSize: 11.5, color: '#ffffff', marginTop: 12, lineHeight: 1.5 }}>
             Everything above is on their record now — they see it under
             <b style={{ color: '#ffffff' }}> My plan</b> and
             <b style={{ color: '#ffffff' }}> From your practitioner</b>, in your

@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LogOut } from 'lucide-react';
+import { LogOut, Settings } from 'lucide-react';
 import { PortalStyles, T as K, usePersona } from './ui';
 import { PERSONAS } from './persona';
 import { PanelProvider, usePanel } from './panel-context';
@@ -140,7 +140,7 @@ function Shell({ pathname, profile, children }: { pathname: string; profile: Pro
       <aside style={{ position: 'relative', width: 248, flex: 'none', boxSizing: 'border-box', background: 'rgba(16,38,38,0.72)', borderRight: '1px solid rgba(255,255,255,0.08)', display: 'flex', flexDirection: 'column', padding: '18px 12px 14px' }}>
         <Link href="/clinician" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '0 8px 16px', textDecoration: 'none', color: K.text }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/clinician-mark.png" alt="" style={{ width: 30, height: 30, borderRadius: 9 }} />
+          <img src="/droplet-logo.png" alt="" style={{ width: 28, height: 28, objectFit: 'contain' }} />
           <div>
             <div style={{ fontSize: 14.5, fontWeight: 800 }}>Clinician Portal</div>
             <div style={{ fontSize: 10.5, color: K.dim }}>Powered by MeO</div>
@@ -199,19 +199,29 @@ function Shell({ pathname, profile, children }: { pathname: string; profile: Pro
 
         <div style={{ flex: 1 }} />
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 8px 0' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 2, borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: 10 }}>
+          <Link href="/clinician/settings" className="mc-press" aria-current={pathname === '/clinician/settings' ? 'page' : undefined}
+            style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px', borderRadius: 10, fontSize: 13.5, textDecoration: 'none',
+              fontWeight: pathname === '/clinician/settings' ? 700 : 500,
+              color: pathname === '/clinician/settings' ? K.lime : K.text,
+              background: pathname === '/clinician/settings' ? 'rgba(164,214,94,0.12)' : 'transparent' }}>
+            <Settings size={17} aria-hidden /> Settings
+          </Link>
+          <button className="mc-press" onClick={() => { clearIdToken(); window.location.href = getLogoutUrl(); }}
+            style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px', borderRadius: 10, fontSize: 13.5, fontWeight: 500,
+              color: K.text, background: 'transparent', border: 0, cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left' }}>
+            <LogOut size={17} aria-hidden /> Log out
+          </button>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 8px 0' }}>
           <div style={{ width: 30, height: 30, flex: 'none', borderRadius: '50%', background: 'rgba(164,214,94,0.2)', color: K.lime, fontWeight: 700, fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             {(name.replace(/^(dr|prof|mr|mrs|ms|mx)\.?\s+/i, '') || name).slice(0, 1).toUpperCase()}
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 12.5, fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{name}</div>
-            <div style={{ fontSize: 10.5, color: K.dim }}>{lens.label} · {rows.length} client{rows.length === 1 ? '' : 's'}</div>
+            <div style={{ fontSize: 12.5, fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{name}</div>
+            <div style={{ fontSize: 10.5, color: K.text }}>{lens.label} · {rows.length} client{rows.length === 1 ? '' : 's'}</div>
           </div>
-          <button aria-label="Sign out" title="Sign out" className="mc-press"
-            onClick={() => { clearIdToken(); window.location.href = getLogoutUrl(); }}
-            style={{ background: 'transparent', border: 0, color: K.dim, cursor: 'pointer', padding: 6, borderRadius: 8 }}>
-            <LogOut size={15} />
-          </button>
         </div>
       </aside>
 

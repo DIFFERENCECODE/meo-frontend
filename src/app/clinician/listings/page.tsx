@@ -8,16 +8,16 @@ const CATEGORIES: { value: ClinicianListing['category']; label: string; color: s
   { value: 'mental-health', label: 'Mental health',  color: '#8b8df6' },
   { value: 'lifestyle',     label: 'Lifestyle',      color: '#eab839' },
   { value: 'diagnostics',   label: 'Diagnostics',    color: '#4ade80' },
-  { value: 'other',         label: 'Other',          color: '#a3b4b4' },
+  { value: 'other',         label: 'Other',          color: '#ffffff' },
 ];
 
 const STATUS_COLORS = {
   active: { bg: 'rgba(164,214,94,.12)', fg: '#a4d65e', bd: 'rgba(164,214,94,.3)' },
-  draft:  { bg: 'rgba(255,255,255,.07)', fg: '#a3b4b4', bd: 'rgba(255,255,255,.15)' },
+  draft:  { bg: 'rgba(255,255,255,.07)', fg: '#ffffff', bd: 'rgba(255,255,255,.15)' },
 };
 
 function catColor(cat: string) {
-  return CATEGORIES.find((c) => c.value === cat)?.color ?? '#a3b4b4';
+  return CATEGORIES.find((c) => c.value === cat)?.color ?? '#ffffff';
 }
 
 interface FormState {
@@ -80,7 +80,7 @@ export default function ListingsPage() {
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
         <div>
           <h1 style={{ margin: 0, fontSize: 28, fontWeight: 800, letterSpacing: '-.025em' }}>Listings</h1>
-          <div style={{ marginTop: 7, fontSize: 14, color: '#a3b4b4' }}>The services patients can book with you inside MeO</div>
+          <div style={{ marginTop: 7, fontSize: 14, color: '#ffffff' }}>The services patients can book with you inside MeO</div>
         </div>
         <button onClick={openModal} style={{ display: 'flex', alignItems: 'center', gap: 9, cursor: 'pointer', padding: '12px 22px', border: 0, borderRadius: 999, background: '#a4d65e', color: '#1a3a3a', fontSize: 13.5, fontWeight: 700, fontFamily: 'inherit' }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>
@@ -95,7 +95,7 @@ export default function ListingsPage() {
             <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#a4d65e" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M9 6h12M9 12h12M9 18h12M3 6l1.4 1.4L7 5M3 12l1.4 1.4L7 11M3 18l1.4 1.4L7 17"/></svg>
           </div>
           <div style={{ fontSize: 17, fontWeight: 700 }}>No listings yet</div>
-          <div style={{ fontSize: 13.5, color: '#a3b4b4', maxWidth: 400, textAlign: 'center', lineHeight: 1.5 }}>Create your first listing so patients can book a session directly from their MeO app.</div>
+          <div style={{ fontSize: 13.5, color: '#ffffff', maxWidth: 400, textAlign: 'center', lineHeight: 1.5 }}>Create your first listing so patients can book a session directly from their MeO app.</div>
           <button onClick={openModal} style={{ marginTop: 6, cursor: 'pointer', padding: '10px 20px', borderRadius: 999, background: 'rgba(164,214,94,.1)', border: '1px solid rgba(164,214,94,.45)', color: '#a4d65e', fontSize: 13, fontWeight: 700, fontFamily: 'inherit' }}>Add your first listing</button>
         </div>
       ) : (
@@ -115,8 +115,8 @@ export default function ListingsPage() {
                       {CATEGORIES.find((c) => c.value === l.category)?.label}
                     </span>
                   </div>
-                  <div style={{ fontSize: 13, color: '#a3b4b4', lineHeight: 1.5, marginBottom: 6 }}>{l.description}</div>
-                  <div style={{ display: 'flex', gap: 16, fontSize: 12, color: '#a3b4b4' }}>
+                  <div style={{ fontSize: 13, color: '#ffffff', lineHeight: 1.5, marginBottom: 6 }}>{l.description}</div>
+                  <div style={{ display: 'flex', gap: 16, fontSize: 12, color: '#ffffff' }}>
                     <span>£{l.price}</span>
                     <span>·</span>
                     <span>{l.duration} mins</span>
@@ -124,7 +124,7 @@ export default function ListingsPage() {
                   </div>
                 </div>
                 <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
-                  <button onClick={() => toggleActive(l.id, l.isActive)} style={{ padding: '7px 14px', borderRadius: 999, background: 'none', border: '1px solid rgba(255,255,255,.18)', color: '#c3d0d0', fontSize: 12.5, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+                  <button onClick={() => toggleActive(l.id, l.isActive)} style={{ padding: '7px 14px', borderRadius: 999, background: 'none', border: '1px solid rgba(255,255,255,.18)', color: '#ffffff', fontSize: 12.5, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
                     {l.isActive ? 'Deactivate' : 'Activate'}
                   </button>
                   <button onClick={() => remove(l.id)} style={{ padding: '7px 14px', borderRadius: 999, background: 'none', border: '1px solid rgba(248,113,113,.3)', color: '#f97316', fontSize: 12.5, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
@@ -145,9 +145,9 @@ export default function ListingsPage() {
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 24px', borderBottom: '1px solid rgba(255,255,255,.12)' }}>
               <div>
                 <div style={{ fontSize: 17, fontWeight: 700 }}>New listing</div>
-                <div style={{ fontSize: 12.5, color: '#a3b4b4', marginTop: 3 }}>Visible to patients once active</div>
+                <div style={{ fontSize: 12.5, color: '#ffffff', marginTop: 3 }}>Visible to patients once active</div>
               </div>
-              <button onClick={closeModal} style={{ width: 32, height: 32, border: 0, borderRadius: 999, background: 'rgba(255,255,255,.08)', color: '#c3d0d0', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'inherit' }}>
+              <button onClick={closeModal} style={{ width: 32, height: 32, border: 0, borderRadius: 999, background: 'rgba(255,255,255,.08)', color: '#ffffff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'inherit' }}>
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
               </button>
             </div>
@@ -155,20 +155,20 @@ export default function ListingsPage() {
             {/* Modal body */}
             <div style={{ padding: '22px 24px', display: 'flex', flexDirection: 'column', gap: 18 }}>
               <div>
-                <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase', color: '#a3b4b4', marginBottom: 8 }}>Title</div>
+                <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase', color: '#ffffff', marginBottom: 8 }}>Title</div>
                 <input value={form.title} onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))} placeholder="e.g. Metabolic reset consultation" style={inp()} />
               </div>
               <div>
-                <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase', color: '#a3b4b4', marginBottom: 8 }}>Description</div>
+                <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase', color: '#ffffff', marginBottom: 8 }}>Description</div>
                 <textarea value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} rows={3} placeholder="What does this session cover?" style={{ ...inp(), resize: 'none', lineHeight: '1.55' }} />
               </div>
               <div>
-                <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase', color: '#a3b4b4', marginBottom: 8 }}>Category</div>
+                <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase', color: '#ffffff', marginBottom: 8 }}>Category</div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                   {CATEGORIES.map((c) => {
                     const sel = form.category === c.value;
                     return (
-                      <button key={c.value} onClick={() => setForm((f) => ({ ...f, category: c.value }))} style={{ cursor: 'pointer', padding: '8px 15px', borderRadius: 999, fontSize: 12.5, fontWeight: 600, fontFamily: 'inherit', background: sel ? 'rgba(255,255,255,.05)' : 'transparent', border: `1px solid ${sel ? c.color : 'rgba(255,255,255,.16)'}`, color: sel ? c.color : '#a3b4b4' }}>
+                      <button key={c.value} onClick={() => setForm((f) => ({ ...f, category: c.value }))} style={{ cursor: 'pointer', padding: '8px 15px', borderRadius: 999, fontSize: 12.5, fontWeight: 600, fontFamily: 'inherit', background: sel ? 'rgba(255,255,255,.05)' : 'transparent', border: `1px solid ${sel ? c.color : 'rgba(255,255,255,.16)'}`, color: sel ? c.color : '#ffffff' }}>
                         {c.label}
                       </button>
                     );
@@ -177,22 +177,22 @@ export default function ListingsPage() {
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
                 <div>
-                  <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase', color: '#a3b4b4', marginBottom: 8 }}>Price (£)</div>
+                  <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase', color: '#ffffff', marginBottom: 8 }}>Price (£)</div>
                   <input type="number" value={form.price} onChange={(e) => setForm((f) => ({ ...f, price: e.target.value }))} placeholder="120" style={inp()} />
                 </div>
                 <div>
-                  <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase', color: '#a3b4b4', marginBottom: 8 }}>Duration (mins)</div>
+                  <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase', color: '#ffffff', marginBottom: 8 }}>Duration (mins)</div>
                   <input type="number" value={form.duration} onChange={(e) => setForm((f) => ({ ...f, duration: e.target.value }))} placeholder="45" style={inp()} />
                 </div>
               </div>
               <div>
-                <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase', color: '#a3b4b4', marginBottom: 8 }}>Availability</div>
+                <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase', color: '#ffffff', marginBottom: 8 }}>Availability</div>
                 <input value={form.availability} onChange={(e) => setForm((f) => ({ ...f, availability: e.target.value }))} placeholder="e.g. Tue & Thu, 09:00–13:00 · UK time" style={inp()} />
               </div>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px', borderRadius: 10, background: 'rgba(20,45,45,.5)', border: '1px solid rgba(255,255,255,.12)' }}>
                 <div>
                   <div style={{ fontSize: 13.5, fontWeight: 700 }}>Active</div>
-                  <div style={{ fontSize: 12, color: '#a3b4b4', marginTop: 2 }}>Patients can book this listing now</div>
+                  <div style={{ fontSize: 12, color: '#ffffff', marginTop: 2 }}>Patients can book this listing now</div>
                 </div>
                 <button onClick={() => setForm((f) => ({ ...f, isActive: !f.isActive }))} style={{ width: 48, height: 27, flexShrink: 0, border: 0, borderRadius: 999, cursor: 'pointer', padding: 3, display: 'flex', justifyContent: form.isActive ? 'flex-end' : 'flex-start', background: form.isActive ? '#a4d65e' : 'rgba(255,255,255,.18)', transition: 'background .2s', fontFamily: 'inherit' }}>
                   <span style={{ width: 21, height: 21, borderRadius: 999, background: '#fff', display: 'block' }} />
@@ -202,7 +202,7 @@ export default function ListingsPage() {
 
             {/* Modal footer */}
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, padding: '18px 24px', borderTop: '1px solid rgba(255,255,255,.12)' }}>
-              <button onClick={closeModal} style={{ cursor: 'pointer', padding: '11px 20px', borderRadius: 999, background: 'none', border: '1px solid rgba(255,255,255,.2)', color: '#c3d0d0', fontSize: 13.5, fontWeight: 600, fontFamily: 'inherit' }}>Cancel</button>
+              <button onClick={closeModal} style={{ cursor: 'pointer', padding: '11px 20px', borderRadius: 999, background: 'none', border: '1px solid rgba(255,255,255,.2)', color: '#ffffff', fontSize: 13.5, fontWeight: 600, fontFamily: 'inherit' }}>Cancel</button>
               <button onClick={handleSave} style={{ cursor: 'pointer', padding: '11px 26px', border: 0, borderRadius: 999, background: '#a4d65e', color: '#1a3a3a', fontSize: 13.5, fontWeight: 700, fontFamily: 'inherit' }}>Save listing</button>
             </div>
           </div>

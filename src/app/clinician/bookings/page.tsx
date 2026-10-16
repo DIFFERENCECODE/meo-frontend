@@ -43,7 +43,7 @@ export default function BookingsPage() {
     <main style={{ flex: 1, minWidth: 0, position: 'relative', overflowY: 'auto', padding: '34px 40px' }}>
 
       <h1 style={{ margin: 0, fontSize: 28, fontWeight: 800, letterSpacing: '-.025em' }}>Bookings</h1>
-      <div style={{ marginTop: 7, fontSize: 14, color: '#a3b4b4' }}>Sessions booked through your MeO listings</div>
+      <div style={{ marginTop: 7, fontSize: 14, color: '#ffffff' }}>Sessions booked through your MeO listings</div>
 
       {/* Filter pills */}
       <div style={{ display: 'flex', gap: 8, marginTop: 22 }}>
@@ -60,7 +60,7 @@ export default function BookingsPage() {
       {/* Table */}
       <div style={{ marginTop: 20, borderRadius: 10, background: 'rgba(40,70,70,.82)', border: '1px solid rgba(255,255,255,.12)', overflow: 'hidden' }}>
         {/* Header */}
-        <div style={{ display: 'grid', gridTemplateColumns: '2.1fr 1.5fr 1.3fr .9fr .7fr', gap: 16, padding: '14px 22px', borderBottom: '1px solid rgba(255,255,255,.12)', fontSize: 11, fontWeight: 700, letterSpacing: '.12em', textTransform: 'uppercase', color: '#a3b4b4' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '2.1fr 1.5fr 1.3fr .9fr .7fr', gap: 16, padding: '14px 22px', borderBottom: '1px solid rgba(255,255,255,.12)', fontSize: 11, fontWeight: 700, letterSpacing: '.12em', textTransform: 'uppercase', color: '#ffffff' }}>
           <div>Patient</div><div>Service</div><div>Date &amp; time</div><div>Status</div><div />
         </div>
 
@@ -81,7 +81,7 @@ export default function BookingsPage() {
                   <div style={{ width: 34, height: 34, flexShrink: 0, borderRadius: 999, background: 'rgba(164,214,94,.16)', color: '#a4d65e', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11.5, fontWeight: 700 }}>{inits}</div>
                   <div style={{ minWidth: 0 }}>
                     <div style={{ fontSize: 13.5, fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{b.patientName}</div>
-                    <div style={{ fontSize: 11.5, color: '#a3b4b4', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{b.patientEmail}</div>
+                    <div style={{ fontSize: 11.5, color: '#ffffff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{b.patientEmail}</div>
                   </div>
                 </div>
                 <div style={{ fontSize: 13, color: 'rgba(255,255,255,.85)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{b.listingTitle}</div>
@@ -90,9 +90,9 @@ export default function BookingsPage() {
                   <span style={{ display: 'inline-block', fontSize: 11, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase', padding: '5px 11px', borderRadius: 999, background: badge.bg, color: badge.fg }}>{b.status}</span>
                 </div>
                 <div style={{ textAlign: 'right' }}>
-                  <button onClick={() => setSelected(b)} style={{ cursor: 'pointer', padding: '7px 16px', borderRadius: 999, background: 'none', border: '1px solid rgba(255,255,255,.2)', color: '#c3d0d0', fontSize: 12.5, fontWeight: 600, fontFamily: 'inherit' }}
+                  <button onClick={() => setSelected(b)} style={{ cursor: 'pointer', padding: '7px 16px', borderRadius: 999, background: 'none', border: '1px solid rgba(255,255,255,.2)', color: '#ffffff', fontSize: 12.5, fontWeight: 600, fontFamily: 'inherit' }}
                     onMouseEnter={(e) => { e.currentTarget.style.color = '#a4d65e'; e.currentTarget.style.borderColor = 'rgba(164,214,94,.6)'; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.color = '#c3d0d0'; e.currentTarget.style.borderColor = 'rgba(255,255,255,.2)'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.color = '#ffffff'; e.currentTarget.style.borderColor = 'rgba(255,255,255,.2)'; }}
                   >View</button>
                 </div>
               </div>
@@ -110,7 +110,7 @@ export default function BookingsPage() {
               <div style={{ width: 42, height: 42, flexShrink: 0, borderRadius: 999, background: 'rgba(164,214,94,.16)', color: '#a4d65e', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700 }}>{initials(selected.patientName)}</div>
               <div style={{ minWidth: 0, flex: 1 }}>
                 <div style={{ fontSize: 16, fontWeight: 700 }}>{selected.patientName}</div>
-                <div style={{ fontSize: 12.5, color: '#a3b4b4', marginTop: 2 }}>{selected.patientEmail}</div>
+                <div style={{ fontSize: 12.5, color: '#ffffff', marginTop: 2 }}>{selected.patientEmail}</div>
               </div>
               <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase', padding: '5px 11px', borderRadius: 999, background: STATUS_BADGE[selected.status].bg, color: STATUS_BADGE[selected.status].fg }}>{selected.status}</span>
             </div>
@@ -125,15 +125,15 @@ export default function BookingsPage() {
                   { label: 'Duration', value: `${selected.duration} mins` },
                 ].map(({ label, value }) => (
                   <div key={label} style={{ padding: '13px 15px', borderRadius: 11, background: 'rgba(20,45,45,.5)', border: '1px solid rgba(255,255,255,.12)' }}>
-                    <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: '#a3b4b4' }}>{label}</div>
+                    <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: '#ffffff' }}>{label}</div>
                     <div style={{ fontSize: 14, fontWeight: 600, marginTop: 6 }}>{value}</div>
                   </div>
                 ))}
               </div>
               {selected.notes && (
                 <div style={{ padding: '13px 15px', borderRadius: 11, background: 'rgba(20,45,45,.5)', border: '1px solid rgba(255,255,255,.12)' }}>
-                  <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: '#a3b4b4', marginBottom: 6 }}>Patient notes</div>
-                  <div style={{ fontSize: 13.5, color: '#c3d0d0', lineHeight: 1.5 }}>{selected.notes}</div>
+                  <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: '#ffffff', marginBottom: 6 }}>Patient notes</div>
+                  <div style={{ fontSize: 13.5, color: '#ffffff', lineHeight: 1.5 }}>{selected.notes}</div>
                 </div>
               )}
             </div>

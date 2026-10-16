@@ -45,7 +45,7 @@ const TREND: Record<string, { label: string; color: string }> = {
   steady:       { label: 'steady',      color: '#a4d65e' },
   worsening:    { label: 'worsening',   color: '#f97316' },
   slow:         { label: 'slow',        color: '#eab839' },
-  'no trend':   { label: 'no trend',    color: '#a3b4b4' },
+  'no trend':   { label: 'no trend',    color: '#ffffff' },
   'not started':{ label: 'not started', color: '#ef4444' },
 };
 
@@ -73,11 +73,11 @@ export function PanelTiles({ rows, consults }: { rows: PanelRow[]; consults: num
             borderRadius: 16, flex: 1, padding: '15px 20px', minWidth: 0,
           }}
         >
-          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#a3b4b4' }}>{t.label}</div>
+          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#ffffff' }}>{t.label}</div>
           <div style={{ fontSize: 30, fontWeight: 800, letterSpacing: '-0.025em', marginTop: 2, color: t.color }}>
             {t.n}
           </div>
-          <div style={{ fontSize: 11.5, color: '#a3b4b4' }}>{t.sub}</div>
+          <div style={{ fontSize: 11.5, color: '#ffffff' }}>{t.sub}</div>
         </div>
       ))}
     </div>
@@ -126,12 +126,12 @@ export function PanelRows({ rows, to = '' }: { rows: PanelRow[]; to?: string }) 
 
             <div style={{ width: 148, flex: 'none' }}>
               <div style={{ fontSize: 13.5, fontWeight: 700 }}>{r.name || 'Unknown'}</div>
-              <div style={{ fontSize: 11, color: '#a3b4b4' }}>
+              <div style={{ fontSize: 11, color: '#ffffff' }}>
                 {r.readings_count ?? 0} reading{(r.readings_count ?? 0) === 1 ? '' : 's'} · {r.plan ? 'plan tracked' : 'no plan yet'}
               </div>
             </div>
 
-            <div style={{ width: 140, flex: 'none', fontSize: 12.5, color: '#c3d0d0' }}>
+            <div style={{ width: 140, flex: 'none', fontSize: 12.5, color: '#ffffff' }}>
               {r.headline ?? '—'}
               {(r.needs_review?.length ?? 0) > 0 && (
                 <div title={r.needs_review!.join('\n')} style={{ fontSize: 11, color: '#eab839', marginTop: 2 }}>
@@ -153,13 +153,13 @@ export function PanelRows({ rows, to = '' }: { rows: PanelRow[]; to?: string }) 
             </div>
 
             <div title="Commitments they made with the coach that MeO has not followed up yet"
-              style={{ width: 62, flex: 'none', textAlign: 'center', fontSize: 13, fontWeight: 800, color: flags ? '#f97316' : '#a3b4b4' }}>
+              style={{ width: 62, flex: 'none', textAlign: 'center', fontSize: 13, fontWeight: 800, color: flags ? '#f97316' : '#ffffff' }}>
               {flags} open
             </div>
 
-            <div style={{ flex: 1, minWidth: 0, fontSize: 12, color: '#c3d0d0', textAlign: 'right' }}>{reasonLine(r)}</div>
+            <div style={{ flex: 1, minWidth: 0, fontSize: 12, color: '#ffffff', textAlign: 'right' }}>{reasonLine(r)}</div>
 
-            <ChevronRight className="h-4 w-4" style={{ color: '#a3b4b4', flexShrink: 0 }} />
+            <ChevronRight className="h-4 w-4" style={{ color: '#ffffff', flexShrink: 0 }} />
           </Link>
         );
       })}

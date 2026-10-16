@@ -20,6 +20,8 @@ import {
 
 interface Section { title: string; body: string }
 
+const slug = (t: string) => `sec-${t.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+
 function splitBrief(md: string): { glance: string; sections: Section[] } {
   const withoutHead = md.replace(/^##\s.*\n?/, '');
   const parts = withoutHead.split(/^###\s+/m);
@@ -33,7 +35,7 @@ function splitBrief(md: string): { glance: string; sections: Section[] } {
 
 export default function BriefPage() {
   const id = usePatientId();
-  const [persona, setPersona] = usePersona();
+  const [persona] = usePersona();
   const brief = useAuthed<{ response: string }>(id ? `/api/clinician/${encodeURIComponent(id)}/brief?persona=${persona}` : null);
   const between = useBetween(id);
   const generatedAt = useMemo(
@@ -55,38 +57,43 @@ export default function BriefPage() {
       }
       ask={<PatientAsk id={id} example="show me every reading after a late dinner" />}
     >
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-        <Label style={{ marginRight: 4 }}>Written for</Label>
-        {PERSONAS.map((p) => (
-          <button
-            key={p.id}
-            className="mc-press"
-            aria-pressed={p.id === persona}
-            onClick={() => setPersona(p.id)}
-            style={{
-              fontSize: 12, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer', borderRadius: 999, padding: '5px 12px',
-              color: p.id === persona ? T.ink : T.muted, background: p.id === persona ? T.lime : T.chip,
-              border: `1px solid ${p.id === persona ? T.lime : T.chipBorder}`,
-            }}
-          >
-            {p.label}
-          </button>
-        ))}
-        <div style={{ flex: 1 }} />
-        <span style={{ fontSize: 11.5, color: T.dim }}>Same data · different order and vocabulary</span>
-      </div>
+      {/* Jump to a section. The lens is chosen in the sidebar and shapes the
+          order; these buttons are the brief's own table of contents. */}
+      {sections.length > 0 && (
+        <nav aria-label="Brief sections" style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+          {[...sections.map((x) => x.title), ...(glance ? ['Suggested focus'] : [])].map((t) => (
+            <button
+              key={t}
+              className="mc-press"
+              onClick={() => document.getElementById(slug(t))?.scrollIntoView({
+                behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start',
+              })}
+              style={{
+                fontSize: 12, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer', borderRadius: 999, padding: '5px 12px',
+                color: T.text, background: T.chip, border: `1px solid ${T.chipBorder}`,
+              }}
+            >
+              {t.replace(/\s*\(.*\)\s*$/, '')}
+            </button>
+          ))}
+          <div style={{ flex: 1 }} />
+          <span style={{ fontSize: 11.5 }}>Written for: <strong>{PERSONAS.find((p) => p.id === persona)?.label}</strong></span>
+        </nav>
+      )}
 
       <Columns
         left={
           <State loading={brief.loading && !brief.data} error={brief.error}>
             {sections.map((s) => (
-              <Card key={s.title} style={{ padding: '14px 18px' }}>
+              <Card key={s.title} style={{ padding: '14px 18px', scrollMarginTop: 12 }}>
+                <span id={slug(s.title)} />
                 <Label color={T.lime} style={{ marginBottom: 6 }}>{s.title}</Label>
                 <Markdown text={s.body || 'Nothing on file.'} />
               </Card>
             ))}
             {glance && (
               <Card accent="rgba(164,214,94,0.35)" style={{ padding: '14px 18px' }}>
+                <span id={slug('Suggested focus')} />
                 <Label color={T.lime} style={{ marginBottom: 6 }}>Suggested focus</Label>
                 <Markdown text={glance} />
               </Card>
