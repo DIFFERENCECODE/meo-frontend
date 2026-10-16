@@ -350,7 +350,7 @@ export default function ActivityPage() {
                 borderColor: colors.cardBorder,
               }}
             >
-              <p className="t-lead" style={{ color: colors.error || '#ef4444' }}>
+              <p className="t-lead" style={{ color: colors.error || 'var(--mc-red)' }}>
                 {error}
               </p>
             </div>
@@ -555,7 +555,7 @@ export default function ActivityPage() {
                                   onClick={() => deleteMeasurement(m)}
                                   disabled={isBusy}
                                   className="p-2 rounded transition-colors hover:bg-transparent/5"
-                                  style={{ color: '#ef4444' }}
+                                  style={{ color: 'var(--mc-red)' }}
                                   aria-label="Delete"
                                   title="Delete"
                                 >

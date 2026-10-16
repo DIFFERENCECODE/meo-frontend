@@ -22,7 +22,7 @@ const SOURCES = ['meals', 'steps', 'sleep', 'readings', 'none'];
 const blank = (key: number): Draft => ({ key, body: '', target: '', source: 'meals' });
 
 const field: React.CSSProperties = {
-  background: 'rgba(0,0,0,0.18)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 10,
+  background: 'var(--mc-input-soft)', border: '1px solid rgba(var(--mc-fg-rgb),0.12)', borderRadius: 10,
   color: T.text, fontFamily: 'inherit', fontSize: 13.5, padding: '9px 12px', outline: 'none', minWidth: 0,
 };
 
@@ -110,7 +110,7 @@ export default function AfterPage() {
               {drafts.map((d, i) => (
                 <div key={d.key} style={{ display: 'flex', flexDirection: 'column', gap: 8, padding: '10px 0', borderTop: i ? `1px solid ${T.rowBorder}` : undefined }}>
                   <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                    <div style={{ width: 24, height: 24, flex: 'none', borderRadius: 7, display: 'flex', alignItems: 'center', justifyContent: 'center', background: d.body.trim() ? 'rgba(164,214,94,0.18)' : 'rgba(255,255,255,0.06)' }}>
+                    <div style={{ width: 24, height: 24, flex: 'none', borderRadius: 7, display: 'flex', alignItems: 'center', justifyContent: 'center', background: d.body.trim() ? 'rgba(var(--mc-accent-rgb),0.18)' : 'rgba(var(--mc-fg-rgb),0.06)' }}>
                       <Check size={14} color={d.body.trim() ? T.lime : T.dim} aria-hidden />
                     </div>
                     <input value={d.body} onChange={(e) => update(d.key, { body: e.target.value })} placeholder="Dinner before 21:00"

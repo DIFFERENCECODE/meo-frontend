@@ -460,7 +460,7 @@ export default function PersonalizePage() {
           </div>
 
           {importedFrom && !success && (
-            <div role="status" className="rounded-xl px-4 py-3" style={{ background: 'rgba(124,197,216,0.12)', border: '1px solid rgba(124,197,216,0.35)', color: '#ffffff', fontSize: 13.5 }}>
+            <div role="status" className="rounded-xl px-4 py-3" style={{ background: 'rgba(124,197,216,0.12)', border: '1px solid rgba(124,197,216,0.35)', color: 'var(--mc-text)', fontSize: 13.5 }}>
               Read from <strong>{importedFrom}</strong>. Check every value below against your report before you save; MeO only copied what it could read.
             </div>
           )}
@@ -508,8 +508,8 @@ export default function PersonalizePage() {
                 borderColor: 'rgba(239, 68, 68, 0.3)',
               }}
             >
-              <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" style={{ color: '#ef4444' }} />
-              <p className="t-lead" style={{ color: '#ef4444' }}>
+              <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" style={{ color: 'var(--mc-red)' }} />
+              <p className="t-lead" style={{ color: 'var(--mc-red)' }}>
                 {error}
               </p>
             </div>
@@ -750,7 +750,7 @@ export default function PersonalizePage() {
                         onClick={() => removeFormRow(i)}
                         disabled={formRows.length === 1}
                         className="p-1.5 rounded-[9px] transition-colors disabled:opacity-30"
-                        style={{ color: colors.error || '#ef4444' }}
+                        style={{ color: colors.error || 'var(--mc-red)' }}
                         aria-label="Remove row"
                       >
                         <Trash2 className="h-4 w-4" />
@@ -927,7 +927,7 @@ export default function PersonalizePage() {
                               <button
                                 onClick={() => removePayloadItem(idx)}
                                 className="p-1 rounded transition-colors hover:bg-transparent/5"
-                                style={{ color: '#ef4444' }}
+                                style={{ color: 'var(--mc-red)' }}
                                 aria-label="Remove row"
                                 title="Remove this row"
                               >

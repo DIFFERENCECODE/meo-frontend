@@ -69,8 +69,41 @@ export const meterbolicTheme: VendorTheme = {
   name: 'Meterbolic',
   header: 'MeO',
   tagline: 'Your Metabolic Health AI Assistant',
-  // Light mode - Meterbolic branding (teal gradient)
+  // Light mode: white with green (2026-10-17). Accents are deeper than the
+  // dark palette's because lime, amber and orange do not read on white.
   colors: {
+    primary: '#3f7d1c',
+    primaryHover: '#356a17',
+    primaryForeground: '#ffffff',
+
+    background: '#f4f9ef',
+    backgroundGradientStart: '#f8fbf4',
+    backgroundGradientMid: '#eff6e8',
+    backgroundGradientEnd: '#e7f1dd',
+
+    card: '#ffffff',
+    cardHover: '#f6faf2',
+    cardBorder: 'rgba(23, 58, 46, 0.14)',
+
+    foreground: '#173a2e',
+    muted: '#173a2e',
+    mutedDim: '#173a2e',
+    caution: '#a16207',
+    device: '#0e7490',
+
+    accent: 'rgba(63, 125, 28, 0.10)',
+    accentHover: 'rgba(63, 125, 28, 0.18)',
+
+    success: '#15803d',
+    warning: '#c2410c',
+    error: '#b91c1c',
+
+    chartPrimary: '#3f7d1c',
+    chartSecondary: '#c2410c',
+    chartTertiary: '#3f7d1c',
+  },
+  // Dark mode: the storyboard's teal, the default (2026-10-17).
+  darkColors: {
     primary: '#a4d65e',
     primaryHover: '#8bc34a',
     primaryForeground: '#1a3a3a',
@@ -98,39 +131,6 @@ export const meterbolicTheme: VendorTheme = {
     warning: '#f97316',
     error: '#ef4444',
     
-    chartPrimary: '#a4d65e',
-    chartSecondary: '#f97316',
-    chartTertiary: '#a4d65e',
-  },
-  // Dark mode - Deep teal (darker version of light mode palette)
-  darkColors: {
-    primary: '#a4d65e',
-    primaryHover: '#8bc34a',
-    primaryForeground: '#0e2020',
-
-    background: '#0e2020',
-    backgroundGradientStart: '#0e2020',
-    backgroundGradientMid: '#122828',
-    backgroundGradientEnd: '#163030',
-
-    card: 'rgba(25, 50, 50, 0.9)',
-    cardHover: 'rgba(32, 62, 62, 0.95)',
-    cardBorder: 'rgba(255, 255, 255, 0.12)',
-
-    foreground: '#e8f5e8',
-    // White text throughout (2026-10-17); emphasis by weight, not grey.
-    muted: '#ffffff',
-    mutedDim: '#ffffff',
-    caution: '#eab839',
-    device: '#7cc5d8',
-
-    accent: 'rgba(164, 214, 94, 0.15)',
-    accentHover: 'rgba(164, 214, 94, 0.25)',
-
-    success: '#22c55e',
-    warning: '#f97316',
-    error: '#ef4444',
-
     chartPrimary: '#a4d65e',
     chartSecondary: '#f97316',
     chartTertiary: '#a4d65e',

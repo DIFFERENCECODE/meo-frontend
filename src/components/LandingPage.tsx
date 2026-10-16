@@ -91,36 +91,36 @@ export default function LandingPage({ onAuthenticated, isExchanging = false }: L
   };
 
   const inputStyle: React.CSSProperties = {
-    borderColor: 'rgba(255,255,255,0.14)', color: '#ffffff', fontSize: '16px',
+    borderColor: 'rgba(var(--mc-fg-rgb),0.14)', color: 'var(--mc-text)', fontSize: '16px',
   };
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">
       {/* ── Left panel ─────────────────────────────────────────────── */}
       <div className="flex flex-col w-full lg:w-[460px] xl:w-[500px] flex-shrink-0 px-8 sm:px-12 lg:px-14 py-10 justify-between min-h-screen lg:min-h-0"
-        style={{ background: 'rgba(16,38,38,0.72)', borderRight: '1px solid rgba(255,255,255,0.08)' }}>
+        style={{ background: 'var(--mc-sidebar)', borderRight: '1px solid rgba(var(--mc-fg-rgb),0.08)' }}>
         {/* Logo */}
         <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg" style={{ background: '#1a3a3a' }}>
-            <Activity className="h-4 w-4" style={{ color: '#a4d65e' }} />
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg" style={{ background: 'var(--mc-ground-solid)' }}>
+            <Activity className="h-4 w-4" style={{ color: 'var(--mc-accent)' }} />
           </div>
-          <span className="text-base font-bold tracking-tight" style={{ color: '#ffffff' }}>Meterbolic</span>
+          <span className="text-base font-bold tracking-tight" style={{ color: 'var(--mc-text)' }}>Meterbolic</span>
         </div>
 
         {/* Form area */}
         <div className="flex-1 flex flex-col justify-center py-10 max-w-sm">
           {isExchanging ? (
             <div className="flex flex-col items-center gap-4 py-12">
-              <Loader2 className="h-10 w-10 animate-spin" style={{ color: '#a4d65e' }} />
-              <p className="text-sm font-medium" style={{ color: '#ffffff' }}>Signing you in…</p>
+              <Loader2 className="h-10 w-10 animate-spin" style={{ color: 'var(--mc-accent)' }} />
+              <p className="text-sm font-medium" style={{ color: 'var(--mc-text)' }}>Signing you in…</p>
             </div>
 
           ) : screen === 'email' ? (
             <>
-              <h1 className="text-[1.75rem] font-bold leading-tight" style={{ color: '#ffffff' }}>
+              <h1 className="text-[1.75rem] font-bold leading-tight" style={{ color: 'var(--mc-text)' }}>
                 Welcome to MeO
               </h1>
-              <p className="mt-2 text-sm" style={{ color: '#ffffff' }}>
+              <p className="mt-2 text-sm" style={{ color: 'var(--mc-text)' }}>
                 Sign in or create a free account to get started.
               </p>
 
@@ -129,7 +129,7 @@ export default function LandingPage({ onAuthenticated, isExchanging = false }: L
                 <button
                   onClick={() => { window.location.href = getGoogleLoginUrl(); }}
                   className="w-full flex items-center justify-center gap-3 rounded-lg py-2.5 px-4 text-sm font-semibold transition-colors hover:bg-white/5"
-                  style={{ border: '1px solid rgba(255,255,255,0.14)', color: '#ffffff', background: 'rgba(0,0,0,0.26)' }}
+                  style={{ border: '1px solid rgba(var(--mc-fg-rgb),0.14)', color: 'var(--mc-text)', background: 'var(--mc-input)' }}
                 >
                   <svg width="18" height="18" viewBox="0 0 48 48">
                     <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
@@ -144,9 +144,9 @@ export default function LandingPage({ onAuthenticated, isExchanging = false }: L
 
               {/* Divider */}
               <div className="flex items-center gap-3 my-5">
-                <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.1)' }} />
-                <span className="text-xs" style={{ color: '#ffffff' }}>or continue with email</span>
-                <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.1)' }} />
+                <div className="flex-1 h-px" style={{ background: 'rgba(var(--mc-fg-rgb),0.1)' }} />
+                <span className="text-xs" style={{ color: 'var(--mc-text)' }}>or continue with email</span>
+                <div className="flex-1 h-px" style={{ background: 'rgba(var(--mc-fg-rgb),0.1)' }} />
               </div>
 
               <form onSubmit={sendOtp} className="flex flex-col gap-3">
@@ -158,23 +158,23 @@ export default function LandingPage({ onAuthenticated, isExchanging = false }: L
                   autoFocus
                   className="w-full rounded-lg border px-3.5 py-2.5 text-sm outline-none transition-colors"
                   style={inputStyle}
-                  onFocus={(e) => (e.currentTarget.style.borderColor = '#a4d65e')}
-                  onBlur={(e) => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.14)')}
+                  onFocus={(e) => (e.currentTarget.style.borderColor = 'var(--mc-accent)')}
+                  onBlur={(e) => (e.currentTarget.style.borderColor = 'rgba(var(--mc-fg-rgb),0.14)')}
                 />
-                {error && <p className="text-xs" style={{ color: '#ef4444' }}>{error}</p>}
+                {error && <p className="text-xs" style={{ color: 'var(--mc-red)' }}>{error}</p>}
                 <button
                   type="submit"
                   disabled={loading}
                   className="w-full flex items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-60"
-                  style={{ background: '#a4d65e', color: '#1a3a3a' }}
+                  style={{ background: 'var(--mc-accent)', color: 'var(--mc-on-accent)' }}
                 >
                   {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <>Continue <ArrowRight className="h-4 w-4" /></>}
                 </button>
               </form>
 
-              <p className="mt-5 text-xs text-center" style={{ color: '#ffffff' }}>
+              <p className="mt-5 text-xs text-center" style={{ color: 'var(--mc-text)' }}>
                 Are you a clinician?{' '}
-                <a href="/register/clinician" className="underline hover:text-[#ffffff]" style={{ color: '#ffffff' }}>
+                <a href="/register/clinician" className="underline hover:text-[var(--mc-text)]" style={{ color: 'var(--mc-text)' }}>
                   Register your practice
                 </a>
               </p>
@@ -185,20 +185,20 @@ export default function LandingPage({ onAuthenticated, isExchanging = false }: L
               <button
                 onClick={() => { setScreen('email'); setOtp(''); setError(''); }}
                 className="flex items-center gap-1.5 mb-8 text-xs font-medium hover:opacity-70 transition-opacity"
-                style={{ color: '#ffffff' }}
+                style={{ color: 'var(--mc-text)' }}
               >
                 <ArrowLeft className="h-3.5 w-3.5" /> Back
               </button>
 
-              <div className="flex h-12 w-12 items-center justify-center rounded-full mb-5" style={{ background: 'rgba(164,214,94,0.15)' }}>
+              <div className="flex h-12 w-12 items-center justify-center rounded-full mb-5" style={{ background: 'rgba(var(--mc-accent-rgb),0.15)' }}>
                 <Mail className="h-5 w-5" style={{ color: '#16a34a' }} />
               </div>
 
-              <h1 className="text-[1.75rem] font-bold leading-tight" style={{ color: '#ffffff' }}>
+              <h1 className="text-[1.75rem] font-bold leading-tight" style={{ color: 'var(--mc-text)' }}>
                 Check your email
               </h1>
-              <p className="mt-2 text-sm" style={{ color: '#ffffff' }}>
-                We sent a 6-digit code to <span className="font-medium" style={{ color: '#ffffff' }}>{email}</span>
+              <p className="mt-2 text-sm" style={{ color: 'var(--mc-text)' }}>
+                We sent a 6-digit code to <span className="font-medium" style={{ color: 'var(--mc-text)' }}>{email}</span>
               </p>
 
               <form onSubmit={verifyOtp} className="mt-8 flex flex-col gap-3">
@@ -213,27 +213,27 @@ export default function LandingPage({ onAuthenticated, isExchanging = false }: L
                   autoFocus
                   suppressHydrationWarning
                   className="w-full rounded-lg border px-3.5 py-3 text-2xl font-bold tracking-[0.4em] text-center outline-none transition-colors"
-                  style={{ borderColor: 'rgba(255,255,255,0.14)', color: '#ffffff' }}
-                  onFocus={(e) => (e.currentTarget.style.borderColor = '#a4d65e')}
-                  onBlur={(e) => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.14)')}
+                  style={{ borderColor: 'rgba(var(--mc-fg-rgb),0.14)', color: 'var(--mc-text)' }}
+                  onFocus={(e) => (e.currentTarget.style.borderColor = 'var(--mc-accent)')}
+                  onBlur={(e) => (e.currentTarget.style.borderColor = 'rgba(var(--mc-fg-rgb),0.14)')}
                 />
-                {error && <p className="text-xs text-center" style={{ color: '#ef4444' }}>{error}</p>}
+                {error && <p className="text-xs text-center" style={{ color: 'var(--mc-red)' }}>{error}</p>}
                 <button
                   type="submit"
                   disabled={loading || otp.length < 6}
                   className="w-full flex items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-60"
-                  style={{ background: '#a4d65e', color: '#1a3a3a' }}
+                  style={{ background: 'var(--mc-accent)', color: 'var(--mc-on-accent)' }}
                 >
                   {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <>Verify & sign in <ArrowRight className="h-4 w-4" /></>}
                 </button>
               </form>
 
-              <p className="mt-4 text-xs text-center" style={{ color: '#ffffff' }}>
+              <p className="mt-4 text-xs text-center" style={{ color: 'var(--mc-text)' }}>
                 Didn't receive it?{' '}
                 <button
                   onClick={() => { setOtp(''); setError(''); setScreen('email'); }}
-                  className="underline hover:text-[#ffffff]"
-                  style={{ color: '#ffffff' }}
+                  className="underline hover:text-[var(--mc-text)]"
+                  style={{ color: 'var(--mc-text)' }}
                 >
                   Try again
                 </button>
@@ -243,7 +243,7 @@ export default function LandingPage({ onAuthenticated, isExchanging = false }: L
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between text-xs" style={{ color: '#ffffff' }}>
+        <div className="flex items-center justify-between text-xs" style={{ color: 'var(--mc-text)' }}>
           <span>© {new Date().getFullYear()} Meterbolic</span>
           <div className="flex gap-4">
             <a href="/privacy" className="hover:underline">Privacy</a>
@@ -260,33 +260,33 @@ export default function LandingPage({ onAuthenticated, isExchanging = false }: L
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
-            backgroundImage: `radial-gradient(circle at 70% 20%, rgba(164,214,94,0.08) 0%, transparent 50%),
-                               radial-gradient(circle at 20% 80%, rgba(164,214,94,0.05) 0%, transparent 40%)`,
+            backgroundImage: `radial-gradient(circle at 70% 20%, rgba(var(--mc-accent-rgb),0.08) 0%, transparent 50%),
+                               radial-gradient(circle at 20% 80%, rgba(var(--mc-accent-rgb),0.05) 0%, transparent 40%)`,
           }}
         />
-        <div className="absolute -right-20 -top-20 h-72 w-72 rounded-full pointer-events-none" style={{ background: 'rgba(164,214,94,0.06)' }} />
+        <div className="absolute -right-20 -top-20 h-72 w-72 rounded-full pointer-events-none" style={{ background: 'rgba(var(--mc-accent-rgb),0.06)' }} />
 
         <div className="relative z-10">
           <div className="flex items-center gap-3">
             <div
               className="flex h-12 w-12 items-center justify-center rounded-xl"
-              style={{ background: 'rgba(164,214,94,0.15)', border: '1px solid rgba(164,214,94,0.3)' }}
+              style={{ background: 'rgba(var(--mc-accent-rgb),0.15)', border: '1px solid rgba(var(--mc-accent-rgb),0.3)' }}
             >
-              <Activity className="h-6 w-6" style={{ color: '#a4d65e' }} />
+              <Activity className="h-6 w-6" style={{ color: 'var(--mc-accent)' }} />
             </div>
             <div>
-              <p className="text-lg font-bold" style={{ color: '#ffffff' }}>Meterbolic</p>
-              <p className="text-xs" style={{ color: 'rgba(255,255,255,0.5)' }}>Metabolic Health Intelligence</p>
+              <p className="text-lg font-bold" style={{ color: 'var(--mc-text)' }}>Meterbolic</p>
+              <p className="text-xs" style={{ color: 'rgba(var(--mc-fg-rgb),0.5)' }}>Metabolic Health Intelligence</p>
             </div>
           </div>
 
           <div className="mt-10 max-w-md">
-            <h2 className="text-3xl xl:text-4xl font-bold leading-snug" style={{ color: '#ffffff' }}>
+            <h2 className="text-3xl xl:text-4xl font-bold leading-snug" style={{ color: 'var(--mc-text)' }}>
               Understand your<br />
-              <span style={{ color: '#a4d65e' }}>metabolic health</span><br />
+              <span style={{ color: 'var(--mc-accent)' }}>metabolic health</span><br />
               like never before.
             </h2>
-            <p className="mt-4 text-sm leading-relaxed" style={{ color: 'rgba(255,255,255,0.6)' }}>
+            <p className="mt-4 text-sm leading-relaxed" style={{ color: 'rgba(var(--mc-fg-rgb),0.6)' }}>
               Kraft curves, insulin patterns, bio-age insights — powered by your data and guided by AI.
             </p>
           </div>
@@ -301,7 +301,7 @@ export default function LandingPage({ onAuthenticated, isExchanging = false }: L
           ].map(({ icon, label }) => (
             <div key={label} className="flex items-center gap-3">
               <span className="text-base">{icon}</span>
-              <span className="text-sm" style={{ color: 'rgba(255,255,255,0.75)' }}>{label}</span>
+              <span className="text-sm" style={{ color: 'rgba(var(--mc-fg-rgb),0.75)' }}>{label}</span>
             </div>
           ))}
         </div>
@@ -309,24 +309,24 @@ export default function LandingPage({ onAuthenticated, isExchanging = false }: L
         <div
           className="relative z-10 rounded-2xl p-6"
           style={{
-            background: 'rgba(255,255,255,0.06)',
-            border: '1px solid rgba(255,255,255,0.1)',
+            background: 'rgba(var(--mc-fg-rgb),0.06)',
+            border: '1px solid rgba(var(--mc-fg-rgb),0.1)',
             backdropFilter: 'blur(12px)',
           }}
         >
-          <p className="text-sm leading-relaxed" style={{ color: 'rgba(255,255,255,0.85)' }}>
+          <p className="text-sm leading-relaxed" style={{ color: 'rgba(var(--mc-fg-rgb),0.85)' }}>
             &ldquo;{t.quote}&rdquo;
           </p>
           <div className="mt-4 flex items-center gap-3">
             <div
               className="flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold flex-shrink-0"
-              style={{ background: '#a4d65e', color: '#1a3a3a' }}
+              style={{ background: 'var(--mc-accent)', color: 'var(--mc-on-accent)' }}
             >
               {t.name.split(' ').map((n) => n[0]).slice(0, 2).join('')}
             </div>
             <div>
-              <p className="text-sm font-semibold" style={{ color: '#ffffff' }}>{t.name}</p>
-              <p className="text-xs" style={{ color: 'rgba(255,255,255,0.5)' }}>{t.role}</p>
+              <p className="text-sm font-semibold" style={{ color: 'var(--mc-text)' }}>{t.name}</p>
+              <p className="text-xs" style={{ color: 'rgba(var(--mc-fg-rgb),0.5)' }}>{t.role}</p>
             </div>
           </div>
         </div>

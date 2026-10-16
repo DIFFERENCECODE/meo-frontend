@@ -94,15 +94,15 @@ export function PostConsult({ patientSessionId, colors }: { patientSessionId: st
     cursor: 'pointer',
     fontFamily: 'inherit',
     whiteSpace: 'nowrap' as const,
-    color: active ? '#a4d65e' : 'rgba(255,255,255,.65)',
-    background: active ? 'rgba(164,214,94,.12)' : 'rgba(255,255,255,.06)',
-    border: `1px solid ${active ? 'rgba(164,214,94,.45)' : 'rgba(255,255,255,.14)'}`,
+    color: active ? 'var(--mc-accent)' : 'rgba(var(--mc-fg-rgb),.65)',
+    background: active ? 'rgba(var(--mc-accent-rgb),.12)' : 'rgba(var(--mc-fg-rgb),.06)',
+    border: `1px solid ${active ? 'rgba(var(--mc-accent-rgb),.45)' : 'rgba(var(--mc-fg-rgb),.14)'}`,
   });
 
   return (
-    <div style={{ padding: 16, borderRadius: 10, background: 'rgba(255,255,255,.03)', border: `1px solid ${colors.cardBorder}` }}>
+    <div style={{ padding: 16, borderRadius: 10, background: 'rgba(var(--mc-fg-rgb),.03)', border: `1px solid ${colors.cardBorder}` }}>
       <div style={{ fontSize: 13.5, fontWeight: 700, marginBottom: 2 }}>After the consult</div>
-      <div style={{ fontSize: 12, color: '#ffffff', marginBottom: 12 }}>
+      <div style={{ fontSize: 12, color: 'var(--mc-text)', marginBottom: 12 }}>
         Goes straight onto the patient&apos;s record, in your name and your words.
         Nothing here is written or rephrased by MeO.
       </div>
@@ -136,7 +136,7 @@ export function PostConsult({ patientSessionId, colors }: { patientSessionId: st
               color: '#fff', fontSize: 13, fontFamily: 'inherit',
             }}
           />
-          <div style={{ fontSize: 11, color: '#ffffff', margin: '10px 0 6px' }}>
+          <div style={{ fontSize: 11, color: 'var(--mc-text)', margin: '10px 0 6px' }}>
             Checked against
           </div>
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
@@ -147,7 +147,7 @@ export function PostConsult({ patientSessionId, colors }: { patientSessionId: st
         </>
       )}
 
-      {error && <div style={{ fontSize: 12, color: '#f97316', marginTop: 10 }}>{error}</div>}
+      {error && <div style={{ fontSize: 12, color: 'var(--mc-orange)', marginTop: 10 }}>{error}</div>}
 
       <button
         onClick={submit}
@@ -166,7 +166,7 @@ export function PostConsult({ patientSessionId, colors }: { patientSessionId: st
         <div style={{ marginTop: 16, borderTop: `1px solid ${colors.cardBorder}`, paddingTop: 14 }}>
           {/* The frame's heading, and it is the right one: these are not notes
               on file, they are things the system will check. */}
-          <div className="t-label" style={{ color: '#ffffff', marginBottom: 10 }}>
+          <div className="t-label" style={{ color: 'var(--mc-text)', marginBottom: 10 }}>
             What MeO will hold them to
           </div>
           {existing.map((n, i) => {
@@ -176,25 +176,25 @@ export function PostConsult({ patientSessionId, colors }: { patientSessionId: st
                 key={n.id}
                 style={{
                   display: 'flex', alignItems: 'flex-start', gap: 10, padding: '9px 0',
-                  borderBottom: i === existing.length - 1 ? undefined : '1px solid rgba(255,255,255,0.07)',
+                  borderBottom: i === existing.length - 1 ? undefined : '1px solid rgba(var(--mc-fg-rgb),0.07)',
                 }}
               >
                 <span
                   style={{
                     width: 20, height: 20, flex: 'none', borderRadius: 6, marginTop: 1,
-                    background: n.kind === 'plan' ? 'rgba(164,214,94,0.15)' : 'rgba(255,255,255,0.06)',
-                    color: n.kind === 'plan' ? '#a4d65e' : '#ffffff',
+                    background: n.kind === 'plan' ? 'rgba(var(--mc-accent-rgb),0.15)' : 'rgba(var(--mc-fg-rgb),0.06)',
+                    color: n.kind === 'plan' ? 'var(--mc-accent)' : 'var(--mc-text)',
                     fontSize: 11, display: 'flex', alignItems: 'center', justifyContent: 'center',
                   }}
                 >
                   {n.kind === 'plan' ? '✓' : '•'}
                 </span>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 12.5, color: '#ffffff' }}>
+                  <div style={{ fontSize: 12.5, color: 'var(--mc-text)' }}>
                     {n.body}
-                    {n.target ? <span style={{ color: '#a4d65e' }}> — {n.target}</span> : null}
+                    {n.target ? <span style={{ color: 'var(--mc-accent)' }}> — {n.target}</span> : null}
                   </div>
-                  <div style={{ fontSize: 11, color: '#ffffff', marginTop: 2 }}>
+                  <div style={{ fontSize: 11, color: 'var(--mc-text)', marginTop: 2 }}>
                     {n.kind === 'plan'
                       ? (src && n.source !== 'none'
                           ? `checked from ${src.label.toLowerCase()}`
@@ -210,10 +210,10 @@ export function PostConsult({ patientSessionId, colors }: { patientSessionId: st
               date: this screen writes into the patient's record, and /plan and
               /from-practitioner read it back. Said plainly rather than left for
               someone to wonder. */}
-          <p style={{ fontSize: 11.5, color: '#ffffff', marginTop: 12, lineHeight: 1.5 }}>
+          <p style={{ fontSize: 11.5, color: 'var(--mc-text)', marginTop: 12, lineHeight: 1.5 }}>
             Everything above is on their record now — they see it under
-            <b style={{ color: '#ffffff' }}> My plan</b> and
-            <b style={{ color: '#ffffff' }}> From your practitioner</b>, in your
+            <b style={{ color: 'var(--mc-text)' }}> My plan</b> and
+            <b style={{ color: 'var(--mc-text)' }}> From your practitioner</b>, in your
             name and your words.
           </p>
         </div>

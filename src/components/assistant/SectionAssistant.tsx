@@ -132,7 +132,7 @@ export function SectionAssistant({ children, composer, context }: {
       <div className="shrink-0 px-4 md:px-7 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-3">
         <div>
           {turns.length > 0 && (
-            <section aria-label={`MeO answers in ${section}`} className="mb-2 overflow-hidden rounded-2xl" style={{ background: 'rgba(22,48,48,0.9)', backdropFilter: 'blur(18px) saturate(140%)', WebkitBackdropFilter: 'blur(18px) saturate(140%)', border: '1px solid rgba(255,255,255,0.14)', color: colors.foreground, boxShadow: '0 -18px 40px rgba(0,0,0,0.25)' }}>
+            <section aria-label={`MeO answers in ${section}`} className="mb-2 overflow-hidden rounded-2xl" style={{ background: 'var(--mc-sheet)', backdropFilter: 'blur(18px) saturate(140%)', WebkitBackdropFilter: 'blur(18px) saturate(140%)', border: '1px solid rgba(var(--mc-fg-rgb),0.14)', color: colors.foreground, boxShadow: '0 -18px 40px rgba(0,0,0,0.25)' }}>
               <div className="flex items-center justify-between gap-2 px-4">
                 <button type="button" className="flex min-h-11 flex-1 items-center justify-between gap-3 text-left text-sm font-semibold" aria-expanded={expanded} aria-controls="section-answers" onClick={() => setExpanded(value => !value)}>
                   <span>MeO <span className="font-normal" style={{ color: colors.muted }}>· {section}</span></span>

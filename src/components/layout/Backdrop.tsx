@@ -33,8 +33,8 @@ export function Backdrop() {
         style={{
           opacity: 0.55,
           backgroundImage: `
-            linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px)
+            linear-gradient(rgba(var(--mc-fg-rgb),0.035) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(var(--mc-fg-rgb),0.035) 1px, transparent 1px)
           `,
           backgroundSize: '72px 72px',
         }}

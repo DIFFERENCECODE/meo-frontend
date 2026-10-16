@@ -200,7 +200,7 @@ export function BASProgressChart() {
         </div>
       ) : error ? (
         <div className="h-[260px] flex items-center justify-center">
-          <span className="t-lead" style={{ color: '#ef4444' }}>{error}</span>
+          <span className="t-lead" style={{ color: 'var(--mc-red)' }}>{error}</span>
         </div>
       ) : basPoints.length === 0 ? (
         <div className="h-[260px] flex items-center justify-center px-6 text-center">

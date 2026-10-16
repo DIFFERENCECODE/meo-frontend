@@ -74,7 +74,7 @@ function ConnectorsInner() {
           <span
             style={{
               display: 'inline-block', fontSize: 12, fontWeight: 700, color: colors.primary,
-              background: 'rgba(164,214,94,0.12)', border: '1px solid rgba(164,214,94,0.3)',
+              background: 'rgba(var(--mc-accent-rgb),0.12)', border: '1px solid rgba(var(--mc-accent-rgb),0.3)',
               borderRadius: 999, padding: '5px 12px', whiteSpace: 'nowrap',
             }}
           >
@@ -105,13 +105,13 @@ function ConnectorsInner() {
                     className="flex items-center"
                     style={{
                       gap: 14, padding: '14px 0',
-                      borderBottom: i === sources.length - 1 ? undefined : '1px solid rgba(255,255,255,0.07)',
+                      borderBottom: i === sources.length - 1 ? undefined : '1px solid rgba(var(--mc-fg-rgb),0.07)',
                       opacity: planned ? 0.72 : 1,
                     }}
                   >
                     <div
                       className="flex items-center justify-center"
-                      style={{ width: 38, height: 38, flex: 'none', borderRadius: 11, background: 'rgba(255,255,255,0.06)' }}
+                      style={{ width: 38, height: 38, flex: 'none', borderRadius: 11, background: 'rgba(var(--mc-fg-rgb),0.06)' }}
                     >
                       <Icon className="h-4 w-4" style={{ color: on ? colors.primary : colors.mutedDim }} />
                     </div>

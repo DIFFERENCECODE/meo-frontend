@@ -74,7 +74,7 @@ export function GuidedTest() {
             <div
               className="flex gap-3 rounded-[10px] p-4 mb-6"
               style={{
-                backgroundColor: 'rgba(164,214,94,0.07)',
+                backgroundColor: 'rgba(var(--mc-accent-rgb),0.07)',
                 border: `1px solid ${colors.cardBorder}`,
               }}
             >
@@ -109,7 +109,7 @@ export function GuidedTest() {
             </div>
 
             {phase === 'error' && (
-              <div className="flex items-center gap-2 mb-4 t-lead" style={{ color: '#f97316' }}>
+              <div className="flex items-center gap-2 mb-4 t-lead" style={{ color: 'var(--mc-orange)' }}>
                 <AlertTriangle className="h-4 w-4" />
                 <span>Couldn&apos;t start the test. Try again in a moment.</span>
               </div>

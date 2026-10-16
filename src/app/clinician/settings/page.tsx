@@ -7,6 +7,7 @@
 
 import React from 'react';
 import { LogOut } from 'lucide-react';
+import { useTheme } from '@/theme/ThemeProvider';
 import { clearIdToken, getLogoutUrl } from '@/app/lib/auth';
 import { PERSONAS } from '../persona';
 import { Btn, Card, Label, PageHeader, Pill, Screen, T, useAuthed, usePersona } from '../ui';
@@ -28,6 +29,7 @@ function Row({ title, children, aside }: { title: string; children?: React.React
 export default function SettingsPage() {
   const profile = useAuthed<Profile>('/api/profile');
   const [persona, setPersona] = usePersona();
+  const { colorMode, setColorMode } = useTheme();
 
   return (
     <Screen header={<PageHeader title="Settings" sub="Your account and how the portal works for you" />}>
@@ -58,7 +60,7 @@ export default function SettingsPage() {
               >
                 <span aria-hidden style={{
                   width: 18, height: 18, flex: 'none', borderRadius: '50%',
-                  border: `2px solid ${p.id === persona ? T.lime : 'rgba(255,255,255,0.4)'}`,
+                  border: `2px solid ${p.id === persona ? T.lime : 'rgba(var(--mc-fg-rgb),0.4)'}`,
                   background: p.id === persona ? `radial-gradient(circle, ${T.lime} 45%, transparent 50%)` : 'transparent',
                 }} />
                 <span style={{ flex: 1 }}>
@@ -81,8 +83,16 @@ export default function SettingsPage() {
 
         <Card>
           <Label style={{ marginBottom: 4 }}>Appearance</Label>
-          <Row title="Dark" aside={<Pill size={11} color={T.lime}>In use</Pill>}>Deep green, as now.</Row>
-          <Row title="Light" aside={<Pill size={11}>Coming</Pill>}>White with green.</Row>
+          {(['dark', 'light'] as const).map((m) => (
+            <button key={m} role="radio" aria-checked={colorMode === m} onClick={() => setColorMode(m)} className="mc-press"
+              style={{ display: 'flex', alignItems: 'center', gap: 12, width: '100%', padding: '11px 0', textAlign: 'left', background: 'transparent', border: 0, borderTop: `1px solid ${T.rowBorder}`, cursor: 'pointer', fontFamily: 'inherit', color: T.text }}>
+              <span aria-hidden style={{ width: 18, height: 18, flex: 'none', borderRadius: '50%', border: `2px solid ${colorMode === m ? T.lime : 'rgba(var(--mc-fg-rgb),0.4)'}`, background: colorMode === m ? `radial-gradient(circle, ${T.lime} 45%, transparent 50%)` : 'transparent' }} />
+              <span style={{ flex: 1 }}>
+                <span style={{ display: 'block', fontSize: 14, fontWeight: 700 }}>{m === 'dark' ? 'Dark' : 'Light'}</span>
+                <span style={{ display: 'block', fontSize: 13 }}>{m === 'dark' ? 'Deep green' : 'White with green'}</span>
+              </span>
+            </button>
+          ))}
         </Card>
 
         <div>

@@ -257,8 +257,8 @@ export function LeftPanel({
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src="/droplet-logo.png" alt="" style={{ width: 28, height: 28, objectFit: 'contain' }} />
                 <span>
-                  <span className="block" style={{ fontSize: 14.5, fontWeight: 800, color: '#ffffff' }}>MeO</span>
-                  <span className="block" style={{ fontSize: 10.5, color: '#ffffff' }}>by Meterbolic</span>
+                  <span className="block" style={{ fontSize: 14.5, fontWeight: 800, color: 'var(--mc-text)' }}>MeO</span>
+                  <span className="block" style={{ fontSize: 10.5, color: 'var(--mc-text)' }}>by Meterbolic</span>
                 </span>
               </Link>
               <button
@@ -268,7 +268,7 @@ export function LeftPanel({
                 aria-expanded={true}
                 aria-controls="patient-navigation"
               >
-                <PanelLeftClose className="h-4 w-4" style={{ color: '#ffffff' }} />
+                <PanelLeftClose className="h-4 w-4" style={{ color: 'var(--mc-text)' }} />
               </button>
             </div>
 
@@ -278,7 +278,7 @@ export function LeftPanel({
                 data-tour="new-chat"
                 onClick={() => { onNewChat?.(); if (isMobile) setLeftPanelOpen(false); }}
                 className="meo-press flex items-center justify-center w-full"
-                style={{ gap: 8, padding: '11px 16px', borderRadius: 10, background: '#a4d65e', color: '#1a3a3a', fontSize: 14, fontWeight: 600, border: 0, cursor: 'pointer' }}
+                style={{ gap: 8, padding: '11px 16px', borderRadius: 10, background: 'var(--mc-accent)', color: 'var(--mc-on-accent)', fontSize: 14, fontWeight: 600, border: 0, cursor: 'pointer' }}
               >
                 <Plus className="h-4 w-4" />
                 <span>{t('sidebar.new_chat')}</span>
@@ -310,7 +310,7 @@ export function LeftPanel({
                 { href: '/connectors', label: 'Connectors', Icon: Link2, badge: liveSources ? `${liveSources} live` : null },
               ].map((item, i) => {
                 if ('divider' in item) {
-                  return <div key={`d${i}`} style={{ height: 1, background: 'rgba(255,255,255,0.08)', margin: '10px 4px' }} />;
+                  return <div key={`d${i}`} style={{ height: 1, background: 'rgba(var(--mc-fg-rgb),0.08)', margin: '10px 4px' }} />;
                 }
                 const { href, label, Icon, tour, badge } = item as { href: string; label: string; Icon: typeof Home; tour?: string; badge?: string | null };
                 const active = pathname === href;
@@ -324,14 +324,14 @@ export function LeftPanel({
                     style={{
                       gap: 10, padding: '9px 12px', borderRadius: 10, fontSize: 13.5,
                       fontWeight: active ? 700 : 500,
-                      color: active ? '#a4d65e' : '#ffffff',
-                      background: active ? 'rgba(164,214,94,0.12)' : 'transparent',
+                      color: active ? 'var(--mc-accent)' : 'var(--mc-text)',
+                      background: active ? 'rgba(var(--mc-accent-rgb),0.12)' : 'transparent',
                     }}
                   >
                     <Icon className="h-4 w-4 shrink-0" />
                     <span className="flex-1 truncate">{label}</span>
                     {badge && (
-                      <span style={{ fontSize: 10.5, fontWeight: 600, color: '#ffffff', border: '1px solid rgba(255,255,255,0.14)', borderRadius: 999, padding: '1px 8px', whiteSpace: 'nowrap' }}>
+                      <span style={{ fontSize: 10.5, fontWeight: 600, color: 'var(--mc-text)', border: '1px solid rgba(var(--mc-fg-rgb),0.14)', borderRadius: 999, padding: '1px 8px', whiteSpace: 'nowrap' }}>
                         {badge}
                       </span>
                     )}
@@ -353,20 +353,20 @@ export function LeftPanel({
               ) : chats && chats.length > 0 ? (
                 groupChats(chats).map(([group, items]) => (
                   <div key={group}>
-                    <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#ffffff', padding: '12px 12px 4px', margin: 0 }}>
+                    <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--mc-text)', padding: '12px 12px 4px', margin: 0 }}>
                       {group}
                     </p>
                     {items.map((chat) => (
                       <div
                         key={chat.id}
                         className="group relative w-full meo-row"
-                        style={{ borderRadius: 9, backgroundColor: currentChatId === chat.id ? 'rgba(164,214,94,0.12)' : undefined }}
+                        style={{ borderRadius: 9, backgroundColor: currentChatId === chat.id ? 'rgba(var(--mc-accent-rgb),0.12)' : undefined }}
                       >
                         <button
                           type="button"
                           onClick={() => { onSelectChat?.(chat.id); if (isMobile) setLeftPanelOpen(false); }}
                           className="w-full text-left truncate"
-                          style={{ padding: '6px 34px 6px 12px', fontSize: 13, color: '#ffffff', background: 'transparent', border: 0, cursor: 'pointer' }}
+                          style={{ padding: '6px 34px 6px 12px', fontSize: 13, color: 'var(--mc-text)', background: 'transparent', border: 0, cursor: 'pointer' }}
                           title={formatChatDate(chat.updated_at || chat.created_at) || undefined}
                         >
                           <span className="block truncate">{chat.title}</span>
@@ -382,7 +382,7 @@ export function LeftPanel({
                             }}
                             aria-label={t('sidebar.delete_chat_aria')}
                             className="absolute right-1.5 top-1/2 -translate-y-1/2 p-1.5 rounded-md opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity hover:bg-red-500/15"
-                            style={{ color: '#ffffff' }}
+                            style={{ color: 'var(--mc-text)' }}
                           >
                             <Trash2 className="h-3.5 w-3.5" />
                           </button>
@@ -392,7 +392,7 @@ export function LeftPanel({
                   </div>
                 ))
               ) : (
-                <p className="px-3 py-2" style={{ fontSize: 13, color: '#ffffff' }}>
+                <p className="px-3 py-2" style={{ fontSize: 13, color: 'var(--mc-text)' }}>
                   {t('sidebar.empty_chats')}
                 </p>
               )}
@@ -537,9 +537,9 @@ export function LeftPanel({
                 <Link
                   href="/connectors"
                   className="meo-press flex items-center no-underline"
-                  style={{ gap: 10, margin: '6px 4px 4px', padding: '9px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', fontSize: 11.5, color: '#ffffff' }}
+                  style={{ gap: 10, margin: '6px 4px 4px', padding: '9px 12px', borderRadius: 10, background: 'rgba(var(--mc-fg-rgb),0.04)', border: '1px solid rgba(var(--mc-fg-rgb),0.1)', fontSize: 11.5, color: 'var(--mc-text)' }}
                 >
-                  <Smartphone className="h-4 w-4 shrink-0" style={{ color: liveSources ? '#a4d65e' : '#ffffff' }} />
+                  <Smartphone className="h-4 w-4 shrink-0" style={{ color: liveSources ? 'var(--mc-accent)' : 'var(--mc-text)' }} />
                   <span className="truncate">{liveSources ? `${liveSources} source${liveSources === 1 ? '' : 's'} sending data` : 'Connect your meter or phone'}</span>
                 </Link>
                 <SidebarUser />

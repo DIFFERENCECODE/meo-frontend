@@ -111,7 +111,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className="dark" suppressHydrationWarning>
       <head>
         {/* Cabinet Grotesk — Fontshare CDN. Preconnect first so the
             TLS handshake is paid for once, then the stylesheet

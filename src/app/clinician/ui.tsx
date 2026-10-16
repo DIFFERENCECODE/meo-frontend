@@ -4,7 +4,7 @@
  * The practitioner portal's design kit, taken from the storyboard frames
  * (~/Downloads/MeO-Practitioner-Storyboard) rather than from Tailwind defaults.
  * docs/storyboard-vs-implementation.md measured the drift; these values close it:
- * the half-pixel type scale, two muted tones (#ffffff for sentences, #ffffff for
+ * the half-pixel type scale, two muted tones (var(--mc-text) for sentences, var(--mc-text) for
  * labels and metadata), 10px default radius, 16px cards, 0.82 card fill.
  *
  * Interaction follows the apple-design skill: feedback on press, not on release
@@ -22,26 +22,26 @@ import { apiFetch } from '@/app/lib/auth';
 import { getPersona, setPersona, type Persona } from './persona';
 
 export const T = {
-  lime: '#a4d65e',
+  lime: 'var(--mc-accent)',
   limeHover: '#c5e98f',
-  ink: '#1a3a3a',
-  text: '#ffffff',
+  ink: 'var(--mc-on-accent)',
+  text: 'var(--mc-text)',
   // All text is white (founder decision, 2026-10-17): grey on teal was hard
   // to read. Hierarchy comes from size and weight, not from dimmer tones.
   // All text is white (2026-10-17): grey on teal was hard to read.
   // Hierarchy comes from size and weight, not from dimmer tones.
-  muted: '#ffffff',
-  dim: '#ffffff',
-  orange: '#f97316',
-  amber: '#eab839',
-  red: '#ef4444',
-  blue: '#7cc5d8',
-  card: 'rgba(40,70,70,0.82)',
-  cardBorder: 'rgba(255,255,255,0.12)',
-  row: 'rgba(255,255,255,0.03)',
-  rowBorder: 'rgba(255,255,255,0.08)',
-  chip: 'rgba(255,255,255,0.07)',
-  chipBorder: 'rgba(255,255,255,0.14)',
+  muted: 'var(--mc-text)',
+  dim: 'var(--mc-text)',
+  orange: 'var(--mc-orange)',
+  amber: 'var(--mc-amber)',
+  red: 'var(--mc-red)',
+  blue: 'var(--mc-blue)',
+  card: 'var(--mc-card)',
+  cardBorder: 'rgba(var(--mc-fg-rgb),0.12)',
+  row: 'rgba(var(--mc-fg-rgb),0.03)',
+  rowBorder: 'rgba(var(--mc-fg-rgb),0.08)',
+  chip: 'rgba(var(--mc-fg-rgb),0.07)',
+  chipBorder: 'rgba(var(--mc-fg-rgb),0.14)',
 };
 
 /** One stylesheet for the things inline styles cannot express. */
@@ -51,18 +51,18 @@ export function PortalStyles() {
       .mc-press { transition: transform 100ms ease-out, background-color 120ms ease-out, border-color 120ms ease-out; }
       .mc-press:active { transform: scale(0.97); }
       .mc-row { transition: background-color 120ms ease-out, border-color 120ms ease-out; }
-      .mc-row:hover { background: rgba(255,255,255,0.055) !important; }
-      .mc-row:active { background: rgba(255,255,255,0.075) !important; }
+      .mc-row:hover { background: rgba(var(--mc-fg-rgb),0.055) !important; }
+      .mc-row:active { background: rgba(var(--mc-fg-rgb),0.075) !important; }
       .mc-portal a:hover { color: inherit; }
       .mc-portal :focus-visible { outline: 2px solid ${T.lime}; outline-offset: 2px; border-radius: 10px; }
       .mc-sheet { transform-origin: bottom center; animation: mc-rise 220ms cubic-bezier(0.2, 0.9, 0.3, 1); }
       @keyframes mc-rise { from { opacity: 0; transform: translateY(8px) scale(0.985); } to { opacity: 1; transform: none; } }
       .mc-md p, .mc-md li, .mc-md td, .mc-md th, .mc-md blockquote { font-size: inherit; line-height: inherit; color: inherit; }
-      .mc-md h1, .mc-md h2, .mc-md h3, .mc-md h4 { font-size: 13.5px; font-weight: 700; color: #ffffff; margin: 8px 0 4px; }
-      .mc-md blockquote { margin: 0; padding-left: 10px; border-left: 2px solid rgba(255,255,255,0.14); }
+      .mc-md h1, .mc-md h2, .mc-md h3, .mc-md h4 { font-size: 13.5px; font-weight: 700; color: var(--mc-text); margin: 8px 0 4px; }
+      .mc-md blockquote { margin: 0; padding-left: 10px; border-left: 2px solid rgba(var(--mc-fg-rgb),0.14); }
       .mc-md p { margin: 0 0 6px; } .mc-md p:last-child { margin-bottom: 0; }
       .mc-md ul { margin: 0; padding-left: 18px; } .mc-md li { margin: 2px 0; }
-      .mc-md strong { color: #ffffff; font-weight: 700; }
+      .mc-md strong { color: var(--mc-text); font-weight: 700; }
       .mc-md table { border-collapse: collapse; margin-top: 4px; }
       .mc-md td, .mc-md th { padding: 3px 12px 3px 0; text-align: left; font-weight: 500; }
       @media (prefers-reduced-motion: reduce) {
@@ -108,7 +108,7 @@ export function Pill({ children, color, solid, size = 12, style }: {
       style={{
         display: 'inline-block', fontSize: size, fontWeight: color ? 700 : 600, whiteSpace: 'nowrap',
         color: solid ? T.ink : c,
-        background: solid ? c : color ? 'rgba(255,255,255,0.06)' : T.chip,
+        background: solid ? c : color ? 'rgba(var(--mc-fg-rgb),0.06)' : T.chip,
         border: `1px solid ${solid ? c : color ?? T.chipBorder}`,
         borderRadius: 999, padding: size <= 11 ? '3px 10px' : '5px 12px', ...style,
       }}
@@ -312,7 +312,7 @@ export function AskBar({ patientId, placeholder }: { patientId: string; placehol
           aria-live="polite"
           style={{
             position: 'absolute', left: 28, right: 28, bottom: 'calc(100% - 4px)', maxHeight: '52vh', overflowY: 'auto',
-            background: 'rgba(22,48,48,0.86)', backdropFilter: 'blur(18px) saturate(140%)',
+            background: 'var(--mc-sheet)', backdropFilter: 'blur(18px) saturate(140%)',
             border: `1px solid ${T.chipBorder}`, borderRadius: 16, padding: '14px 18px',
             boxShadow: '0 -18px 40px rgba(0,0,0,0.28)',
           }}
@@ -337,8 +337,8 @@ export function AskBar({ patientId, placeholder }: { patientId: string; placehol
       <form
         onSubmit={(e) => { e.preventDefault(); send(); }}
         style={{
-          display: 'flex', alignItems: 'center', gap: 10, background: 'rgba(0,0,0,0.26)',
-          border: '1px solid rgba(255,255,255,0.13)', borderRadius: 14, padding: '11px 11px 11px 16px',
+          display: 'flex', alignItems: 'center', gap: 10, background: 'var(--mc-input)',
+          border: '1px solid rgba(var(--mc-fg-rgb),0.13)', borderRadius: 14, padding: '11px 11px 11px 16px',
         }}
       >
         <input
@@ -350,7 +350,7 @@ export function AskBar({ patientId, placeholder }: { patientId: string; placehol
           style={{ flex: 1, minWidth: 0, background: 'transparent', border: 0, outline: 'none', color: T.text, fontSize: 13.5, fontFamily: 'inherit' }}
         />
         <button type="button" aria-label="Voice input is not available in the portal yet" disabled
-          style={{ width: 34, height: 34, borderRadius: 10, background: 'rgba(255,255,255,0.08)', border: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: 0.5 }}>
+          style={{ width: 34, height: 34, borderRadius: 10, background: 'rgba(var(--mc-fg-rgb),0.08)', border: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: 0.5 }}>
           <Mic size={15} color={T.muted} />
         </button>
         <button type="submit" aria-label="Send" className="mc-press" disabled={busy || !input.trim()}
@@ -369,7 +369,7 @@ export function State({ loading, error, children }: { loading?: boolean; error?:
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
         {[0, 1, 2].map((i) => (
-          <div key={i} style={{ height: 74, borderRadius: 16, background: 'rgba(40,70,70,0.5)', border: `1px solid ${T.rowBorder}` }} />
+          <div key={i} style={{ height: 74, borderRadius: 16, background: 'var(--mc-card-soft)', border: `1px solid ${T.rowBorder}` }} />
         ))}
       </div>
     );

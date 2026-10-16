@@ -37,7 +37,7 @@ export function QcNotice({
 }) {
   if (verdict.level === 'ok') return null;
   const colour =
-    verdict.level === 'confirm' ? '#eab839' : verdict.level === 'suspect' ? '#f97316' : '#e57373';
+    verdict.level === 'confirm' ? 'var(--mc-amber)' : verdict.level === 'suspect' ? 'var(--mc-orange)' : '#e57373';
 
   return (
     <div className="flex items-start gap-2 mt-2" role="status">

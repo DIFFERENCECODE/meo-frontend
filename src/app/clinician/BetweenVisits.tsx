@@ -72,16 +72,16 @@ export function BetweenVisits({ patientSessionId, colors }: { patientSessionId: 
 
   const plan = (data?.notes ?? []).filter((n) => n.kind === 'plan');
   const otherNotes = (data?.notes ?? []).filter((n) => n.kind !== 'plan');
-  const label = { fontSize: 11, fontWeight: 700, letterSpacing: '.14em', textTransform: 'uppercase' as const, color: '#ffffff', marginBottom: 8 };
+  const label = { fontSize: 11, fontWeight: 700, letterSpacing: '.14em', textTransform: 'uppercase' as const, color: 'var(--mc-text)', marginBottom: 8 };
 
   return (
-    <div style={{ padding: 16, borderRadius: 10, background: 'rgba(255,255,255,.03)', border: `1px solid ${colors.cardBorder}` }}>
+    <div style={{ padding: 16, borderRadius: 10, background: 'rgba(var(--mc-fg-rgb),.03)', border: `1px solid ${colors.cardBorder}` }}>
       <div style={{ fontSize: 13.5, fontWeight: 700 }}>Between visits</div>
-      <div style={{ fontSize: 12, color: '#ffffff', marginTop: 2, marginBottom: 14 }}>
+      <div style={{ fontSize: 12, color: 'var(--mc-text)', marginTop: 2, marginBottom: 14 }}>
         What happened since you last saw them. Every row is stored or counted; nothing here is generated.
       </div>
 
-      {loading && <div style={{ fontSize: 12.5, color: '#ffffff' }}>Loading…</div>}
+      {loading && <div style={{ fontSize: 12.5, color: 'var(--mc-text)' }}>Loading…</div>}
 
       {!loading && data && (
         <>
@@ -89,16 +89,16 @@ export function BetweenVisits({ patientSessionId, colors }: { patientSessionId: 
               went, counted by the Truth Engine, before any other evidence. */}
           <div style={label}>How your plan went</div>
           {plan.length === 0 ? (
-            <div style={{ fontSize: 12.5, color: '#ffffff', marginBottom: 14 }}>
+            <div style={{ fontSize: 12.5, color: 'var(--mc-text)', marginBottom: 14 }}>
               No plan lines yet. Lines you write after this consult are tracked here.
             </div>
           ) : (
             <div style={{ marginBottom: 14, display: 'flex', flexDirection: 'column', gap: 8 }}>
               {plan.map((n) => (
-                <div key={n.id} style={{ fontSize: 12.5, color: '#ffffff' }}>
+                <div key={n.id} style={{ fontSize: 12.5, color: 'var(--mc-text)' }}>
                   <div>
-                    <span style={{ color: '#a4d65e' }}>◆</span> {n.body}
-                    {n.target ? <span style={{ color: '#a4d65e' }}>: {n.target}</span> : null}
+                    <span style={{ color: 'var(--mc-accent)' }}>◆</span> {n.body}
+                    {n.target ? <span style={{ color: 'var(--mc-accent)' }}>: {n.target}</span> : null}
                   </div>
                   <div style={{ marginTop: 4, paddingLeft: 16 }}>
                     <ProgressBadge progress={n.progress} />
@@ -110,21 +110,21 @@ export function BetweenVisits({ patientSessionId, colors }: { patientSessionId: 
 
           <div style={label}>Readings taken ({data.readings.length})</div>
           {data.readings.length === 0 ? (
-            <div style={{ fontSize: 12.5, color: '#ffffff', marginBottom: 14 }}>
+            <div style={{ fontSize: 12.5, color: 'var(--mc-text)', marginBottom: 14 }}>
               No readings in this period.
             </div>
           ) : (
             <div style={{ marginBottom: 14 }}>
               {data.readings.map((r, i) => (
                 <div key={`${r.date}-${i}`} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 0', borderTop: i ? `1px solid ${colors.cardBorder}` : undefined }}>
-                  <span style={{ fontSize: 12, color: '#ffffff', width: 86, flexShrink: 0 }}>{r.date}</span>
+                  <span style={{ fontSize: 12, color: 'var(--mc-text)', width: 86, flexShrink: 0 }}>{r.date}</span>
                   <span style={{ flex: 1, fontSize: 12.5, minWidth: 0 }}>{KIND_LABEL[r.kind || 'other'] || 'Entry'}</span>
                   {r.bas != null ? (
-                    <span style={{ fontSize: 12.5, fontWeight: 700, color: '#a4d65e', flexShrink: 0 }}>BAS {r.bas.toFixed(1)}</span>
+                    <span style={{ fontSize: 12.5, fontWeight: 700, color: 'var(--mc-accent)', flexShrink: 0 }}>BAS {r.bas.toFixed(1)}</span>
                   ) : (
-                    <span style={{ fontSize: 11.5, color: '#f97316', flexShrink: 0 }}>no score</span>
+                    <span style={{ fontSize: 11.5, color: 'var(--mc-orange)', flexShrink: 0 }}>no score</span>
                   )}
-                  <span style={{ fontSize: 11, flexShrink: 0, color: r.captured_by ? '#ffffff' : 'rgba(255,255,255,.3)', fontStyle: r.captured_by ? 'normal' : 'italic' }}>
+                  <span style={{ fontSize: 11, flexShrink: 0, color: r.captured_by ? 'var(--mc-text)' : 'rgba(var(--mc-fg-rgb),.3)', fontStyle: r.captured_by ? 'normal' : 'italic' }}>
                     {r.captured_by || 'source not recorded'}
                   </span>
                 </div>
@@ -134,16 +134,16 @@ export function BetweenVisits({ patientSessionId, colors }: { patientSessionId: 
 
           <div style={label}>Their own commitments, made with the coach ({data.commitments.length})</div>
           {data.commitments.length === 0 ? (
-            <div style={{ fontSize: 12.5, color: '#ffffff', marginBottom: 14 }}>
+            <div style={{ fontSize: 12.5, color: 'var(--mc-text)', marginBottom: 14 }}>
               Nothing recorded.
             </div>
           ) : (
             <div style={{ marginBottom: 14 }}>
               {data.commitments.map((c, i) => (
-                <div key={i} style={{ fontSize: 12.5, padding: '5px 0', color: '#ffffff' }}>
+                <div key={i} style={{ fontSize: 12.5, padding: '5px 0', color: 'var(--mc-text)' }}>
                   • {c.commitment || c.category || 'Commitment'}
-                  {c.timeframe ? <span style={{ color: '#ffffff' }}> · {c.timeframe}</span> : null}
-                  {c.followed_up ? <span style={{ color: '#a4d65e' }}> · followed up</span> : <span style={{ color: '#f97316' }}> · open</span>}
+                  {c.timeframe ? <span style={{ color: 'var(--mc-text)' }}> · {c.timeframe}</span> : null}
+                  {c.followed_up ? <span style={{ color: 'var(--mc-accent)' }}> · followed up</span> : <span style={{ color: 'var(--mc-orange)' }}> · open</span>}
                 </div>
               ))}
             </div>
@@ -154,8 +154,8 @@ export function BetweenVisits({ patientSessionId, colors }: { patientSessionId: 
               <div style={label}>Your notes ({otherNotes.length})</div>
               <div style={{ marginBottom: 14 }}>
                 {otherNotes.map((n) => (
-                  <div key={n.id} style={{ fontSize: 12.5, padding: '5px 0', color: '#ffffff' }}>
-                    <span style={{ color: '#ffffff' }}>•</span> {n.body}
+                  <div key={n.id} style={{ fontSize: 12.5, padding: '5px 0', color: 'var(--mc-text)' }}>
+                    <span style={{ color: 'var(--mc-text)' }}>•</span> {n.body}
                   </div>
                 ))}
               </div>
@@ -166,7 +166,7 @@ export function BetweenVisits({ patientSessionId, colors }: { patientSessionId: 
               frame: say what is missing rather than letting a sparse view read
               as a quiet patient. */}
           {!data.lifestyle_available && (
-            <div style={{ fontSize: 11.5, lineHeight: 1.5, padding: '10px 12px', borderRadius: 9, background: 'rgba(249,115,22,.08)', border: '1px solid rgba(249,115,22,.25)', color: '#f97316' }}>
+            <div style={{ fontSize: 11.5, lineHeight: 1.5, padding: '10px 12px', borderRadius: 9, background: 'rgba(249,115,22,.08)', border: '1px solid rgba(249,115,22,.25)', color: 'var(--mc-orange)' }}>
               {data.lifestyle_note} A sparse view here means we cannot see the
               gap, not that nothing happened in it.
             </div>

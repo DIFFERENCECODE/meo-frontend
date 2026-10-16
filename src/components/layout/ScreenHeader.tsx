@@ -10,8 +10,8 @@ import { useTheme } from '@/theme/ThemeProvider';
  *
  *   header  padding: 20px 28px 0; flex; align-items:center; justify-content:space-between
  *   title   22px / 700 / -0.01em
- *   sub     13px / #ffffff / margin-top: 3px
- *   chip    12px / 600 / #ffffff on rgba(255,255,255,.07), 1px rgba(255,255,255,.14),
+ *   sub     13px / var(--mc-text) / margin-top: 3px
+ *   chip    12px / 600 / var(--mc-text) on rgba(var(--mc-fg-rgb),.07), 1px rgba(var(--mc-fg-rgb),.14),
  *           radius 999, padding 5px 12px
  *
  * Title and subtitle set their colours explicitly rather than inheriting. The
@@ -25,7 +25,7 @@ export function Chip({ children }: { children: React.ReactNode }) {
     <span
       style={{
         display: 'inline-block', fontSize: 12, fontWeight: 600, color: colors.muted,
-        background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.14)',
+        background: 'rgba(var(--mc-fg-rgb),0.07)', border: '1px solid rgba(var(--mc-fg-rgb),0.14)',
         borderRadius: 999, padding: '5px 12px', whiteSpace: 'nowrap',
       }}
     >

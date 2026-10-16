@@ -171,7 +171,7 @@ export function AppShell({
             <aside
               aria-label={rightPanelLabel}
               className="hidden xl:flex w-[372px] flex-none flex-col overflow-auto border-l"
-              style={{ borderColor: colors.cardBorder, backgroundColor: 'rgba(16,38,38,0.45)' }}
+              style={{ borderColor: colors.cardBorder, backgroundColor: 'var(--mc-rail)' }}
             >
               {rightPanel}
             </aside>

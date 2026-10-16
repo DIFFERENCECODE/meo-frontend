@@ -708,7 +708,7 @@ function MeOAppInner() {
           <button
             onClick={handleLogout}
             className="w-full py-2.5 rounded-[10px] t-lead font-medium"
-            style={{ background: 'rgba(255,255,255,0.07)', border: `1px solid ${colors.cardBorder}`, color: colors.muted }}
+            style={{ background: 'rgba(var(--mc-fg-rgb),0.07)', border: `1px solid ${colors.cardBorder}`, color: colors.muted }}
           >
             Sign Out
           </button>

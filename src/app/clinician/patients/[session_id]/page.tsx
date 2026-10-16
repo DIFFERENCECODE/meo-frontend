@@ -96,7 +96,7 @@ export default function BriefPage() {
               </Card>
             ))}
             {glance && (
-              <Card accent="rgba(164,214,94,0.35)" style={{ padding: '14px 18px' }}>
+              <Card accent="rgba(var(--mc-accent-rgb),0.35)" style={{ padding: '14px 18px' }}>
                 <span id={slug('Suggested focus')} />
                 <Label color={T.lime} style={{ marginBottom: 6 }}>Suggested focus</Label>
                 <Markdown text={glance} />

@@ -140,7 +140,7 @@ export function ProfileMenu() {
           <button
             onClick={handleSignOut}
             className="w-full flex items-center gap-3 px-4 py-2.5 t-lead transition-colors hover:bg-red-500/10"
-            style={{ color: '#ef4444' }}
+            style={{ color: 'var(--mc-red)' }}
           >
             <LogOut className="h-4 w-4 shrink-0" />
             Sign out

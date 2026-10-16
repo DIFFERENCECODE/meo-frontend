@@ -41,12 +41,12 @@ export interface PanelRow {
 }
 
 const TREND: Record<string, { label: string; color: string }> = {
-  improving:    { label: 'improving',   color: '#a4d65e' },
-  steady:       { label: 'steady',      color: '#a4d65e' },
-  worsening:    { label: 'worsening',   color: '#f97316' },
-  slow:         { label: 'slow',        color: '#eab839' },
-  'no trend':   { label: 'no trend',    color: '#ffffff' },
-  'not started':{ label: 'not started', color: '#ef4444' },
+  improving:    { label: 'improving',   color: 'var(--mc-accent)' },
+  steady:       { label: 'steady',      color: 'var(--mc-accent)' },
+  worsening:    { label: 'worsening',   color: 'var(--mc-orange)' },
+  slow:         { label: 'slow',        color: 'var(--mc-amber)' },
+  'no trend':   { label: 'no trend',    color: 'var(--mc-text)' },
+  'not started':{ label: 'not started', color: 'var(--mc-red)' },
 };
 
 export function PanelTiles({ rows, consults }: { rows: PanelRow[]; consults: number }) {
@@ -56,11 +56,11 @@ export function PanelTiles({ rows, consults }: { rows: PanelRow[]; consults: num
   const onTrack = rows.filter((r) => r.urgency_level === 'low' && (r.readings_count ?? 0) > 1).length;
 
   const tiles = [
-    { label: 'Need review', n: needReview, sub: 'against what MeO flags on', color: '#f97316' },
-    { label: 'Stalled', n: stalled, sub: 'no second reading', color: '#eab839' },
-    { label: 'Not syncing', n: notStarted, sub: 'never started a test', color: '#ef4444' },
-    { label: 'On track', n: onTrack, sub: 'trending to target', color: '#a4d65e' },
-    { label: 'Consults this week', n: consults, sub: 'from your bookings', color: '#ffffff' },
+    { label: 'Need review', n: needReview, sub: 'against what MeO flags on', color: 'var(--mc-orange)' },
+    { label: 'Stalled', n: stalled, sub: 'no second reading', color: 'var(--mc-amber)' },
+    { label: 'Not syncing', n: notStarted, sub: 'never started a test', color: 'var(--mc-red)' },
+    { label: 'On track', n: onTrack, sub: 'trending to target', color: 'var(--mc-accent)' },
+    { label: 'Consults this week', n: consults, sub: 'from your bookings', color: 'var(--mc-text)' },
   ];
 
   return (
@@ -69,15 +69,15 @@ export function PanelTiles({ rows, consults }: { rows: PanelRow[]; consults: num
         <div
           key={t.label}
           style={{
-            background: 'rgba(40,70,70,0.82)', border: '1px solid rgba(255,255,255,0.12)',
+            background: 'var(--mc-card)', border: '1px solid rgba(var(--mc-fg-rgb),0.12)',
             borderRadius: 16, flex: 1, padding: '15px 20px', minWidth: 0,
           }}
         >
-          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#ffffff' }}>{t.label}</div>
+          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--mc-text)' }}>{t.label}</div>
           <div style={{ fontSize: 30, fontWeight: 800, letterSpacing: '-0.025em', marginTop: 2, color: t.color }}>
             {t.n}
           </div>
-          <div style={{ fontSize: 11.5, color: '#ffffff' }}>{t.sub}</div>
+          <div style={{ fontSize: 11.5, color: 'var(--mc-text)' }}>{t.sub}</div>
         </div>
       ))}
     </div>
@@ -109,15 +109,15 @@ export function PanelRows({ rows, to = '' }: { rows: PanelRow[]; to?: string }) 
             className="mc-row"
             style={{
               display: 'flex', alignItems: 'center', gap: 14, textDecoration: 'none',
-              padding: '12px 16px', borderRadius: 12, color: '#ffffff',
-              background: attention ? 'rgba(164,214,94,0.1)' : 'rgba(255,255,255,0.03)',
-              border: `1px solid ${attention ? 'rgba(164,214,94,0.35)' : 'rgba(255,255,255,0.08)'}`,
+              padding: '12px 16px', borderRadius: 12, color: 'var(--mc-text)',
+              background: attention ? 'rgba(var(--mc-accent-rgb),0.1)' : 'rgba(var(--mc-fg-rgb),0.03)',
+              border: `1px solid ${attention ? 'rgba(var(--mc-accent-rgb),0.35)' : 'rgba(var(--mc-fg-rgb),0.08)'}`,
             }}
           >
             <div
               style={{
                 width: 34, height: 34, flex: 'none', borderRadius: '50%',
-                background: 'rgba(164,214,94,0.2)', color: '#a4d65e', fontWeight: 700, fontSize: 14,
+                background: 'rgba(var(--mc-accent-rgb),0.2)', color: 'var(--mc-accent)', fontWeight: 700, fontSize: 14,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}
             >
@@ -126,15 +126,15 @@ export function PanelRows({ rows, to = '' }: { rows: PanelRow[]; to?: string }) 
 
             <div style={{ width: 148, flex: 'none' }}>
               <div style={{ fontSize: 13.5, fontWeight: 700 }}>{r.name || 'Unknown'}</div>
-              <div style={{ fontSize: 11, color: '#ffffff' }}>
+              <div style={{ fontSize: 11, color: 'var(--mc-text)' }}>
                 {r.readings_count ?? 0} reading{(r.readings_count ?? 0) === 1 ? '' : 's'} · {r.plan ? 'plan tracked' : 'no plan yet'}
               </div>
             </div>
 
-            <div style={{ width: 140, flex: 'none', fontSize: 12.5, color: '#ffffff' }}>
+            <div style={{ width: 140, flex: 'none', fontSize: 12.5, color: 'var(--mc-text)' }}>
               {r.headline ?? '—'}
               {(r.needs_review?.length ?? 0) > 0 && (
-                <div title={r.needs_review!.join('\n')} style={{ fontSize: 11, color: '#eab839', marginTop: 2 }}>
+                <div title={r.needs_review!.join('\n')} style={{ fontSize: 11, color: 'var(--mc-amber)', marginTop: 2 }}>
                   {r.needs_review!.length} value{r.needs_review!.length === 1 ? '' : 's'} to confirm
                 </div>
               )}
@@ -144,7 +144,7 @@ export function PanelRows({ rows, to = '' }: { rows: PanelRow[]; to?: string }) 
               <span
                 style={{
                   display: 'inline-block', fontSize: 11, fontWeight: 700, color: trend.color,
-                  background: 'rgba(255,255,255,0.06)', border: `1px solid ${trend.color}`,
+                  background: 'rgba(var(--mc-fg-rgb),0.06)', border: `1px solid ${trend.color}`,
                   borderRadius: 999, padding: '3px 10px',
                 }}
               >
@@ -153,13 +153,13 @@ export function PanelRows({ rows, to = '' }: { rows: PanelRow[]; to?: string }) 
             </div>
 
             <div title="Commitments they made with the coach that MeO has not followed up yet"
-              style={{ width: 62, flex: 'none', textAlign: 'center', fontSize: 13, fontWeight: 800, color: flags ? '#f97316' : '#ffffff' }}>
+              style={{ width: 62, flex: 'none', textAlign: 'center', fontSize: 13, fontWeight: 800, color: flags ? 'var(--mc-orange)' : 'var(--mc-text)' }}>
               {flags} open
             </div>
 
-            <div style={{ flex: 1, minWidth: 0, fontSize: 12, color: '#ffffff', textAlign: 'right' }}>{reasonLine(r)}</div>
+            <div style={{ flex: 1, minWidth: 0, fontSize: 12, color: 'var(--mc-text)', textAlign: 'right' }}>{reasonLine(r)}</div>
 
-            <ChevronRight className="h-4 w-4" style={{ color: '#ffffff', flexShrink: 0 }} />
+            <ChevronRight className="h-4 w-4" style={{ color: 'var(--mc-text)', flexShrink: 0 }} />
           </Link>
         );
       })}

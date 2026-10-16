@@ -13,14 +13,14 @@ import {
 
 // ─── Design tokens (exact from design handoff) ────────────────────────────────
 const T = {
-  bg:      '#1a3a3a',
+  bg:      'var(--mc-ground-solid)',
   sidebar: '#163333',
-  card:    'rgba(40,70,70,0.8)',
-  border:  'rgba(255,255,255,0.12)',
-  accent:  '#a4d65e',
+  card:    'var(--mc-card)',
+  border:  'rgba(var(--mc-fg-rgb),0.12)',
+  accent:  'var(--mc-accent)',
   accentInk: '#123030',
-  text:    '#ffffff',
-  muted:   'rgba(255,255,255,0.6)',
+  text:    'var(--mc-text)',
+  muted:   'rgba(var(--mc-fg-rgb),0.6)',
 };
 
 interface Profile { name?: string; email?: string; role?: string }
@@ -130,14 +130,14 @@ function Shell({ pathname, profile, children }: { pathname: string; profile: Pro
         position: 'relative', width: '100%', height: '100vh', minWidth: 1200, overflow: 'hidden',
         display: 'flex', color: K.text, fontFamily: '"Plus Jakarta Sans", system-ui, sans-serif',
         WebkitFontSmoothing: 'antialiased',
-        background: 'linear-gradient(140deg, #1a3a3a 0%, #264545 55%, #2a5555 100%)',
+        background: 'var(--mc-ground)',
       }}
     >
       <PortalStyles />
-      <div aria-hidden style={{ position: 'absolute', inset: 0, pointerEvents: 'none', opacity: 0.55, backgroundImage: 'linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px)', backgroundSize: '72px 72px' }} />
-      <div aria-hidden style={{ position: 'absolute', left: 340, top: -260, width: 1100, height: 1100, borderRadius: '50%', pointerEvents: 'none', background: 'radial-gradient(circle, rgba(164,214,94,0.15) 0%, rgba(164,214,94,0.045) 35%, rgba(164,214,94,0) 65%)' }} />
+      <div aria-hidden style={{ position: 'absolute', inset: 0, pointerEvents: 'none', opacity: 0.55, backgroundImage: 'linear-gradient(rgba(var(--mc-fg-rgb),0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(var(--mc-fg-rgb),0.035) 1px, transparent 1px)', backgroundSize: '72px 72px' }} />
+      <div aria-hidden style={{ position: 'absolute', left: 340, top: -260, width: 1100, height: 1100, borderRadius: '50%', pointerEvents: 'none', background: 'radial-gradient(circle, rgba(var(--mc-accent-rgb),0.15) 0%, rgba(var(--mc-accent-rgb),0.045) 35%, rgba(var(--mc-accent-rgb),0) 65%)' }} />
 
-      <aside style={{ position: 'relative', width: 248, flex: 'none', boxSizing: 'border-box', background: 'rgba(16,38,38,0.72)', borderRight: '1px solid rgba(255,255,255,0.08)', display: 'flex', flexDirection: 'column', padding: '18px 12px 14px' }}>
+      <aside style={{ position: 'relative', width: 248, flex: 'none', boxSizing: 'border-box', background: 'var(--mc-sidebar)', borderRight: '1px solid rgba(var(--mc-fg-rgb),0.08)', display: 'flex', flexDirection: 'column', padding: '18px 12px 14px' }}>
         <Link href="/clinician" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '0 8px 16px', textDecoration: 'none', color: K.text }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/droplet-logo.png" alt="" style={{ width: 28, height: 28, objectFit: 'contain' }} />
@@ -155,7 +155,7 @@ function Shell({ pathname, profile, children }: { pathname: string; profile: Pro
                 style={{
                   display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px', borderRadius: 10,
                   fontSize: 13.5, fontWeight: active ? 700 : 500, textDecoration: 'none',
-                  color: active ? K.lime : K.muted, background: active ? 'rgba(164,214,94,0.12)' : 'transparent',
+                  color: active ? K.lime : K.muted, background: active ? 'rgba(var(--mc-accent-rgb),0.12)' : 'transparent',
                 }}>
                 <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
                   {n.d.split('M').filter(Boolean).map((seg, i) => <path key={i} d={`M${seg}`} />)}
@@ -169,21 +169,21 @@ function Shell({ pathname, profile, children }: { pathname: string; profile: Pro
           })}
         </nav>
 
-        <div style={{ height: 1, background: 'rgba(255,255,255,0.08)', margin: '14px 4px' }} />
+        <div style={{ height: 1, background: 'rgba(var(--mc-fg-rgb),0.08)', margin: '14px 4px' }} />
 
         <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: K.dim, padding: '4px 12px 6px' }}>Your view</div>
         <div style={{ padding: '0 12px', position: 'relative' }}>
           <button className="mc-press" aria-haspopup="listbox" aria-expanded={lensOpen} onClick={() => setLensOpen((o) => !o)}
-            style={{ fontSize: 11, fontWeight: 700, color: K.lime, background: 'rgba(164,214,94,0.12)', border: '1px solid rgba(164,214,94,0.3)', borderRadius: 999, padding: '5px 12px', cursor: 'pointer', fontFamily: 'inherit' }}>
+            style={{ fontSize: 11, fontWeight: 700, color: K.lime, background: 'rgba(var(--mc-accent-rgb),0.12)', border: '1px solid rgba(var(--mc-accent-rgb),0.3)', borderRadius: 999, padding: '5px 12px', cursor: 'pointer', fontFamily: 'inherit' }}>
             {lens.label}
           </button>
           {lensOpen && (
             <div role="listbox" aria-label="Brief lens" className="mc-sheet"
-              style={{ transformOrigin: 'top left', position: 'absolute', zIndex: 5, top: 'calc(100% + 6px)', left: 12, width: 210, background: 'rgba(22,48,48,0.96)', border: `1px solid ${K.chipBorder}`, borderRadius: 12, padding: 6, boxShadow: '0 12px 30px rgba(0,0,0,0.3)' }}>
+              style={{ transformOrigin: 'top left', position: 'absolute', zIndex: 5, top: 'calc(100% + 6px)', left: 12, width: 210, background: 'var(--mc-sheet)', border: `1px solid ${K.chipBorder}`, borderRadius: 12, padding: 6, boxShadow: '0 12px 30px rgba(0,0,0,0.3)' }}>
               {PERSONAS.map((p) => (
                 <button key={p.id} role="option" aria-selected={p.id === persona} className="mc-press"
                   onClick={() => { setPersonaValue(p.id); setLensOpen(false); }}
-                  style={{ display: 'block', width: '100%', textAlign: 'left', background: p.id === persona ? 'rgba(164,214,94,0.12)' : 'transparent', border: 0, borderRadius: 9, padding: '8px 10px', cursor: 'pointer', fontFamily: 'inherit' }}>
+                  style={{ display: 'block', width: '100%', textAlign: 'left', background: p.id === persona ? 'rgba(var(--mc-accent-rgb),0.12)' : 'transparent', border: 0, borderRadius: 9, padding: '8px 10px', cursor: 'pointer', fontFamily: 'inherit' }}>
                   <div style={{ fontSize: 12.5, fontWeight: 700, color: p.id === persona ? K.lime : K.text }}>{p.label}</div>
                   <div style={{ fontSize: 11, color: K.dim, marginTop: 1 }}>{p.blurb}</div>
                 </button>
@@ -199,12 +199,12 @@ function Shell({ pathname, profile, children }: { pathname: string; profile: Pro
 
         <div style={{ flex: 1 }} />
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 2, borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: 10 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 2, borderTop: '1px solid rgba(var(--mc-fg-rgb),0.08)', paddingTop: 10 }}>
           <Link href="/clinician/settings" className="mc-press" aria-current={pathname === '/clinician/settings' ? 'page' : undefined}
             style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px', borderRadius: 10, fontSize: 13.5, textDecoration: 'none',
               fontWeight: pathname === '/clinician/settings' ? 700 : 500,
               color: pathname === '/clinician/settings' ? K.lime : K.text,
-              background: pathname === '/clinician/settings' ? 'rgba(164,214,94,0.12)' : 'transparent' }}>
+              background: pathname === '/clinician/settings' ? 'rgba(var(--mc-accent-rgb),0.12)' : 'transparent' }}>
             <Settings size={17} aria-hidden /> Settings
           </Link>
           <button className="mc-press" onClick={() => { clearIdToken(); window.location.href = getLogoutUrl(); }}
@@ -215,7 +215,7 @@ function Shell({ pathname, profile, children }: { pathname: string; profile: Pro
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 8px 0' }}>
-          <div style={{ width: 30, height: 30, flex: 'none', borderRadius: '50%', background: 'rgba(164,214,94,0.2)', color: K.lime, fontWeight: 700, fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ width: 30, height: 30, flex: 'none', borderRadius: '50%', background: 'rgba(var(--mc-accent-rgb),0.2)', color: K.lime, fontWeight: 700, fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             {(name.replace(/^(dr|prof|mr|mrs|ms|mx)\.?\s+/i, '') || name).slice(0, 1).toUpperCase()}
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>

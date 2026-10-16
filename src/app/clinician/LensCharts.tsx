@@ -17,10 +17,10 @@ import React from 'react';
 import { Card, Label, T, useAuthed } from './ui';
 import type { Persona } from './persona';
 
-const GOOD = '#a4d65e';
-const SHORT = '#f97316';
-const GRID = 'rgba(255,255,255,0.12)';
-const INK = '#ffffff';
+const GOOD = 'var(--mc-accent)';
+const SHORT = 'var(--mc-orange)';
+const GRID = 'rgba(var(--mc-fg-rgb),0.12)';
+const INK = 'var(--mc-text)';
 
 interface DayN { date: string; dinner: string | null; kcal: number | null; protein: number | null }
 interface DayA { date: string; steps: number | null; sleep_hours: number | null }
@@ -117,7 +117,7 @@ export function DinnerTimes({ daily, cutoff }: { daily: DayN[]; cutoff: string |
               <rect x={x(i) - 12} y={TOP} width={24} height={H - TOP - B} fill="transparent" />
               {late
                 ? <circle cx={x(i)} cy={y(toMin(t))} r={5} fill="none" stroke={SHORT} strokeWidth={2.5} />
-                : <circle cx={x(i)} cy={y(toMin(t))} r={5.5} fill={GOOD} stroke="#284646" strokeWidth={2} />}
+                : <circle cx={x(i)} cy={y(toMin(t))} r={5.5} fill={GOOD} stroke="var(--mc-card-solid)" strokeWidth={2} />}
             </g>
           );
         })}
@@ -194,7 +194,7 @@ export function ScoreLine({ points }: { points: { date: string; value: number }[
         {points.map((p, i) => (
           <g key={p.date + i}>
             <title>{`${dayLabel(p.date)}: ${p.value.toFixed(1)}`}</title>
-            <circle cx={x(i)} cy={y(p.value)} r={i === points.length - 1 ? 6 : 4.5} fill={GOOD} stroke="#284646" strokeWidth={2} />
+            <circle cx={x(i)} cy={y(p.value)} r={i === points.length - 1 ? 6 : 4.5} fill={GOOD} stroke="var(--mc-card-solid)" strokeWidth={2} />
           </g>
         ))}
       </Frame>

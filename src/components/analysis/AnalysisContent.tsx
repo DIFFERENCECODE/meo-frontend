@@ -58,7 +58,7 @@ const defaultKraftData: GraphDataPoint[] = [
 
 // Risk Score Gauge Component
 function RiskScoreGauge({ score }: { score: number }) {
-  const color = score >= 70 ? '#ef4444' : score >= 50 ? '#f97316' : '#22c55e';
+  const color = score >= 70 ? 'var(--mc-red)' : score >= 50 ? 'var(--mc-orange)' : '#22c55e';
 
   const option: EChartsOption = {
     series: [
@@ -78,7 +78,7 @@ function RiskScoreGauge({ score }: { score: number }) {
         axisLine: {
           lineStyle: {
             width: 8,
-            color: [[1, 'rgba(255, 255, 255, 0.1)']],
+            color: [[1, 'rgba(var(--mc-fg-rgb), 0.1)']],
           },
         },
         axisTick: { show: false },
@@ -421,8 +421,8 @@ export function AnalysisContent({ graphData: graphDataProp }: AnalysisContentPro
                 type: 'category',
                 data: data.map((d) => d.time),
                 boundaryGap: false,
-                axisLine: { lineStyle: { color: '#ffffff' } },
-                axisLabel: { color: '#ffffff', fontSize: 12 },
+                axisLine: { lineStyle: { color: 'var(--mc-text)' } },
+                axisLabel: { color: 'var(--mc-text)', fontSize: 12 },
               },
               yAxis: [
                 {
@@ -434,7 +434,7 @@ export function AnalysisContent({ graphData: graphDataProp }: AnalysisContentPro
                   position: 'left',
                   axisLine: { show: true, lineStyle: { color: '#3b82f6' } },
                   axisLabel: { color: '#3b82f6', fontSize: 12 },
-                  splitLine: { lineStyle: { color: '#ffffff', opacity: 0.3, type: 'dashed' } },
+                  splitLine: { lineStyle: { color: 'var(--mc-text)', opacity: 0.3, type: 'dashed' } },
                 },
                 {
                   type: 'value',
@@ -442,18 +442,18 @@ export function AnalysisContent({ graphData: graphDataProp }: AnalysisContentPro
                   min: 0,
                   max: hasRealData ? Math.ceil(Math.max(peakInsulin * 1.3, 30)) : 150,
                   position: 'right',
-                  axisLine: { show: true, lineStyle: { color: '#f97316' } },
-                  axisLabel: { color: '#f97316', fontSize: 12 },
+                  axisLine: { show: true, lineStyle: { color: 'var(--mc-orange)' } },
+                  axisLabel: { color: 'var(--mc-orange)', fontSize: 12 },
                   splitLine: { show: false },
                 },
               ],
               tooltip: {
                 trigger: 'axis',
-                backgroundColor: '#ffffff',
-                borderColor: '#ffffff',
+                backgroundColor: 'var(--mc-text)',
+                borderColor: 'var(--mc-text)',
                 textStyle: { color: '#fff' },
               },
-              legend: { data: ['glucose', 'insulin'], bottom: 10, textStyle: { color: '#ffffff' }, icon: 'circle' },
+              legend: { data: ['glucose', 'insulin'], bottom: 10, textStyle: { color: 'var(--mc-text)' }, icon: 'circle' },
               dataset: { source: data },
               series: [
                 {
@@ -475,8 +475,8 @@ export function AnalysisContent({ graphData: graphDataProp }: AnalysisContentPro
                   encode: { x: 'time', y: 'insulin' },
                   smooth: 0.3,
                   showSymbol: true,
-                  lineStyle: { color: '#f97316', width: 3 },
-                  itemStyle: { color: '#f97316' },
+                  lineStyle: { color: 'var(--mc-orange)', width: 3 },
+                  itemStyle: { color: 'var(--mc-orange)' },
                   symbol: 'circle',
                   symbolSize: 10,
                 },
@@ -491,7 +491,7 @@ export function AnalysisContent({ graphData: graphDataProp }: AnalysisContentPro
         <div className="grid grid-cols-3 gap-4 mt-6">
           {[
             { value: String(peakGlucose), label: 'Peak Glucose', color: '#3b82f6' },
-            { value: String(peakInsulin), label: 'Peak Insulin', color: '#f97316' },
+            { value: String(peakInsulin), label: 'Peak Insulin', color: 'var(--mc-orange)' },
             { value: recoveryTime, label: 'Recovery Time', color: theme.colors.primary },
           ].map((metric, i) => (
             <div

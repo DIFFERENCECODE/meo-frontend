@@ -47,15 +47,15 @@ export interface PlanProgress {
  * not logging something is not the same as not doing it.
  */
 export const PROGRESS_META: Record<string, { label: string; color: string }> = {
-  on_track: { label: 'On track', color: '#a4d65e' },
-  partial: { label: 'Partly there', color: '#eab839' },
-  off_track: { label: 'Behind', color: '#f97316' },
-  no_data: { label: 'Nothing recorded yet', color: '#ffffff' },
-  tracked: { label: 'Counting', color: '#7cc5d8' },
-  too_early: { label: 'Too early to tell', color: '#ffffff' },
-  not_measurable: { label: 'Not checked automatically', color: '#ffffff' },
-  not_shared: { label: 'Data not shared', color: '#ffffff' },
-  unavailable: { label: "Couldn't check", color: '#ffffff' },
+  on_track: { label: 'On track', color: 'var(--mc-accent)' },
+  partial: { label: 'Partly there', color: 'var(--mc-amber)' },
+  off_track: { label: 'Behind', color: 'var(--mc-orange)' },
+  no_data: { label: 'Nothing recorded yet', color: 'var(--mc-text)' },
+  tracked: { label: 'Counting', color: 'var(--mc-blue)' },
+  too_early: { label: 'Too early to tell', color: 'var(--mc-text)' },
+  not_measurable: { label: 'Not checked automatically', color: 'var(--mc-text)' },
+  not_shared: { label: 'Data not shared', color: 'var(--mc-text)' },
+  unavailable: { label: "Couldn't check", color: 'var(--mc-text)' },
 };
 
 export function ProgressBadge({ progress }: { progress?: PlanProgress | null }) {
@@ -68,7 +68,7 @@ export function ProgressBadge({ progress }: { progress?: PlanProgress | null }) 
         style={{
           fontSize: 11, fontWeight: 700, color: meta.color, whiteSpace: 'nowrap',
           border: `1px solid ${meta.color}`, borderRadius: 999, padding: '2px 9px',
-          background: 'rgba(255,255,255,0.04)',
+          background: 'rgba(var(--mc-fg-rgb),0.04)',
         }}
       >
         {meta.label}
@@ -121,7 +121,7 @@ export function PlanLine({ note }: { note: PractitionerNote }) {
       <div className="flex items-start gap-3">
         <div
           className="h-9 w-9 shrink-0 rounded-[10px] flex items-center justify-center"
-          style={{ backgroundColor: 'rgba(164,214,94,0.12)' }}
+          style={{ backgroundColor: 'rgba(var(--mc-accent-rgb),0.12)' }}
         >
           <Icon className="h-4 w-4" style={{ color: unchecked ? colors.muted : colors.primary }} />
         </div>

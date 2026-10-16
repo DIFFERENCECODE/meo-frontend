@@ -57,7 +57,9 @@ interface ThemeProviderProps {
 
 // localStorage keys for user preferences
 const STORAGE_KEYS = {
-  colorMode: 'meo-color-mode',
+  // v2: before 2026-10-17 'light' meant the teal look; a new key keeps anyone
+  // who saved that from landing on the new white theme by surprise.
+  colorMode: 'meo-color-mode-v2',
   vendor: 'meo-vendor',
   mode: 'meo-mode',
 } as const;
@@ -72,7 +74,8 @@ export function ThemeProvider({
   children,
   defaultVendor = 'meterbolic',
   defaultMode = 'patient',
-  defaultColorMode = 'light',
+  // Dark (the storyboard teal) is the default; light is white with green.
+  defaultColorMode = 'dark',
 }: ThemeProviderProps) {
   // Initialize with defaults (SSR-safe), then hydrate from localStorage in useEffect
   const [vendor, setVendorState] = useState<Vendor>(defaultVendor);

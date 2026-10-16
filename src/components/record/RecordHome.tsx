@@ -298,7 +298,7 @@ export function RecordHome({ record, state, onRetry }: RecordHomeProps) {
                 className="record-change-row"
                 style={{
                   gap: 14, padding: '10px 0',
-                  borderBottom: i === ranked.length - 1 ? undefined : '1px solid rgba(255,255,255,0.08)',
+                  borderBottom: i === ranked.length - 1 ? undefined : '1px solid rgba(var(--mc-fg-rgb),0.08)',
                 }}
               >
                 <div className="record-change-label" style={{ fontSize: 13.5, color: colors.muted }}>{meta.label}</div>
@@ -308,7 +308,7 @@ export function RecordHome({ record, state, onRetry }: RecordHomeProps) {
                 <div className="record-change-direction" style={{ width: 24, textAlign: 'center', fontSize: 13, fontWeight: 800, color: tone }}>
                   {d.direction === 'down' ? '▼' : d.direction === 'up' ? '▲' : '—'}
                 </div>
-                <div className="record-change-bar" aria-hidden="true" style={{ width: 96, height: 6, borderRadius: 3, background: 'rgba(255,255,255,0.1)' }}>
+                <div className="record-change-bar" aria-hidden="true" style={{ width: 96, height: 6, borderRadius: 3, background: 'rgba(var(--mc-fg-rgb),0.1)' }}>
                   <div style={{ width: `${flat ? 0 : share}%`, height: 6, borderRadius: 3, background: tone }} />
                 </div>
                 <div className="record-change-note" style={{ width: 104, fontSize: 11.5, color: colors.mutedDim, textAlign: 'right' }}>
@@ -326,7 +326,7 @@ export function RecordHome({ record, state, onRetry }: RecordHomeProps) {
           {/* "Around it" — exact row, honest contents. */}
           <div
             className="flex flex-wrap items-center"
-            style={{ gap: 12, marginTop: 14, paddingTop: 14, borderTop: '1px solid rgba(255,255,255,0.1)' }}
+            style={{ gap: 12, marginTop: 14, paddingTop: 14, borderTop: '1px solid rgba(var(--mc-fg-rgb),0.1)' }}
           >
             <div className="t-label" style={{ color: colors.mutedDim }}>Around it</div>
             <div style={{ fontSize: 12.5, color: colors.muted }}>
@@ -354,7 +354,7 @@ export function RecordHome({ record, state, onRetry }: RecordHomeProps) {
             className="flex items-center no-underline"
             style={{ background: colors.card, border: `1px solid ${colors.cardBorder}`, borderRadius: 16, flex: 1, padding: '15px 18px', gap: 12, color: colors.foreground }}
           >
-            <div className="flex items-center justify-center" style={{ width: 36, height: 36, flex: 'none', borderRadius: 11, background: 'rgba(164,214,94,0.15)' }}>
+            <div className="flex items-center justify-center" style={{ width: 36, height: 36, flex: 'none', borderRadius: 11, background: 'rgba(var(--mc-accent-rgb),0.15)' }}>
               <Check className="h-4 w-4" style={{ color: colors.primary }} />
             </div>
             <div className="flex-1 min-w-0">
@@ -369,7 +369,7 @@ export function RecordHome({ record, state, onRetry }: RecordHomeProps) {
             className="flex items-center no-underline"
             style={{ background: colors.card, border: `1px solid ${colors.cardBorder}`, borderRadius: 16, flex: 1, padding: '15px 18px', gap: 12, color: colors.foreground }}
           >
-            <div className="flex items-center justify-center" style={{ width: 36, height: 36, flex: 'none', borderRadius: 11, background: 'rgba(164,214,94,0.15)' }}>
+            <div className="flex items-center justify-center" style={{ width: 36, height: 36, flex: 'none', borderRadius: 11, background: 'rgba(var(--mc-accent-rgb),0.15)' }}>
               <Clock className="h-4 w-4" style={{ color: colors.primary }} />
             </div>
             <div className="flex-1 min-w-0">
@@ -473,7 +473,7 @@ export function ThisReadingPanel({ record }: { record: RecordResponse }) {
               className="rounded-[10px] p-3"
               title={doubtful}
               style={{
-                backgroundColor: 'rgba(255,255,255,0.05)',
+                backgroundColor: 'rgba(var(--mc-fg-rgb),0.05)',
                 border: `1px solid ${doubtful ? colors.warning : colors.cardBorder}`,
               }}
             >
@@ -508,7 +508,7 @@ export function ThisReadingPanel({ record }: { record: RecordResponse }) {
         <div
           className="rounded-[10px] p-3"
           style={{
-            backgroundColor: 'rgba(255,255,255,0.05)',
+            backgroundColor: 'rgba(var(--mc-fg-rgb),0.05)',
             border: `1px solid ${colors.warning}`,
           }}
         >

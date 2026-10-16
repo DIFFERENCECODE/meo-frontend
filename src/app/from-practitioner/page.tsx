@@ -62,7 +62,7 @@ function NotesInner() {
         title={author ? `From ${author}` : 'From your practitioner'}
         subtitle={author ? `Your practitioner${since ? ` since ${since}` : ''}` : "What they've written between appointments, in their words"}
         right={author ? (
-          <div className="flex items-center justify-center" style={{ width: 34, height: 34, borderRadius: '50%', background: 'rgba(164,214,94,0.2)', color: colors.primary, fontWeight: 700 }}>
+          <div className="flex items-center justify-center" style={{ width: 34, height: 34, borderRadius: '50%', background: 'rgba(var(--mc-accent-rgb),0.2)', color: colors.primary, fontWeight: 700 }}>
             {initial}
           </div>
         ) : undefined}
@@ -85,7 +85,7 @@ function NotesInner() {
       {state === 'ready' && feed.length > 0 && (
         <section style={{ background: colors.card, border: `1px solid ${colors.cardBorder}`, borderRadius: 16, padding: '18px 24px' }}>
           <div className="flex items-center" style={{ gap: 12 }}>
-            <div className="flex items-center justify-center" style={{ width: 36, height: 36, flex: 'none', borderRadius: '50%', background: 'rgba(164,214,94,0.2)', color: colors.primary, fontWeight: 700 }}>
+            <div className="flex items-center justify-center" style={{ width: 36, height: 36, flex: 'none', borderRadius: '50%', background: 'rgba(var(--mc-accent-rgb),0.2)', color: colors.primary, fontWeight: 700 }}>
               {initial}
             </div>
             <div className="min-w-0">
@@ -93,7 +93,7 @@ function NotesInner() {
               <div style={{ fontSize: 11.5, color: colors.mutedDim }}>{fmtNoteDate(feed[0].created_at)} · {feed.length} note{feed.length === 1 ? '' : 's'} on file</div>
             </div>
           </div>
-          <p style={{ fontSize: 15, lineHeight: 1.6, color: '#ffffff', margin: '14px 0 0', padding: '14px 20px', borderRadius: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', whiteSpace: 'pre-wrap' }}>
+          <p style={{ fontSize: 15, lineHeight: 1.6, color: 'var(--mc-text)', margin: '14px 0 0', padding: '14px 20px', borderRadius: 12, background: 'rgba(var(--mc-fg-rgb),0.06)', border: '1px solid rgba(var(--mc-fg-rgb),0.1)', whiteSpace: 'pre-wrap' }}>
             &ldquo;{feed[0].body}&rdquo;
           </p>
           <div className="flex flex-wrap" style={{ gap: 10, marginTop: 14 }}>
@@ -102,7 +102,7 @@ function NotesInner() {
               disabled={busy}
               onClick={() => ask(`Help me prepare questions for my next consultation with ${author || 'my practitioner'}`)}
               className="meo-press"
-              style={{ fontSize: 14, fontWeight: 600, color: '#ffffff', background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.14)', borderRadius: 12, padding: '10px 18px', cursor: 'pointer' }}
+              style={{ fontSize: 14, fontWeight: 600, color: 'var(--mc-text)', background: 'rgba(var(--mc-fg-rgb),0.07)', border: '1px solid rgba(var(--mc-fg-rgb),0.14)', borderRadius: 12, padding: '10px 18px', cursor: 'pointer' }}
             >
               Ask MeO to prepare questions
             </button>
@@ -118,7 +118,7 @@ function NotesInner() {
           </div>
           <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
             {tiles.map((m) => (
-              <div key={m.k} style={{ borderRadius: 12, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', padding: '12px 16px' }}>
+              <div key={m.k} style={{ borderRadius: 12, background: 'rgba(var(--mc-fg-rgb),0.05)', border: '1px solid rgba(var(--mc-fg-rgb),0.1)', padding: '12px 16px' }}>
                 <div className="truncate" style={{ fontSize: 11.5, color: colors.mutedDim }}>{m.k}</div>
                 <div style={{ fontSize: 26, fontWeight: 800, letterSpacing: '-0.025em', marginTop: 2 }}>{m.v}</div>
                 <div className="truncate" style={{ fontSize: 11.5, color: colors.mutedDim }}>{m.s}</div>
@@ -126,7 +126,7 @@ function NotesInner() {
             ))}
           </div>
           <p style={{ fontSize: 12.5, color: colors.muted, margin: '12px 0 0' }}>
-            MeO summarises. <b style={{ color: '#ffffff' }}>{first} decides.</b>
+            MeO summarises. <b style={{ color: 'var(--mc-text)' }}>{first} decides.</b>
           </p>
         </section>
       )}

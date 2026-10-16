@@ -767,3 +767,57 @@ html {
 .meo-row:hover { background: rgba(255,255,255,0.05); }
 :where(.meo-app) :focus-visible { outline: 2px solid #a4d65e; outline-offset: 2px; }
 @media (prefers-reduced-motion: reduce) { .meo-press:not(:disabled):active { transform: none; } }
+
+/* ── MeO colour modes (2026-10-17) ─────────────────────────────────────────
+   Dark is the storyboard's teal and the default. Light is white with green.
+   Components use these variables instead of literals, and every translucent
+   white overlay is written rgba(var(--mc-fg-rgb), a): white on teal in dark,
+   deep green on white in light, so borders, chips and dividers invert by
+   themselves. The light accents are deeper than the dark ones because the
+   bright lime, amber and orange are unreadable as text on white. */
+:root {
+  --mc-fg-rgb: 23, 58, 46;
+  --mc-text: rgb(var(--mc-fg-rgb));
+  --mc-ground: linear-gradient(140deg, #f8fbf4 0%, #eff6e8 55%, #e7f1dd 100%);
+  --mc-ground-solid: #f4f9ef;
+  --mc-card: #ffffff;
+  --mc-card-solid: #ffffff;
+  --mc-card-soft: rgba(255, 255, 255, 0.7);
+  --mc-sidebar: #edf5e5;
+  --mc-rail: #f1f7eb;
+  --mc-sheet: rgba(255, 255, 255, 0.96);
+  --mc-accent: #3f7d1c;
+  --mc-accent-rgb: 63, 125, 28;
+  --mc-on-accent: #ffffff;
+  --mc-amber: #a16207;
+  --mc-orange: #c2410c;
+  --mc-blue: #0e7490;
+  --mc-red: #b91c1c;
+  --mc-input: #ffffff;
+  --mc-input-soft: #ffffff;
+  --background: #f4f9ef;
+  --foreground: #173a2e;
+}
+.dark {
+  --mc-fg-rgb: 255, 255, 255;
+  --mc-text: #ffffff;
+  --mc-ground: linear-gradient(140deg, #1a3a3a 0%, #264545 55%, #2a5555 100%);
+  --mc-ground-solid: #1a3a3a;
+  --mc-card: rgba(40, 70, 70, 0.82);
+  --mc-card-solid: #284646;
+  --mc-card-soft: rgba(40, 70, 70, 0.5);
+  --mc-sidebar: rgba(16, 38, 38, 0.72);
+  --mc-rail: rgba(16, 38, 38, 0.45);
+  --mc-sheet: rgba(22, 48, 48, 0.9);
+  --mc-accent: #a4d65e;
+  --mc-accent-rgb: 164, 214, 94;
+  --mc-on-accent: #1a3a3a;
+  --mc-amber: #eab839;
+  --mc-orange: #f97316;
+  --mc-blue: #7cc5d8;
+  --mc-red: #ef4444;
+  --mc-input: rgba(0, 0, 0, 0.26);
+  --mc-input-soft: rgba(0, 0, 0, 0.18);
+  --background: #2C5858;
+  --foreground: #ffffff;
+}

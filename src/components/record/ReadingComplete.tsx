@@ -27,7 +27,7 @@ function Arrow({ direction, improved }: { direction: string; improved: boolean |
   // Direction is geometry, colour is judgement. HDL falling is a down arrow and
   // a bad thing; triglycerides falling is a down arrow and a good one, so the
   // two are deliberately separated rather than inferred from each other.
-  const tone = improved === null ? colors.muted : improved ? colors.primary : '#f97316';
+  const tone = improved === null ? colors.muted : improved ? colors.primary : 'var(--mc-orange)';
   const Icon = direction === 'up' ? ArrowUp : direction === 'down' ? ArrowDown : Minus;
   return <Icon className="h-4 w-4 shrink-0" style={{ color: tone }} />;
 }
@@ -147,7 +147,7 @@ export function ReadingComplete({ record }: { record: RecordResponse }) {
             {basDelta != null && (
               <span
                 className="t-lead font-medium pb-2"
-                style={{ color: basDelta < 0 ? colors.primary : '#f97316' }}
+                style={{ color: basDelta < 0 ? colors.primary : 'var(--mc-orange)' }}
               >
                 {basDelta < 0 ? '▼' : '▲'} {Math.abs(basDelta).toFixed(1)}
               </span>
@@ -155,8 +155,8 @@ export function ReadingComplete({ record }: { record: RecordResponse }) {
           </div>
         ) : (
           <div className="flex gap-2 items-start">
-            <Lock className="h-4 w-4 mt-0.5 shrink-0" style={{ color: '#f97316' }} />
-            <p className="t-lead" style={{ color: '#f97316' }}>
+            <Lock className="h-4 w-4 mt-0.5 shrink-0" style={{ color: 'var(--mc-orange)' }} />
+            <p className="t-lead" style={{ color: 'var(--mc-orange)' }}>
               This reading has no score. A score needs a full set of plausible
               fasting values — the engine returns nothing rather than a number it
               can&apos;t stand behind.

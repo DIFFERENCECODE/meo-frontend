@@ -42,7 +42,7 @@ export function LensSwitcher({
             fontWeight: 700,
             letterSpacing: '.14em',
             textTransform: 'uppercase',
-            color: '#ffffff',
+            color: 'var(--mc-text)',
             marginBottom: 8,
           }}
         >
@@ -66,9 +66,9 @@ export function LensSwitcher({
                 cursor: 'pointer',
                 fontFamily: 'inherit',
                 whiteSpace: 'nowrap',
-                color: active ? '#a4d65e' : 'rgba(255,255,255,.65)',
-                background: active ? 'rgba(164,214,94,.12)' : 'rgba(255,255,255,.06)',
-                border: `1px solid ${active ? 'rgba(164,214,94,.45)' : 'rgba(255,255,255,.14)'}`,
+                color: active ? 'var(--mc-accent)' : 'rgba(var(--mc-fg-rgb),.65)',
+                background: active ? 'rgba(var(--mc-accent-rgb),.12)' : 'rgba(var(--mc-fg-rgb),.06)',
+                border: `1px solid ${active ? 'rgba(var(--mc-accent-rgb),.45)' : 'rgba(var(--mc-fg-rgb),.14)'}`,
               }}
             >
               {p.label}
@@ -77,7 +77,7 @@ export function LensSwitcher({
         })}
       </div>
       {!compact && (
-        <div style={{ fontSize: 11.5, color: '#ffffff', marginTop: 8, lineHeight: 1.5 }}>
+        <div style={{ fontSize: 11.5, color: 'var(--mc-text)', marginTop: 8, lineHeight: 1.5 }}>
           Changes what leads and how it reads. Never changes a value, a threshold,
           or whether a flag is raised.
         </div>

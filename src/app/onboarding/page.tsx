@@ -68,17 +68,17 @@ const RESULTS_SHARING = [
 
 // ── Shared input helpers ───────────────────────────────────────────────────
 const iBase = "w-full rounded-[9px] border px-3.5 py-2.5 t-lead outline-none bg-transparent transition-colors";
-const iS    = { borderColor: 'rgba(255,255,255,0.14)', color: '#ffffff', fontSize: '16px' };
-const iF    = (e: React.FocusEvent<any>) => (e.currentTarget.style.borderColor = '#a4d65e');
-const iB    = (e: React.FocusEvent<any>) => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.14)');
+const iS    = { borderColor: 'rgba(var(--mc-fg-rgb),0.14)', color: 'var(--mc-text)', fontSize: '16px' };
+const iF    = (e: React.FocusEvent<any>) => (e.currentTarget.style.borderColor = 'var(--mc-accent)');
+const iB    = (e: React.FocusEvent<any>) => (e.currentTarget.style.borderColor = 'rgba(var(--mc-fg-rgb),0.14)');
 
 function Lbl({ text, required, hint }: { text: string; required?: boolean; hint?: string }) {
   return (
     <div className="mb-1.5">
-      <label className="t-lead font-medium" style={{ color: '#ffffff' }}>
-        {text}{required && <span style={{ color: '#a4d65e' }}> *</span>}
+      <label className="t-lead font-medium" style={{ color: 'var(--mc-text)' }}>
+        {text}{required && <span style={{ color: 'var(--mc-accent)' }}> *</span>}
       </label>
-      {hint && <p className="t-body2 mt-0.5" style={{ color: '#ffffff' }}>{hint}</p>}
+      {hint && <p className="t-body2 mt-0.5" style={{ color: 'var(--mc-text)' }}>{hint}</p>}
     </div>
   );
 }
@@ -96,7 +96,7 @@ function Sel({ value, onChange, options, placeholder }: {
 }) {
   return (
     <select value={value} onChange={e => onChange(e.target.value)} onFocus={iF} onBlur={iB}
-      className={iBase + ' appearance-none'} style={{ ...iS, color: value ? '#ffffff' : '#ffffff' }}>
+      className={iBase + ' appearance-none'} style={{ ...iS, color: value ? 'var(--mc-text)' : 'var(--mc-text)' }}>
       {placeholder && <option value="">{placeholder}</option>}
       {options.map(o => <option key={o} value={o}>{o}</option>)}
     </select>
@@ -124,7 +124,7 @@ function Chips({ values, onChange, options, single }: {
         return (
           <button key={o} type="button" onClick={() => toggle(o)}
             className="px-3 py-1.5 rounded-full t-body2 font-medium transition-all"
-            style={{ background: on ? 'rgba(164,214,94,0.15)' : 'rgba(255,255,255,0.04)', border: `1px solid ${on ? '#a4d65e' : 'rgba(255,255,255,0.14)'}`, color: on ? '#1a3a3a' : '#ffffff' }}>
+            style={{ background: on ? 'rgba(var(--mc-accent-rgb),0.15)' : 'rgba(var(--mc-fg-rgb),0.04)', border: `1px solid ${on ? 'var(--mc-accent)' : 'rgba(var(--mc-fg-rgb),0.14)'}`, color: on ? 'var(--mc-on-accent)' : 'var(--mc-text)' }}>
             {on && <Check className="inline h-3 w-3 mr-1" />}{o}
           </button>
         );
@@ -142,12 +142,12 @@ function Rating({ value, onChange, low = 'Not interested', high = 'Very interest
         {[1,2,3,4,5].map(n => (
           <button key={n} type="button" onClick={() => onChange(n)}
             className="flex-1 h-10 rounded-[9px] t-lead font-semibold transition-all"
-            style={{ background: value === n ? '#1a3a3a' : 'rgba(255,255,255,0.04)', border: `1px solid ${value === n ? '#1a3a3a' : 'rgba(255,255,255,0.14)'}`, color: value === n ? '#fff' : '#ffffff' }}>
+            style={{ background: value === n ? '#1a3a3a' : 'rgba(var(--mc-fg-rgb),0.04)', border: `1px solid ${value === n ? '#1a3a3a' : 'rgba(var(--mc-fg-rgb),0.14)'}`, color: value === n ? '#fff' : 'var(--mc-text)' }}>
             {n}
           </button>
         ))}
       </div>
-      <div className="flex justify-between t-body2" style={{ color: '#ffffff' }}>
+      <div className="flex justify-between t-body2" style={{ color: 'var(--mc-text)' }}>
         <span>{low}</span><span>{high}</span>
       </div>
     </div>
@@ -159,9 +159,9 @@ function AppPreview({ name }: { name: string }) {
   const first = name.trim().split(' ')[0] || '';
   return (
     <div className="hidden lg:flex flex-1 items-center justify-center p-14 xl:p-20" style={{ background: '#f5f4f1' }}>
-      <div className="w-full max-w-xs rounded-2xl overflow-hidden shadow-2xl border" style={{ background: '#1a3a3a', borderColor: 'rgba(255,255,255,0.08)' }}>
+      <div className="w-full max-w-xs rounded-2xl overflow-hidden shadow-2xl border" style={{ background: 'var(--mc-ground-solid)', borderColor: 'rgba(var(--mc-fg-rgb),0.08)' }}>
         {/* Window bar */}
-        <div className="flex items-center gap-1.5 px-4 py-3" style={{ background: '#0e2020', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+        <div className="flex items-center gap-1.5 px-4 py-3" style={{ background: '#0e2020', borderBottom: '1px solid rgba(var(--mc-fg-rgb),0.07)' }}>
           <div className="h-2.5 w-2.5 rounded-full" style={{ background: '#ff5f57' }} />
           <div className="h-2.5 w-2.5 rounded-full" style={{ background: '#febc2e' }} />
           <div className="h-2.5 w-2.5 rounded-full" style={{ background: '#28c840' }} />
@@ -169,34 +169,34 @@ function AppPreview({ name }: { name: string }) {
         {/* Chat area */}
         <div className="p-5 space-y-3">
           <div className="flex items-start gap-2.5">
-            <div className="h-7 w-7 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: '#a4d65e' }}>
-              <span className="t-body2 font-bold" style={{ color: '#1a3a3a' }}>M</span>
+            <div className="h-7 w-7 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: 'var(--mc-accent)' }}>
+              <span className="t-body2 font-bold" style={{ color: 'var(--mc-on-accent)' }}>M</span>
             </div>
-            <div className="rounded-2xl rounded-tl-none px-3.5 py-2.5 t-lead max-w-[80%]" style={{ background: 'rgba(164,214,94,0.12)', color: '#e8f5e8' }}>
+            <div className="rounded-2xl rounded-tl-none px-3.5 py-2.5 t-lead max-w-[80%]" style={{ background: 'rgba(var(--mc-accent-rgb),0.12)', color: '#e8f5e8' }}>
               {first ? `Hello, ${first}! 👋` : 'Hello there! 👋'}
             </div>
           </div>
           <div className="flex items-start gap-2.5">
-            <div className="h-7 w-7 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: '#a4d65e' }}>
-              <span className="t-body2 font-bold" style={{ color: '#1a3a3a' }}>M</span>
+            <div className="h-7 w-7 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: 'var(--mc-accent)' }}>
+              <span className="t-body2 font-bold" style={{ color: 'var(--mc-on-accent)' }}>M</span>
             </div>
-            <div className="rounded-2xl rounded-tl-none px-3.5 py-2.5 t-lead max-w-[80%]" style={{ background: 'rgba(164,214,94,0.12)', color: '#e8f5e8' }}>
+            <div className="rounded-2xl rounded-tl-none px-3.5 py-2.5 t-lead max-w-[80%]" style={{ background: 'rgba(var(--mc-accent-rgb),0.12)', color: '#e8f5e8' }}>
               Welcome to Meterbolic. I'm MeO, your metabolic health AI.
             </div>
           </div>
           <div className="flex justify-end">
-            <div className="rounded-2xl rounded-tr-none px-3.5 py-2.5 t-lead" style={{ background: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.7)' }}>
+            <div className="rounded-2xl rounded-tr-none px-3.5 py-2.5 t-lead" style={{ background: 'rgba(var(--mc-fg-rgb),0.1)', color: 'rgba(var(--mc-fg-rgb),0.7)' }}>
               Tell me about my metabolic health…
             </div>
           </div>
           {/* Typing indicator */}
           <div className="flex items-start gap-2.5">
-            <div className="h-7 w-7 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: '#a4d65e' }}>
-              <span className="t-body2 font-bold" style={{ color: '#1a3a3a' }}>M</span>
+            <div className="h-7 w-7 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: 'var(--mc-accent)' }}>
+              <span className="t-body2 font-bold" style={{ color: 'var(--mc-on-accent)' }}>M</span>
             </div>
-            <div className="rounded-2xl rounded-tl-none px-4 py-3 flex gap-1 items-center" style={{ background: 'rgba(164,214,94,0.12)' }}>
+            <div className="rounded-2xl rounded-tl-none px-4 py-3 flex gap-1 items-center" style={{ background: 'rgba(var(--mc-accent-rgb),0.12)' }}>
               {[0,1,2].map(i => (
-                <div key={i} className="h-1.5 w-1.5 rounded-full" style={{ background: '#a4d65e', opacity: 0.6 + i * 0.2 }} />
+                <div key={i} className="h-1.5 w-1.5 rounded-full" style={{ background: 'var(--mc-accent)', opacity: 0.6 + i * 0.2 }} />
               ))}
             </div>
           </div>
@@ -282,8 +282,8 @@ export default function OnboardingPage() {
   return (
     <div className="min-h-screen flex flex-col">
       {/* Progress bar */}
-      <div className="h-[3px] w-full flex-shrink-0" style={{ background: 'rgba(255,255,255,0.14)' }}>
-        <div className="h-full transition-all duration-500" style={{ width: `${progress}%`, background: '#a4d65e' }} />
+      <div className="h-[3px] w-full flex-shrink-0" style={{ background: 'rgba(var(--mc-fg-rgb),0.14)' }}>
+        <div className="h-full transition-all duration-500" style={{ width: `${progress}%`, background: 'var(--mc-accent)' }} />
       </div>
 
       <div className="flex flex-1">
@@ -291,16 +291,16 @@ export default function OnboardingPage() {
         <div className="flex flex-col w-full lg:w-[540px] xl:w-[580px] flex-shrink-0 bg-transparent px-8 sm:px-14 lg:px-16 pt-12 pb-10 overflow-y-auto">
           {/* Logo */}
           <div className="flex items-center gap-2 mb-12 flex-shrink-0">
-            <div className="flex h-7 w-7 items-center justify-center rounded-md" style={{ background: '#1a3a3a' }}>
-              <Activity className="h-3.5 w-3.5" style={{ color: '#a4d65e' }} />
+            <div className="flex h-7 w-7 items-center justify-center rounded-md" style={{ background: 'var(--mc-ground-solid)' }}>
+              <Activity className="h-3.5 w-3.5" style={{ color: 'var(--mc-accent)' }} />
             </div>
-            <span className="t-lead font-bold" style={{ color: '#1a3a3a' }}>Meterbolic</span>
+            <span className="t-lead font-bold" style={{ color: 'var(--mc-on-accent)' }}>Meterbolic</span>
           </div>
 
           {/* Step counter */}
-          <p className="t-body2 font-medium mb-3 flex-shrink-0" style={{ color: '#ffffff' }}>Step {step + 1} of {TOTAL}</p>
-          <h1 className="t-head font-bold mb-1.5 flex-shrink-0" style={{ color: '#ffffff' }}>{STEPS[step].title}</h1>
-          <p className="t-lead mb-8 flex-shrink-0" style={{ color: '#ffffff' }}>{STEPS[step].subtitle}</p>
+          <p className="t-body2 font-medium mb-3 flex-shrink-0" style={{ color: 'var(--mc-text)' }}>Step {step + 1} of {TOTAL}</p>
+          <h1 className="t-head font-bold mb-1.5 flex-shrink-0" style={{ color: 'var(--mc-text)' }}>{STEPS[step].title}</h1>
+          <p className="t-lead mb-8 flex-shrink-0" style={{ color: 'var(--mc-text)' }}>{STEPS[step].subtitle}</p>
 
           {/* ── Step content ─── */}
           <div className="space-y-5">
@@ -371,13 +371,13 @@ export default function OnboardingPage() {
                 <div>
                   <button type="button" onClick={() => upd('recarbProtocol', !data.recarbProtocol)}
                     className="flex items-start gap-3 w-full text-left rounded-[10px] p-4 transition-colors"
-                    style={{ background: data.recarbProtocol ? 'rgba(164,214,94,0.15)' : 'rgba(255,255,255,0.04)', border: `1px solid ${data.recarbProtocol ? '#a4d65e' : 'rgba(255,255,255,0.14)'}` }}>
+                    style={{ background: data.recarbProtocol ? 'rgba(var(--mc-accent-rgb),0.15)' : 'rgba(var(--mc-fg-rgb),0.04)', border: `1px solid ${data.recarbProtocol ? 'var(--mc-accent)' : 'rgba(var(--mc-fg-rgb),0.14)'}` }}>
                     <span className="flex-shrink-0 mt-0.5 h-5 w-5 rounded flex items-center justify-center"
-                      style={{ background: data.recarbProtocol ? '#a4d65e' : '#fff', border: `2px solid ${data.recarbProtocol ? '#a4d65e' : 'rgba(255,255,255,0.14)'}` }}>
-                      {data.recarbProtocol && <Check size={12} color="#1a3a3a" strokeWidth={3} />}
+                      style={{ background: data.recarbProtocol ? 'var(--mc-accent)' : '#fff', border: `2px solid ${data.recarbProtocol ? 'var(--mc-accent)' : 'rgba(var(--mc-fg-rgb),0.14)'}` }}>
+                      {data.recarbProtocol && <Check size={12} color="var(--mc-on-accent)" strokeWidth={3} />}
                     </span>
-                    <span className="t-lead" style={{ color: '#ffffff' }}>
-                      <strong>Recarb protocol</strong> — I commit to following the dietary guidance provided by the Meterbolic team before and during testing. <span style={{ color: '#ffffff' }}>Required *</span>
+                    <span className="t-lead" style={{ color: 'var(--mc-text)' }}>
+                      <strong>Recarb protocol</strong> — I commit to following the dietary guidance provided by the Meterbolic team before and during testing. <span style={{ color: 'var(--mc-text)' }}>Required *</span>
                     </span>
                   </button>
                 </div>
@@ -442,17 +442,17 @@ export default function OnboardingPage() {
                   <Txt value={data.additionalInfo} onChange={v => upd('additionalInfo', v)} rows={2} placeholder="Anything relevant to your metabolic health…" />
                 </div>
 
-                <div className="h-px" style={{ background: 'rgba(255,255,255,0.14)' }} />
+                <div className="h-px" style={{ background: 'rgba(var(--mc-fg-rgb),0.14)' }} />
 
                 <button type="button" onClick={() => upd('disclaimerAccepted', !data.disclaimerAccepted)}
                   className="flex items-start gap-3 w-full text-left rounded-[10px] p-4 transition-colors"
-                  style={{ background: data.disclaimerAccepted ? 'rgba(164,214,94,0.15)' : 'rgba(255,255,255,0.04)', border: `1px solid ${data.disclaimerAccepted ? '#a4d65e' : 'rgba(255,255,255,0.14)'}` }}>
+                  style={{ background: data.disclaimerAccepted ? 'rgba(var(--mc-accent-rgb),0.15)' : 'rgba(var(--mc-fg-rgb),0.04)', border: `1px solid ${data.disclaimerAccepted ? 'var(--mc-accent)' : 'rgba(var(--mc-fg-rgb),0.14)'}` }}>
                   <span className="flex-shrink-0 mt-0.5 h-5 w-5 rounded flex items-center justify-center"
-                    style={{ background: data.disclaimerAccepted ? '#a4d65e' : '#fff', border: `2px solid ${data.disclaimerAccepted ? '#a4d65e' : 'rgba(255,255,255,0.14)'}` }}>
-                    {data.disclaimerAccepted && <Check size={12} color="#1a3a3a" strokeWidth={3} />}
+                    style={{ background: data.disclaimerAccepted ? 'var(--mc-accent)' : '#fff', border: `2px solid ${data.disclaimerAccepted ? 'var(--mc-accent)' : 'rgba(var(--mc-fg-rgb),0.14)'}` }}>
+                    {data.disclaimerAccepted && <Check size={12} color="var(--mc-on-accent)" strokeWidth={3} />}
                   </span>
-                  <span className="t-lead" style={{ color: '#ffffff' }}>
-                    I acknowledge that Meterbolic provides informational insights and is not a substitute for medical advice. I agree to the <span style={{ color: '#1a3a3a', fontWeight: 600 }}>Terms of Service</span> and <span style={{ color: '#1a3a3a', fontWeight: 600 }}>Privacy Policy</span>. <span style={{ color: '#ffffff' }}>Required *</span>
+                  <span className="t-lead" style={{ color: 'var(--mc-text)' }}>
+                    I acknowledge that Meterbolic provides informational insights and is not a substitute for medical advice. I agree to the <span style={{ color: 'var(--mc-on-accent)', fontWeight: 600 }}>Terms of Service</span> and <span style={{ color: 'var(--mc-on-accent)', fontWeight: 600 }}>Privacy Policy</span>. <span style={{ color: 'var(--mc-text)' }}>Required *</span>
                   </span>
                 </button>
 
@@ -477,17 +477,17 @@ export default function OnboardingPage() {
             {step > 0 && (
               <button onClick={back}
                 className="flex items-center gap-1.5 px-4 py-2.5 rounded-full t-lead font-medium hover:bg-white/5 transition-colors"
-                style={{ border: '1px solid rgba(255,255,255,0.14)', color: '#ffffff' }}>
+                style={{ border: '1px solid rgba(var(--mc-fg-rgb),0.14)', color: 'var(--mc-text)' }}>
                 <ArrowLeft className="h-4 w-4" /> Back
               </button>
             )}
             <button onClick={next} disabled={submitting}
               className="flex items-center gap-2 px-6 py-2.5 rounded-full t-lead font-semibold hover:opacity-90 transition-opacity disabled:opacity-50"
-              style={{ background: '#ffffff', color: '#ffffff' }}>
+              style={{ background: 'var(--mc-text)', color: 'var(--mc-text)' }}>
               {submitting ? 'Saving…' : step === TOTAL - 1 ? <>Complete <Check className="h-4 w-4" /></> : <>Continue <ArrowRight className="h-4 w-4" /></>}
             </button>
           </div>
-          <p className="mt-3 t-body2" style={{ color: '#ffffff' }}>
+          <p className="mt-3 t-body2" style={{ color: 'var(--mc-text)' }}>
             {step === TOTAL - 1 ? 'Your data is encrypted and stored securely.' : `${TOTAL - step - 1} step${TOTAL - step - 1 !== 1 ? 's' : ''} remaining`}
           </p>
         </div>

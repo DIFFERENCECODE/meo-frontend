@@ -458,7 +458,7 @@ function KraftComplete({ onExit, colors, data }: { onExit: () => void; colors: a
         </div>
       )}
       {submitStatus === 'error' && (
-        <div className="rounded-[10px] p-3 t-body2 leading-relaxed" style={{ backgroundColor: '#f9731620', color: '#f97316', border: '1px solid #f9731640' }}>
+        <div className="rounded-[10px] p-3 t-body2 leading-relaxed" style={{ backgroundColor: '#f9731620', color: 'var(--mc-orange)', border: '1px solid #f9731640' }}>
           <p className="font-medium">We couldn&apos;t save that just now.</p>
           <p className="mt-1" style={{ opacity: 0.9 }}>
             Nothing is lost — your readings are still on this screen. This is
@@ -467,7 +467,7 @@ function KraftComplete({ onExit, colors, data }: { onExit: () => void; colors: a
           <button
             onClick={() => setAttempt((n) => n + 1)}
             className="mt-2 px-3 py-1.5 rounded-[9px] t-body2 font-semibold transition-opacity hover:opacity-90"
-            style={{ backgroundColor: '#f97316', color: '#1a3a3a' }}
+            style={{ backgroundColor: 'var(--mc-orange)', color: 'var(--mc-on-accent)' }}
           >
             Try saving again
           </button>
@@ -805,7 +805,7 @@ function LipidReading({ onSubmit, onData, colors }: { onSubmit: (msg: string) =>
 
         <div
           className="rounded-[10px] p-3 t-body2 leading-relaxed"
-          style={{ backgroundColor: 'rgba(249,115,22,0.1)', border: '1px solid rgba(249,115,22,0.35)', color: '#f97316' }}
+          style={{ backgroundColor: 'rgba(249,115,22,0.1)', border: '1px solid rgba(249,115,22,0.35)', color: 'var(--mc-orange)' }}
         >
           A patchy circle means MeO will <b>not</b> save this reading or update
           your score. We would rather have no number than a wrong one — a wrong
@@ -1069,7 +1069,7 @@ function BASComplete({ onViewResults, colors, data }: { onViewResults: () => voi
         </div>
       )}
       {submitStatus === 'error' && (
-        <div className="rounded-[10px] p-3 t-body2 leading-relaxed" style={{ backgroundColor: '#ef444420', color: '#ef4444', border: '1px solid #ef444440' }}>
+        <div className="rounded-[10px] p-3 t-body2 leading-relaxed" style={{ backgroundColor: '#ef444420', color: 'var(--mc-red)', border: '1px solid #ef444440' }}>
           Auto-save failed: {submitError}. Copy the block below and submit via Personalise.
         </div>
       )}
@@ -1680,7 +1680,7 @@ const GUIDANCE: Record<string, { title: string; body: React.ReactNode }> = {
           <span className="t-lead pt-1.5">Wait for the reading — note the number before entering it</span>
         </div>
 
-        <div className="mt-3 flex gap-2 p-3 rounded-[9px] t-body2 text-white/60" style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}>
+        <div className="mt-3 flex gap-2 p-3 rounded-[9px] t-body2 text-white/60" style={{ backgroundColor: 'rgba(var(--mc-fg-rgb),0.05)' }}>
           <Info size={14} className="shrink-0 mt-0.5 text-white/40" />
           <span>
             <strong className="text-white/70">Normal fasting range:</strong> 3.9–5.5 mmol/L<br />
@@ -1741,7 +1741,7 @@ const GUIDANCE: Record<string, { title: string; body: React.ReactNode }> = {
           </span>
         </div>
 
-        <div className="mt-3 flex gap-2 p-3 rounded-[9px] t-body2 text-white/60" style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}>
+        <div className="mt-3 flex gap-2 p-3 rounded-[9px] t-body2 text-white/60" style={{ backgroundColor: 'rgba(var(--mc-fg-rgb),0.05)' }}>
           <Info size={14} className="shrink-0 mt-0.5 text-white/40" />
           <span>If your meter also shows Total Cholesterol (TC), enter it too — it improves accuracy.</span>
         </div>

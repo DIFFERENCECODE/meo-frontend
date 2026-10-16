@@ -435,7 +435,7 @@ export default function ProfilePage() {
                             className="t-body2 px-2 py-0.5 rounded-full font-medium"
                             style={{
                               backgroundColor: b.status === 'upcoming' ? colors.primary + '20' : '#ef444420',
-                              color: b.status === 'upcoming' ? colors.primary : '#ef4444',
+                              color: b.status === 'upcoming' ? colors.primary : 'var(--mc-red)',
                             }}
                           >
                             {b.status === 'upcoming' ? 'Upcoming' : 'Cancelled'}
@@ -455,7 +455,7 @@ export default function ProfilePage() {
                                   setBookings(getBookings());
                                 }}
                                 className="t-body2 px-2 py-0.5 rounded-full transition-colors hover:opacity-80"
-                                style={{ backgroundColor: '#ef444415', color: '#ef4444', border: '1px solid #ef444430' }}
+                                style={{ backgroundColor: '#ef444415', color: 'var(--mc-red)', border: '1px solid #ef444430' }}
                               >
                                 Cancel
                               </button>

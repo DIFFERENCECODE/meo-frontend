@@ -36,10 +36,10 @@ const FILTERS: { id: string; label: string }[] = [
 ];
 
 const SOURCE_CHIP: Record<string, { label: string; color: string; bg: string; bd: string }> = {
-  panel:   { label: 'meter',  color: '#a4d65e', bg: 'rgba(164,214,94,0.12)', bd: 'rgba(164,214,94,0.3)' },
-  insulin: { label: 'clinic', color: '#7cc5d8', bg: 'rgba(124,197,216,0.12)', bd: 'rgba(124,197,216,0.3)' },
-  body:    { label: 'typed',  color: '#ffffff', bg: 'rgba(255,255,255,0.07)', bd: 'rgba(255,255,255,0.14)' },
-  other:   { label: 'entry',  color: '#ffffff', bg: 'rgba(255,255,255,0.05)', bd: 'rgba(255,255,255,0.12)' },
+  panel:   { label: 'meter',  color: 'var(--mc-accent)', bg: 'rgba(var(--mc-accent-rgb),0.12)', bd: 'rgba(var(--mc-accent-rgb),0.3)' },
+  insulin: { label: 'clinic', color: 'var(--mc-blue)', bg: 'rgba(124,197,216,0.12)', bd: 'rgba(124,197,216,0.3)' },
+  body:    { label: 'typed',  color: 'var(--mc-text)', bg: 'rgba(var(--mc-fg-rgb),0.07)', bd: 'rgba(var(--mc-fg-rgb),0.14)' },
+  other:   { label: 'entry',  color: 'var(--mc-text)', bg: 'rgba(var(--mc-fg-rgb),0.05)', bd: 'rgba(var(--mc-fg-rgb),0.12)' },
 };
 
 function Row({ reading, colors }: { reading: Reading & { kind?: string }; colors: Record<string, string> }) {
@@ -60,7 +60,7 @@ function Row({ reading, colors }: { reading: Reading & { kind?: string }; colors
 
       <div
         className="flex items-center justify-center"
-        style={{ width: 34, height: 34, flex: 'none', borderRadius: 10, background: 'rgba(255,255,255,0.06)' }}
+        style={{ width: 34, height: 34, flex: 'none', borderRadius: 10, background: 'rgba(var(--mc-fg-rgb),0.06)' }}
       >
         <Icon className="h-4 w-4" style={{ color: colors.primary }} />
       </div>
@@ -176,8 +176,8 @@ export function Timeline({ record }: { record: RecordResponse }) {
               className="px-3 py-1.5 rounded-full t-body2 font-medium transition-colors"
               style={{
                 color: active ? colors.primary : colors.muted,
-                backgroundColor: active ? 'rgba(164,214,94,0.12)' : 'rgba(255,255,255,0.05)',
-                border: `1px solid ${active ? 'rgba(164,214,94,0.45)' : colors.cardBorder}`,
+                backgroundColor: active ? 'rgba(var(--mc-accent-rgb),0.12)' : 'rgba(var(--mc-fg-rgb),0.05)',
+                border: `1px solid ${active ? 'rgba(var(--mc-accent-rgb),0.45)' : colors.cardBorder}`,
               }}
             >
               {f.label} <span style={{ opacity: 0.7 }}>{n}</span>

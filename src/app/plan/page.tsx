@@ -20,8 +20,8 @@ import { ScreenHeader, ScreenBody, Chip } from '@/components/layout/ScreenHeader
  */
 
 const C = {
-  card: 'rgba(40,70,70,0.82)', border: 'rgba(255,255,255,0.12)', lime: '#a4d65e',
-  muted: '#ffffff', dim: '#ffffff', row: 'rgba(255,255,255,0.08)',
+  card: 'var(--mc-card)', border: 'rgba(var(--mc-fg-rgb),0.12)', lime: 'var(--mc-accent)',
+  muted: 'var(--mc-text)', dim: 'var(--mc-text)', row: 'rgba(var(--mc-fg-rgb),0.08)',
 };
 
 const FROM: Record<string, string> = {
@@ -77,7 +77,7 @@ function PlanInner() {
               Nothing on this screen is generated.
             </p>
             <Link href="/marketplace" className="meo-press inline-block no-underline"
-              style={{ marginTop: 14, padding: '10px 16px', borderRadius: 10, background: C.lime, color: '#1a3a3a', fontSize: 13.5, fontWeight: 600 }}>
+              style={{ marginTop: 14, padding: '10px 16px', borderRadius: 10, background: C.lime, color: 'var(--mc-on-accent)', fontSize: 13.5, fontWeight: 600 }}>
               Find a practitioner
             </Link>
           </Card>
@@ -87,21 +87,21 @@ function PlanInner() {
           <div className="grid gap-[14px] xl:grid-cols-[minmax(0,1fr)_330px] items-start">
             <div className="flex flex-col min-w-0" style={{ gap: 14 }}>
               {/* Who wrote it, and why, in their words. A plan with no author is advice from nobody. */}
-              <Card style={{ borderColor: 'rgba(164,214,94,0.35)' }}>
+              <Card style={{ borderColor: 'rgba(var(--mc-accent-rgb),0.35)' }}>
                 <div className="flex items-center" style={{ gap: 12 }}>
-                  <div className="flex items-center justify-center" style={{ width: 34, height: 34, flex: 'none', borderRadius: '50%', background: 'rgba(164,214,94,0.2)', color: C.lime, fontWeight: 700 }}>
+                  <div className="flex items-center justify-center" style={{ width: 34, height: 34, flex: 'none', borderRadius: '50%', background: 'rgba(var(--mc-accent-rgb),0.2)', color: C.lime, fontWeight: 700 }}>
                     {initial}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div style={{ fontSize: 14, fontWeight: 700 }}>{author}</div>
                     <div style={{ fontSize: 11.5, color: C.dim }}>wrote this plan after your {agreed} consult</div>
                   </div>
-                  <span style={{ fontSize: 12, fontWeight: 700, color: C.lime, border: '1px solid rgba(164,214,94,0.45)', borderRadius: 999, padding: '4px 12px', whiteSpace: 'nowrap' }}>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: C.lime, border: '1px solid rgba(var(--mc-accent-rgb),0.45)', borderRadius: 999, padding: '4px 12px', whiteSpace: 'nowrap' }}>
                     your practitioner
                   </span>
                 </div>
                 {note && (
-                  <p style={{ fontSize: 14.5, lineHeight: 1.6, color: '#ffffff', margin: '14px 0 0', whiteSpace: 'pre-wrap' }}>
+                  <p style={{ fontSize: 14.5, lineHeight: 1.6, color: 'var(--mc-text)', margin: '14px 0 0', whiteSpace: 'pre-wrap' }}>
                     &ldquo;{note.body}&rdquo;
                   </p>
                 )}
@@ -114,7 +114,7 @@ function PlanInner() {
                 </div>
                 {plan.map((n, i) => (
                   <div key={n.id} className="flex items-center" style={{ gap: 12, padding: '11px 0', borderTop: i ? `1px solid ${C.row}` : undefined }}>
-                    <div className="flex items-center justify-center" style={{ width: 24, height: 24, flex: 'none', borderRadius: 7, background: 'rgba(164,214,94,0.18)' }}>
+                    <div className="flex items-center justify-center" style={{ width: 24, height: 24, flex: 'none', borderRadius: 7, background: 'rgba(var(--mc-accent-rgb),0.18)' }}>
                       <Check className="h-3.5 w-3.5" style={{ color: C.lime }} />
                     </div>
                     <div className="flex-1 min-w-0" style={{ fontSize: 14 }}>

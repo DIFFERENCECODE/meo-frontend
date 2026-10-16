@@ -46,8 +46,8 @@ interface ScoresResponse {
 const BAS_STOPS: Array<[number, string]> = [
   [0, '#22c55e'],    // green
   [57.6, '#EAB839'], // yellow — exact hex from Grafana
-  [70, '#f97316'],   // orange
-  [80, '#ef4444'],   // red
+  [70, 'var(--mc-orange)'],   // orange
+  [80, 'var(--mc-red)'],   // red
 ];
 
 const VAT_STOPS: Array<[number, string]> = [
@@ -156,7 +156,7 @@ function GaugeCard({
           anchor: {
             show: true,
             size: 12,
-            itemStyle: { color: pointerColor, borderColor: '#ffffff', borderWidth: 2 },
+            itemStyle: { color: pointerColor, borderColor: 'var(--mc-text)', borderWidth: 2 },
           },
           axisLine: {
             lineStyle: {
@@ -168,11 +168,11 @@ function GaugeCard({
           splitLine: {
             distance: -22,
             length: 8,
-            lineStyle: { color: '#ffffff', width: 2 },
+            lineStyle: { color: 'var(--mc-text)', width: 2 },
           },
           axisLabel: {
             distance: -20,
-            color: 'rgba(255,255,255,0.14)',
+            color: 'rgba(var(--mc-fg-rgb),0.14)',
             fontSize: 11,
             formatter: (val: number) => {
               // Show min + every threshold + max, matching Grafana's layout
@@ -389,8 +389,8 @@ export function ScoreGauges() {
         <div
           className="rounded-[9px] border px-4 py-2 t-lead"
           style={{
-            borderColor: '#ef4444',
-            color: '#ef4444',
+            borderColor: 'var(--mc-red)',
+            color: 'var(--mc-red)',
             backgroundColor: 'rgba(239, 68, 68, 0.08)',
           }}
         >
@@ -413,7 +413,7 @@ export function ScoreGauges() {
           <ul className="space-y-1 list-none">
             {missingAnalytes.map((m, i) => (
               <li key={i} className="flex items-start gap-2" style={{ color: theme.colors.muted }}>
-                <span style={{ color: '#f97316' }}>•</span>
+                <span style={{ color: 'var(--mc-orange)' }}>•</span>
                 {m}
               </li>
             ))}
@@ -437,7 +437,7 @@ export function ScoreGauges() {
           : rawBas !== null && basValue === null ? EMPTY_COPY_RAW_SCORE
           : EMPTY_COPY_NO_SCORES
         }
-        dotColor="#ef4444"
+        dotColor="var(--mc-red)"
       />
 
       <GaugeCard
@@ -453,7 +453,7 @@ export function ScoreGauges() {
           : sessionCount === 0 ? EMPTY_COPY_NO_DATA
           : EMPTY_COPY_NO_SCORES
         }
-        dotColor="#ef4444"
+        dotColor="var(--mc-red)"
       />
     </div>
   );

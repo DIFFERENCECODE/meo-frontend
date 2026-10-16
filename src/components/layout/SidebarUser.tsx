@@ -73,7 +73,7 @@ export function SidebarUser() {
           className="flex flex-1 items-center justify-center transition-colors hover:bg-white/10"
           style={{
             gap: 8, height: 34, borderRadius: 9, border: 'none', cursor: 'pointer',
-            background: 'rgba(164,214,94,0.16)', color: colors.primary,
+            background: 'rgba(var(--mc-accent-rgb),0.16)', color: colors.primary,
             fontSize: 12.5, fontWeight: 600,
           }}
         >
@@ -100,7 +100,7 @@ export function SidebarUser() {
         className="flex items-center justify-center"
         style={{
           width: 30, height: 30, flex: 'none', borderRadius: '50%',
-          background: 'rgba(164,214,94,0.2)', color: colors.primary,
+          background: 'rgba(var(--mc-accent-rgb),0.2)', color: colors.primary,
           fontWeight: 700, fontSize: 13,
         }}
       >
@@ -125,7 +125,7 @@ export function SidebarUser() {
         aria-label="Sign out"
         title="Sign out"
         className="flex items-center justify-center transition-colors hover:bg-white/10"
-        style={{ width: 30, height: 30, flex: 'none', borderRadius: 9, background: 'rgba(255,255,255,0.06)', cursor: 'pointer', border: 'none' }}
+        style={{ width: 30, height: 30, flex: 'none', borderRadius: 9, background: 'rgba(var(--mc-fg-rgb),0.06)', cursor: 'pointer', border: 'none' }}
       >
         <LogOut className="h-4 w-4" style={{ color: colors.mutedDim }} />
       </button>

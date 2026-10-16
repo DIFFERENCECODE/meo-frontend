@@ -120,9 +120,9 @@ export default function TrendsPage() {
                       style={{
                         fontSize: 12, fontWeight: on ? 700 : 600, cursor: 'pointer', fontFamily: 'inherit',
                         borderRadius: 999, padding: '5px 12px', whiteSpace: 'nowrap',
-                        color: on ? '#1a3a3a' : colors.muted,
-                        background: on ? '#a4d65e' : 'rgba(255,255,255,0.07)',
-                        border: `1px solid ${on ? '#a4d65e' : 'rgba(255,255,255,0.14)'}`,
+                        color: on ? 'var(--mc-on-accent)' : colors.muted,
+                        background: on ? 'var(--mc-accent)' : 'rgba(var(--mc-fg-rgb),0.07)',
+                        border: `1px solid ${on ? 'var(--mc-accent)' : 'rgba(var(--mc-fg-rgb),0.14)'}`,
                       }}
                     >
                       {TAB_LABEL[m] ?? LABELS[m]?.label ?? m}
@@ -187,7 +187,7 @@ function Spark({ values, color }: { values: number[]; color: string }) {
  */
 function TrendsRail({ record, metric, onPick }: { record: RecordResponse; metric: string; onPick: (m: string) => void }) {
   const rows = METRICS.filter((m) => m !== 'BAS' && (record.series?.[m]?.length ?? 0) > 0);
-  const label = { fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase' as const, color: '#ffffff' };
+  const label = { fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase' as const, color: 'var(--mc-text)' };
   return (
     <div style={{ padding: '20px 20px 24px' }}>
       <div style={label}>From your meter</div>
@@ -201,29 +201,29 @@ function TrendsRail({ record, metric, onPick }: { record: RecordResponse; metric
             onClick={() => onPick(m)}
             aria-pressed={m === metric}
             className="meo-row w-full flex items-center text-left"
-            style={{ gap: 12, padding: '10px 4px', background: 'none', border: 'none', borderBottom: '1px solid rgba(255,255,255,0.08)', cursor: 'pointer', fontFamily: 'inherit' }}
+            style={{ gap: 12, padding: '10px 4px', background: 'none', border: 'none', borderBottom: '1px solid rgba(var(--mc-fg-rgb),0.08)', cursor: 'pointer', fontFamily: 'inherit' }}
           >
             <div className="flex-1 min-w-0">
-              <div style={{ fontSize: 13, fontWeight: 700, color: m === metric ? '#a4d65e' : '#ffffff' }}>{sm.label}</div>
-              <div style={{ fontSize: 11, color: '#ffffff' }}>{pts.length} readings</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: m === metric ? 'var(--mc-accent)' : 'var(--mc-text)' }}>{sm.label}</div>
+              <div style={{ fontSize: 11, color: 'var(--mc-text)' }}>{pts.length} readings</div>
             </div>
-            <Spark values={pts.map((p) => p.value)} color={(LOWER_IS_BETTER[m] ?? true) ? '#a4d65e' : '#7cc5d8'} />
+            <Spark values={pts.map((p) => p.value)} color={(LOWER_IS_BETTER[m] ?? true) ? 'var(--mc-accent)' : 'var(--mc-blue)'} />
             <div style={{ width: 58, textAlign: 'right' }}>
-              <div style={{ fontSize: 15, fontWeight: 800, color: '#ffffff' }}>{v != null ? Number(v.toFixed(2)) : '—'}</div>
-              <div style={{ fontSize: 10.5, color: '#ffffff' }}>{sm.unit}</div>
+              <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--mc-text)' }}>{v != null ? Number(v.toFixed(2)) : '—'}</div>
+              <div style={{ fontSize: 10.5, color: 'var(--mc-text)' }}>{sm.unit}</div>
             </div>
           </button>
         );
       })}
       <div className="flex items-center justify-between" style={{ marginTop: 22 }}>
         <div style={label}>From your phone</div>
-        <span style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#7cc5d8', background: 'rgba(124,197,216,0.12)', border: '1px solid rgba(124,197,216,0.3)', borderRadius: 999, padding: '3px 9px' }}>
+        <span style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--mc-blue)', background: 'rgba(124,197,216,0.12)', border: '1px solid rgba(124,197,216,0.3)', borderRadius: 999, padding: '3px 9px' }}>
           from the app
         </span>
       </div>
-      <p style={{ fontSize: 12.5, color: '#ffffff', lineHeight: 1.55, marginTop: 10 }}>
+      <p style={{ fontSize: 12.5, color: 'var(--mc-text)', lineHeight: 1.55, marginTop: 10 }}>
         Sleep, steps, resting heart rate and meal timing are charted in the MeO app on your phone.
-        A plan line that checks them shows its count on <a href="/plan" style={{ color: '#a4d65e' }}>My plan</a>.
+        A plan line that checks them shows its count on <a href="/plan" style={{ color: 'var(--mc-accent)' }}>My plan</a>.
       </p>
     </div>
   );

@@ -44,8 +44,8 @@ export function BriefProvenance({ patientSessionId, colors }: { patientSessionId
   if (!rows) return null;
 
   return (
-    <div style={{ padding: 16, borderRadius: 10, background: 'rgba(255,255,255,.03)', border: `1px solid ${colors.cardBorder}` }}>
-      <div className="t-label" style={{ color: '#ffffff', marginBottom: 10 }}>
+    <div style={{ padding: 16, borderRadius: 10, background: 'rgba(var(--mc-fg-rgb),.03)', border: `1px solid ${colors.cardBorder}` }}>
+      <div className="t-label" style={{ color: 'var(--mc-text)', marginBottom: 10 }}>
         Where these numbers came from
       </div>
 
@@ -54,24 +54,24 @@ export function BriefProvenance({ patientSessionId, colors }: { patientSessionId
           key={r.id}
           style={{
             display: 'flex', alignItems: 'center', gap: 12, padding: '9px 0',
-            borderBottom: i === rows.length - 1 ? undefined : '1px solid rgba(255,255,255,0.07)',
+            borderBottom: i === rows.length - 1 ? undefined : '1px solid rgba(var(--mc-fg-rgb),0.07)',
             opacity: r.known ? 1 : 0.6,
           }}
         >
           <div
             style={{
-              width: 30, height: 30, flex: 'none', borderRadius: 9, background: 'rgba(255,255,255,0.06)',
+              width: 30, height: 30, flex: 'none', borderRadius: 9, background: 'rgba(var(--mc-fg-rgb),0.06)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}
           >
-            <r.Icon className="h-3.5 w-3.5" style={{ color: r.known ? colors.primary : '#ffffff' }} />
+            <r.Icon className="h-3.5 w-3.5" style={{ color: r.known ? colors.primary : 'var(--mc-text)' }} />
           </div>
-          <div style={{ flex: 1, fontSize: 12.5, color: '#ffffff' }}>{r.label}</div>
-          <div style={{ fontSize: 12.5, fontWeight: 600, color: r.known ? '#ffffff' : '#ffffff' }}>{r.count}</div>
+          <div style={{ flex: 1, fontSize: 12.5, color: 'var(--mc-text)' }}>{r.label}</div>
+          <div style={{ fontSize: 12.5, fontWeight: 600, color: r.known ? 'var(--mc-text)' : 'var(--mc-text)' }}>{r.count}</div>
         </div>
       ))}
 
-      <p style={{ fontSize: 11.5, color: '#ffffff', marginTop: 12, lineHeight: 1.5 }}>
+      <p style={{ fontSize: 11.5, color: 'var(--mc-text)', marginTop: 12, lineHeight: 1.5 }}>
         No value in this brief was inferred by a model. Clinical figures are
         computed in deterministic code; the model arranges and explains them.
       </p>

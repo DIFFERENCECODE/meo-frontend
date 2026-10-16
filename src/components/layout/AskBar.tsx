@@ -12,7 +12,7 @@ interface AskBarProps {
 }
 
 /**
- * The storyboard's ask bar: rgba(0,0,0,0.26) on a 0.13 white border, 14px
+ * The storyboard's ask bar: var(--mc-input) on a 0.13 white border, 14px
  * radius, a 34px voice button and a 34px lime send. Sends to the section
  * assistant without changing the page or its state. The voice button is the
  * chat's own speech input, so it is only shown where the browser supports it.
@@ -70,7 +70,7 @@ export function AskBar({ placeholder = 'Ask MeO…' }: AskBarProps) {
       onSubmit={submit}
       className="flex items-center"
       style={{
-        gap: 10, background: 'rgba(0,0,0,0.26)', border: '1px solid rgba(255,255,255,0.13)',
+        gap: 10, background: 'var(--mc-input)', border: '1px solid rgba(var(--mc-fg-rgb),0.13)',
         borderRadius: 14, padding: '11px 11px 11px 16px',
       }}
     >
@@ -90,9 +90,9 @@ export function AskBar({ placeholder = 'Ask MeO…' }: AskBarProps) {
         aria-label="Upload results you already have"
         title="Upload results you already have (PDF or photo)"
         className="meo-press flex items-center justify-center shrink-0"
-        style={{ width: 34, height: 34, borderRadius: 10, border: 0, cursor: 'pointer', background: 'rgba(255,255,255,0.08)' }}
+        style={{ width: 34, height: 34, borderRadius: 10, border: 0, cursor: 'pointer', background: 'rgba(var(--mc-fg-rgb),0.08)' }}
       >
-        <Paperclip className="h-4 w-4" style={{ color: '#ffffff' }} />
+        <Paperclip className="h-4 w-4" style={{ color: 'var(--mc-text)' }} />
       </button>
       <span role="status" aria-live="polite" className="sr-only">{reading ? `Reading ${reading}` : uploadError ?? ''}</span>
       <label htmlFor="askbar-input" className="sr-only">{placeholder}</label>
@@ -102,7 +102,7 @@ export function AskBar({ placeholder = 'Ask MeO…' }: AskBarProps) {
         onChange={(e) => setValue(e.target.value)}
         placeholder={reading ? `Reading ${reading}…` : uploadError ?? placeholder}
         className="min-w-0 flex-1 bg-transparent outline-none"
-        style={{ color: '#ffffff', fontSize: 13.5 }}
+        style={{ color: 'var(--mc-text)', fontSize: 13.5 }}
       />
       {isSupported && (
         <button
@@ -113,10 +113,10 @@ export function AskBar({ placeholder = 'Ask MeO…' }: AskBarProps) {
           className="meo-press flex items-center justify-center shrink-0"
           style={{
             width: 34, height: 34, borderRadius: 10, border: 0, cursor: 'pointer',
-            background: listening ? 'rgba(164,214,94,0.25)' : 'rgba(255,255,255,0.08)',
+            background: listening ? 'rgba(var(--mc-accent-rgb),0.25)' : 'rgba(var(--mc-fg-rgb),0.08)',
           }}
         >
-          <Mic className="h-4 w-4" style={{ color: listening ? '#a4d65e' : '#ffffff' }} />
+          <Mic className="h-4 w-4" style={{ color: listening ? 'var(--mc-accent)' : 'var(--mc-text)' }} />
         </button>
       )}
       <button
@@ -124,9 +124,9 @@ export function AskBar({ placeholder = 'Ask MeO…' }: AskBarProps) {
         aria-label="Ask MeO"
         disabled={busy || !value.trim()}
         className="meo-press flex items-center justify-center shrink-0 disabled:cursor-not-allowed"
-        style={{ width: 34, height: 34, borderRadius: 10, border: 0, background: '#a4d65e', opacity: busy || !value.trim() ? 0.6 : 1, cursor: 'pointer' }}
+        style={{ width: 34, height: 34, borderRadius: 10, border: 0, background: 'var(--mc-accent)', opacity: busy || !value.trim() ? 0.6 : 1, cursor: 'pointer' }}
       >
-        <SendHorizontal className="h-4 w-4" style={{ color: '#1a3a3a' }} />
+        <SendHorizontal className="h-4 w-4" style={{ color: 'var(--mc-on-accent)' }} />
       </button>
     </form>
   );
