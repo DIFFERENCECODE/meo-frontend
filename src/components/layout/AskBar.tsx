@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useSectionAssistant } from '@/components/assistant/SectionAssistant';
-import { Mic, SendHorizontal } from 'lucide-react';
+import { Mic, Paperclip, SendHorizontal } from 'lucide-react';
 import useVoiceInput from '@/hooks/useVoiceInput';
 
 interface AskBarProps {
@@ -23,6 +24,39 @@ export function AskBar({ placeholder = 'Ask MeO…' }: AskBarProps) {
     onResult: (text) => setValue(text),
   });
 
+  // Upload results the patient already has (a lab PDF, a photo of a report).
+  // The file is read into text, then opened on the review screen, where every
+  // value is checked before anything is saved.
+  const router = useRouter();
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [reading, setReading] = useState<string | null>(null);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+
+  const onFile = async (file: File | undefined) => {
+    if (!file) return;
+    setUploadError(null);
+    setReading(file.name);
+    try {
+      const { getValidIdToken } = await import('@/app/lib/auth');
+      const token = await getValidIdToken();
+      if (!token) throw new Error('Sign in again to upload.');
+      const form = new FormData();
+      form.append('file', file);
+      const res = await fetch('/api/personalize/extract-file', {
+        method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: form,
+      });
+      const d = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(d.detail || "We couldn't read that file.");
+      try { sessionStorage.setItem('meo_import', JSON.stringify({ text: d.text, filename: file.name })); } catch { /* fall through */ }
+      router.push('/personalize?from=upload');
+    } catch (e: any) {
+      setUploadError(e.message || "We couldn't read that file.");
+    } finally {
+      setReading(null);
+      if (fileRef.current) fileRef.current.value = '';
+    }
+  };
+
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     const q = value.trim();
@@ -40,12 +74,33 @@ export function AskBar({ placeholder = 'Ask MeO…' }: AskBarProps) {
         borderRadius: 14, padding: '11px 11px 11px 16px',
       }}
     >
+      <input
+        ref={fileRef}
+        type="file"
+        accept="application/pdf,image/jpeg,image/png,image/webp,text/plain,.pdf,.jpg,.jpeg,.png,.txt"
+        className="sr-only"
+        tabIndex={-1}
+        aria-hidden
+        onChange={(e) => onFile(e.target.files?.[0])}
+      />
+      <button
+        type="button"
+        onClick={() => fileRef.current?.click()}
+        disabled={!!reading}
+        aria-label="Upload results you already have"
+        title="Upload results you already have (PDF or photo)"
+        className="meo-press flex items-center justify-center shrink-0"
+        style={{ width: 34, height: 34, borderRadius: 10, border: 0, cursor: 'pointer', background: 'rgba(255,255,255,0.08)' }}
+      >
+        <Paperclip className="h-4 w-4" style={{ color: '#ffffff' }} />
+      </button>
+      <span role="status" aria-live="polite" className="sr-only">{reading ? `Reading ${reading}` : uploadError ?? ''}</span>
       <label htmlFor="askbar-input" className="sr-only">{placeholder}</label>
       <input
         id="askbar-input"
         value={value}
         onChange={(e) => setValue(e.target.value)}
-        placeholder={placeholder}
+        placeholder={reading ? `Reading ${reading}…` : uploadError ?? placeholder}
         className="min-w-0 flex-1 bg-transparent outline-none"
         style={{ color: '#ffffff', fontSize: 13.5 }}
       />

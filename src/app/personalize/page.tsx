@@ -155,6 +155,25 @@ export default function PersonalizePage() {
     })();
   }, []);
 
+  // Arriving from the message bar's upload: the report has already been read
+  // into text. Put it in the box, say where it came from, and read the values
+  // straight away. Nothing is saved until the patient reviews and submits.
+  const [importedFrom, setImportedFrom] = useState<string | null>(null);
+  useEffect(() => {
+    if (!userEmail) return;
+    let imported: { text?: string; filename?: string } | null = null;
+    try {
+      imported = JSON.parse(sessionStorage.getItem('meo_import') || 'null');
+      sessionStorage.removeItem('meo_import');
+    } catch { /* storage unavailable: nothing to import */ }
+    if (!imported?.text) return;
+    setMode('paste');
+    setText(imported.text);
+    setImportedFrom(imported.filename || 'your file');
+    callParse({ text: imported.text });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userEmail]);
+
   const callParse = async (body: any) => {
     setError(null);
     setSuccess(null);
@@ -440,6 +459,11 @@ export default function PersonalizePage() {
             </div>
           </div>
 
+          {importedFrom && !success && (
+            <div role="status" className="rounded-xl px-4 py-3" style={{ background: 'rgba(124,197,216,0.12)', border: '1px solid rgba(124,197,216,0.35)', color: '#ffffff', fontSize: 13.5 }}>
+              Read from <strong>{importedFrom}</strong>. Check every value below against your report before you save; MeO only copied what it could read.
+            </div>
+          )}
           {success && (
             <div
               className="mb-6 rounded-2xl p-6 border"
