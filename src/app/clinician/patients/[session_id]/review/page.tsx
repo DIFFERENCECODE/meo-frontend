@@ -90,7 +90,7 @@ export default function ReviewPage() {
                 {rows.length === 0 ? (
                   <div style={{ fontSize: 13.5, color: T.muted }}>No biomarker values on file yet.</div>
                 ) : (
-                  <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                  <div className="mc-scroll-x"><table style={{ width: '100%', minWidth: 560, borderCollapse: 'collapse' }}>
                     <thead>
                       <tr>
                         {['Measure', 'Value', 'Optimal', 'Status', 'Source', 'Change'].map((h, i) => (
@@ -115,7 +115,7 @@ export default function ReviewPage() {
                         </tr>
                       ))}
                     </tbody>
-                  </table>
+                  </table></div>
                 )}
                 <div style={{ fontSize: 11.5, color: T.dim, marginTop: 10 }}>
                   Computed in code against optimal ranges: model-free, and not the lab&apos;s reference range.

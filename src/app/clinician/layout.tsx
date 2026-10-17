@@ -127,7 +127,7 @@ function Shell({ pathname, profile, children }: { pathname: string; profile: Pro
     <div
       className="mc-portal"
       style={{
-        position: 'relative', width: '100%', height: '100vh', minWidth: 1200, overflow: 'hidden',
+        position: 'relative', width: '100%', height: '100dvh', overflow: 'hidden',
         display: 'flex', color: K.text, fontFamily: '"Plus Jakarta Sans", system-ui, sans-serif',
         WebkitFontSmoothing: 'antialiased',
         background: 'var(--mc-ground)',
@@ -137,7 +137,7 @@ function Shell({ pathname, profile, children }: { pathname: string; profile: Pro
       <div aria-hidden style={{ position: 'absolute', inset: 0, pointerEvents: 'none', opacity: 0.55, backgroundImage: 'linear-gradient(rgba(var(--mc-fg-rgb),0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(var(--mc-fg-rgb),0.035) 1px, transparent 1px)', backgroundSize: '72px 72px' }} />
       <div aria-hidden style={{ position: 'absolute', left: 340, top: -260, width: 1100, height: 1100, borderRadius: '50%', pointerEvents: 'none', background: 'radial-gradient(circle, rgba(var(--mc-accent-rgb),0.15) 0%, rgba(var(--mc-accent-rgb),0.045) 35%, rgba(var(--mc-accent-rgb),0) 65%)' }} />
 
-      <aside style={{ position: 'relative', width: 248, flex: 'none', boxSizing: 'border-box', background: 'var(--mc-sidebar)', borderRight: '1px solid rgba(var(--mc-fg-rgb),0.08)', display: 'flex', flexDirection: 'column', padding: '18px 12px 14px' }}>
+      <aside className="mc-sidebar" style={{ position: 'relative', width: 248, flex: 'none', boxSizing: 'border-box', overflowY: 'auto', minHeight: 0, background: 'var(--mc-sidebar)', borderRight: '1px solid rgba(var(--mc-fg-rgb),0.08)', display: 'flex', flexDirection: 'column', padding: '18px 12px 14px' }}>
         <Link href="/clinician" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '0 8px 16px', textDecoration: 'none', color: K.text }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/droplet-logo.png" alt="" style={{ width: 28, height: 28, objectFit: 'contain' }} />

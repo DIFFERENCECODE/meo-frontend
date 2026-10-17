@@ -230,7 +230,7 @@ export function JudgementCard() {
 /** Two columns as in the frames: the record on the left, context on the right. */
 export function Columns({ left, right }: { left: React.ReactNode; right: React.ReactNode }) {
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 400px', gap: 16, alignItems: 'start' }}>
+    <div className="mc-cols">
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10, minWidth: 0 }}>{left}</div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10, minWidth: 0 }}>{right}</div>
     </div>

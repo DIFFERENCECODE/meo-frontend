@@ -57,6 +57,14 @@ export function PortalStyles() {
       .mc-portal :focus-visible { outline: 2px solid ${T.lime}; outline-offset: 2px; border-radius: 10px; }
       .mc-sheet { transform-origin: bottom center; animation: mc-rise 220ms cubic-bezier(0.2, 0.9, 0.3, 1); }
       @keyframes mc-rise { from { opacity: 0; transform: translateY(8px) scale(0.985); } to { opacity: 1; transform: none; } }
+      /* Layout that bends instead of spilling sideways. */
+      .mc-cols { display: grid; grid-template-columns: minmax(0, 1fr) 400px; gap: 16px; align-items: start; }
+      .mc-tiles { display: flex; flex-wrap: wrap; gap: 14px; }
+      .mc-tiles > * { flex: 1 1 170px; }
+      .mc-scroll-x { overflow-x: auto; }
+      .mc-sidebar::-webkit-scrollbar { width: 6px; }
+      @media (max-width: 1180px) { .mc-cols { grid-template-columns: minmax(0, 1fr); } }
+      @media (max-width: 1100px) { .mc-hide-md { display: none !important; } }
       .mc-md p, .mc-md li, .mc-md td, .mc-md th, .mc-md blockquote { font-size: inherit; line-height: inherit; color: inherit; }
       .mc-md h1, .mc-md h2, .mc-md h3, .mc-md h4 { font-size: 13.5px; font-weight: 700; color: var(--mc-text); margin: 8px 0 4px; }
       .mc-md blockquote { margin: 0; padding-left: 10px; border-left: 2px solid rgba(var(--mc-fg-rgb),0.14); }
@@ -137,12 +145,12 @@ export function Btn({ children, primary, onClick, href, disabled, type, style }:
 
 export function PageHeader({ title, sub, right }: { title: string; sub?: React.ReactNode; right?: React.ReactNode }) {
   return (
-    <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, padding: '20px 28px 0' }}>
+    <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16, padding: '20px 28px 0' }}>
       <div style={{ minWidth: 0 }}>
         <h1 style={{ margin: 0, fontSize: 22, fontWeight: 700, letterSpacing: '-0.01em' }}>{title}</h1>
         {sub && <div style={{ fontSize: 13, color: T.muted, marginTop: 3 }}>{sub}</div>}
       </div>
-      {right && <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 'none' }}>{right}</div>}
+      {right && <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>{right}</div>}
     </header>
   );
 }
@@ -228,7 +236,7 @@ export function PatientTabs({ id }: { id: string }) {
   const path = usePathname();
   const base = `/clinician/patients/${id}`;
   return (
-    <nav aria-label="Patient views" style={{ display: 'flex', gap: 6 }}>
+    <nav aria-label="Patient views" style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
       {PATIENT_TABS.map((t) => {
         const href = base + t.seg;
         const active = path === href;

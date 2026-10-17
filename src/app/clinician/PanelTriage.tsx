@@ -64,13 +64,13 @@ export function PanelTiles({ rows, consults }: { rows: PanelRow[]; consults: num
   ];
 
   return (
-    <div style={{ display: 'flex', gap: 14 }}>
+    <div className="mc-tiles">
       {tiles.map((t) => (
         <div
           key={t.label}
           style={{
             background: 'var(--mc-card)', border: '1px solid rgba(var(--mc-fg-rgb),0.12)',
-            borderRadius: 16, flex: 1, padding: '15px 20px', minWidth: 0,
+            borderRadius: 16, padding: '15px 20px', minWidth: 0,
           }}
         >
           <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--mc-text)' }}>{t.label}</div>
@@ -131,7 +131,7 @@ export function PanelRows({ rows, to = '' }: { rows: PanelRow[]; to?: string }) 
               </div>
             </div>
 
-            <div style={{ width: 140, flex: 'none', fontSize: 12.5, color: 'var(--mc-text)' }}>
+            <div className="mc-hide-md" style={{ width: 140, flex: 'none', fontSize: 12.5, color: 'var(--mc-text)' }}>
               {r.headline ?? '—'}
               {(r.needs_review?.length ?? 0) > 0 && (
                 <div title={r.needs_review!.join('\n')} style={{ fontSize: 11, color: 'var(--mc-amber)', marginTop: 2 }}>
@@ -140,7 +140,7 @@ export function PanelRows({ rows, to = '' }: { rows: PanelRow[]; to?: string }) 
               )}
             </div>
 
-            <div style={{ width: 92, flex: 'none' }}>
+            <div className="mc-hide-md" style={{ width: 92, flex: 'none' }}>
               <span
                 style={{
                   display: 'inline-block', fontSize: 11, fontWeight: 700, color: trend.color,
