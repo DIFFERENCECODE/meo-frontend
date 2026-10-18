@@ -50,20 +50,24 @@ const TREND: Record<string, { label: string; color: string }> = {
   worsening:    { label: 'worsening',   color: 'var(--mc-orange)' },
   slow:         { label: 'slow',        color: 'var(--mc-amber)' },
   'no trend':   { label: 'no trend',    color: 'var(--mc-text)' },
-  'not started':{ label: 'not started', color: 'var(--mc-red)' },
+  // No meter reading yet is a fact, not an alarm: a patient on a lifestyle
+  // plan may simply not use the meter. Neutral, and worded as what it is.
+  'not started':{ label: 'no meter reading', color: 'rgba(var(--mc-fg-rgb),0.7)' },
 };
 
 export function PanelTiles({ rows, consults }: { rows: PanelRow[]; consults: number }) {
   const needReview = rows.filter((r) => r.urgency_level !== 'low').length;
   const stalled = rows.filter((r) => (r.readings_count ?? 0) === 1).length;
   const notStarted = rows.filter((r) => (r.readings_count ?? 0) === 0).length;
-  const onTrack = rows.filter((r) => r.urgency_level === 'low' && (r.readings_count ?? 0) > 1).length;
+  // On track means the plan is: counted lines and none well short, and
+  // nothing flagged. Bloods trending is shown per row, not counted here.
+  const onTrack = rows.filter((r) => r.urgency_level === 'low' && (r.plan?.judged ?? 0) > 0 && (r.plan?.off_track ?? 0) === 0).length;
 
   const tiles = [
     { label: 'Need review', n: needReview, sub: 'against what MeO flags on', color: 'var(--mc-orange)' },
     { label: 'Stalled', n: stalled, sub: 'no second reading', color: 'var(--mc-amber)' },
-    { label: 'Not syncing', n: notStarted, sub: 'never started a test', color: 'var(--mc-red)' },
-    { label: 'On track', n: onTrack, sub: 'trending to target', color: 'var(--mc-accent)' },
+    { label: 'No meter reading', n: notStarted, sub: 'never taken a guided test', color: 'var(--mc-text)' },
+    { label: 'On track', n: onTrack, sub: 'plan on course, nothing flagged', color: 'var(--mc-accent)' },
     { label: 'Consults this week', n: consults, sub: 'from your bookings', color: 'var(--mc-text)' },
   ];
 
