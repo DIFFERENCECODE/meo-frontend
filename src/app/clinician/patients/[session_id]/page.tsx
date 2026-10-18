@@ -19,9 +19,10 @@
  */
 
 import React, { useMemo, useState } from 'react';
-import { Card, Label, Markdown, Pill, Screen, State, T, scrollPaneTo, useAuthed, usePersona, type AskChip } from '../../ui';
+import { Card, Label, Pill, Screen, State, T, scrollPaneTo, useAuthed, usePersona, type AskChip } from '../../ui';
 import { PERSONAS, type Persona } from '../../persona';
 import { LensPanel } from '../../LensCharts';
+import { ProfileCard } from '../../ProfileCard';
 import {
   BloodsCard, CommitmentChips, KraftCurve, MovingTogether, PlanRows, useLifestyle, useRecord,
 } from '../../BriefVisuals';
@@ -73,7 +74,6 @@ export default function ProfilePage() {
   );
   const { glance, sections } = useMemo(() => splitBrief(brief.data?.response || ''), [brief.data]);
   const find = (word: string) => sections.find((s) => s.title.toLowerCase().includes(word));
-  const profile = find('profile');
   const conversations = find('conversation');
 
   const lines = plans(between.data);
@@ -95,13 +95,7 @@ export default function ProfilePage() {
   ];
 
   const blocks: Record<Key, React.ReactNode> = {
-    about: (
-      <Card>
-        <Label color={T.lime} style={{ marginBottom: 6 }}>In their words, at sign-up</Label>
-        {profile ? <Markdown text={profile.body || 'Nothing on file.'} />
-          : <div style={{ fontSize: 13 }}>{brief.loading ? 'Reading the record…' : 'Nothing on file.'}</div>}
-      </Card>
-    ),
+    about: <ProfileCard patientId={pid} />,
     plan: (
       <Card>
         <Label color={T.lime} style={{ marginBottom: 6 }}>Your plan since last time</Label>
