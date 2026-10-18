@@ -53,6 +53,10 @@ export function PortalStyles() {
       .mc-row { transition: background-color 120ms ease-out, border-color 120ms ease-out; }
       .mc-row:hover { background: rgba(var(--mc-fg-rgb),0.055) !important; }
       .mc-row:active { background: rgba(var(--mc-fg-rgb),0.075) !important; }
+      /* The portal never scrolls as a page: only its panes do. overflow: clip
+         (not hidden) on the shell refuses programmatic scrolling too, so a
+         jump-to-section cannot push the whole layout up and strand it there. */
+      html:has(.mc-portal), body:has(.mc-portal) { height: 100%; overflow: hidden; overscroll-behavior: none; }
       .mc-portal a:hover { color: inherit; }
       .mc-portal :focus-visible { outline: 2px solid ${T.lime}; outline-offset: 2px; border-radius: 10px; }
       .mc-sheet { transform-origin: bottom center; animation: mc-rise 220ms cubic-bezier(0.2, 0.9, 0.3, 1); }
@@ -160,7 +164,7 @@ export function Screen({ header, children, ask }: { header: React.ReactNode; chi
   return (
     <div style={{ flex: 1, minWidth: 0, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
       {header}
-      <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', padding: '16px 28px 20px' }}>{children}</div>
+      <div data-mc-scroll style={{ flex: 1, minHeight: 0, overflowY: 'auto', overscrollBehavior: 'contain', padding: '16px 28px 20px' }}>{children}</div>
       {ask}
     </div>
   );
@@ -288,7 +292,12 @@ export function AskBar({ patientId, placeholder }: { patientId: string; placehol
   const busy = turns.length > 0 && turns[turns.length - 1].a === null;
   const endRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => { endRef.current?.scrollIntoView({ block: 'end' }); }, [turns]);
+  // Scroll the answer sheet itself. scrollIntoView would also scroll every
+  // ancestor, including the clipped shell, and shift the whole portal up.
+  useEffect(() => {
+    const sheet = endRef.current?.parentElement;
+    if (sheet) sheet.scrollTop = sheet.scrollHeight;
+  }, [turns]);
 
   const send = async () => {
     const q = input.trim();
@@ -383,4 +392,14 @@ export function State({ loading, error, children }: { loading?: boolean; error?:
     );
   }
   return <>{children}</>;
+}
+
+/** Scroll one screen's pane to an element, never the page or the shell around it. */
+export function scrollPaneTo(id: string) {
+  const el = document.getElementById(id);
+  const pane = el?.closest('[data-mc-scroll]') as HTMLElement | null;
+  if (!el || !pane) return;
+  const top = el.getBoundingClientRect().top - pane.getBoundingClientRect().top + pane.scrollTop - 12;
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  pane.scrollTo({ top, behavior: reduce ? 'auto' : 'smooth' });
 }

@@ -127,7 +127,7 @@ function Shell({ pathname, profile, children }: { pathname: string; profile: Pro
     <div
       className="mc-portal"
       style={{
-        position: 'relative', width: '100%', height: '100dvh', overflow: 'hidden',
+        position: 'relative', width: '100%', height: '100dvh', overflow: 'clip',
         display: 'flex', color: K.text, fontFamily: '"Plus Jakarta Sans", system-ui, sans-serif',
         WebkitFontSmoothing: 'antialiased',
         background: 'var(--mc-ground)',
@@ -225,7 +225,7 @@ function Shell({ pathname, profile, children }: { pathname: string; profile: Pro
         </div>
       </aside>
 
-      <main style={{ position: 'relative', flex: 1, minWidth: 0, display: 'flex', overflow: 'hidden' }}>
+      <main style={{ position: 'relative', flex: 1, minWidth: 0, minHeight: 0, display: 'flex', overflow: 'clip' }}>
         {children}
       </main>
     </div>

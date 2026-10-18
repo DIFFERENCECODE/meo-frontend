@@ -11,7 +11,7 @@
  */
 
 import React, { useMemo } from 'react';
-import { Card, Label, Markdown, Pill, Screen, State, T, useAuthed, usePersona } from '../../ui';
+import { Card, Label, Markdown, Pill, Screen, State, T, scrollPaneTo, useAuthed, usePersona } from '../../ui';
 import { PERSONAS } from '../../persona';
 import { LensPanel } from '../../LensCharts';
 import {
@@ -66,9 +66,7 @@ export default function BriefPage() {
             <button
               key={t}
               className="mc-press"
-              onClick={() => document.getElementById(slug(t))?.scrollIntoView({
-                behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start',
-              })}
+              onClick={() => scrollPaneTo(slug(t))}
               style={{
                 fontSize: 12, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer', borderRadius: 999, padding: '5px 12px',
                 color: T.text, background: T.chip, border: `1px solid ${T.chipBorder}`,
