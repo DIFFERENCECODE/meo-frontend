@@ -38,6 +38,10 @@ export interface PanelRow {
   needs_review?: string[];
   /** The practitioner's own plan, counted by the Truth Engine. Null: no plan. */
   plan?: { lines: number; on_track: number; off_track: number; judged: number } | null;
+  /** Gone quiet, counted from meals logged and messages sent (app/services/drift.py). */
+  drift?: { status: 'active' | 'quiet' | 'not_started'; quiet_days: number | null; active_7d: number; last_active: string | null } | null;
+  /** A lab marker outside optimal and further out than the reading before. */
+  moving_away?: { display_name: string; value: number; unit: string; range: string; direction: string } | null;
 }
 
 const TREND: Record<string, { label: string; color: string }> = {

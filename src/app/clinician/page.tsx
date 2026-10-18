@@ -13,6 +13,7 @@ import React from 'react';
 import { getClinicianBookings } from './store';
 import { PanelTiles, PanelRows } from './PanelTriage';
 import { usePanel } from './panel-context';
+import { Fortnight } from './Fortnight';
 import { PageHeader, Pill, Screen, T } from './ui';
 
 function ago(d: Date | null) {
@@ -41,6 +42,7 @@ export default function PanelPage() {
         />
       }
     >
+      <Fortnight rows={rows} />
       <PanelTiles rows={rows} consults={consults} />
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, margin: '16px 0 10px' }}>
