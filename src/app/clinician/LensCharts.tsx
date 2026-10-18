@@ -35,7 +35,7 @@ const SAY: Record<string, string> = {
   unavailable: "Couldn't be read right now.",
 };
 
-function lastNDays(n: number): string[] {
+export function lastNDays(n: number): string[] {
   const out: string[] = [];
   const d = new Date();
   for (let i = n; i >= 1; i--) {
@@ -44,7 +44,7 @@ function lastNDays(n: number): string[] {
   }
   return out;
 }
-const dayLabel = (iso: string) => new Date(`${iso}T12:00:00`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+export const dayLabel = (iso: string) => new Date(`${iso}T12:00:00`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
 const toMin = (hhmm: string) => { const [h, m] = hhmm.split(':').map(Number); return h * 60 + m; };
 
 const W = 680, H = 190, L = 48, R = 12, TOP = 12, B = 26;
@@ -65,7 +65,7 @@ function Frame({ children, ticks, days }: { children: React.ReactNode; ticks: { 
   );
 }
 
-function Legend({ items }: { items: { mark: React.ReactNode; label: string }[] }) {
+export function Legend({ items }: { items: { mark: React.ReactNode; label: string }[] }) {
   return (
     <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', fontSize: 12, marginTop: 6 }}>
       {items.map((i) => (
@@ -77,7 +77,7 @@ function Legend({ items }: { items: { mark: React.ReactNode; label: string }[] }
   );
 }
 
-function TableView({ head, rows }: { head: string[]; rows: (string | number)[][] }) {
+export function TableView({ head, rows }: { head: string[]; rows: (string | number)[][] }) {
   return (
     <details style={{ marginTop: 8 }}>
       <summary style={{ fontSize: 12, cursor: 'pointer', fontWeight: 600 }}>Show as a table</summary>
