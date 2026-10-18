@@ -229,7 +229,7 @@ export function usePersona(): [Persona, (p: Persona) => void] {
 // ─── Patient screens ──────────────────────────────────────────────────────────
 
 const PATIENT_TABS = [
-  { seg: '', label: 'Brief' },
+  { seg: '', label: 'Profile' },
   { seg: '/review', label: 'Needs review' },
   { seg: '/between', label: 'Between visits' },
   { seg: '/after', label: 'After the session' },
@@ -280,12 +280,21 @@ export function firstName(full?: string | null) {
 
 interface Turn { q: string; a: string | null }
 
+/** A fixed question with its answer already in hand (a section of the brief).
+ *  `text` is null while the brief is still being prepared. */
+export interface AskChip { label: string; text: string | null }
+
 /**
  * The storyboard's ask bar, pinned to the bottom of a patient screen. Answers
  * rise in a sheet anchored to the bar they came from, and close back into it.
  * Translucent so the screen stays visible behind the conversation.
+ *
+ * Chips sit above the bar for the parts of the brief a practitioner reaches
+ * for every time. Tapping one puts that section into the same thread as an
+ * answer, straight from the brief already on screen: no model call, so what
+ * they read is exactly what was written from the record.
  */
-export function AskBar({ patientId, placeholder }: { patientId: string; placeholder: string }) {
+export function AskBar({ patientId, placeholder, chips }: { patientId: string; placeholder: string; chips?: AskChip[] }) {
   const [input, setInput] = useState('');
   const [turns, setTurns] = useState<Turn[]>([]);
   const [open, setOpen] = useState(false);
@@ -320,6 +329,12 @@ export function AskBar({ patientId, placeholder }: { patientId: string; placehol
     setTurns((t) => t.map((x, i) => (i === t.length - 1 ? { ...x, a } : x)));
   };
 
+  const showChip = (c: AskChip) => {
+    if (busy || c.text === null) return;
+    setTurns((t) => [...t, { q: c.label, a: c.text || 'Nothing on file.' }]);
+    setOpen(true);
+  };
+
   return (
     <div style={{ position: 'relative', padding: '12px 28px 20px' }}>
       {open && turns.length > 0 && (
@@ -349,6 +364,27 @@ export function AskBar({ patientId, placeholder }: { patientId: string; placehol
             </div>
           ))}
           <div ref={endRef} />
+        </div>
+      )}
+      {chips && chips.length > 0 && (
+        <div role="group" aria-label="From the brief" style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 10 }}>
+          {chips.map((c) => (
+            <button
+              key={c.label}
+              type="button"
+              className="mc-press"
+              onClick={() => showChip(c)}
+              disabled={busy || c.text === null}
+              title={c.text === null ? 'The brief is still being prepared' : undefined}
+              style={{
+                fontSize: 12.5, fontWeight: 600, fontFamily: 'inherit', borderRadius: 999, padding: '6px 13px',
+                color: T.text, background: T.chip, border: `1px solid ${T.chipBorder}`,
+                cursor: busy || c.text === null ? 'default' : 'pointer', opacity: c.text === null ? 0.55 : 1,
+              }}
+            >
+              {c.label}
+            </button>
+          ))}
         </div>
       )}
       <form

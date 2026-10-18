@@ -14,8 +14,8 @@
  */
 
 import React, { useMemo, useState } from 'react';
-import Link from 'next/link';
 import { Card, Label, Pill, T, useAuthed } from './ui';
+import { LabUpload } from './LabUpload';
 import { Legend, TableView, dayLabel } from './LensCharts';
 import { VERDICT, fmtDay, type Commitment, type Note } from './patients/[session_id]/shared';
 
@@ -181,10 +181,12 @@ function MarkerTile({ s, selected, onSelect }: { s: Series; selected: boolean; o
 }
 
 /** Bloods, Meterbolic and other labs kept apart, one small chart per marker. */
-export function BloodsCard({ record, patientId, selected, onSelect }: {
+export function BloodsCard({ record, patientId, selected, onSelect, onLabsSaved }: {
   record: PractitionerRecord | null; patientId: string; selected: string | null; onSelect: (name: string) => void;
+  onLabsSaved?: () => void;
 }) {
   const [tab, setTab] = useState<'meterbolic' | 'other'>('meterbolic');
+  const [adding, setAdding] = useState(false);
   const list = (tab === 'meterbolic' ? record?.meterbolic : record?.other_labs) ?? [];
   const tabBtn = (id: 'meterbolic' | 'other', label: string, n: number) => (
     <button
@@ -213,16 +215,23 @@ export function BloodsCard({ record, patientId, selected, onSelect }: {
       <div style={{ fontSize: 12, marginBottom: 10 }}>
         {tab === 'meterbolic'
           ? 'From the Meterbolic Lipid Meter and guided tests at home, fasted. Pick a marker to see it beside lifestyle below.'
-          : 'Panels from other labs, entered into the record with their date.'}
+          : 'Panels from other labs, read from the reports you add and checked by you before saving.'}
       </div>
+      {tab === 'other' && record && (list.length === 0 || adding) && (
+        <LabUpload patientId={patientId} onSaved={() => { setAdding(false); onLabsSaved?.(); }} />
+      )}
+      {tab === 'other' && record && list.length > 0 && !adding && (
+        <div style={{ marginBottom: 10 }}>
+          <button onClick={() => setAdding(true)} className="mc-press"
+            style={{ fontSize: 12.5, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer', color: T.lime, background: 'transparent', border: 0, padding: 0 }}>
+            Add lab results
+          </button>
+        </div>
+      )}
       {!record ? (
         <div style={{ fontSize: 13 }}>Loading the record…</div>
       ) : list.length === 0 ? (
-        <div style={{ fontSize: 13 }}>
-          {tab === 'meterbolic'
-            ? 'No meter readings on the record yet.'
-            : <>No results from other labs yet. <Link href={`/clinician/workspace?selected=${encodeURIComponent(patientId)}`} style={{ color: T.lime, fontWeight: 600 }}>Add lab results</Link></>}
-        </div>
+        tab === 'meterbolic' ? <div style={{ fontSize: 13 }}>No meter readings on the record yet.</div> : null
       ) : (
         <div style={{ display: 'grid', gap: 10, gridTemplateColumns: 'repeat(auto-fill, minmax(190px, 1fr))' }}>
           {list.map((s) => <MarkerTile key={s.name} s={s} selected={selected === s.name} onSelect={() => onSelect(s.name)} />)}

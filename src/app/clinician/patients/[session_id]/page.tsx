@@ -1,21 +1,25 @@
 'use client';
 
 /**
- * Pre-consultation brief (storyboard p01-p03), drawn rather than written.
+ * Profile (storyboard p01-p03): the person as a whole, drawn rather than written.
  *
- * The backend still assembles the brief as a workflow (every section gathered
- * in code, one bounded model call for the opening bullets). This screen shows
- * the facts behind it as visuals: the plan as progress rows, bloods as small
- * charts with Meterbolic kept apart from other labs, bloods and lifestyle on
- * one date axis, and the KRAFT curve as a curve. The written brief stays one
- * click away, folded, so nothing it says is lost.
+ * Who they are in their own words first, then the facts as visuals: the plan
+ * as progress rows, bloods as small charts with Meterbolic kept apart from
+ * other labs, bloods and lifestyle on one date axis, and the KRAFT curve as a
+ * curve.
+ *
+ * The written brief is still assembled by the backend as a workflow (every
+ * section gathered in code, one bounded model call for the opening bullets).
+ * Its suggested focus, recent conversations and full text are chips on the ask
+ * bar: one tap puts that section into the thread, so nothing it says is lost
+ * and follow-up questions land in the same place.
  *
  * The sidebar lens orders the screen: the physician starts from bloods, the
  * therapist from meals, the coach from movement and sleep.
  */
 
 import React, { useMemo, useState } from 'react';
-import { Card, Label, Markdown, Pill, Screen, State, T, scrollPaneTo, useAuthed, usePersona } from '../../ui';
+import { Card, Label, Markdown, Pill, Screen, State, T, scrollPaneTo, useAuthed, usePersona, type AskChip } from '../../ui';
 import { PERSONAS, type Persona } from '../../persona';
 import { LensPanel } from '../../LensCharts';
 import {
@@ -39,35 +43,22 @@ function splitBrief(md: string): { glance: string; sections: Section[] } {
   return { glance, sections };
 }
 
-type Key = 'focus' | 'plan' | 'lens' | 'bloods' | 'together' | 'kraft' | 'commitments' | 'profile' | 'conversations' | 'written';
+type Key = 'about' | 'plan' | 'lens' | 'bloods' | 'together' | 'kraft' | 'commitments';
 
 const ORDER: Record<Persona, Key[]> = {
-  physician: ['focus', 'plan', 'bloods', 'together', 'kraft', 'commitments', 'profile', 'conversations', 'written'],
-  therapist: ['focus', 'plan', 'lens', 'together', 'bloods', 'commitments', 'kraft', 'profile', 'conversations', 'written'],
-  coach: ['focus', 'plan', 'lens', 'together', 'commitments', 'bloods', 'kraft', 'profile', 'conversations', 'written'],
+  physician: ['about', 'plan', 'bloods', 'together', 'kraft', 'commitments'],
+  therapist: ['about', 'plan', 'lens', 'together', 'bloods', 'commitments', 'kraft'],
+  coach: ['about', 'plan', 'lens', 'together', 'commitments', 'bloods', 'kraft'],
 };
 
 const NAV_LABEL: Record<Key, string> = {
-  focus: 'Suggested focus', plan: 'Plan since last time', lens: 'Your view', bloods: 'Bloods',
+  about: 'In their words', plan: 'Plan since last time', lens: 'Your view', bloods: 'Bloods',
   together: 'Moving together', kraft: 'KRAFT curve', commitments: 'Their commitments',
-  profile: 'Profile', conversations: 'Conversations', written: 'Written brief',
 };
 
 const secId = (k: Key) => `sec-${k}`;
 
-function Folded({ title, children, note }: { title: string; children: React.ReactNode; note?: string }) {
-  return (
-    <details style={{ background: T.card, border: `1px solid ${T.cardBorder}`, borderRadius: 16, padding: '12px 20px' }}>
-      <summary style={{ cursor: 'pointer' }}>
-        <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: T.lime }}>{title}</span>
-        {note && <span style={{ fontSize: 12, marginLeft: 10 }}>{note}</span>}
-      </summary>
-      <div style={{ marginTop: 10 }}>{children}</div>
-    </details>
-  );
-}
-
-export default function BriefPage() {
+export default function ProfilePage() {
   const pid = usePatientId();
   const [persona] = usePersona();
   const brief = useAuthed<{ response: string }>(pid ? `/api/clinician/${encodeURIComponent(pid)}/brief?persona=${persona}` : null);
@@ -92,18 +83,25 @@ export default function BriefPage() {
     ?? record.data?.meterbolic[0]?.name
     ?? null;
 
+  // The brief's sections, one tap away on the ask bar. null = still preparing.
+  const ready = !!brief.data;
+  const chips: AskChip[] = [
+    { label: 'Suggested focus', text: ready ? glance : null },
+    { label: 'Recent conversations', text: ready ? (conversations?.body ?? '') : null },
+    {
+      label: 'Full written brief',
+      text: ready ? sections.map((sec) => `**${sec.title}**\n\n${sec.body || 'Nothing on file.'}`).join('\n\n') : null,
+    },
+  ];
+
   const blocks: Record<Key, React.ReactNode> = {
-    focus: glance ? (
-      <Card accent="rgba(var(--mc-accent-rgb),0.35)" style={{ padding: '14px 20px' }}>
-        <Label color={T.lime} style={{ marginBottom: 6 }}>Suggested focus</Label>
-        <Markdown text={glance} />
+    about: (
+      <Card>
+        <Label color={T.lime} style={{ marginBottom: 6 }}>In their words, at sign-up</Label>
+        {profile ? <Markdown text={profile.body || 'Nothing on file.'} />
+          : <div style={{ fontSize: 13 }}>{brief.loading ? 'Reading the record…' : 'Nothing on file.'}</div>}
       </Card>
-    ) : brief.loading ? (
-      <Card style={{ padding: '14px 20px' }}>
-        <Label style={{ marginBottom: 6 }}>Suggested focus</Label>
-        <div style={{ fontSize: 13 }}>Preparing the brief…</div>
-      </Card>
-    ) : null,
+    ),
     plan: (
       <Card>
         <Label color={T.lime} style={{ marginBottom: 6 }}>Your plan since last time</Label>
@@ -111,7 +109,7 @@ export default function BriefPage() {
       </Card>
     ),
     lens: <LensPanel patientId={pid} persona={persona} basPoints={basPoints(between.data)} planCutoff={planCutoff(between.data)} />,
-    bloods: <BloodsCard record={record.data} patientId={pid} selected={selected} onSelect={setMarker} />,
+    bloods: <BloodsCard record={record.data} patientId={pid} selected={selected} onSelect={setMarker} onLabsSaved={record.reload} />,
     together: (
       <MovingTogether record={record.data} lifestyle={lifestyle.data} selected={selected} onSelect={setMarker}
         planDate={planDate} dinnerCutoff={planCutoff(between.data)} />
@@ -123,22 +121,6 @@ export default function BriefPage() {
         <CommitmentChips commitments={between.data?.commitments ?? []} />
       </Card>
     ),
-    profile: profile ? (
-      <Folded title="Profile" note="patient-reported at sign-up"><Markdown text={profile.body || 'Nothing on file.'} /></Folded>
-    ) : null,
-    conversations: conversations ? (
-      <Folded title="Recent conversations" note="summaries of their chats with the coach"><Markdown text={conversations.body || 'Nothing on file.'} /></Folded>
-    ) : null,
-    written: sections.length ? (
-      <Folded title="Read the full written brief" note={`${sections.length} sections, as written from the record`}>
-        {sections.map((s) => (
-          <div key={s.title} style={{ padding: '10px 0', borderTop: `1px solid ${T.rowBorder}` }}>
-            <div style={{ fontSize: 12.5, fontWeight: 700, marginBottom: 4 }}>{s.title}</div>
-            <Markdown text={s.body || 'Nothing on file.'} />
-          </div>
-        ))}
-      </Folded>
-    ) : null,
   };
 
   const order = ORDER[persona].filter((k) => blocks[k] != null);
@@ -148,14 +130,14 @@ export default function BriefPage() {
       header={
         <PatientHeader
           id={pid}
-          title="Pre-consultation brief"
-          sub={(name) => `${name} · written for ${(PERSONAS.find((p) => p.id === persona)?.label ?? '').toLowerCase()}`}
-          right={generatedAt ? <Pill color={T.lime}>Generated {generatedAt}</Pill> : brief.loading ? <Pill>Preparing…</Pill> : null}
+          title="Profile"
+          sub={(name) => `${name} · ordered for ${(PERSONAS.find((p) => p.id === persona)?.label ?? '').toLowerCase()}`}
+          right={generatedAt ? <Pill color={T.lime}>Brief ready {generatedAt}</Pill> : brief.loading ? <Pill>Preparing the brief…</Pill> : null}
         />
       }
-      ask={<PatientAsk id={pid} example="show me every reading after a late dinner" />}
+      ask={<PatientAsk id={pid} example="show me every reading after a late dinner" chips={chips} />}
     >
-      <nav aria-label="Brief sections" style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 12 }}>
+      <nav aria-label="Profile sections" style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 12 }}>
         {order.map((k) => (
           <button
             key={k}

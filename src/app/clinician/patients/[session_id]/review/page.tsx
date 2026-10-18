@@ -75,7 +75,7 @@ export default function ReviewPage() {
           right={
             <>
               {lastReading && <Pill>Last reading {fmtDay(lastReading)}</Pill>}
-              <Btn primary href={`/clinician/patients/${id}`}>Open brief</Btn>
+              <Btn primary href={`/clinician/patients/${id}`}>Open profile</Btn>
             </>
           }
         />

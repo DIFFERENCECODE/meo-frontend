@@ -10,7 +10,7 @@
 import React from 'react';
 import { useParams } from 'next/navigation';
 import { FlaskConical, Hospital, PencilLine, Utensils, Footprints, Moon } from 'lucide-react';
-import { AskBar, Card, Label, PageHeader, PatientTabs, T, firstName, useAuthed, usePatient } from '../../ui';
+import { AskBar, Card, Label, PageHeader, PatientTabs, T, firstName, useAuthed, usePatient, type AskChip } from '../../ui';
 import type { PlanProgress } from '@/components/record/PractitionerNotes';
 
 export interface Note {
@@ -111,9 +111,9 @@ export function PatientHeader({ id, title, sub, right }: { id: string; title: st
   );
 }
 
-export function PatientAsk({ id, example }: { id: string; example: string }) {
+export function PatientAsk({ id, example, chips }: { id: string; example: string; chips?: AskChip[] }) {
   const { data } = usePatient(id);
-  return <AskBar patientId={id} placeholder={`Ask MeO about ${firstName(data?.patient_name)}: "${example}"`} />;
+  return <AskBar patientId={id} placeholder={`Ask MeO about ${firstName(data?.patient_name)}: "${example}"`} chips={chips} />;
 }
 
 // ─── Right-column cards ───────────────────────────────────────────────────────
