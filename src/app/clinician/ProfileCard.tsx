@@ -9,7 +9,7 @@
  */
 
 import React from 'react';
-import { Card, Label, Pill, T, useAuthed } from './ui';
+import { Card, Pill, T, useAuthed } from './ui';
 
 interface Fact { label: string; value: string }
 
@@ -48,8 +48,6 @@ export function ProfileCard({ patientId }: { patientId: string }) {
 
   return (
     <Card>
-      <Label color={T.lime} style={{ marginBottom: 8 }}>In their words, at sign-up</Label>
-
       {goal || goals ? (
         <div style={{ marginBottom: 14 }}>
           {goal && <div style={{ fontSize: 17, fontWeight: 700, letterSpacing: '-0.01em', lineHeight: 1.3 }}>{goal}</div>}
@@ -101,5 +99,42 @@ export function ProfileCard({ patientId }: { patientId: string }) {
         </details>
       )}
     </Card>
+  );
+}
+
+/**
+ * The profile on demand: one quiet button at the top of the right panel that
+ * opens the card in place and closes it again. Most visits don't need it, so
+ * it stays out of the way; the choice is remembered for this browser.
+ */
+export function ProfileToggle({ patientId }: { patientId: string }) {
+  const KEY = 'meo.clinician.profileOpen';
+  const [open, setOpen] = React.useState(false);
+  React.useEffect(() => {
+    try { setOpen(localStorage.getItem(KEY) === '1'); } catch { /* default closed */ }
+  }, []);
+  const toggle = () => {
+    setOpen((o) => {
+      try { localStorage.setItem(KEY, o ? '0' : '1'); } catch { /* fine */ }
+      return !o;
+    });
+  };
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+      <button
+        onClick={toggle}
+        aria-expanded={open}
+        className="mc-press"
+        style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%',
+          fontFamily: 'inherit', fontSize: 13, fontWeight: 700, cursor: 'pointer', color: T.text,
+          background: T.card, border: `1px solid ${T.cardBorder}`, borderRadius: 12, padding: '10px 14px',
+        }}
+      >
+        <span>Profile</span>
+        <span style={{ fontSize: 12, fontWeight: 600, color: T.lime }}>{open ? 'Hide' : 'Show'}</span>
+      </button>
+      {open && <div className="mc-sheet" style={{ transformOrigin: 'top center' }}><ProfileCard patientId={patientId} /></div>}
+    </div>
   );
 }

@@ -22,7 +22,7 @@ import React, { useMemo, useState } from 'react';
 import { Card, Label, Pill, Screen, State, T, scrollPaneTo, useAuthed, usePersona, type AskChip } from '../../ui';
 import { PERSONAS, type Persona } from '../../persona';
 import { LensPanel } from '../../LensCharts';
-import { ProfileCard } from '../../ProfileCard';
+import { ProfileCard, ProfileToggle } from '../../ProfileCard';
 import {
   BloodsCard, CommitmentChips, KraftCurve, MovingTogether, PlanRows, useLifestyle, useRecord,
 } from '../../BriefVisuals';
@@ -47,9 +47,9 @@ function splitBrief(md: string): { glance: string; sections: Section[] } {
 type Key = 'about' | 'plan' | 'lens' | 'bloods' | 'together' | 'kraft' | 'commitments';
 
 const ORDER: Record<Persona, Key[]> = {
-  physician: ['about', 'plan', 'bloods', 'together', 'kraft', 'commitments'],
-  therapist: ['about', 'plan', 'lens', 'together', 'bloods', 'commitments', 'kraft'],
-  coach: ['about', 'plan', 'lens', 'together', 'commitments', 'bloods', 'kraft'],
+  physician: ['plan', 'bloods', 'together', 'kraft', 'commitments'],
+  therapist: ['plan', 'lens', 'together', 'bloods', 'commitments', 'kraft'],
+  coach: ['plan', 'lens', 'together', 'commitments', 'bloods', 'kraft'],
 };
 
 const NAV_LABEL: Record<Key, string> = {
@@ -150,6 +150,7 @@ export default function ProfilePage() {
         ))}
         right={
           <>
+            <ProfileToggle patientId={pid} />
             <ProvenanceCard between={between.data} />
             <CommittedCard between={between.data} />
             <CantTellCard between={between.data} name="they" />
