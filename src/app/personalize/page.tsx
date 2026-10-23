@@ -121,6 +121,8 @@ export default function PersonalizePage() {
   // Initialize as empty during SSR; populate after mount to avoid hydration mismatch
   const [formDate, setFormDate] = useState('');
   const [formSubjectId, setFormSubjectId] = useState('');
+  // Subject ID is auto-allocated for most users; only reveal the input on demand
+  const [showSubjectId, setShowSubjectId] = useState(false);
   const [parsing, setParsing] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [payload, setPayload] = useState<ParsedPayload | null>(null);
@@ -614,20 +616,34 @@ export default function PersonalizePage() {
                     }}
                   />
                 </div>
-                <div>
-                  <label className="text-xs block mb-1" style={{ color: colors.muted }}>Subject ID (optional)</label>
-                  <input
-                    type="text"
-                    value={formSubjectId}
-                    onChange={(e) => setFormSubjectId(e.target.value)}
-                    placeholder="e.g. uk202603111645aaa"
-                    className="w-full rounded-lg px-3 py-2 text-sm outline-none"
-                    style={{
-                      background: colors.background,
-                      color: colors.foreground,
-                      border: `1px solid ${colors.cardBorder}`,
-                    }}
-                  />
+                <div className="flex flex-col justify-end">
+                  {showSubjectId ? (
+                    <>
+                      <label className="text-xs block mb-1" style={{ color: colors.muted }}>Subject ID (optional)</label>
+                      <input
+                        type="text"
+                        value={formSubjectId}
+                        onChange={(e) => setFormSubjectId(e.target.value)}
+                        placeholder="e.g. uk202603111645aaa"
+                        autoFocus
+                        className="w-full rounded-lg px-3 py-2 text-sm outline-none"
+                        style={{
+                          background: colors.background,
+                          color: colors.foreground,
+                          border: `1px solid ${colors.cardBorder}`,
+                        }}
+                      />
+                    </>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setShowSubjectId(true)}
+                      className="text-xs self-start mb-2 transition-colors hover:underline"
+                      style={{ color: colors.muted }}
+                    >
+                      + Add ID
+                    </button>
+                  )}
                 </div>
               </div>
 
