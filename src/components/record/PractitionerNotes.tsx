@@ -66,7 +66,7 @@ export function ProgressBadge({ progress }: { progress?: PlanProgress | null }) 
     <div className="flex items-center flex-wrap" style={{ gap: 8 }}>
       <span
         style={{
-          fontSize: 11, fontWeight: 700, color: meta.color, whiteSpace: 'nowrap',
+          fontSize: 13, fontWeight: 700, color: meta.color, whiteSpace: 'nowrap',
           border: `1px solid ${meta.color}`, borderRadius: 999, padding: '2px 9px',
           background: 'rgba(var(--mc-fg-rgb),0.04)',
         }}
@@ -74,7 +74,7 @@ export function ProgressBadge({ progress }: { progress?: PlanProgress | null }) 
         {meta.label}
       </span>
       {progress.summary && progress.status !== 'not_measurable' && (
-        <span style={{ fontSize: 12, color: colors.muted }}>{progress.summary}</span>
+        <span style={{ fontSize: 14, color: colors.muted }}>{progress.summary}</span>
       )}
     </div>
   );

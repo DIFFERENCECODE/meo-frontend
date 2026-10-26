@@ -246,11 +246,29 @@ export default function OnboardingPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
+  // ?edit=1 comes from Settings > Your health details: the form opens even
+  // after onboarding was done or skipped, prefilled with what was saved.
+  const [editing, setEditing] = useState(false);
   useEffect(() => {
     if (typeof window === 'undefined') return;
     if (!getIdToken()) { router.replace('/'); return; }
-    if (localStorage.getItem('meo_onboarding_v1')) router.replace('/');
+    const edit = new URLSearchParams(window.location.search).get('edit') === '1';
+    setEditing(edit);
+    if (!edit && localStorage.getItem('meo_onboarding_v1')) { router.replace('/'); return; }
+    if (edit) {
+      apiFetch('/api/profile')
+        .then((r) => (r.ok ? r.json() : null))
+        .then((p) => { if (p?.onboarding && typeof p.onboarding === 'object') setData((d) => ({ ...d, ...p.onboarding })); })
+        .catch(() => {});
+    }
   }, []);
+
+  // Skipping is allowed: nothing here is needed to use MeO. The details can
+  // be added later from Settings, and the assistant works without them.
+  const skip = () => {
+    try { if (!localStorage.getItem('meo_onboarding_v1')) localStorage.setItem('meo_onboarding_v1', 'skipped'); } catch { /* fine */ }
+    router.replace('/');
+  };
 
   const upd = (k: keyof OnboardingData, v: any) => setData(p => ({ ...p, [k]: v }));
 
@@ -482,13 +500,20 @@ export default function OnboardingPage() {
               </button>
             )}
             <button onClick={next} disabled={submitting}
-              className="flex items-center gap-2 px-6 py-2.5 rounded-full t-lead font-semibold hover:opacity-90 transition-opacity disabled:opacity-50"
-              style={{ background: 'var(--mc-text)', color: 'var(--mc-text)' }}>
-              {submitting ? 'Saving…' : step === TOTAL - 1 ? <>Complete <Check className="h-4 w-4" /></> : <>Continue <ArrowRight className="h-4 w-4" /></>}
+              className="meo-press flex items-center gap-2 px-6 py-2.5 rounded-full t-lead font-semibold hover:opacity-90 transition-opacity disabled:opacity-50"
+              style={{ background: 'var(--mc-accent)', color: 'var(--mc-on-accent)' }}>
+              {submitting ? 'Saving…' : step === TOTAL - 1 ? <>{editing ? 'Save' : 'Complete'} <Check className="h-4 w-4" /></> : <>Continue <ArrowRight className="h-4 w-4" /></>}
+            </button>
+            <div className="flex-1" />
+            <button onClick={skip}
+              className="meo-press px-4 py-2.5 rounded-full t-lead font-medium hover:bg-white/5 transition-colors"
+              style={{ color: 'var(--mc-text)', background: 'transparent', border: 0 }}>
+              {editing ? 'Cancel' : 'Skip for now'}
             </button>
           </div>
           <p className="mt-3 t-body2" style={{ color: 'var(--mc-text)' }}>
             {step === TOTAL - 1 ? 'Your data is encrypted and stored securely.' : `${TOTAL - step - 1} step${TOTAL - step - 1 !== 1 ? 's' : ''} remaining`}
+            {!editing && ' · You can skip this and add it later in Settings, under Your health details.'}
           </p>
         </div>
 

@@ -9,6 +9,8 @@ import { SectionAssistant } from '@/components/assistant/SectionAssistant';
 import { apiFetch, getIdToken, getValidIdToken, redirectToLogin } from '@/app/lib/auth';
 import { Backdrop } from './Backdrop';
 import { AskBar } from './AskBar';
+import { PanelBar } from './PanelBar';
+import { ScreenTour } from '@/components/tour/ScreenTour';
 import { cn } from '@/lib/utils';
 
 interface AppShellProps {
@@ -110,6 +112,7 @@ export function AppShell({
       }}
     >
       <Backdrop />
+      <ScreenTour />
       <LeftPanel
         onLibraryOpen={() => router.push('/library')}
         onNewChat={() => router.push('/chat')}
@@ -154,28 +157,21 @@ export function AppShell({
 
         <div className="flex-1 flex min-h-0 relative">
           <div className="flex-1 flex flex-col min-w-0 min-h-0 overflow-hidden">
-            <SectionAssistant context={askContext} composer={showAskBar ? <AskBar placeholder={askPlaceholder} /> : null}>
+            <SectionAssistant
+              context={askContext}
+              composer={showAskBar || rightPanel ? (
+                <>
+                  {rightPanel && <PanelBar label={rightPanelLabel}>{rightPanel}</PanelBar>}
+                  {showAskBar && <AskBar placeholder={askPlaceholder} />}
+                </>
+              ) : null}
+            >
             <div className="flex-1 min-h-0 overflow-auto">
               <div className="min-h-full flex flex-col">{children}</div>
-              {rightPanel && (
-                <details className="xl:hidden mx-7 mb-6 rounded-2xl" style={{ background: colors.card, border: `1px solid ${colors.cardBorder}` }}>
-                  <summary className="min-h-11 cursor-pointer px-5 py-3 font-semibold" style={{ color: colors.foreground }}>{rightPanelLabel}</summary>
-                  {rightPanel}
-                </details>
-              )}
             </div>
             </SectionAssistant>
           </div>
 
-          {rightPanel && (
-            <aside
-              aria-label={rightPanelLabel}
-              className="hidden xl:flex w-[372px] flex-none flex-col overflow-auto border-l"
-              style={{ borderColor: colors.cardBorder, backgroundColor: 'var(--mc-rail)' }}
-            >
-              {rightPanel}
-            </aside>
-          )}
         </div>
       </motion.main>
     </div>

@@ -102,8 +102,8 @@ function LibraryInner() {
                       <Icon className="h-5 w-5" style={{ color: colors.primary }} />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div style={{ fontSize: 16, fontWeight: 700, color: colors.foreground }}>{r.title}</div>
-                      <div style={{ fontSize: 12.5, color: colors.mutedDim, marginTop: 2 }}>
+                      <div style={{ fontSize: 18, fontWeight: 700, color: colors.foreground }}>{r.title}</div>
+                      <div style={{ fontSize: 14.5, color: colors.mutedDim, marginTop: 2 }}>
                         {r.author} · {r.type}
                       </div>
                     </div>
@@ -116,7 +116,7 @@ function LibraryInner() {
                       aria-label={`Open ${r.title}`}
                       aria-controls="library-reading-pane"
                       style={{
-                        fontSize: 12, fontWeight: 700, borderRadius: 999, padding: '5px 12px',
+                        fontSize: 14, fontWeight: 700, borderRadius: 999, padding: '5px 12px',
                         whiteSpace: 'nowrap', cursor: 'pointer', fontFamily: 'inherit',
                         color: r.viewUrl ? colors.primary : colors.muted,
                         background: r.viewUrl ? 'rgba(var(--mc-accent-rgb),0.12)' : 'rgba(var(--mc-fg-rgb),0.07)',
@@ -127,7 +127,7 @@ function LibraryInner() {
                     </button>
                   </div>
 
-                  <p style={{ fontSize: 13, lineHeight: 1.55, color: colors.muted }}>{r.description}</p>
+                  <p style={{ fontSize: 15, lineHeight: 1.55, color: colors.muted }}>{r.description}</p>
 
                   <div className="t-label" style={{ color: colors.mutedDim }}>Ask MeO</div>
                   <div className="flex flex-wrap" style={{ gap: 8 }}>
@@ -137,7 +137,7 @@ function LibraryInner() {
                         onClick={() => ask(q)}
                         disabled={busy}
                         style={{
-                          fontSize: 12, fontWeight: 600, color: colors.muted,
+                          fontSize: 14, fontWeight: 600, color: colors.muted,
                           background: 'rgba(var(--mc-fg-rgb),0.07)', border: '1px solid rgba(var(--mc-fg-rgb),0.14)',
                           borderRadius: 999, padding: '5px 12px', cursor: 'pointer', fontFamily: 'inherit',
                           textAlign: 'left',
@@ -159,10 +159,10 @@ function LibraryInner() {
             >
               <Plus className="h-4 w-4 mt-0.5" style={{ color: colors.mutedDim, flex: 'none' }} />
               <div>
-                <div style={{ fontSize: 13.5, fontWeight: 600, color: colors.foreground }}>
+                <div style={{ fontSize: 15.5, fontWeight: 600, color: colors.foreground }}>
                   More resources will be added here
                 </div>
-                <div style={{ fontSize: 12.5, color: colors.mutedDim, marginTop: 2 }}>
+                <div style={{ fontSize: 14.5, color: colors.mutedDim, marginTop: 2 }}>
                   Protocol guides, practitioner notes and Meterbolic research land here.
                 </div>
               </div>
@@ -182,7 +182,7 @@ function LibraryInner() {
               <div
                 style={{ background: colors.card, border: `1px solid ${colors.cardBorder}`, borderRadius: 16, padding: '18px 20px' }}
               >
-                <p style={{ fontSize: 13, color: colors.muted, lineHeight: 1.6 }}>
+                <p style={{ fontSize: 15, color: colors.muted, lineHeight: 1.6 }}>
                   {open
                     ? 'This guide is available through MeO. Choose one of its suggested questions to explore it.'
                     : 'Open a resource to read it here. Ask MeO about anything in the library and the answer cites back to it.'}

@@ -698,14 +698,14 @@ html {
    have two, which put every screen roughly one step too large. These are the
    measured values, nudged a half-pixel down where Cabinet Grotesk runs wider
    than the Plus Jakarta Sans the frames were drawn in.                      */
-.t-meta   { font-size: 10.5px; line-height: 1.45; }
-.t-dense  { font-size: 11px;   line-height: 1.45; }
-.t-small  { font-size: 12px;   line-height: 1.5; }
-.t-body2  { font-size: 12.5px; line-height: 1.5; }
-.t-body   { font-size: 13px;   line-height: 1.55; }
-.t-lead   { font-size: 13.5px; line-height: 1.55; }
-.t-lg     { font-size: 15px;   line-height: 1.45; }
-.t-head   { font-size: 22px;   line-height: 1.2;  letter-spacing: -0.01em; }
+.t-meta   { font-size: 12.5px; line-height: 1.45; }
+.t-dense  { font-size: 13px;   line-height: 1.45; }
+.t-small  { font-size: 14px;   line-height: 1.5; }
+.t-body2  { font-size: 14.5px; line-height: 1.5; }
+.t-body   { font-size: 15px;   line-height: 1.55; }
+.t-lead   { font-size: 15.5px; line-height: 1.55; }
+.t-lg     { font-size: 17px;   line-height: 1.45; }
+.t-head   { font-size: 24px;   line-height: 1.2;  letter-spacing: -0.01em; }
 
 /* Big numbers are set, not inflated: weight 800 and negative tracking. */
 .t-metric { font-size: 30px; font-weight: 800; letter-spacing: -0.025em; line-height: 1.05; }
@@ -713,7 +713,7 @@ html {
 
 /* The storyboard's uppercase section label, in full. */
 .t-label {
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -821,3 +821,19 @@ html {
   --background: #2C5858;
   --foreground: #ffffff;
 }
+
+/* Trend lines draw in; points arrive after the line reaches them. */
+.meo-draw { stroke-dasharray: 1; stroke-dashoffset: 1; animation: meo-draw 900ms cubic-bezier(0.25, 0.8, 0.3, 1) forwards; }
+@keyframes meo-draw { to { stroke-dashoffset: 0; } }
+.meo-pop { transform-box: fill-box; transform-origin: center; opacity: 0; animation: meo-pop 260ms cubic-bezier(0.2, 0.9, 0.3, 1.2) forwards; }
+@keyframes meo-pop { from { opacity: 0; transform: scale(0.4); } to { opacity: 1; transform: scale(1); } }
+/* A sheet rises from the bar that opened it. */
+.meo-sheet { transform-origin: bottom center; animation: meo-rise 220ms cubic-bezier(0.2, 0.9, 0.3, 1); }
+@keyframes meo-rise { from { opacity: 0; transform: translateY(8px) scale(0.985); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .meo-draw { animation: none; stroke-dashoffset: 0; }
+  .meo-pop { animation: none; opacity: 1; }
+  .meo-sheet { animation: none; }
+}
+.meo-fade { animation: meo-fade 140ms ease-out; }
+@keyframes meo-fade { from { opacity: 0; } to { opacity: 1; } }

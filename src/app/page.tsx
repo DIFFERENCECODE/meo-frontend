@@ -46,6 +46,7 @@ export default function Home() {
     <AppShell
       askPlaceholder={state === 'ready' ? 'Ask MeO about this reading…' : 'Ask MeO about getting started…'}
       askContext={record ? JSON.stringify({ latest: record.latest, previous: record.previous, delta: record.delta }) : undefined}
+      rightPanelLabel="This reading"
       rightPanel={record && state === 'ready' ? <ThisReadingPanel record={record} /> : undefined}
     >
       <RecordHome record={record} state={state} onRetry={() => setAttempt((value) => value + 1)} />

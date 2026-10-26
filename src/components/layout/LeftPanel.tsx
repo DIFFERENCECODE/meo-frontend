@@ -30,6 +30,8 @@ import {
   Plus,
   PanelLeftClose,
   Smartphone,
+  Map as MapIcon,
+  HeartPulse,
 } from 'lucide-react';
 import { useModalFocus } from '@/hooks/useModalFocus';
 import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
@@ -257,8 +259,8 @@ export function LeftPanel({
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src="/droplet-logo.png" alt="" style={{ width: 28, height: 28, objectFit: 'contain' }} />
                 <span>
-                  <span className="block" style={{ fontSize: 14.5, fontWeight: 800, color: 'var(--mc-text)' }}>MeO</span>
-                  <span className="block" style={{ fontSize: 10.5, color: 'var(--mc-text)' }}>by Meterbolic</span>
+                  <span className="block" style={{ fontSize: 16.5, fontWeight: 800, color: 'var(--mc-text)' }}>MeO</span>
+                  <span className="block" style={{ fontSize: 12.5, color: 'var(--mc-text)' }}>by Meterbolic</span>
                 </span>
               </Link>
               <button
@@ -278,7 +280,7 @@ export function LeftPanel({
                 data-tour="new-chat"
                 onClick={() => { onNewChat?.(); if (isMobile) setLeftPanelOpen(false); }}
                 className="meo-press flex items-center justify-center w-full"
-                style={{ gap: 8, padding: '11px 16px', borderRadius: 10, background: 'var(--mc-accent)', color: 'var(--mc-on-accent)', fontSize: 14, fontWeight: 600, border: 0, cursor: 'pointer' }}
+                style={{ gap: 8, padding: '11px 16px', borderRadius: 10, background: 'var(--mc-accent)', color: 'var(--mc-on-accent)', fontSize: 16, fontWeight: 600, border: 0, cursor: 'pointer' }}
               >
                 <Plus className="h-4 w-4" />
                 <span>{t('sidebar.new_chat')}</span>
@@ -305,7 +307,7 @@ export function LeftPanel({
                 { href: '/library', label: 'Library', Icon: BookOpen, tour: 'library-nav' },
                 { href: '/marketplace', label: 'Marketplace', Icon: ShoppingBag, tour: 'marketplace-nav' },
                 { divider: true },
-                { href: '/plan', label: 'My plan', Icon: ClipboardList },
+                { href: '/plan', label: 'My plan', Icon: ClipboardList, tour: 'plan-nav' },
                 { href: '/from-practitioner', label: 'From your practitioner', Icon: UserRound },
                 { href: '/connectors', label: 'Connectors', Icon: Link2, badge: liveSources ? `${liveSources} live` : null },
               ].map((item, i) => {
@@ -322,7 +324,7 @@ export function LeftPanel({
                     aria-current={active ? 'page' : undefined}
                     className="meo-press flex items-center no-underline"
                     style={{
-                      gap: 10, padding: '9px 12px', borderRadius: 10, fontSize: 13.5,
+                      gap: 10, padding: '9px 12px', borderRadius: 10, fontSize: 15.5,
                       fontWeight: active ? 700 : 500,
                       color: active ? 'var(--mc-accent)' : 'var(--mc-text)',
                       background: active ? 'rgba(var(--mc-accent-rgb),0.12)' : 'transparent',
@@ -331,7 +333,7 @@ export function LeftPanel({
                     <Icon className="h-4 w-4 shrink-0" />
                     <span className="flex-1 truncate">{label}</span>
                     {badge && (
-                      <span style={{ fontSize: 10.5, fontWeight: 600, color: 'var(--mc-text)', border: '1px solid rgba(var(--mc-fg-rgb),0.14)', borderRadius: 999, padding: '1px 8px', whiteSpace: 'nowrap' }}>
+                      <span style={{ fontSize: 12.5, fontWeight: 600, color: 'var(--mc-text)', border: '1px solid rgba(var(--mc-fg-rgb),0.14)', borderRadius: 999, padding: '1px 8px', whiteSpace: 'nowrap' }}>
                         {badge}
                       </span>
                     )}
@@ -353,7 +355,7 @@ export function LeftPanel({
               ) : chats && chats.length > 0 ? (
                 groupChats(chats).map(([group, items]) => (
                   <div key={group}>
-                    <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--mc-text)', padding: '12px 12px 4px', margin: 0 }}>
+                    <p style={{ fontSize: 13, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--mc-text)', padding: '12px 12px 4px', margin: 0 }}>
                       {group}
                     </p>
                     {items.map((chat) => (
@@ -366,7 +368,7 @@ export function LeftPanel({
                           type="button"
                           onClick={() => { onSelectChat?.(chat.id); if (isMobile) setLeftPanelOpen(false); }}
                           className="w-full text-left truncate"
-                          style={{ padding: '6px 34px 6px 12px', fontSize: 13, color: 'var(--mc-text)', background: 'transparent', border: 0, cursor: 'pointer' }}
+                          style={{ padding: '6px 34px 6px 12px', fontSize: 15, color: 'var(--mc-text)', background: 'transparent', border: 0, cursor: 'pointer' }}
                           title={formatChatDate(chat.updated_at || chat.created_at) || undefined}
                         >
                           <span className="block truncate">{chat.title}</span>
@@ -392,7 +394,7 @@ export function LeftPanel({
                   </div>
                 ))
               ) : (
-                <p className="px-3 py-2" style={{ fontSize: 13, color: 'var(--mc-text)' }}>
+                <p className="px-3 py-2" style={{ fontSize: 15, color: 'var(--mc-text)' }}>
                   {t('sidebar.empty_chats')}
                 </p>
               )}
@@ -438,6 +440,11 @@ export function LeftPanel({
                     className="overflow-hidden"
                   >
                     <div className="mt-1 p-2 rounded-[9px] space-y-0.5" style={{ backgroundColor: colors.accent }}>
+                      {/* Onboarding can be skipped; this is where it is finished later. */}
+                      <Link href="/onboarding?edit=1" className="w-full flex items-center gap-2 px-3 py-2 rounded-[9px] t-lead transition-colors hover:bg-transparent/5" style={{ color: colors.foreground }}>
+                        <HeartPulse className="h-4 w-4" />
+                        <span>Your health details</span>
+                      </Link>
                       <Link href="/profile" className="w-full flex items-center gap-2 px-3 py-2 rounded-[9px] t-lead transition-colors hover:bg-transparent/5" style={{ color: colors.foreground }}>
                         <User className="h-4 w-4" />
                         <span>Profile</span>
@@ -503,15 +510,17 @@ export function LeftPanel({
                         )}
                       </AnimatePresence>
 
-                      {onStartTour && (
-                        <button
-                          onClick={() => { setShowSettings(false); onStartTour(); }}
-                          className="w-full flex items-center gap-2 px-3 py-2 rounded-[9px] t-lead transition-colors hover:bg-transparent/5" style={{ color: colors.foreground }}
-                        >
-                          <span>🗺️</span>
-                          <span>Take the tour</span>
-                        </button>
-                      )}
+                      <button
+                        onClick={() => {
+                          setShowSettings(false);
+                          // The chat has its own tour; every other screen replays its own.
+                          if (onStartTour) onStartTour(); else window.dispatchEvent(new Event('meo:tour'));
+                        }}
+                        className="w-full flex items-center gap-2 px-3 py-2 rounded-[9px] t-lead transition-colors hover:bg-transparent/5" style={{ color: colors.foreground }}
+                      >
+                        <MapIcon className="h-4 w-4" />
+                        <span>Take the tour</span>
+                      </button>
                       <button
                         onClick={toggleColorMode}
                         className="w-full flex items-center justify-between px-3 py-2 rounded-[9px] t-lead transition-colors hover:bg-transparent/5"
@@ -537,7 +546,7 @@ export function LeftPanel({
                 <Link
                   href="/connectors"
                   className="meo-press flex items-center no-underline"
-                  style={{ gap: 10, margin: '6px 4px 4px', padding: '9px 12px', borderRadius: 10, background: 'rgba(var(--mc-fg-rgb),0.04)', border: '1px solid rgba(var(--mc-fg-rgb),0.1)', fontSize: 11.5, color: 'var(--mc-text)' }}
+                  style={{ gap: 10, margin: '6px 4px 4px', padding: '9px 12px', borderRadius: 10, background: 'rgba(var(--mc-fg-rgb),0.04)', border: '1px solid rgba(var(--mc-fg-rgb),0.1)', fontSize: 13.5, color: 'var(--mc-text)' }}
                 >
                   <Smartphone className="h-4 w-4 shrink-0" style={{ color: liveSources ? 'var(--mc-accent)' : 'var(--mc-text)' }} />
                   <span className="truncate">{liveSources ? `${liveSources} source${liveSources === 1 ? '' : 's'} sending data` : 'Connect your meter or phone'}</span>

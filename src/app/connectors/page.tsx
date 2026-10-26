@@ -73,7 +73,7 @@ function ConnectorsInner() {
         right={
           <span
             style={{
-              display: 'inline-block', fontSize: 12, fontWeight: 700, color: colors.primary,
+              display: 'inline-block', fontSize: 14, fontWeight: 700, color: colors.primary,
               background: 'rgba(var(--mc-accent-rgb),0.12)', border: '1px solid rgba(var(--mc-accent-rgb),0.3)',
               borderRadius: 999, padding: '5px 12px', whiteSpace: 'nowrap',
             }}
@@ -84,8 +84,8 @@ function ConnectorsInner() {
       />
 
       <ScreenBody gap={18}>
-        {state === 'loading' && <p style={{ fontSize: 13, color: colors.muted }}>Checking your sources…</p>}
-        {state === 'error' && <p style={{ fontSize: 13, color: colors.muted }}>Couldn&apos;t load your connectors.</p>}
+        {state === 'loading' && <p style={{ fontSize: 15, color: colors.muted }}>Checking your sources…</p>}
+        {state === 'error' && <p style={{ fontSize: 15, color: colors.muted }}>Couldn&apos;t load your connectors.</p>}
 
         {state === 'ready' && sources && (
           <div className="flex" style={{ gap: 18, alignItems: 'flex-start' }}>
@@ -116,10 +116,10 @@ function ConnectorsInner() {
                       <Icon className="h-4 w-4" style={{ color: on ? colors.primary : colors.mutedDim }} />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div style={{ fontSize: 14, fontWeight: 600, color: colors.foreground }}>{s.label}</div>
-                      <div style={{ fontSize: 12, color: colors.mutedDim, marginTop: 2 }}>{s.detail}</div>
+                      <div style={{ fontSize: 16, fontWeight: 600, color: colors.foreground }}>{s.label}</div>
+                      <div style={{ fontSize: 14, color: colors.mutedDim, marginTop: 2 }}>{s.detail}</div>
                     </div>
-                    <div style={{ fontSize: 12.5, fontWeight: 600, color: on ? colors.primary : colors.mutedDim, textAlign: 'right' }}>
+                    <div style={{ fontSize: 14.5, fontWeight: 600, color: on ? colors.primary : colors.mutedDim, textAlign: 'right' }}>
                       {s.status_text}
                     </div>
                     {on && (
@@ -134,11 +134,11 @@ function ConnectorsInner() {
             <div style={{ width: 340, flex: 'none', display: 'flex', flexDirection: 'column', gap: 14 }}>
               <div style={{ background: colors.card, border: `1px solid ${colors.cardBorder}`, borderRadius: 16, padding: '18px 20px' }}>
                 <div className="t-label" style={{ color: colors.mutedDim }}>Why connections live in the app</div>
-                <p style={{ fontSize: 13, color: colors.muted, lineHeight: 1.55, marginTop: 9 }}>{note}</p>
+                <p style={{ fontSize: 15, color: colors.muted, lineHeight: 1.55, marginTop: 9 }}>{note}</p>
               </div>
               <div style={{ background: colors.card, border: `1px solid ${colors.cardBorder}`, borderRadius: 16, padding: '18px 20px' }}>
                 <div className="t-label" style={{ color: colors.mutedDim }}>Sharing</div>
-                <p style={{ fontSize: 13, color: colors.muted, lineHeight: 1.55, marginTop: 9 }}>{sharingNote}</p>
+                <p style={{ fontSize: 15, color: colors.muted, lineHeight: 1.55, marginTop: 9 }}>{sharingNote}</p>
               </div>
             </div>
           </div>

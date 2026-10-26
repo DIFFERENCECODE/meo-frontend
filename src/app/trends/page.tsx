@@ -92,7 +92,7 @@ export default function TrendsPage() {
         />
 
         <ScreenBody>
-          {state === 'loading' && <p style={{ fontSize: 13, color: colors.muted }}>Loading your trends…</p>}
+          {state === 'loading' && <p style={{ fontSize: 15, color: colors.muted }}>Loading your trends…</p>}
           {state === 'error' && <div role="alert">
             <p style={{ color: colors.muted }}>Your trends couldn&apos;t be loaded.</p>
             <button onClick={() => setAttempt((value) => value + 1)} className="mt-3 min-h-11 rounded-xl px-5 font-semibold" style={{ background: colors.primary, color: colors.primaryForeground }}>Try again</button>
@@ -100,7 +100,7 @@ export default function TrendsPage() {
           {state === 'empty' && (
             <section className="max-w-xl rounded-2xl p-6" style={{ background: colors.card, border: `1px solid ${colors.cardBorder}` }}>
               <h2 className="text-lg font-semibold" style={{ color: colors.foreground }}>Your first reading starts here</h2>
-              <p className="mt-2 text-sm" style={{ color: colors.muted }}>Add a guided test to start your record. Come back after your next reading to compare results.</p>
+              <p className="mt-2 text-base" style={{ color: colors.muted }}>Add a guided test to start your record. Come back after your next reading to compare results.</p>
               <Link href="/test" className="mt-5 inline-flex min-h-11 items-center rounded-xl px-5 font-semibold" style={{ background: colors.primary, color: colors.primaryForeground }}>Start a guided test</Link>
             </section>
           )}
@@ -108,7 +108,7 @@ export default function TrendsPage() {
           {state === 'ready' && record && (
             <>
               {/* Metric tabs. */}
-              <div className="flex flex-wrap" style={{ gap: 8 }}>
+              <div data-tour="trend-tabs" className="flex flex-wrap" style={{ gap: 8 }}>
                 {available.map((m) => {
                   const on = m === metric;
                   return (
@@ -118,7 +118,7 @@ export default function TrendsPage() {
                       onClick={() => setMetric(m)}
                       aria-pressed={on}
                       style={{
-                        fontSize: 12, fontWeight: on ? 700 : 600, cursor: 'pointer', fontFamily: 'inherit',
+                        fontSize: 14, fontWeight: on ? 700 : 600, cursor: 'pointer', fontFamily: 'inherit',
                         borderRadius: 999, padding: '5px 12px', whiteSpace: 'nowrap',
                         color: on ? 'var(--mc-on-accent)' : colors.muted,
                         background: on ? 'var(--mc-accent)' : 'rgba(var(--mc-fg-rgb),0.07)',
@@ -133,18 +133,19 @@ export default function TrendsPage() {
 
               <div className="flex flex-col" style={{ gap: 18, minHeight: 0 }}>
                 <section
+                  data-tour="trend-chart"
                   className="w-full flex-1 min-w-0"
                   style={{ background: colors.card, border: `1px solid ${colors.cardBorder}`, borderRadius: 16, padding: '20px 22px' }}
                 >
-                  <div style={{ fontSize: 15, fontWeight: 700, color: colors.foreground }}>{meta.label}</div>
-                  <div style={{ fontSize: 12.5, color: colors.mutedDim, marginTop: 2 }}>
+                  <div style={{ fontSize: 17, fontWeight: 700, color: colors.foreground }}>{meta.label}</div>
+                  <div style={{ fontSize: 14.5, color: colors.mutedDim, marginTop: 2 }}>
                     {points.length} reading{points.length === 1 ? '' : 's'} · from your record
                   </div>
 
                   {first != null && last != null && points.length > 1 && (
                     <div style={{ fontSize: 19, fontWeight: 800, letterSpacing: '-0.025em', color: colors.foreground, marginTop: 10 }}>
                       {fmt(first)} <span style={{ color: colors.mutedDim }}>→</span> {fmt(last)}
-                      <span style={{ fontSize: 12.5, fontWeight: 400, color: colors.mutedDim }}> {meta.unit}</span>
+                      <span style={{ fontSize: 14.5, fontWeight: 400, color: colors.mutedDim }}> {meta.unit}</span>
                     </div>
                   )}
 
@@ -176,7 +177,7 @@ function Spark({ values, color }: { values: number[]; color: string }) {
   const pts = values.map((v, i) => `${(i / (values.length - 1)) * w},${h - 3 - ((v - lo) / span) * (h - 6)}`).join(' ');
   return (
     <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} aria-hidden>
-      <polyline points={pts} fill="none" stroke={color} strokeWidth="1.6" strokeLinejoin="round" strokeLinecap="round" />
+      <polyline key={pts} className="meo-draw" pathLength={1} points={pts} fill="none" stroke={color} strokeWidth="1.6" strokeLinejoin="round" strokeLinecap="round" />
     </svg>
   );
 }
@@ -187,7 +188,7 @@ function Spark({ values, color }: { values: number[]; color: string }) {
  */
 function TrendsRail({ record, metric, onPick }: { record: RecordResponse; metric: string; onPick: (m: string) => void }) {
   const rows = METRICS.filter((m) => m !== 'BAS' && (record.series?.[m]?.length ?? 0) > 0);
-  const label = { fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase' as const, color: 'var(--mc-text)' };
+  const label = { fontSize: 13, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase' as const, color: 'var(--mc-text)' };
   return (
     <div style={{ padding: '20px 20px 24px' }}>
       <div style={label}>From your meter</div>
@@ -204,24 +205,24 @@ function TrendsRail({ record, metric, onPick }: { record: RecordResponse; metric
             style={{ gap: 12, padding: '10px 4px', background: 'none', border: 'none', borderBottom: '1px solid rgba(var(--mc-fg-rgb),0.08)', cursor: 'pointer', fontFamily: 'inherit' }}
           >
             <div className="flex-1 min-w-0">
-              <div style={{ fontSize: 13, fontWeight: 700, color: m === metric ? 'var(--mc-accent)' : 'var(--mc-text)' }}>{sm.label}</div>
-              <div style={{ fontSize: 11, color: 'var(--mc-text)' }}>{pts.length} readings</div>
+              <div style={{ fontSize: 15, fontWeight: 700, color: m === metric ? 'var(--mc-accent)' : 'var(--mc-text)' }}>{sm.label}</div>
+              <div style={{ fontSize: 13, color: 'var(--mc-text)' }}>{pts.length} readings</div>
             </div>
             <Spark values={pts.map((p) => p.value)} color={(LOWER_IS_BETTER[m] ?? true) ? 'var(--mc-accent)' : 'var(--mc-blue)'} />
             <div style={{ width: 58, textAlign: 'right' }}>
-              <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--mc-text)' }}>{v != null ? Number(v.toFixed(2)) : '—'}</div>
-              <div style={{ fontSize: 10.5, color: 'var(--mc-text)' }}>{sm.unit}</div>
+              <div style={{ fontSize: 17, fontWeight: 800, color: 'var(--mc-text)' }}>{v != null ? Number(v.toFixed(2)) : '—'}</div>
+              <div style={{ fontSize: 12.5, color: 'var(--mc-text)' }}>{sm.unit}</div>
             </div>
           </button>
         );
       })}
       <div className="flex items-center justify-between" style={{ marginTop: 22 }}>
         <div style={label}>From your phone</div>
-        <span style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--mc-blue)', background: 'rgba(124,197,216,0.12)', border: '1px solid rgba(124,197,216,0.3)', borderRadius: 999, padding: '3px 9px' }}>
+        <span style={{ fontSize: 12.5, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--mc-blue)', background: 'rgba(124,197,216,0.12)', border: '1px solid rgba(124,197,216,0.3)', borderRadius: 999, padding: '3px 9px' }}>
           from the app
         </span>
       </div>
-      <p style={{ fontSize: 12.5, color: 'var(--mc-text)', lineHeight: 1.55, marginTop: 10 }}>
+      <p style={{ fontSize: 14.5, color: 'var(--mc-text)', lineHeight: 1.55, marginTop: 10 }}>
         Sleep, steps, resting heart rate and meal timing are charted in the MeO app on your phone.
         A plan line that checks them shows its count on <a href="/plan" style={{ color: 'var(--mc-accent)' }}>My plan</a>.
       </p>

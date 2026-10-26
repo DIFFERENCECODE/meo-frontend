@@ -91,7 +91,7 @@ export function BASProgressChart() {
             label: {
               formatter: `Mean {c}`,
               color: MEAN_COLOR,
-              fontSize: 11,
+              fontSize: 13,
               position: 'insideEndTop' as const,
             },
             lineStyle: { color: MEAN_COLOR, type: 'dashed' as const, width: 1, opacity: 0.7 },
@@ -108,7 +108,7 @@ export function BASProgressChart() {
         trigger: 'axis',
         backgroundColor: colors.card,
         borderColor: colors.cardBorder,
-        textStyle: { color: colors.foreground, fontSize: 12 },
+        textStyle: { color: colors.foreground, fontSize: 14 },
         formatter: (params: unknown) => {
           const p = (params as Array<{ name: string; value: number }>)[0];
           if (!p) return '';
@@ -121,7 +121,7 @@ export function BASProgressChart() {
         boundaryGap: false,
         axisLine: { lineStyle: { color: colors.cardBorder } },
         axisTick: { show: false },
-        axisLabel: { color: colors.muted, fontSize: 11 },
+        axisLabel: { color: colors.muted, fontSize: 13 },
       },
       yAxis: {
         type: 'value',
@@ -130,7 +130,7 @@ export function BASProgressChart() {
         splitLine: { lineStyle: { color: colors.cardBorder, opacity: 0.4, type: 'dashed' } },
         axisLine: { show: false },
         axisTick: { show: false },
-        axisLabel: { color: colors.muted, fontSize: 11 },
+        axisLabel: { color: colors.muted, fontSize: 13 },
       },
       series: [
         {
@@ -151,7 +151,7 @@ export function BASProgressChart() {
               return typeof v === 'number' ? v.toFixed(1) : '';
             },
             color: LINE_COLOR,
-            fontSize: 11,
+            fontSize: 13,
             fontWeight: 'bold',
           },
           areaStyle: {

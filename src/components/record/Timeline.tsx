@@ -54,8 +54,8 @@ function Row({ reading, colors }: { reading: Reading & { kind?: string }; colors
     <li className="flex items-center" style={{ gap: 14, padding: '14px 0', borderTop: `1px solid ${colors.cardBorder}` }}>
       {/* Date column, as the frame has it: the day over the time. */}
       <div style={{ width: 86, flex: 'none' }}>
-        <div style={{ fontSize: 12.5, fontWeight: 600, color: colors.foreground }}>{fmtDate(reading.date)}</div>
-        {time && <div style={{ fontSize: 11.5, color: colors.mutedDim }}>{time}</div>}
+        <div style={{ fontSize: 14.5, fontWeight: 600, color: colors.foreground }}>{fmtDate(reading.date)}</div>
+        {time && <div style={{ fontSize: 13.5, color: colors.mutedDim }}>{time}</div>}
       </div>
 
       <div
@@ -67,24 +67,24 @@ function Row({ reading, colors }: { reading: Reading & { kind?: string }; colors
 
       <div className="min-w-0 flex-1">
         <div className="flex items-baseline" style={{ gap: 8, flexWrap: 'wrap' }}>
-          <span style={{ fontSize: 13.5, fontWeight: 600, color: colors.foreground }}>{kind.label}</span>
+          <span style={{ fontSize: 15.5, fontWeight: 600, color: colors.foreground }}>{kind.label}</span>
           {reading.bas != null && (
-            <span style={{ fontSize: 13.5, color: colors.primary }}>BAS {reading.bas.toFixed(1)}</span>
+            <span style={{ fontSize: 15.5, color: colors.primary }}>BAS {reading.bas.toFixed(1)}</span>
           )}
           {reading.bas != null && reading.score_caveat && (
-            <span style={{ fontSize: 11.5, color: colors.warning }} title={reading.score_caveat}>provisional</span>
+            <span style={{ fontSize: 13.5, color: colors.warning }} title={reading.score_caveat}>provisional</span>
           )}
           {reading.is_panel && reading.bas == null && (
-            <span style={{ fontSize: 11.5, color: colors.warning }}>no score</span>
+            <span style={{ fontSize: 13.5, color: colors.warning }}>no score</span>
           )}
         </div>
         {reading.is_panel && reading.bas == null && reading.no_score_reason && (
-          <div style={{ fontSize: 11.5, color: colors.warning, marginTop: 2 }}>{reading.no_score_reason}</div>
+          <div style={{ fontSize: 13.5, color: colors.warning, marginTop: 2 }}>{reading.no_score_reason}</div>
         )}
         {reading.bas != null && reading.score_caveat && (
-          <div style={{ fontSize: 11.5, color: colors.warning, marginTop: 2 }}>{reading.score_caveat}</div>
+          <div style={{ fontSize: 13.5, color: colors.warning, marginTop: 2 }}>{reading.score_caveat}</div>
         )}
-        <div style={{ fontSize: 11.5, color: colors.mutedDim, marginTop: 2 }}>
+        <div style={{ fontSize: 13.5, color: colors.mutedDim, marginTop: 2 }}>
           {markers} value{markers === 1 ? '' : 's'}
           {reading.fasted ? ' · fasted' : ''}
           {capture ? ` · ${capture}` : ' · capture not recorded'}
@@ -93,7 +93,7 @@ function Row({ reading, colors }: { reading: Reading & { kind?: string }; colors
 
       <span
         style={{
-          fontSize: 10.5, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase',
+          fontSize: 12.5, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase',
           color: chip.color, background: chip.bg, border: `1px solid ${chip.bd}`,
           borderRadius: 999, padding: '3px 9px', whiteSpace: 'nowrap', flex: 'none',
         }}
@@ -191,7 +191,7 @@ export function Timeline({ record }: { record: RecordResponse }) {
           Nothing of that kind on your record yet.
         </p>
       ) : (
-        <ul className="list-none p-0 m-0">
+        <ul data-tour="timeline-list" className="list-none p-0 m-0">
           {shown.map((r) => (
             <Row key={r.series} reading={r} colors={colors as unknown as Record<string, string>} />
           ))}

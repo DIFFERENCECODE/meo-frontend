@@ -134,24 +134,24 @@ export function SectionAssistant({ children, composer, context }: {
           {turns.length > 0 && (
             <section aria-label={`MeO answers in ${section}`} className="mb-2 overflow-hidden rounded-2xl" style={{ background: 'var(--mc-sheet)', backdropFilter: 'blur(18px) saturate(140%)', WebkitBackdropFilter: 'blur(18px) saturate(140%)', border: '1px solid rgba(var(--mc-fg-rgb),0.14)', color: colors.foreground, boxShadow: '0 -18px 40px rgba(0,0,0,0.25)' }}>
               <div className="flex items-center justify-between gap-2 px-4">
-                <button type="button" className="flex min-h-11 flex-1 items-center justify-between gap-3 text-left text-sm font-semibold" aria-expanded={expanded} aria-controls="section-answers" onClick={() => setExpanded(value => !value)}>
+                <button type="button" className="flex min-h-11 flex-1 items-center justify-between gap-3 text-left text-base font-semibold" aria-expanded={expanded} aria-controls="section-answers" onClick={() => setExpanded(value => !value)}>
                   <span>MeO <span className="font-normal" style={{ color: colors.muted }}>· {section}</span></span>
                   {expanded ? <ChevronDown aria-hidden="true" className="h-4 w-4" /> : <ChevronUp aria-hidden="true" className="h-4 w-4" />}
                 </button>
-                {busy && <button type="button" onClick={() => pending.current?.abort()} className="min-h-11 px-3 text-sm flex items-center gap-2"><Square aria-hidden="true" className="h-3 w-3" />Stop</button>}
+                {busy && <button type="button" onClick={() => pending.current?.abort()} className="min-h-11 px-3 text-base flex items-center gap-2"><Square aria-hidden="true" className="h-3 w-3" />Stop</button>}
               </div>
               <div id="section-answers" hidden={!expanded}>
                 <div ref={output} className="max-h-[35dvh] overflow-y-auto px-4 pb-4 space-y-4" onScroll={event => { const node = event.currentTarget; followOutput.current = node.scrollHeight - node.scrollTop - node.clientHeight < 48; }}>
                   {turns.map((turn, index) => (
-                    <div key={index} className="space-y-2 text-sm leading-relaxed break-words">
+                    <div key={index} className="space-y-2 text-base leading-relaxed break-words">
                       <p className="font-semibold" style={{ color: colors.primary }}>{turn.question}</p>
                       <div className="space-y-2 [&_p]:my-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_a]:underline [&_pre]:overflow-auto [&_table]:block [&_table]:overflow-auto">
                         <ReactMarkdown remarkPlugins={[remarkGfm]}>{turn.answer}</ReactMarkdown>
                       </div>
                     </div>
                   ))}
-                  <p role="status" className="text-sm" style={{ color: colors.muted }}>{busy ? 'MeO is responding…' : error ? '' : 'Response complete.'}</p>
-                  {error && <div role="alert" className="text-sm"><p>{error}</p><button type="button" disabled={busy} className="mt-2 min-h-11 rounded-lg border px-4 font-semibold disabled:opacity-50" onClick={() => { const request = lastRequest.current; if (request) void send(request.question, request.message, true); }}>Try again</button></div>}
+                  <p role="status" className="text-base" style={{ color: colors.muted }}>{busy ? 'MeO is responding…' : error ? '' : 'Response complete.'}</p>
+                  {error && <div role="alert" className="text-base"><p>{error}</p><button type="button" disabled={busy} className="mt-2 min-h-11 rounded-lg border px-4 font-semibold disabled:opacity-50" onClick={() => { const request = lastRequest.current; if (request) void send(request.question, request.message, true); }}>Try again</button></div>}
                 </div>
               </div>
             </section>

@@ -12,6 +12,7 @@ import {
   Minus,
 } from 'lucide-react';
 import { useTheme } from '@/theme/ThemeProvider';
+import { InfoTip } from '@/components/tour/InfoTip';
 import { useMyPractitioner } from '@/components/record/PractitionerNotes';
 import { ScreenHeader, ScreenBody, Chip } from '@/components/layout/ScreenHeader';
 import { TrendChart, TrendPoint } from '@/components/analysis/TrendChart';
@@ -187,7 +188,7 @@ export function RecordHome({ record, state, onRetry }: RecordHomeProps) {
       <><ScreenHeader title="My record" /><ScreenBody>
         <section role="alert" className="max-w-xl rounded-2xl p-6" style={{ background: colors.card, border: `1px solid ${colors.cardBorder}` }}>
           <h2 className="text-lg font-semibold" style={{ color: colors.foreground }}>Your record couldn&apos;t be loaded</h2>
-          <p className="mt-2 text-sm" style={{ color: colors.muted }}>Try again to reconnect. Your saved readings haven&apos;t changed.</p>
+          <p className="mt-2 text-base" style={{ color: colors.muted }}>Try again to reconnect. Your saved readings haven&apos;t changed.</p>
           {onRetry && <button onClick={onRetry} className="mt-5 min-h-11 rounded-xl px-5 font-semibold" style={{ background: colors.primary, color: colors.primaryForeground }}>Try again</button>}
         </section>
       </ScreenBody></>
@@ -229,11 +230,12 @@ export function RecordHome({ record, state, onRetry }: RecordHomeProps) {
       <ScreenBody>
         {/* Score card. */}
         <section
+          data-tour="bas"
           className="flex flex-col items-stretch gap-5 lg:flex-row lg:items-center"
           style={{ background: colors.card, border: `1px solid ${colors.cardBorder}`, borderRadius: 16, padding: '20px 24px' }}
         >
           <div>
-            <div className="t-label" style={{ color: colors.primary }}>Biological Age Score</div>
+            <div className="t-label" style={{ color: colors.primary }}>Biological Age Score<InfoTip text="One number for your metabolic health, in years, built from your fasting bloods and measurements. Below your real age is good." /></div>
             {bas != null ? (
               <>
                 <div className="flex flex-wrap items-baseline" style={{ gap: 14, marginTop: 6 }}>
@@ -245,23 +247,23 @@ export function RecordHome({ record, state, onRetry }: RecordHomeProps) {
                       <div style={{ fontSize: 19, fontWeight: 800, color: basDelta <= 0 ? colors.primary : colors.warning }}>
                         {basDelta < 0 ? '▼' : basDelta > 0 ? '▲' : '—'} {Math.abs(basDelta).toFixed(1)}
                       </div>
-                      <div style={{ fontSize: 12, color: colors.muted }}>since {fmtDate(previous?.date ?? null)}</div>
+                      <div style={{ fontSize: 14, color: colors.muted }}>since {fmtDate(previous?.date ?? null)}</div>
                     </div>
                   )}
                 </div>
                 {age != null && (
-                  <div style={{ fontSize: 13, color: colors.muted, marginTop: 6 }}>
+                  <div style={{ fontSize: 15, color: colors.muted, marginTop: 6 }}>
                     Target <b style={{ color: colors.primary }}>{age.toFixed(0)}</b>, your real age
                   </div>
                 )}
                 {latest.score_caveat && (
-                  <div style={{ fontSize: 12.5, color: colors.warning, marginTop: 8, maxWidth: 420, lineHeight: 1.5 }}>
+                  <div style={{ fontSize: 14.5, color: colors.warning, marginTop: 8, maxWidth: 420, lineHeight: 1.5 }}>
                     {latest.score_caveat}
                   </div>
                 )}
               </>
             ) : (
-              <div style={{ fontSize: 13, color: colors.warning, marginTop: 8, maxWidth: 420, lineHeight: 1.5 }}>
+              <div style={{ fontSize: 15, color: colors.warning, marginTop: 8, maxWidth: 420, lineHeight: 1.5 }}>
                 {latest.no_score_reason ??
                   'This reading has no score. A score needs a full set of plausible fasting values.'}
               </div>
@@ -273,7 +275,7 @@ export function RecordHome({ record, state, onRetry }: RecordHomeProps) {
               Last {Math.max(basSeries.length, 1)} reading{basSeries.length === 1 ? '' : 's'}
             </div>
             <TrendChart points={basSeries} height={56} />
-            <div className="flex justify-between" style={{ fontSize: 11, color: colors.mutedDim }}>
+            <div className="flex justify-between" style={{ fontSize: 13, color: colors.mutedDim }}>
               <span>{basSeries.length ? fmtDate(basSeries[0].date) : '—'}</span>
               <span>{basSeries.length ? fmtDate(basSeries[basSeries.length - 1].date) : '—'}</span>
             </div>
@@ -282,9 +284,10 @@ export function RecordHome({ record, state, onRetry }: RecordHomeProps) {
 
         {/* Attribution. */}
         <section
+          data-tour="what-changed"
           style={{ background: colors.card, border: `1px solid ${colors.cardBorder}`, borderRadius: 16, padding: '20px 22px' }}
         >
-          <div className="t-label" style={{ color: colors.mutedDim }}>What changed most</div>
+          <div className="t-label" style={{ color: colors.mutedDim }}>What changed most<InfoTip text="How each marker moved since your last reading, largest change first. It shows movement, not how much each one affects your score." /></div>
 
           {ranked.map((key, i) => {
             const d = record.delta[key];
@@ -301,24 +304,24 @@ export function RecordHome({ record, state, onRetry }: RecordHomeProps) {
                   borderBottom: i === ranked.length - 1 ? undefined : '1px solid rgba(var(--mc-fg-rgb),0.08)',
                 }}
               >
-                <div className="record-change-label" style={{ fontSize: 13.5, color: colors.muted }}>{meta.label}</div>
-                <div className="record-change-values" style={{ fontSize: 13.5, fontWeight: 600, textAlign: 'right', color: colors.foreground }}>
+                <div className="record-change-label" style={{ fontSize: 15.5, color: colors.muted }}>{meta.label}</div>
+                <div className="record-change-values" style={{ fontSize: 15.5, fontWeight: 600, textAlign: 'right', color: colors.foreground }}>
                   {d.from} → {d.to}
                 </div>
-                <div className="record-change-direction" style={{ width: 24, textAlign: 'center', fontSize: 13, fontWeight: 800, color: tone }}>
+                <div className="record-change-direction" style={{ width: 24, textAlign: 'center', fontSize: 15, fontWeight: 800, color: tone }}>
                   {d.direction === 'down' ? '▼' : d.direction === 'up' ? '▲' : '—'}
                 </div>
                 <div className="record-change-bar" aria-hidden="true" style={{ width: 96, height: 6, borderRadius: 3, background: 'rgba(var(--mc-fg-rgb),0.1)' }}>
                   <div style={{ width: `${flat ? 0 : share}%`, height: 6, borderRadius: 3, background: tone }} />
                 </div>
-                <div className="record-change-note" style={{ width: 104, fontSize: 11.5, color: colors.mutedDim, textAlign: 'right' }}>
+                <div className="record-change-note" style={{ width: 104, fontSize: 13.5, color: colors.mutedDim, textAlign: 'right' }}>
                   {flat ? 'no real change' : NOTE[i] ?? 'small move'}
                 </div>
               </div>
             );
           })}
 
-          <div style={{ fontSize: 11, color: colors.mutedDim, paddingTop: 10, lineHeight: 1.5 }}>
+          <div style={{ fontSize: 13, color: colors.mutedDim, paddingTop: 10, lineHeight: 1.5 }}>
             These values are ranked by their relative change. This does not show
             how much each measurement contributed to your score.
           </div>
@@ -328,15 +331,15 @@ export function RecordHome({ record, state, onRetry }: RecordHomeProps) {
             className="flex flex-wrap items-center"
             style={{ gap: 12, marginTop: 14, paddingTop: 14, borderTop: '1px solid rgba(var(--mc-fg-rgb),0.1)' }}
           >
-            <div className="t-label" style={{ color: colors.mutedDim }}>Around it</div>
-            <div style={{ fontSize: 12.5, color: colors.muted }}>
+            <div className="t-label" style={{ color: colors.mutedDim }}>Around it<InfoTip text="What else was going on around this reading: sleep, steps and meal timing from your phone, once connected." /></div>
+            <div style={{ fontSize: 14.5, color: colors.muted }}>
               Sleep, steps and meal timing are not available in this web view yet.
             </div>
             <div className="flex-1" />
             <Link
               href="/connectors"
               style={{
-                display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 10.5, fontWeight: 700,
+                display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 12.5, fontWeight: 700,
                 letterSpacing: '0.08em', textTransform: 'uppercase', color: colors.device,
                 background: 'rgba(124,197,216,0.12)', border: '1px solid rgba(124,197,216,0.3)',
                 borderRadius: 999, padding: '3px 9px', whiteSpace: 'nowrap',
@@ -358,8 +361,8 @@ export function RecordHome({ record, state, onRetry }: RecordHomeProps) {
               <Check className="h-4 w-4" style={{ color: colors.primary }} />
             </div>
             <div className="flex-1 min-w-0">
-              <div style={{ fontSize: 13.5, fontWeight: 700, color: colors.foreground }}>Take a reading</div>
-              <div style={{ fontSize: 12, color: colors.muted }}>Last: {fmtDate(latest.date)}</div>
+              <div style={{ fontSize: 15.5, fontWeight: 700, color: colors.foreground }}>Take a reading</div>
+              <div style={{ fontSize: 14, color: colors.muted }}>Last: {fmtDate(latest.date)}</div>
             </div>
             <ArrowRight className="h-4 w-4" style={{ color: colors.mutedDim }} />
           </Link>
@@ -373,10 +376,10 @@ export function RecordHome({ record, state, onRetry }: RecordHomeProps) {
               <Clock className="h-4 w-4" style={{ color: colors.primary }} />
             </div>
             <div className="flex-1 min-w-0">
-              <div style={{ fontSize: 13.5, fontWeight: 700, color: colors.foreground }}>
+              <div style={{ fontSize: 15.5, fontWeight: 700, color: colors.foreground }}>
                 {practitioner?.name ? `From ${practitioner.name}` : 'From your practitioner'}
               </div>
-              <div style={{ fontSize: 12, color: colors.muted }}>
+              <div style={{ fontSize: 14, color: colors.muted }}>
                 {practitioner?.name ? 'Their notes and your plan' : 'Notes and your plan appear after a consult'}
               </div>
             </div>

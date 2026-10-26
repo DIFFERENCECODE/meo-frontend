@@ -37,6 +37,7 @@ export default function TimelinePage() {
     <AppShell
       askPlaceholder="Ask MeO about any day…"
       askContext={record ? JSON.stringify({ readings: record.readings.slice(0, 12) }) : undefined}
+      rightPanelLabel="Where your data comes from"
       rightPanel={record && state === 'ready' ? <DataSources record={record} /> : undefined}
     >
       {state === 'ready' && record ? (

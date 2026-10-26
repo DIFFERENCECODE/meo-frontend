@@ -67,6 +67,7 @@ export function AskBar({ placeholder = 'Ask MeO…' }: AskBarProps) {
 
   return (
     <form
+      data-tour="ask-bar"
       onSubmit={submit}
       className="flex items-center"
       style={{
@@ -102,7 +103,7 @@ export function AskBar({ placeholder = 'Ask MeO…' }: AskBarProps) {
         onChange={(e) => setValue(e.target.value)}
         placeholder={reading ? `Reading ${reading}…` : uploadError ?? placeholder}
         className="min-w-0 flex-1 bg-transparent outline-none"
-        style={{ color: 'var(--mc-text)', fontSize: 13.5 }}
+        style={{ color: 'var(--mc-text)', fontSize: 15.5 }}
       />
       {isSupported && (
         <button

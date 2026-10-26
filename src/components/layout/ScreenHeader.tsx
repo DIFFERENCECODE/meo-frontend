@@ -24,7 +24,7 @@ export function Chip({ children }: { children: React.ReactNode }) {
   return (
     <span
       style={{
-        display: 'inline-block', fontSize: 12, fontWeight: 600, color: colors.muted,
+        display: 'inline-block', fontSize: 14, fontWeight: 600, color: colors.muted,
         background: 'rgba(var(--mc-fg-rgb),0.07)', border: '1px solid rgba(var(--mc-fg-rgb),0.14)',
         borderRadius: 999, padding: '5px 12px', whiteSpace: 'nowrap',
       }}
@@ -54,7 +54,7 @@ export function ScreenHeader({
           {title}
         </h1>
         {subtitle && (
-          <p style={{ fontSize: 13, color: colors.muted, marginTop: 3 }}>{subtitle}</p>
+          <p style={{ fontSize: 15, color: colors.muted, marginTop: 3 }}>{subtitle}</p>
         )}
       </div>
       {right && <div className="flex items-center" style={{ gap: 10 }}>{right}</div>}

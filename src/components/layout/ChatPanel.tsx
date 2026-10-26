@@ -59,7 +59,7 @@ function Tip({
           color: colors.foreground,
           border: `1px solid ${colors.cardBorder}`,
           boxShadow: '0 4px 14px rgba(0,0,0,0.25)',
-          fontSize: 11,
+          fontSize: 13,
           fontWeight: 500,
           letterSpacing: '0.01em',
         }}

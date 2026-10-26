@@ -422,7 +422,7 @@ export function AnalysisContent({ graphData: graphDataProp }: AnalysisContentPro
                 data: data.map((d) => d.time),
                 boundaryGap: false,
                 axisLine: { lineStyle: { color: 'var(--mc-text)' } },
-                axisLabel: { color: 'var(--mc-text)', fontSize: 12 },
+                axisLabel: { color: 'var(--mc-text)', fontSize: 14 },
               },
               yAxis: [
                 {
@@ -433,7 +433,7 @@ export function AnalysisContent({ graphData: graphDataProp }: AnalysisContentPro
                   max: hasRealData ? Math.ceil(Math.max(peakGlucose * 1.2, 15)) : 200,
                   position: 'left',
                   axisLine: { show: true, lineStyle: { color: '#3b82f6' } },
-                  axisLabel: { color: '#3b82f6', fontSize: 12 },
+                  axisLabel: { color: '#3b82f6', fontSize: 14 },
                   splitLine: { lineStyle: { color: 'var(--mc-text)', opacity: 0.3, type: 'dashed' } },
                 },
                 {
@@ -443,7 +443,7 @@ export function AnalysisContent({ graphData: graphDataProp }: AnalysisContentPro
                   max: hasRealData ? Math.ceil(Math.max(peakInsulin * 1.3, 30)) : 150,
                   position: 'right',
                   axisLine: { show: true, lineStyle: { color: 'var(--mc-orange)' } },
-                  axisLabel: { color: 'var(--mc-orange)', fontSize: 12 },
+                  axisLabel: { color: 'var(--mc-orange)', fontSize: 14 },
                   splitLine: { show: false },
                 },
               ],

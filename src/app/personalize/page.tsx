@@ -460,7 +460,7 @@ export default function PersonalizePage() {
           </div>
 
           {importedFrom && !success && (
-            <div role="status" className="rounded-xl px-4 py-3" style={{ background: 'rgba(124,197,216,0.12)', border: '1px solid rgba(124,197,216,0.35)', color: 'var(--mc-text)', fontSize: 13.5 }}>
+            <div role="status" className="rounded-xl px-4 py-3" style={{ background: 'rgba(124,197,216,0.12)', border: '1px solid rgba(124,197,216,0.35)', color: 'var(--mc-text)', fontSize: 15.5 }}>
               Read from <strong>{importedFrom}</strong>. Check every value below against your report before you save; MeO only copied what it could read.
             </div>
           )}

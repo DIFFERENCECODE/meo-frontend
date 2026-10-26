@@ -68,13 +68,13 @@ function NotesInner() {
         ) : undefined}
       />
       <ScreenBody>
-      {state === 'loading' && <p style={{ fontSize: 13.5, color: colors.mutedDim }}>Loading…</p>}
-      {state === 'error' && <p style={{ fontSize: 13.5, color: colors.muted }}>Couldn&apos;t load your notes. Refresh to try again.</p>}
+      {state === 'loading' && <p style={{ fontSize: 15.5, color: colors.mutedDim }}>Loading…</p>}
+      {state === 'error' && <p style={{ fontSize: 15.5, color: colors.muted }}>Couldn&apos;t load your notes. Refresh to try again.</p>}
 
       {state === 'ready' && feed.length === 0 && (
         <section style={{ background: colors.card, border: `1px solid ${colors.cardBorder}`, borderRadius: 16, padding: '18px 22px', maxWidth: 560 }}>
-          <p style={{ fontSize: 14, fontWeight: 700, margin: 0 }}>Nothing here yet</p>
-          <p style={{ fontSize: 13.5, color: colors.muted, margin: '6px 0 0', lineHeight: 1.55 }}>
+          <p style={{ fontSize: 16, fontWeight: 700, margin: 0 }}>Nothing here yet</p>
+          <p style={{ fontSize: 15.5, color: colors.muted, margin: '6px 0 0', lineHeight: 1.55 }}>
             When a practitioner reviews your record between visits, what they write appears here, with their name on it.
           </p>
         </section>
@@ -89,11 +89,11 @@ function NotesInner() {
               {initial}
             </div>
             <div className="min-w-0">
-              <div style={{ fontSize: 14, fontWeight: 700 }}>{author || 'Your practitioner'} reviewed your record</div>
-              <div style={{ fontSize: 11.5, color: colors.mutedDim }}>{fmtNoteDate(feed[0].created_at)} · {feed.length} note{feed.length === 1 ? '' : 's'} on file</div>
+              <div style={{ fontSize: 16, fontWeight: 700 }}>{author || 'Your practitioner'} reviewed your record</div>
+              <div style={{ fontSize: 13.5, color: colors.mutedDim }}>{fmtNoteDate(feed[0].created_at)} · {feed.length} note{feed.length === 1 ? '' : 's'} on file</div>
             </div>
           </div>
-          <p style={{ fontSize: 15, lineHeight: 1.6, color: 'var(--mc-text)', margin: '14px 0 0', padding: '14px 20px', borderRadius: 12, background: 'rgba(var(--mc-fg-rgb),0.06)', border: '1px solid rgba(var(--mc-fg-rgb),0.1)', whiteSpace: 'pre-wrap' }}>
+          <p style={{ fontSize: 17, lineHeight: 1.6, color: 'var(--mc-text)', margin: '14px 0 0', padding: '14px 20px', borderRadius: 12, background: 'rgba(var(--mc-fg-rgb),0.06)', border: '1px solid rgba(var(--mc-fg-rgb),0.1)', whiteSpace: 'pre-wrap' }}>
             &ldquo;{feed[0].body}&rdquo;
           </p>
           <div className="flex flex-wrap" style={{ gap: 10, marginTop: 14 }}>
@@ -102,7 +102,7 @@ function NotesInner() {
               disabled={busy}
               onClick={() => ask(`Help me prepare questions for my next consultation with ${author || 'my practitioner'}`)}
               className="meo-press"
-              style={{ fontSize: 14, fontWeight: 600, color: 'var(--mc-text)', background: 'rgba(var(--mc-fg-rgb),0.07)', border: '1px solid rgba(var(--mc-fg-rgb),0.14)', borderRadius: 12, padding: '10px 18px', cursor: 'pointer' }}
+              style={{ fontSize: 16, fontWeight: 600, color: 'var(--mc-text)', background: 'rgba(var(--mc-fg-rgb),0.07)', border: '1px solid rgba(var(--mc-fg-rgb),0.14)', borderRadius: 12, padding: '10px 18px', cursor: 'pointer' }}
             >
               Ask MeO to prepare questions
             </button>
@@ -113,19 +113,19 @@ function NotesInner() {
       {/* "What they see: the same data you do." Nothing is hidden in either direction. */}
       {state === 'ready' && (feed.length > 0 || plan.length > 0) && (
         <section style={{ background: colors.card, border: `1px solid ${colors.cardBorder}`, borderRadius: 16, padding: '18px 24px' }}>
-          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: colors.mutedDim, marginBottom: 12 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: colors.mutedDim, marginBottom: 12 }}>
             What {first} sees · the same data you do
           </div>
           <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
             {tiles.map((m) => (
               <div key={m.k} style={{ borderRadius: 12, background: 'rgba(var(--mc-fg-rgb),0.05)', border: '1px solid rgba(var(--mc-fg-rgb),0.1)', padding: '12px 16px' }}>
-                <div className="truncate" style={{ fontSize: 11.5, color: colors.mutedDim }}>{m.k}</div>
+                <div className="truncate" style={{ fontSize: 13.5, color: colors.mutedDim }}>{m.k}</div>
                 <div style={{ fontSize: 26, fontWeight: 800, letterSpacing: '-0.025em', marginTop: 2 }}>{m.v}</div>
-                <div className="truncate" style={{ fontSize: 11.5, color: colors.mutedDim }}>{m.s}</div>
+                <div className="truncate" style={{ fontSize: 13.5, color: colors.mutedDim }}>{m.s}</div>
               </div>
             ))}
           </div>
-          <p style={{ fontSize: 12.5, color: colors.muted, margin: '12px 0 0' }}>
+          <p style={{ fontSize: 14.5, color: colors.muted, margin: '12px 0 0' }}>
             MeO summarises. <b style={{ color: 'var(--mc-text)' }}>{first} decides.</b>
           </p>
         </section>

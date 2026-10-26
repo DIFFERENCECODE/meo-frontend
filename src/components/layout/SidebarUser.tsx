@@ -74,7 +74,7 @@ export function SidebarUser() {
           style={{
             gap: 8, height: 34, borderRadius: 9, border: 'none', cursor: 'pointer',
             background: 'rgba(var(--mc-accent-rgb),0.16)', color: colors.primary,
-            fontSize: 12.5, fontWeight: 600,
+            fontSize: 14.5, fontWeight: 600,
           }}
         >
           <LogIn className="h-4 w-4" />
@@ -101,7 +101,7 @@ export function SidebarUser() {
         style={{
           width: 30, height: 30, flex: 'none', borderRadius: '50%',
           background: 'rgba(var(--mc-accent-rgb),0.2)', color: colors.primary,
-          fontWeight: 700, fontSize: 13,
+          fontWeight: 700, fontSize: 15,
         }}
       >
         {initials}
@@ -109,14 +109,14 @@ export function SidebarUser() {
       <div className="flex-1 min-w-0">
         <div
           className="truncate"
-          style={{ fontSize: 12.5, fontWeight: 600, color: colors.foreground }}
+          style={{ fontSize: 14.5, fontWeight: 600, color: colors.foreground }}
           title={email ?? undefined}
         >
           {label}
         </div>
         {/* The plan line the frames show under the name ("Starter · £149").
             The free tier links to upgrade; paid tiers are not read here yet. */}
-        <a href="/pricing" className="no-underline" style={{ fontSize: 10.5, color: colors.mutedDim }}>
+        <a href="/pricing" className="no-underline" style={{ fontSize: 12.5, color: colors.mutedDim }}>
           Free plan · <span style={{ color: colors.primary }}>Upgrade</span>
         </a>
       </div>

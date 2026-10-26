@@ -173,7 +173,7 @@ function GaugeCard({
           axisLabel: {
             distance: -20,
             color: 'rgba(var(--mc-fg-rgb),0.14)',
-            fontSize: 11,
+            fontSize: 13,
             formatter: (val: number) => {
               // Show min + every threshold + max, matching Grafana's layout
               if (val === min || val === max) return String(val);

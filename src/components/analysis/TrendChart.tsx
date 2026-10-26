@@ -139,7 +139,7 @@ export function TrendChart({
             x={padL - 8}
             y={y(t) + 4}
             textAnchor="end"
-            fontSize={11}
+            fontSize={13}
             fill={colors.muted}
           >
             {t.toFixed(1)}
@@ -163,7 +163,7 @@ export function TrendChart({
             x={W - padR}
             y={y(target) - 6}
             textAnchor="end"
-            fontSize={11}
+            fontSize={13}
             fill={colors.primary}
           >
             target {target}
@@ -171,7 +171,13 @@ export function TrendChart({
         </>
       )}
 
+      {/* The line draws itself from the first reading to the latest, so the
+          trend reads as movement; keyed on the points so switching marker
+          draws the new one. Static under reduced motion (globals.css). */}
       <polyline
+        key={line}
+        className="meo-draw"
+        pathLength={1}
         points={line}
         fill="none"
         stroke={lineColor}
@@ -184,7 +190,9 @@ export function TrendChart({
         const isLast = i === points.length - 1;
         return (
           <circle
-            key={`${p.series ?? p.date}-${i}`}
+            key={`${line}-${i}`}
+            className="meo-pop"
+            style={{ animationDelay: `${Math.round(((i + 1) / points.length) * 750)}ms` }}
             cx={x(i)}
             cy={y(p.value)}
             r={isLast ? 6 : 4}
@@ -200,19 +208,19 @@ export function TrendChart({
         );
       })}
 
-      {!compact && <><text x={padL} y={H - 8} fontSize={11} fill={colors.muted}>
+      {!compact && <><text x={padL} y={H - 8} fontSize={13} fill={colors.muted}>
         {points[0].date}
       </text>
-      <text x={W - padR} y={H - 8} fontSize={11} fill={colors.muted} textAnchor="end">
+      <text x={W - padR} y={H - 8} fontSize={13} fill={colors.muted} textAnchor="end">
         {points[points.length - 1].date}
       </text>
       </>}
     </svg>
     {!compact && (
       <details className="mt-3" style={{ color: colors.foreground }}>
-        <summary className="min-h-11 cursor-pointer py-3 text-sm font-semibold">View reading values</summary>
+        <summary className="min-h-11 cursor-pointer py-3 text-base font-semibold">View reading values</summary>
         <div className="max-h-64 overflow-auto rounded-xl" style={{ border: `1px solid ${colors.cardBorder}` }}>
-          <table className="w-full text-left text-sm tabular-nums">
+          <table className="w-full text-left text-base tabular-nums">
             <caption className="sr-only">Values used in this trend{unit ? ` (${unit})` : ''}</caption>
             <thead><tr><th scope="col" className="p-3">Date</th><th scope="col" className="p-3 text-right">Value{unit ? ` (${unit})` : ''}</th></tr></thead>
             <tbody>{points.map((point, index) => (
