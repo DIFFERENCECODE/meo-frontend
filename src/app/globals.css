@@ -837,3 +837,7 @@ html {
 }
 .meo-fade { animation: meo-fade 140ms ease-out; }
 @keyframes meo-fade { from { opacity: 0; } to { opacity: 1; } }
+
+/* The section answer grows up and back down rather than jumping. */
+.meo-answer { transition: max-height 320ms cubic-bezier(0.32, 0.72, 0, 1); }
+@media (prefers-reduced-motion: reduce) { .meo-answer { transition: none; } }

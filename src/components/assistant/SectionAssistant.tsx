@@ -4,7 +4,7 @@ import React, { createContext, useContext, useEffect, useRef, useState } from 'r
 import { usePathname } from 'next/navigation';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { ChevronDown, ChevronUp, Square } from 'lucide-react';
+import { ChevronDown, ChevronUp, Maximize2, Minimize2, Square } from 'lucide-react';
 import { getValidIdToken } from '@/app/lib/auth';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -38,6 +38,8 @@ export function SectionAssistant({ children, composer, context }: {
   const [turns, setTurns] = useState<Turn[]>([]);
   const [busy, setBusy] = useState(false);
   const [expanded, setExpanded] = useState(true);
+  // Tall: the answer grows up over the screen, for reading a long reply whole.
+  const [tall, setTall] = useState(false);
   const [error, setError] = useState('');
   const session = useRef<string | null>(null);
   const pending = useRef<AbortController | null>(null);
@@ -138,14 +140,25 @@ export function SectionAssistant({ children, composer, context }: {
                   <span>MeO <span className="font-normal" style={{ color: colors.muted }}>· {section}</span></span>
                   {expanded ? <ChevronDown aria-hidden="true" className="h-4 w-4" /> : <ChevronUp aria-hidden="true" className="h-4 w-4" />}
                 </button>
+                {expanded && (
+                  <button
+                    type="button"
+                    onClick={() => setTall((t) => !t)}
+                    aria-label={tall ? 'Make the answer smaller' : 'Expand the answer'}
+                    title={tall ? 'Smaller' : 'Expand'}
+                    className="meo-press min-h-11 px-2 flex items-center"
+                  >
+                    {tall ? <Minimize2 aria-hidden="true" className="h-4 w-4" /> : <Maximize2 aria-hidden="true" className="h-4 w-4" />}
+                  </button>
+                )}
                 {busy && <button type="button" onClick={() => pending.current?.abort()} className="min-h-11 px-3 text-base flex items-center gap-2"><Square aria-hidden="true" className="h-3 w-3" />Stop</button>}
               </div>
               <div id="section-answers" hidden={!expanded}>
-                <div ref={output} className="max-h-[35dvh] overflow-y-auto px-4 pb-4 space-y-4" onScroll={event => { const node = event.currentTarget; followOutput.current = node.scrollHeight - node.scrollTop - node.clientHeight < 48; }}>
+                <div ref={output} className="meo-answer overflow-y-auto px-4 pb-4 space-y-4" style={{ maxHeight: tall ? '72dvh' : '35dvh' }} onScroll={event => { const node = event.currentTarget; followOutput.current = node.scrollHeight - node.scrollTop - node.clientHeight < 48; }}>
                   {turns.map((turn, index) => (
                     <div key={index} className="space-y-2 text-base leading-relaxed break-words">
                       <p className="font-semibold" style={{ color: colors.primary }}>{turn.question}</p>
-                      <div className="space-y-2 [&_p]:my-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_a]:underline [&_pre]:overflow-auto [&_table]:block [&_table]:overflow-auto">
+                      <div className="space-y-2 [&_p]:my-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_a]:underline [&_pre]:overflow-auto [&_table]:block [&_table]:overflow-auto [&_th]:pr-5 [&_th]:text-left [&_td]:pr-5 [&_td]:py-1 [&_td]:align-top">
                         <ReactMarkdown remarkPlugins={[remarkGfm]}>{turn.answer}</ReactMarkdown>
                       </div>
                     </div>
