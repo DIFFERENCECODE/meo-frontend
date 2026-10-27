@@ -5,6 +5,7 @@ import { AppShell } from '@/components/layout/AppShell';
 import { Timeline, DataSources } from '@/components/record/Timeline';
 import { RecordResponse } from '@/components/record/RecordHome';
 import { getValidIdToken } from '@/app/lib/auth';
+import { useMyLifestyle } from '@/components/record/lifestyle';
 
 /**
  * The record in one chronological order, with its sources beside it.
@@ -15,6 +16,7 @@ import { getValidIdToken } from '@/app/lib/auth';
 export default function TimelinePage() {
   const [record, setRecord] = useState<RecordResponse | null>(null);
   const [state, setState] = useState<'loading' | 'ready' | 'empty' | 'error'>('loading');
+  const lifestyle = useMyLifestyle(30);
 
   useEffect(() => {
     (async () => {
@@ -35,13 +37,13 @@ export default function TimelinePage() {
 
   return (
     <AppShell
-      askPlaceholder="Ask MeO about any day…"
+      askPlaceholder="Ask MeO about any day, like “what happened the week my TG spiked?”"
       askContext={record ? JSON.stringify({ readings: record.readings.slice(0, 12) }) : undefined}
       rightPanelLabel="Where your data comes from"
-      rightPanel={record && state === 'ready' ? <DataSources record={record} /> : undefined}
+      rightPanel={record && state === 'ready' ? <DataSources record={record} lifestyle={lifestyle} /> : undefined}
     >
       {state === 'ready' && record ? (
-        <Timeline record={record} />
+        <Timeline record={record} lifestyle={lifestyle} />
       ) : (
         <div className="w-full px-7 py-10">
           <p className="t-lead opacity-70">

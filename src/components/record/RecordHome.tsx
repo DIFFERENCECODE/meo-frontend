@@ -5,6 +5,12 @@ import Link from 'next/link';
 import {
   ArrowRight,
   Check,
+  Moon,
+  Footprints,
+  Utensils,
+  Share2,
+  LineChart,
+  MessageCircle,
   Clock,
   AlertCircle,
   TrendingDown,
@@ -13,7 +19,9 @@ import {
 } from 'lucide-react';
 import { useTheme } from '@/theme/ThemeProvider';
 import { InfoTip } from '@/components/tour/InfoTip';
-import { useMyPractitioner } from '@/components/record/PractitionerNotes';
+import { useMyPractitioner, shortPractitionerName } from '@/components/record/PractitionerNotes';
+import { useSectionAssistant } from '@/components/assistant/SectionAssistant';
+import { useMyLifestyle, fmtHours } from '@/components/record/lifestyle';
 import { ScreenHeader, ScreenBody, Chip } from '@/components/layout/ScreenHeader';
 import { TrendChart, TrendPoint } from '@/components/analysis/TrendChart';
 
@@ -157,6 +165,9 @@ function greeting(name: string | null) {
 export function RecordHome({ record, state, onRetry }: RecordHomeProps) {
   const { colors } = useTheme();
   const practitioner = useMyPractitioner();
+  const lifestyle = useMyLifestyle(14);
+  const { ask, busy } = useSectionAssistant();
+  const [shared, setShared] = React.useState(false);
   const [firstName, setFirstName] = React.useState<string | null>(null);
   React.useEffect(() => {
     (async () => {
@@ -199,7 +210,11 @@ export function RecordHome({ record, state, onRetry }: RecordHomeProps) {
   const latest = record.latest;
   const previous = record.previous;
   const bas = latest.bas;
-  const basPrev = previous?.bas ?? null;
+  // The change is against the last *scored* reading: the reading just before
+  // may be a weight or waist entry, which has no score of its own.
+  const scored = record.series?.BAS ?? [];
+  const prevScored = scored.length > 1 ? scored[scored.length - 2] : null;
+  const basPrev = prevScored?.value ?? null;
   const basDelta = bas != null && basPrev != null ? bas - basPrev : null;
   const age = latest.values.Age ?? null;
 
@@ -247,7 +262,7 @@ export function RecordHome({ record, state, onRetry }: RecordHomeProps) {
                       <div style={{ fontSize: 19, fontWeight: 800, color: basDelta <= 0 ? colors.primary : colors.warning }}>
                         {basDelta < 0 ? '▼' : basDelta > 0 ? '▲' : '—'} {Math.abs(basDelta).toFixed(1)}
                       </div>
-                      <div style={{ fontSize: 14, color: colors.muted }}>since {fmtDate(previous?.date ?? null)}</div>
+                      <div style={{ fontSize: 14, color: colors.muted }}>since {fmtDate(prevScored?.date ?? null)}</div>
                     </div>
                   )}
                 </div>
@@ -331,24 +346,72 @@ export function RecordHome({ record, state, onRetry }: RecordHomeProps) {
             className="flex flex-wrap items-center"
             style={{ gap: 12, marginTop: 14, paddingTop: 14, borderTop: '1px solid rgba(var(--mc-fg-rgb),0.1)' }}
           >
-            <div className="t-label" style={{ color: colors.mutedDim }}>Around it<InfoTip text="What else was going on around this reading: sleep, steps and meal timing from your phone, once connected." /></div>
-            <div style={{ fontSize: 14.5, color: colors.muted }}>
-              Sleep, steps and meal timing are not available in this web view yet.
-            </div>
+            <div className="t-label" style={{ color: colors.mutedDim }}>Around it<InfoTip text="Your last 14 days from your phone and food log: average sleep, steps a day and your usual dinner time." /></div>
+            <AroundIt lifestyle={lifestyle} />
             <div className="flex-1" />
-            <Link
-              href="/connectors"
-              style={{
-                display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 12.5, fontWeight: 700,
-                letterSpacing: '0.08em', textTransform: 'uppercase', color: colors.device,
-                background: 'rgba(124,197,216,0.12)', border: '1px solid rgba(124,197,216,0.3)',
-                borderRadius: 999, padding: '3px 9px', whiteSpace: 'nowrap',
-              }}
-            >
-              Connection status
-            </Link>
+            {(lifestyle?.activity.status === 'ok' || lifestyle?.nutrition.status === 'ok') ? (
+              <span
+                style={{
+                  fontSize: 12.5, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: colors.device,
+                  background: 'rgba(124,197,216,0.12)', border: '1px solid rgba(124,197,216,0.3)', borderRadius: 999, padding: '3px 9px', whiteSpace: 'nowrap',
+                }}
+              >
+                From the app
+              </span>
+            ) : (
+              <Link
+                href="/connectors"
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 12.5, fontWeight: 700,
+                  letterSpacing: '0.08em', textTransform: 'uppercase', color: colors.device,
+                  background: 'rgba(124,197,216,0.12)', border: '1px solid rgba(124,197,216,0.3)',
+                  borderRadius: 999, padding: '3px 9px', whiteSpace: 'nowrap',
+                }}
+              >
+                Connection status
+              </Link>
+            )}
           </div>
         </section>
+
+        {/* What to do with this reading (frame 04): ask, look further, or show the practitioner. */}
+        <div className="flex flex-wrap" style={{ gap: 10 }}>
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() => ask(`What does reading ${record.panel_count} mean for me${bas != null ? `, with a score of ${bas.toFixed(1)}` : ''}? What moved it?`)}
+            className="meo-press inline-flex items-center"
+            style={{ gap: 8, fontSize: 16, fontWeight: 700, cursor: 'pointer', borderRadius: 12, padding: '11px 18px', background: 'var(--mc-accent)', color: 'var(--mc-on-accent)', border: '1px solid var(--mc-accent)' }}
+          >
+            <MessageCircle className="h-4 w-4" /> Ask MeO what this means
+          </button>
+          <Link
+            href="/trends"
+            className="meo-press inline-flex items-center no-underline"
+            style={{ gap: 8, fontSize: 16, fontWeight: 600, borderRadius: 12, padding: '11px 18px', background: 'rgba(var(--mc-fg-rgb),0.07)', color: colors.foreground, border: '1px solid rgba(var(--mc-fg-rgb),0.16)' }}
+          >
+            <LineChart className="h-4 w-4" /> See my trend
+          </Link>
+          {practitioner?.name && (
+            <button
+              type="button"
+              onClick={() => setShared(true)}
+              aria-live="polite"
+              className="meo-press inline-flex items-center"
+              style={{ gap: 8, fontSize: 16, fontWeight: 600, cursor: 'pointer', borderRadius: 12, padding: '11px 18px', background: 'rgba(var(--mc-fg-rgb),0.07)', color: colors.foreground, border: '1px solid rgba(var(--mc-fg-rgb),0.16)' }}
+            >
+              {shared ? <Check className="h-4 w-4" style={{ color: colors.primary }} /> : <Share2 className="h-4 w-4" />}
+              {shared
+                ? `${shortPractitionerName(practitioner.name)} already sees this reading`
+                : `Share with ${shortPractitionerName(practitioner.name)}`}
+            </button>
+          )}
+        </div>
+        {shared && practitioner?.name && (
+          <p className="meo-fade" style={{ margin: '-4px 0 0', fontSize: 14.5, color: colors.muted }}>
+            Your readings go to {shortPractitionerName(practitioner.name)} automatically and open their brief before your next consult. Nothing extra to send.
+          </p>
+        )}
 
         {/* Two action cards. */}
         <div className="flex flex-col sm:flex-row" style={{ gap: 14, paddingBottom: 18 }}>
@@ -521,6 +584,44 @@ export function ThisReadingPanel({ record }: { record: RecordResponse }) {
           </p>
         </div>
       )}
+    </div>
+  );
+}
+
+/**
+ * "Around it": the fortnight behind the reading, from the phone and the food
+ * log, counted in code. Each figure appears only when that source sent data.
+ */
+function AroundIt({ lifestyle }: { lifestyle: ReturnType<typeof useMyLifestyle> }) {
+  const { colors } = useTheme();
+  const a = lifestyle?.activity;
+  const n = lifestyle?.nutrition;
+  const items: { Icon: typeof Moon; value: string; label: string; tone: string }[] = [];
+  if (a?.status === 'ok' && a.sleep_avg_hours != null) {
+    items.push({ Icon: Moon, value: fmtHours(a.sleep_avg_hours), label: `avg sleep${a.short_nights ? ` · ${a.short_nights} short night${a.short_nights === 1 ? '' : 's'}` : ''}`, tone: '#f2b134' });
+  }
+  if (a?.status === 'ok' && a.steps_avg != null) {
+    items.push({ Icon: Footprints, value: a.steps_avg.toLocaleString(), label: 'steps/day', tone: colors.primary });
+  }
+  if (n?.status === 'ok' && n.dinner_median) {
+    items.push({ Icon: Utensils, value: n.dinner_median, label: 'median dinner', tone: 'var(--mc-orange)' });
+  }
+  if (!items.length) {
+    return (
+      <div style={{ fontSize: 14.5, color: colors.muted }}>
+        {lifestyle ? 'Nothing from your phone or food log in the last 14 days.' : 'Checking your phone and food log…'}
+      </div>
+    );
+  }
+  return (
+    <div className="flex flex-wrap items-center" style={{ gap: 22 }}>
+      {items.map(({ Icon, value, label, tone }) => (
+        <div key={label} className="flex items-center" style={{ gap: 8 }}>
+          <Icon className="h-4 w-4" style={{ color: tone }} />
+          <span style={{ fontSize: 16, fontWeight: 700, color: colors.foreground }}>{value}</span>
+          <span style={{ fontSize: 14.5, color: colors.muted }}>{label}</span>
+        </div>
+      ))}
     </div>
   );
 }
