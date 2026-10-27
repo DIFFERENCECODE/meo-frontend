@@ -139,23 +139,24 @@ function appEvents(lifestyle: Lifestyle | null): Event[] {
   return out;
 }
 
-/** One row per sitting: a plan written together is one event, not eight. */
+/** One row per sitting: the note and the plan written after one consult are one event. */
 function practitionerEvents(notes: PractitionerNote[] | null): Event[] {
   if (!notes) return [];
   const groups = new Map<string, PractitionerNote[]>();
   for (const n of notes) {
-    const k = `${n.kind === 'plan' ? 'plan' : 'note'}-${n.created_at.slice(0, 16)}`;
+    const k = n.created_at.slice(0, 16);
     groups.set(k, [...(groups.get(k) ?? []), n]);
   }
   return [...groups.entries()].map(([k, g]) => {
     const short = shortPractitionerName(g[0].practitioner_name);
     const who = short.charAt(0).toUpperCase() + short.slice(1);
-    const plan = k.startsWith('plan');
-    const body = g[0].body.length > 70 ? `${g[0].body.slice(0, 68)}…` : g[0].body;
+    const lines = g.filter((n) => n.kind === 'plan').length;
+    const note = g.find((n) => n.kind !== 'plan');
+    const text = (note ?? g[0]).body;
     return {
       key: `p-${k}`, date: londonDate(g[0].created_at), time: londonTime(g[0].created_at),
-      title: plan ? `${who} wrote your plan · ${g.length} line${g.length === 1 ? '' : 's'}` : `${who} left you a note`,
-      sub: `“${body}”`, source: 'practitioner', dot: 'var(--mc-accent)', kind: 'practitioner',
+      title: lines ? `${who} wrote your plan · ${lines} line${lines === 1 ? '' : 's'}` : `${who} left you a note`,
+      sub: `“${text.length > 80 ? `${text.slice(0, 78)}…` : text}”`, source: 'practitioner', dot: 'var(--mc-accent)', kind: 'practitioner',
     } as Event;
   });
 }
