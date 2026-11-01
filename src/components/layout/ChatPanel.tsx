@@ -649,7 +649,7 @@ export function ChatPanel({
                     />
                   )}
                   <div
-                    className="prose prose-sm max-w-none leading-relaxed"
+                    className="prose prose-sm max-w-none text-sm leading-relaxed"
                     style={{ color: `${colors.foreground}e6` }}
                   >
                     <ReactMarkdown
