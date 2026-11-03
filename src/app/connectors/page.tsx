@@ -30,7 +30,14 @@ interface Source {
   status: 'connected' | 'available' | 'planned' | string;
   status_text: string;
   connect_on: 'phone' | 'web' | 'clinic' | string;
+  connect_note?: string;
 }
+
+const CONNECT_ON_LABEL: Record<string, string> = {
+  phone: 'Phone app',
+  web: 'Web',
+  clinic: 'Clinic',
+};
 
 const ICON: Record<string, typeof Smartphone> = {
   apple_health: HeartPulse, meter: FlaskConical, food_log: Utensils,
@@ -116,7 +123,20 @@ function ConnectorsInner() {
                       <Icon className="h-4 w-4" style={{ color: on ? colors.primary : colors.mutedDim }} />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div style={{ fontSize: 16, fontWeight: 600, color: colors.foreground }}>{s.label}</div>
+                      <div className="flex items-center" style={{ gap: 8 }}>
+                        <span style={{ fontSize: 16, fontWeight: 600, color: colors.foreground }}>{s.label}</span>
+                        {s.connect_on && (
+                          <span style={{
+                            fontSize: 11, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase',
+                            color: s.connect_on === 'web' ? colors.primary : colors.mutedDim,
+                            background: s.connect_on === 'web' ? 'rgba(var(--mc-accent-rgb),0.12)' : 'rgba(var(--mc-fg-rgb),0.06)',
+                            border: `1px solid ${s.connect_on === 'web' ? 'rgba(var(--mc-accent-rgb),0.3)' : 'rgba(var(--mc-fg-rgb),0.14)'}`,
+                            borderRadius: 999, padding: '2px 7px', whiteSpace: 'nowrap',
+                          }}>
+                            {CONNECT_ON_LABEL[s.connect_on] ?? s.connect_on}
+                          </span>
+                        )}
+                      </div>
                       <div style={{ fontSize: 14, color: colors.mutedDim, marginTop: 2 }}>{s.detail}</div>
                     </div>
                     <div style={{ fontSize: 14.5, fontWeight: 600, color: on ? colors.primary : colors.mutedDim, textAlign: 'right' }}>

@@ -16,6 +16,7 @@ import {
   TrendingDown,
   TrendingUp,
   Minus,
+  PlusCircle,
 } from 'lucide-react';
 import { useTheme } from '@/theme/ThemeProvider';
 import { InfoTip } from '@/components/tour/InfoTip';
@@ -413,7 +414,7 @@ export function RecordHome({ record, state, onRetry }: RecordHomeProps) {
           </p>
         )}
 
-        {/* Two action cards. */}
+        {/* Three action cards. */}
         <div className="flex flex-col sm:flex-row" style={{ gap: 14, paddingBottom: 18 }}>
           <Link
             href="/test"
@@ -426,6 +427,21 @@ export function RecordHome({ record, state, onRetry }: RecordHomeProps) {
             <div className="flex-1 min-w-0">
               <div style={{ fontSize: 15.5, fontWeight: 700, color: colors.foreground }}>Take a reading</div>
               <div style={{ fontSize: 14, color: colors.muted }}>Last: {fmtDate(latest.date)}</div>
+            </div>
+            <ArrowRight className="h-4 w-4" style={{ color: colors.mutedDim }} />
+          </Link>
+
+          <Link
+            href="/personalize"
+            className="flex items-center no-underline"
+            style={{ background: colors.card, border: `1px solid ${colors.cardBorder}`, borderRadius: 16, flex: 1, padding: '15px 18px', gap: 12, color: colors.foreground }}
+          >
+            <div className="flex items-center justify-center" style={{ width: 36, height: 36, flex: 'none', borderRadius: 11, background: 'rgba(var(--mc-accent-rgb),0.15)' }}>
+              <PlusCircle className="h-4 w-4" style={{ color: colors.primary }} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div style={{ fontSize: 15.5, fontWeight: 700, color: colors.foreground }}>Add a result</div>
+              <div style={{ fontSize: 14, color: colors.muted }}>Glucose, waist, lab report or GP result</div>
             </div>
             <ArrowRight className="h-4 w-4" style={{ color: colors.mutedDim }} />
           </Link>
@@ -492,11 +508,109 @@ function DayOne() {
         </div>
         <ArrowRight className="h-5 w-5" style={{ color: colors.primary }} />
       </Link>
+
+      <Link
+        href="/personalize"
+        className="rounded-2xl p-5 flex items-center gap-4"
+        style={{ backgroundColor: colors.card, border: `1px solid ${colors.cardBorder}` }}
+      >
+        <div
+          className="h-11 w-11 rounded-[10px] flex items-center justify-center"
+          style={{ backgroundColor: 'rgba(var(--mc-fg-rgb),0.06)' }}
+        >
+          <PlusCircle className="h-5 w-5" style={{ color: colors.mutedDim }} />
+        </div>
+        <div className="flex-1">
+          <p className="font-semibold" style={{ color: colors.foreground }}>
+            Add a result from your own device
+          </p>
+          <p className="t-lead" style={{ color: colors.muted }}>
+            Paste or upload glucose, waist, a GP result or lab report.
+          </p>
+        </div>
+        <ArrowRight className="h-5 w-5" style={{ color: colors.mutedDim }} />
+      </Link>
     </div></ScreenBody></>
   );
 }
 
 export default RecordHome;
+
+/** "YYYY-MM-DD" minus n days, same format. */
+function subtractDays(dateStr: string, n: number): string {
+  const d = new Date(`${dateStr}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() - n);
+  return d.toISOString().slice(0, 10);
+}
+
+/**
+ * The 7-day context window around the reading: meals, steps, sleep.
+ * Shown on the reading panel so a patient can see what was going on
+ * the week they took the test without leaving the screen.
+ */
+function ReadingContext({
+  nutritionDays,
+  activityDays,
+  hasLifestyle,
+}: {
+  nutritionDays: import('./lifestyle').NutritionDay[];
+  activityDays: import('./lifestyle').ActivityDay[];
+  hasLifestyle: boolean;
+}) {
+  const { colors } = useTheme();
+
+  const totalMeals = nutritionDays.reduce((s, d) => s + (d.meals || 0), 0);
+  const avgKcal = (() => {
+    const days = nutritionDays.filter((d) => d.kcal != null && d.kcal > 0);
+    return days.length ? Math.round(days.reduce((s, d) => s + (d.kcal ?? 0), 0) / days.length) : null;
+  })();
+  const stepsDays = activityDays.filter((d) => d.steps != null);
+  const avgSteps = stepsDays.length
+    ? Math.round(stepsDays.reduce((s, d) => s + (d.steps ?? 0), 0) / stepsDays.length)
+    : null;
+  const sleepNights = activityDays.filter((d) => d.sleep_hours != null);
+  const avgSleep = sleepNights.length
+    ? Math.round((sleepNights.reduce((s, d) => s + (d.sleep_hours ?? 0), 0) / sleepNights.length) * 10) / 10
+    : null;
+
+  const items: { Icon: typeof Moon; value: string; label: string; tone: string }[] = [];
+  if (totalMeals > 0) {
+    const kcalSuffix = avgKcal ? ` · ${avgKcal.toLocaleString()} kcal/day` : '';
+    items.push({ Icon: Utensils, value: String(totalMeals), label: `meals logged${kcalSuffix}`, tone: 'var(--mc-orange)' });
+  }
+  if (avgSteps != null) {
+    items.push({ Icon: Footprints, value: avgSteps.toLocaleString(), label: 'steps/day', tone: 'var(--mc-accent)' });
+  }
+  if (avgSleep != null) {
+    items.push({ Icon: Moon, value: `${avgSleep}h`, label: 'avg sleep', tone: '#f2b134' });
+  }
+
+  return (
+    <div style={{ borderTop: '1px solid rgba(var(--mc-fg-rgb),0.1)', paddingTop: 14 }}>
+      <p className="t-label" style={{ color: colors.mutedDim, marginBottom: 10 }}>
+        Around this reading
+        <span style={{ fontSize: 12, fontWeight: 400, marginLeft: 6 }}>7 days before</span>
+      </p>
+      {items.length > 0 ? (
+        <div className="flex flex-col" style={{ gap: 8 }}>
+          {items.map(({ Icon, value, label, tone }) => (
+            <div key={label} className="flex items-center" style={{ gap: 8 }}>
+              <Icon className="h-3.5 w-3.5" style={{ color: tone, flex: 'none' }} />
+              <span style={{ fontSize: 15, fontWeight: 700, color: colors.foreground }}>{value}</span>
+              <span style={{ fontSize: 14, color: colors.muted }}>{label}</span>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p style={{ fontSize: 14, color: colors.mutedDim, lineHeight: 1.5 }}>
+          {hasLifestyle
+            ? 'No food, steps or sleep recorded in the week before this reading.'
+            : 'Log meals in the app and connect your phone to see what was happening around this reading.'}
+        </p>
+      )}
+    </div>
+  );
+}
 
 /**
  * The right column on the record: this reading's raw values.
@@ -509,7 +623,17 @@ export default RecordHome;
 export function ThisReadingPanel({ record }: { record: RecordResponse }) {
   const { colors } = useTheme();
   const latest = record.latest;
+  const lifestyle = useMyLifestyle(14);
   if (!latest) return null;
+
+  // Filter lifestyle daily data to the 7 days up to and including the reading date.
+  const readingDate = latest.date;
+  const nutritionDays = readingDate
+    ? (lifestyle?.nutrition?.daily ?? []).filter((d) => d.date <= readingDate && d.date >= subtractDays(readingDate, 6))
+    : [];
+  const activityDays = readingDate
+    ? (lifestyle?.activity?.daily ?? []).filter((d) => d.date <= readingDate && d.date >= subtractDays(readingDate, 6))
+    : [];
 
   const rows = DELTA_ORDER.filter((k) => latest.values[k] != null);
 
@@ -584,6 +708,13 @@ export function ThisReadingPanel({ record }: { record: RecordResponse }) {
           </p>
         </div>
       )}
+
+      {/* What was happening around the time of this reading. */}
+      <ReadingContext
+        nutritionDays={nutritionDays}
+        activityDays={activityDays}
+        hasLifestyle={lifestyle !== null}
+      />
     </div>
   );
 }
