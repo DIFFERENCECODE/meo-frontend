@@ -53,6 +53,20 @@ export async function GET(req: NextRequest) {
         return NextResponse.json(extractSubInfo(allSubs.data[0]));
       }
 
+      // Lifetime is a one-time payment (mode:'payment'), so it never shows
+      // up as a Subscription — look for a completed one-time Checkout
+      // Session instead. Never expires, so no currentPeriodEnd.
+      const oneTimeSessions = await stripe.checkout.sessions.list({
+        customer: customerId,
+        limit: 20,
+      });
+      const lifetimePurchase = oneTimeSessions.data.find(
+        (s) => s.mode === 'payment' && s.payment_status === 'paid' && s.metadata?.plan_id === 'pro_lifetime',
+      );
+      if (lifetimePurchase) {
+        return NextResponse.json({ plan: 'pro_lifetime', status: 'active', currentPeriodEnd: null, cancelAtPeriodEnd: false });
+      }
+
       return NextResponse.json({ plan: 'free', status: 'none' });
     }
 

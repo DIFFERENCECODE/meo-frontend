@@ -311,3 +311,70 @@ export function getNameFromIdToken(idToken: string): string | null {
   }
 }
 
+
+// ── Email/password auth (native parity with meo-mobile's authService.ts) ──
+// These POST to this app's own /api/auth/* routes (never directly to
+// Cognito): this web app's Cognito client has a secret, so every raw
+// Cognito call needs a server-computed SECRET_HASH -- see
+// chatbot-rag/app/api/auth_password.py, which the /api/auth/* routes proxy
+// to. Mobile's equivalents call Cognito directly since its client has no
+// secret; the METHODS match (register/verify/login/forgot/reset), the
+// transport differs for that one reason.
+
+export interface PasswordAuthTokens {
+  id_token: string;
+  access_token: string;
+  refresh_token?: string;
+  expires_in?: number;
+  token_type?: string;
+}
+
+/** Raised by postAuth() on a non-2xx response. `code` is the raw Cognito
+ *  exception name (e.g. "NotAuthorizedException") when the backend supplied
+ *  one -- see authErrorMessage() in SignInPanel.tsx for the mapping table. */
+export class AuthRequestError extends Error {
+  code?: string;
+  constructor(message: string, code?: string) {
+    super(message);
+    this.name = 'AuthRequestError';
+    this.code = code;
+  }
+}
+
+async function postAuth<T>(path: string, body: unknown): Promise<T> {
+  const res = await fetch(`/api/auth/${path}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  const data = await res.json().catch(() => ({} as any));
+  if (!res.ok) {
+    const detail = data?.detail ?? data;
+    throw new AuthRequestError(detail?.message || 'Request failed', detail?.error);
+  }
+  return data as T;
+}
+
+export function registerAccount(email: string, password: string, name?: string): Promise<{ ok: true }> {
+  return postAuth('register', { email, password, name });
+}
+
+export function confirmSignup(email: string, code: string): Promise<{ ok: true }> {
+  return postAuth('confirm-signup', { email, code });
+}
+
+export function resendConfirmationCode(email: string): Promise<{ ok: true }> {
+  return postAuth('resend-code', { email });
+}
+
+export function loginWithPassword(email: string, password: string): Promise<PasswordAuthTokens> {
+  return postAuth('login', { email, password });
+}
+
+export function requestPasswordReset(email: string): Promise<{ ok: true }> {
+  return postAuth('forgot-password', { email });
+}
+
+export function confirmPasswordReset(email: string, code: string, newPassword: string): Promise<{ ok: true }> {
+  return postAuth('confirm-forgot-password', { email, code, new_password: newPassword });
+}

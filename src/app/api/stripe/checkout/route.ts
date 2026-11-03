@@ -50,9 +50,15 @@ export async function POST(req: NextRequest) {
       ? search.data[0].id
       : (await stripe.customers.create({ email, metadata: { cognito_sub: cognitoSub } })).id;
 
+    // Lifetime is a one-time, non-recurring purchase (mirrors the App
+    // Store's NON_CONSUMABLE product) — Stripe Checkout needs `mode:
+    // 'payment'` for that, not 'subscription', and `subscription_data` is
+    // only valid in subscription mode.
+    const isOneTime = PLANS[planId].mode === 'payment';
+
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
-      mode: 'subscription',
+      mode: isOneTime ? 'payment' : 'subscription',
       line_items: [{ price: PLANS[planId].priceId!, quantity: 1 }],
       success_url: planId === 'clinician'
         ? `${origin}/clinician?subscription=success`
@@ -62,7 +68,9 @@ export async function POST(req: NextRequest) {
         : `${origin}/?subscription=cancelled`,
       allow_promotion_codes: true,
       metadata: { cognito_sub: cognitoSub, plan_id: planId, ...utmMeta },
-      subscription_data: { metadata: { cognito_sub: cognitoSub, plan_id: planId } },
+      ...(isOneTime
+        ? {}
+        : { subscription_data: { metadata: { cognito_sub: cognitoSub, plan_id: planId } } }),
     });
 
     return NextResponse.json({ url: session.url });

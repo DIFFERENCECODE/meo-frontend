@@ -355,21 +355,27 @@ function PatientPanel({
             </div>
           )}
 
-          {/* Scores — shown if metabolic_data has anything useful */}
-          {patient.metabolic_data && Object.keys(patient.metabolic_data).length > 0 && (
-            <div className="p-4 border-b" style={{ borderColor: 'rgba(255,255,255,0.07)' }}>
-              <div className="flex items-center gap-1.5 mb-2.5">
-                <TrendingUp className="h-3.5 w-3.5" style={{ color: colors.muted }} />
-                <p className="text-xs font-semibold uppercase tracking-wider"
-                  style={{ color: colors.muted }}>
-                  Latest Scores
-                </p>
-              </div>
-              <p className="text-xs italic" style={{ color: colors.muted }}>
-                Available via Clinical AI brief
+          {/* Clinical AI quick-start hint */}
+          <div className="p-4 border-b" style={{ borderColor: 'rgba(255,255,255,0.07)' }}>
+            <div className="flex items-center gap-1.5 mb-2.5">
+              <Sparkles className="h-3.5 w-3.5" style={{ color: colors.primary }} />
+              <p className="text-xs font-semibold uppercase tracking-wider"
+                style={{ color: colors.muted }}>
+                Clinical AI
               </p>
             </div>
-          )}
+            <div className="space-y-1.5">
+              {['BAS &amp; metabolic scores', 'Behaviour patterns', 'Risk signals'].map((item) => (
+                <div key={item} className="flex items-center gap-2">
+                  <div className="h-1 w-1 rounded-full flex-shrink-0" style={{ background: colors.primary }} />
+                  <p className="text-xs" style={{ color: colors.muted }} dangerouslySetInnerHTML={{ __html: item }} />
+                </div>
+              ))}
+              <p className="text-xs mt-2 italic" style={{ color: `${colors.muted}70` }}>
+                Ask a question or use a quick action below
+              </p>
+            </div>
+          </div>
 
           {patient.grafana_error && (
             <div
