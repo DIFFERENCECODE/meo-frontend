@@ -35,9 +35,19 @@ export const PLANS = {
     messagesPerDay: 10,
     price: 0,
   },
-  pro: {
-    name: 'Pro',
-    priceId: process.env.STRIPE_PRO_PRICE_ID || '',
+  // Meo Pro — three billing options, kept in sync with mobile's real
+  // RevenueCat/App Store/Play prices (Meo Pro Monthly $14.99, Annual $99.99,
+  // Lifetime $149.99 — verified against App Store Connect's live price
+  // points, not the old $29/mo web-only figure this used to charge). Web and
+  // mobile sell the same entitlement through different billing systems
+  // (Stripe here, StoreKit/Play Billing there), so the price must match or
+  // a user who checks the other platform sees a different number for the
+  // same thing.
+  pro_monthly: {
+    name: 'Meo Pro Monthly',
+    priceId: process.env.STRIPE_PRO_MONTHLY_PRICE_ID || '',
+    mode: 'subscription',
+    period: 'month',
     features: [
       'Unlimited chat with MeO AI',
       'Full message history',
@@ -46,11 +56,43 @@ export const PLANS = {
       'Priority support',
     ],
     messagesPerDay: -1, // unlimited
-    price: 29,
+    price: 14.99,
+  },
+  pro_annual: {
+    name: 'Meo Pro Annual',
+    priceId: process.env.STRIPE_PRO_ANNUAL_PRICE_ID || '',
+    mode: 'subscription',
+    period: 'year',
+    features: [
+      'Unlimited chat with MeO AI',
+      'Full message history',
+      'Analysis dashboard (Bio Age, Kraft curves)',
+      'Personalized solution recommendations',
+      'Priority support',
+    ],
+    messagesPerDay: -1,
+    price: 99.99,
+  },
+  pro_lifetime: {
+    name: 'Meo Pro Lifetime',
+    priceId: process.env.STRIPE_PRO_LIFETIME_PRICE_ID || '',
+    mode: 'payment', // one-time, non-recurring — matches the App Store's NON_CONSUMABLE product
+    period: 'lifetime',
+    features: [
+      'Unlimited chat with MeO AI',
+      'Full message history',
+      'Analysis dashboard (Bio Age, Kraft curves)',
+      'Personalized solution recommendations',
+      'Priority support',
+    ],
+    messagesPerDay: -1,
+    price: 149.99,
   },
   clinic: {
     name: 'Clinic',
     priceId: process.env.STRIPE_CLINIC_PRICE_ID || '',
+    mode: 'subscription',
+    period: 'month',
     features: [
       'Everything in Pro',
       'Practitioner mode',
@@ -65,6 +107,8 @@ export const PLANS = {
   clinician: {
     name: 'Clinician',
     priceId: process.env.STRIPE_CLINICIAN_PRICE_ID || '',
+    mode: 'subscription',
+    period: 'month',
     features: [
       'Full Clinician Portal access',
       'Patient metabolic data & chat history',
