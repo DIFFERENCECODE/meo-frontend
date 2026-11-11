@@ -223,6 +223,7 @@ function BookingModal({ therapist, onClose }: BookingModalProps) {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                       userEmail: email,
+                      therapistId: therapist.id,
                       therapistName: therapist.name,
                       day,
                       slot: selectedSlot,

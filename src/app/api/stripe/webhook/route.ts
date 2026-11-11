@@ -31,6 +31,40 @@ async function setUserRole(cognitoSub: string, role: string) {
   }
 }
 
+// The three consumer Meo Pro tiers — same entitlement as mobile's RevenueCat
+// products, just sold through Stripe instead of StoreKit/Play Billing.
+const PRO_PLAN_IDS = new Set(['pro_monthly', 'pro_annual', 'pro_lifetime']);
+
+// Grants/revokes the shared is_paid flag in Postgres (keyed by cognito_sub)
+// so a web Stripe purchase unlocks Pro on mobile too — mobile's
+// subscriptionStore already reads this via GET /api/me (adminPaid), it just
+// needed the backend to actually populate it. One-directional (web→mobile)
+// by design: mobile purchases stay on RevenueCat and are not touched here.
+async function setPaidStatus(cognitoSub: string, isPaid: boolean) {
+  if (!INTERNAL_SERVICE_KEY) {
+    console.error('[Stripe webhook] INTERNAL_SERVICE_KEY not set — cannot update entitlement');
+    return;
+  }
+  try {
+    const res = await fetch(`${BACKEND_BASE}/internal/set-paid-status`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Service-Key': INTERNAL_SERVICE_KEY,
+      },
+      body: JSON.stringify({ cognito_sub: cognitoSub, is_paid: isPaid }),
+    });
+    if (!res.ok) {
+      const text = await res.text();
+      console.error(`[Stripe webhook] set-paid-status failed: ${res.status} ${text}`);
+    } else {
+      console.log(`[Stripe webhook] set-paid-status OK: sub=${cognitoSub} is_paid=${isPaid}`);
+    }
+  } catch (err: any) {
+    console.error('[Stripe webhook] set-paid-status error:', err.message);
+  }
+}
+
 export async function POST(req: NextRequest) {
   const body = await req.text();
   const sig = req.headers.get('stripe-signature');
@@ -67,6 +101,9 @@ export async function POST(req: NextRequest) {
       if (planId === 'clinician' && cognitoSub) {
         await setUserRole(cognitoSub, 'clinician');
       }
+      if (planId && PRO_PLAN_IDS.has(planId) && cognitoSub) {
+        await setPaidStatus(cognitoSub, true);
+      }
       break;
     }
 
@@ -85,6 +122,11 @@ export async function POST(req: NextRequest) {
       console.log(`[Stripe] Subscription cancelled: ${sub.id} plan=${planId} sub=${cognitoSub}`);
       if (planId === 'clinician' && cognitoSub) {
         await setUserRole(cognitoSub, 'clinician_pending');
+      }
+      // Lifetime never reaches here — mode:'payment' has no Subscription
+      // object, so there's nothing to revoke when the recurring plans end.
+      if (planId && PRO_PLAN_IDS.has(planId) && cognitoSub) {
+        await setPaidStatus(cognitoSub, false);
       }
       break;
     }
