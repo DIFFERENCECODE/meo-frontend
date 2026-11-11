@@ -69,14 +69,19 @@ export default function ActivityPage() {
                   <ActivityIcon className="h-6 w-6" style={{ color: colors.primary }} />
                 </div>
                 <div>
-                  <h1 className="text-2xl font-bold" style={{ color: colors.foreground }}>Recent Activity</h1>
-                  <p className="text-sm" style={{ color: colors.muted }}>Your measurement history, grouped by test</p>
+                  <h1 className="text-2xl font-bold" style={{ color: colors.foreground }}>Lab results</h1>
+                  <p className="text-sm" style={{ color: colors.muted }}>Every measurement on file, grouped by test. Add new results or import a lab report.</p>
                 </div>
               </div>
-              <button onClick={loadActivity} disabled={loading} className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors" style={{ background: colors.card, color: colors.foreground, border: `1px solid ${colors.cardBorder}`, opacity: loading ? 0.6 : 1 }}>
-                <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-                Refresh
-              </button>
+              <div className="flex items-center gap-2">
+                <Link href="/personalize" className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors" style={{ background: colors.primary, color: colors.primaryForeground }}>
+                  Add results
+                </Link>
+                <button onClick={loadActivity} disabled={loading} className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors" style={{ background: colors.card, color: colors.foreground, border: `1px solid ${colors.cardBorder}`, opacity: loading ? 0.6 : 1 }}>
+                  <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+                  Refresh
+                </button>
+              </div>
             </div>
           </div>
 

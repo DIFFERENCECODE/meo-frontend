@@ -6,19 +6,17 @@ import {
   Menu,
   SquarePen,
   Settings,
-  Clock,
   Sun,
   Moon,
   User,
   CreditCard,
-  Sparkles,
   Trash2,
-  ShoppingBag,
   BookOpen,
   Store,
   ChevronDown,
   ChevronRight,
   Check,
+  FlaskConical,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -281,16 +279,6 @@ export function LeftPanel({
                 <BookOpen className="h-5 w-5" />
                 <span>Library</span>
               </button>
-              <Link
-                data-tour="marketplace-nav"
-                href="/marketplace"
-                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors hover:bg-white/5"
-                style={{ color: colors.muted }}
-              >
-                <ShoppingBag className="h-5 w-5" />
-                <span>Marketplace</span>
-              </Link>
-
               {/* Vendor switcher */}
               <div className="relative">
                 <button
@@ -339,23 +327,19 @@ export function LeftPanel({
                 </AnimatePresence>
               </div>
 
-              <Link
-                data-tour="personalize-nav"
-                href="/personalize"
-                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors hover:bg-white/5"
-                style={{ color: colors.muted }}
-              >
-                <Sparkles className="h-5 w-5" />
-                <span>{t('sidebar.personalize')}</span>
-              </Link>
+              {/* 2026-11-11: one "Lab results" entry replaces Personalize (the
+                  paste-a-report importer) and Activity (the history list);
+                  the importer is reached from the results page. Marketplace
+                  (practitioner finding) is parked until that side of the
+                  product is introduced properly; the route still exists. */}
               <Link
                 data-tour="activity-nav"
                 href="/activity"
                 className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors hover:bg-white/5"
                 style={{ color: colors.muted }}
               >
-                <Clock className="h-5 w-5" />
-                <span>{t('sidebar.activity')}</span>
+                <FlaskConical className="h-5 w-5" />
+                <span>{t('sidebar.lab_results')}</span>
               </Link>
               <button
                 onClick={() => setShowSettings(!showSettings)}
@@ -480,15 +464,6 @@ export function LeftPanel({
               <RailTooltip label="Library" />
             </button>
 
-            <Link
-              data-tour="marketplace-nav"
-              href="/marketplace"
-              className="relative group p-3 rounded-lg transition-colors hover:bg-white/10 w-full flex justify-center"
-            >
-              <ShoppingBag className="h-5 w-5" style={{ color: colors.muted }} />
-              <RailTooltip label="Marketplace" />
-            </Link>
-
             <button
               data-tour="vendor-nav"
               className="relative group p-3 rounded-lg transition-colors hover:bg-white/10 w-full flex justify-center"
@@ -498,21 +473,12 @@ export function LeftPanel({
             </button>
 
             <Link
-              data-tour="personalize-nav"
-              href="/personalize"
-              className="relative group p-3 rounded-lg transition-colors hover:bg-white/10 w-full flex justify-center"
-            >
-              <Sparkles className="h-5 w-5" style={{ color: colors.muted }} />
-              <RailTooltip label="Personalise" />
-            </Link>
-
-            <Link
               data-tour="activity-nav"
               href="/activity"
               className="relative group p-3 rounded-lg transition-colors hover:bg-white/10 w-full flex justify-center"
             >
-              <Clock className="h-5 w-5" style={{ color: colors.muted }} />
-              <RailTooltip label="Activity" />
+              <FlaskConical className="h-5 w-5" style={{ color: colors.muted }} />
+              <RailTooltip label={t('sidebar.lab_results')} />
             </Link>
           </div>
 

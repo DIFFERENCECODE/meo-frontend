@@ -290,10 +290,11 @@ function MeOAppInner() {
     // Determine intended mode from query
     const lowerMessage = messageText.toLowerCase();
     let intendedMode: 'response' | 'analysis' | 'solution' = viewMode;
+    // 2026-11-11: the Solutions mode (vendor cards from "find a
+    // specialist") is parked with practitioner finding; only Analysis is
+    // still inferred from the message.
     if (lowerMessage.includes('kraft') || lowerMessage.includes('analyze') || lowerMessage.includes('analysis')) {
       intendedMode = 'analysis';
-    } else if (lowerMessage.includes('specialist') || lowerMessage.includes('find')) {
-      intendedMode = 'solution';
     }
 
     const shouldStartKraftProtocol =
