@@ -7,14 +7,11 @@ import {
   Menu,
   SquarePen,
   Settings,
-  Clock,
   Sun,
   Moon,
   User,
   CreditCard,
-  Sparkles,
   Trash2,
-  ShoppingBag,
   BookOpen,
   Store,
   ChevronDown,
@@ -305,7 +302,6 @@ export function LeftPanel({
                 { href: '/trends', label: 'Trends', Icon: TrendingUp },
                 { href: '/timeline', label: 'Timeline', Icon: History },
                 { href: '/library', label: 'Library', Icon: BookOpen, tour: 'library-nav' },
-                { href: '/marketplace', label: 'Marketplace', Icon: ShoppingBag, tour: 'marketplace-nav' },
                 { divider: true },
                 { href: '/plan', label: 'My plan', Icon: ClipboardList, tour: 'plan-nav' },
                 { href: '/from-practitioner', label: 'From your practitioner', Icon: UserRound },
@@ -441,7 +437,7 @@ export function LeftPanel({
                   >
                     <div className="mt-1 p-2 rounded-[9px] space-y-0.5" style={{ backgroundColor: colors.accent }}>
                       {/* Onboarding can be skipped; this is where it is finished later. */}
-                      <Link href="/onboarding?edit=1" className="w-full flex items-center gap-2 px-3 py-2 rounded-[9px] t-lead transition-colors hover:bg-transparent/5" style={{ color: colors.foreground }}>
+                      <Link href="/profile/clinical-details" className="w-full flex items-center gap-2 px-3 py-2 rounded-[9px] t-lead transition-colors hover:bg-transparent/5" style={{ color: colors.foreground }}>
                         <HeartPulse className="h-4 w-4" />
                         <span>Your health details</span>
                       </Link>
@@ -449,13 +445,12 @@ export function LeftPanel({
                         <User className="h-4 w-4" />
                         <span>Profile</span>
                       </Link>
-                      <Link data-tour="personalize-nav" href="/personalize" className="w-full flex items-center gap-2 px-3 py-2 rounded-[9px] t-lead transition-colors hover:bg-transparent/5" style={{ color: colors.foreground }}>
-                        <Sparkles className="h-4 w-4" />
-                        <span>{t('sidebar.personalize')}</span>
-                      </Link>
+                      {/* 2026-11-11 (main d46384f): one "Lab results" entry replaces
+                          Personalize (the paste-a-report importer) and Activity (the
+                          history list); the importer is reached from the results page. */}
                       <Link data-tour="activity-nav" href="/activity" className="w-full flex items-center gap-2 px-3 py-2 rounded-[9px] t-lead transition-colors hover:bg-transparent/5" style={{ color: colors.foreground }}>
-                        <Clock className="h-4 w-4" />
-                        <span>{t('sidebar.activity')}</span>
+                        <FlaskConical className="h-4 w-4" />
+                        <span>{t('sidebar.lab_results')}</span>
                       </Link>
                       <Link href="/pricing" className="w-full flex items-center gap-2 px-3 py-2 rounded-[9px] t-lead transition-colors hover:bg-transparent/5" style={{ color: colors.foreground }}>
                         <CreditCard className="h-4 w-4" />
@@ -646,15 +641,6 @@ export function LeftPanel({
             >
               <BookOpen className="h-5 w-5" style={{ color: colors.muted }} />
               <RailTooltip label="Library" />
-            </Link>
-
-            <Link
-              data-tour="marketplace-nav"
-              href="/marketplace"
-              className="relative group p-3 rounded-[9px] transition-colors hover:bg-transparent/10 w-full flex justify-center"
-            >
-              <ShoppingBag className="h-5 w-5" style={{ color: colors.muted }} />
-              <RailTooltip label="Marketplace" />
             </Link>
 
           </div>

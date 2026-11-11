@@ -72,6 +72,11 @@ function MeOAppInner() {
   const [authChecked, setAuthChecked] = useState(false);
   const [profileRole, setProfileRole] = useState<string | null>(null);
   const [profileLoaded, setProfileLoaded] = useState(false);
+  // Server-side onboarding signal (from GET /api/me's `onboarding` blob) --
+  // lets us detect "already onboarded on mobile" even when this browser's
+  // own meo_onboarding_v1 localStorage flag was never set. Mirrors mobile's
+  // own App.tsx self-heal check against the exact same field.
+  const [serverOnboarded, setServerOnboarded] = useState(false);
   const [isNewUser, setIsNewUser] = useState(false);
   // Sidebar: list of user's chats and current conversation
   const [chats, setChats] = useState<ChatListItem[]>([]);
@@ -198,6 +203,16 @@ function MeOAppInner() {
           setUserRole(data.role);
           setProfileRole(data.role);
         }
+        // Real primaryGoal/dob data means this account already completed
+        // onboarding -- on this device, mobile, or any other. Self-heal the
+        // local flag so this check is skipped on future loads, same as
+        // mobile's App.tsx does against this exact field.
+        if (data?.onboarding?.primaryGoal || data?.onboarding?.dob) {
+          setServerOnboarded(true);
+          if (typeof window !== 'undefined') {
+            window.localStorage.setItem('meo_onboarding_v1', '1');
+          }
+        }
       } catch { }
       setProfileLoaded(true);
     })();
@@ -316,10 +331,11 @@ function MeOAppInner() {
     // Determine intended mode from query
     const lowerMessage = messageText.toLowerCase();
     let intendedMode: 'response' | 'analysis' | 'solution' = viewMode;
+    // 2026-11-11: the Solutions mode (vendor cards from "find a
+    // specialist") is parked with practitioner finding; only Analysis is
+    // still inferred from the message.
     if (lowerMessage.includes('kraft') || lowerMessage.includes('analyze') || lowerMessage.includes('analysis')) {
       intendedMode = 'analysis';
-    } else if (lowerMessage.includes('specialist') || lowerMessage.includes('find')) {
-      intendedMode = 'solution';
     }
 
     const shouldStartKraftProtocol =
@@ -729,8 +745,13 @@ function MeOAppInner() {
     );
   }
 
-  // Redirect to onboarding if not yet completed (patients only)
-  if (typeof window !== 'undefined' && !localStorage.getItem('meo_onboarding_v1')) {
+  // Redirect to onboarding if not yet completed (patients only). Checks the
+  // local flag first (fast path), then falls back to serverOnboarded (set
+  // above from GET /api/me) — this is what makes onboarding-completion
+  // cross-platform: a user who onboarded on mobile has real primaryGoal/dob
+  // in the shared backend record, so they land straight in the app here
+  // instead of being forced through onboarding again on a fresh browser.
+  if (typeof window !== 'undefined' && !localStorage.getItem('meo_onboarding_v1') && !serverOnboarded) {
     router.push('/onboarding');
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: colors.background }}>

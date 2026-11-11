@@ -11,16 +11,25 @@ interface Plan {
   id: string;
   name: string;
   price: number;
+  // Display suffix next to the price — '/month', '/year', or a one-time label.
+  period: string;
   features: string[];
   cta: string;
   popular?: boolean;
 }
 
+// Meo Pro's three billing options — kept in sync with mobile's real
+// RevenueCat/App Store/Play prices (verified against App Store Connect's
+// live price points: Monthly $14.99, Annual $99.99; Lifetime $149.99 matches
+// the same pattern). This used to be a single $29/mo "Pro" plan that didn't
+// match what mobile actually charges for the same entitlement — see
+// src/app/lib/stripe.ts for the Stripe-side prices these checkout against.
 const PLANS: Plan[] = [
   {
     id: 'free',
     name: 'Free',
     price: 0,
+    period: '/month',
     features: [
       'Basic chat with MeO AI',
       'Limited message history',
@@ -29,9 +38,10 @@ const PLANS: Plan[] = [
     cta: 'Current Plan',
   },
   {
-    id: 'pro',
-    name: 'Pro',
-    price: 29,
+    id: 'pro_monthly',
+    name: 'Meo Pro Monthly',
+    price: 14.99,
+    period: '/month',
     features: [
       'Unlimited chat with MeO AI',
       'Full message history',
@@ -43,9 +53,38 @@ const PLANS: Plan[] = [
     popular: true,
   },
   {
+    id: 'pro_annual',
+    name: 'Meo Pro Annual',
+    price: 99.99,
+    period: '/year',
+    features: [
+      'Unlimited chat with MeO AI',
+      'Full message history',
+      'Analysis dashboard (Bio Age, Kraft)',
+      'Personalized recommendations',
+      'Priority support',
+    ],
+    cta: 'Upgrade to Pro',
+  },
+  {
+    id: 'pro_lifetime',
+    name: 'Meo Pro Lifetime',
+    price: 149.99,
+    period: ' one-time',
+    features: [
+      'Unlimited chat with MeO AI',
+      'Full message history',
+      'Analysis dashboard (Bio Age, Kraft)',
+      'Personalized recommendations',
+      'Priority support',
+    ],
+    cta: 'Upgrade to Pro',
+  },
+  {
     id: 'clinic',
     name: 'Clinic',
     price: 99,
+    period: '/month',
     features: [
       'Everything in Pro',
       'Practitioner mode',
@@ -159,7 +198,7 @@ export default function PricingPage() {
   return (
     <AppShell requireAuth={false}>
       <div className="flex-1 overflow-auto" style={{ background: 'transparent' }}>
-        <div className="max-w-4xl mx-auto px-6 py-8">
+        <div className="max-w-6xl mx-auto px-6 py-8">
           <Link href="/" className="inline-block mb-6 t-lead underline" style={{ color: colors.primary }}>
             &larr; Back to MeO
           </Link>
@@ -173,7 +212,7 @@ export default function PricingPage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
             {PLANS.map((plan) => {
               const isCurrent = currentPlan === plan.id;
               const isUpgrade = !isCurrent && plan.id !== 'free';
@@ -206,7 +245,7 @@ export default function PricingPage() {
                       ${plan.price}
                     </span>
                     <span className="t-lead" style={{ color: colors.muted }}>
-                      /month
+                      {plan.period}
                     </span>
                   </div>
 
@@ -225,18 +264,30 @@ export default function PricingPage() {
                   </ul>
 
                   {isCurrent ? (
-                    <button
-                      onClick={plan.id !== 'free' ? handleManage : undefined}
-                      disabled={loading === 'manage'}
-                      className="w-full rounded-[9px] py-3 t-lead font-semibold border transition-colors"
-                      style={{
-                        borderColor: colors.primary,
-                        color: colors.primary,
-                        opacity: loading === 'manage' ? 0.7 : 1,
-                      }}
-                    >
-                      {plan.id === 'free' ? 'Current Plan' : loading === 'manage' ? 'Loading...' : 'Manage Subscription'}
-                    </button>
+                    plan.id === 'pro_lifetime' ? (
+                      // One-time purchase — nothing recurring to manage in
+                      // Stripe's billing portal, so don't offer that button.
+                      <button
+                        disabled
+                        className="w-full rounded-[9px] py-3 t-lead font-semibold border"
+                        style={{ borderColor: colors.primary, color: colors.primary, opacity: 0.7 }}
+                      >
+                        Lifetime Member
+                      </button>
+                    ) : (
+                      <button
+                        onClick={plan.id !== 'free' ? handleManage : undefined}
+                        disabled={loading === 'manage'}
+                        className="w-full rounded-[9px] py-3 t-lead font-semibold border transition-colors"
+                        style={{
+                          borderColor: colors.primary,
+                          color: colors.primary,
+                          opacity: loading === 'manage' ? 0.7 : 1,
+                        }}
+                      >
+                        {plan.id === 'free' ? 'Current Plan' : loading === 'manage' ? 'Loading...' : 'Manage Subscription'}
+                      </button>
+                    )
                   ) : isUpgrade ? (
                     <button
                       onClick={() => handleSubscribe(plan.id)}
@@ -265,7 +316,7 @@ export default function PricingPage() {
           </div>
 
           <p className="text-center t-body2 mt-8" style={{ color: colors.muted }}>
-            All plans include a 14-day free trial. Cancel anytime. Prices in USD.
+            Monthly and annual plans include a 14-day free trial and can be cancelled anytime. Lifetime is a one-time purchase. Prices in USD.
           </p>
         </div>
       </div>

@@ -32,6 +32,7 @@ interface MeasurementItem {
   recordType: string;
   subjectState: string;
   canontimeofglucose: string;
+  deviceClass?: string;
 }
 
 interface ParsedPayload {
@@ -78,7 +79,7 @@ POSTPRANDIAL (Kraft 5-hour curve)
 9:52   Glucose 8.9    Insulin 26.9
 10:21  Glucose 6.7    Insulin 9.0
 10:51  Glucose 7.1    Insulin 9.6
-11:50  Glucose 3.0    Insulin 1.44`;
+11:50  Glucose 3.0    Insulin 3.5`;
 
 type InputMode = 'paste' | 'form';
 
@@ -130,6 +131,7 @@ export default function PersonalizePage() {
   const [userEmail, setUserEmail] = useState('');
   const [timezone, setTimezone] = useState('UTC');
   const [mounted, setMounted] = useState(false);
+  const [deviceClass, setDeviceClass] = useState('MANUAL');
 
   // Set client-only values after mount to avoid hydration mismatch
   useEffect(() => {
@@ -395,7 +397,11 @@ export default function PersonalizePage() {
         },
         // The personalize form is always hand-entered, whether the patient
         // typed the numbers or pasted a lab report for parsing.
-        body: JSON.stringify({ ...payload, capture_method: 'typed' }),
+        body: JSON.stringify({
+          ...payload,
+          items: payload.items.map((it) => ({ ...it, deviceClass })),
+          capture_method: 'typed',
+        }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -420,7 +426,9 @@ export default function PersonalizePage() {
   };
 
   const useExample = () => {
-    setText(EXAMPLE_TEXT);
+    const today = new Date().toISOString().slice(0, 10);
+    setText(EXAMPLE_TEXT.replace('2026-04-01', today));
+    setDeviceClass('LAB'); // this example is a full clinical panel + OGTT — from a lab
     setError(null);
     setSuccess(null);
   };
@@ -450,10 +458,10 @@ export default function PersonalizePage() {
               </div>
               <div>
                 <h1 className="t-head font-bold" style={{ color: colors.foreground }}>
-                  Personalize Your Data
+                  Add results
                 </h1>
                 <p className="t-lead" style={{ color: colors.muted }}>
-                  Paste measurements in any format. AI will structure them for you.
+                  Paste a lab report or type your measurements in any format. Meo reads the values for you to check before saving.
                 </p>
               </div>
             </div>
@@ -655,6 +663,23 @@ export default function PersonalizePage() {
                     }}
                   />
                 </div>
+              </div>
+
+              {/* Source / device (applies to all rows) */}
+              <div className="mb-4">
+                <label className="text-xs block mb-1" style={{ color: colors.muted }}>Source / device</label>
+                <select
+                  value={deviceClass}
+                  onChange={(e) => setDeviceClass(e.target.value)}
+                  className="w-full sm:w-auto rounded-lg px-3 py-2 text-sm outline-none"
+                  style={{ background: colors.background, color: colors.foreground, border: `1px solid ${colors.cardBorder}` }}
+                >
+                  <option value="LIPID_METER">Lipid meter (finger-prick panel)</option>
+                  <option value="CGM">CGM (continuous glucose monitor)</option>
+                  <option value="KETONE_METER">Ketone meter</option>
+                  <option value="LAB">Lab / blood test</option>
+                  <option value="MANUAL">Manual / other</option>
+                </select>
               </div>
 
               {/* Rows */}
@@ -980,6 +1005,28 @@ export default function PersonalizePage() {
                     {parsing ? <RefreshCw className="h-4 w-4 animate-spin" /> : 'Refine'}
                   </button>
                 </div>
+              </div>
+
+              {/* Source / device */}
+              <div className="mb-4">
+                <label className="block text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: colors.muted }}>
+                  Where did these readings come from?
+                </label>
+                <select
+                  value={deviceClass}
+                  onChange={(e) => setDeviceClass(e.target.value)}
+                  className="w-full sm:w-auto rounded-xl px-4 py-2.5 text-sm outline-none"
+                  style={{ background: colors.background, color: colors.foreground, border: `1px solid ${colors.cardBorder}` }}
+                >
+                  <option value="LIPID_METER">Lipid meter (finger-prick panel)</option>
+                  <option value="CGM">CGM (continuous glucose monitor)</option>
+                  <option value="KETONE_METER">Ketone meter</option>
+                  <option value="LAB">Lab / blood test</option>
+                  <option value="MANUAL">Manual / other</option>
+                </select>
+                <p className="text-xs mt-1.5" style={{ color: colors.muted }}>
+                  Applied to all readings in this submission — shown as the source in your Activity.
+                </p>
               </div>
 
               {/* Action buttons */}

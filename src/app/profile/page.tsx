@@ -502,6 +502,25 @@ export default function ProfilePage() {
             )}
           </div>
 
+          {/* Clinical Details */}
+          <div className="mt-6 pt-6 border-t" style={{ borderColor: colors.cardBorder }}>
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-lg font-bold" style={{ color: colors.foreground }}>Clinical Details</h2>
+                <p className="text-sm mt-1" style={{ color: colors.muted }}>
+                  Occupation, medical history, diet, and referral information — optional, helps us personalise your insights.
+                </p>
+              </div>
+              <Link
+                href="/profile/clinical-details"
+                className="text-xs px-3 py-1.5 rounded-lg font-medium transition-colors flex-shrink-0"
+                style={{ backgroundColor: colors.primary, color: colors.primaryForeground }}
+              >
+                Complete
+              </Link>
+            </div>
+          </div>
+
           {/* Password Reset */}
           <div className="mt-6 pt-6 border-t" style={{ borderColor: colors.cardBorder }}>
             <p className="t-lead mb-2" style={{ color: colors.muted }}>
@@ -515,6 +534,25 @@ export default function ProfilePage() {
               style={{ color: colors.primary }}
             >
               Forgot password? Reset it here
+            </a>
+          </div>
+
+          {/* Your data — same construction as the password block above.
+              Absolute URL: the trust page lives on meterbolic.com, not
+              on this app's host. */}
+          <div className="mt-6 pt-6 border-t" style={{ borderColor: colors.cardBorder }}>
+            <p className="text-sm mb-2" style={{ color: colors.muted }}>
+              Your readings, food log and conversations with Meo are your data.
+              You can ask for a copy, or ask us to delete all of it.
+            </p>
+            <a
+              href="https://meterbolic.com/trust"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm underline"
+              style={{ color: colors.primary }}
+            >
+              Trust &amp; data protection — your rights and how we handle your data
             </a>
           </div>
         </div>

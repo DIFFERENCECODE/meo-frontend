@@ -57,3 +57,6 @@ Screenshots/
 # Context
 context.txt
 public/docs/*.pdf
+
+# keep the keys-only template (values stay local)
+!.env.example
