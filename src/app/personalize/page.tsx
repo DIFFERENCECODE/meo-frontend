@@ -436,10 +436,10 @@ export default function PersonalizePage() {
               </div>
               <div>
                 <h1 className="text-2xl font-bold" style={{ color: colors.foreground }}>
-                  Personalize Your Data
+                  Add results
                 </h1>
                 <p className="text-sm" style={{ color: colors.muted }}>
-                  Paste measurements in any format. AI will structure them for you.
+                  Paste a lab report or type your measurements in any format. Meo reads the values for you to check before saving.
                 </p>
               </div>
             </div>
