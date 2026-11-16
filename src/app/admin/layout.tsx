@@ -54,9 +54,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <div className="min-h-screen flex items-center justify-center" style={{ background: colors.background }}>
         <div className="text-center">
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full animate-spin" style={{ background: colors.primary }}>
-            <span className="text-2xl font-bold" style={{ color: colors.primaryForeground }}>M</span>
+            <span className="t-head font-bold" style={{ color: colors.primaryForeground }}>M</span>
           </div>
-          <p className="text-sm animate-pulse" style={{ color: colors.muted }}>Verifying admin access...</p>
+          <p className="t-lead animate-pulse" style={{ color: colors.muted }}>Verifying admin access...</p>
         </div>
       </div>
     );
@@ -83,7 +83,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <Link
                 key={item.href}
                 href={item.href}
-                className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors"
+                className="flex items-center gap-3 px-3 py-2.5 rounded-[9px] t-lead font-medium transition-colors"
                 style={{
                   backgroundColor: isActive ? colors.accent : 'transparent',
                   color: isActive ? colors.foreground : colors.muted,
@@ -98,7 +98,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <div className="p-3 border-t" style={{ borderColor: colors.cardBorder }}>
           <Link
             href="/"
-            className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors hover:opacity-80"
+            className="flex items-center gap-2 px-3 py-2 rounded-[9px] t-lead transition-colors hover:opacity-80"
             style={{ color: colors.muted }}
           >
             <ArrowLeft className="h-4 w-4" />

@@ -102,8 +102,8 @@ export default function AdminDashboard() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-1" style={{ color: colors.foreground }}>Dashboard</h1>
-      <p className="text-sm mb-8" style={{ color: colors.muted }}>Platform overview and system health</p>
+      <h1 className="t-head font-bold mb-1" style={{ color: colors.foreground }}>Dashboard</h1>
+      <p className="t-lead mb-8" style={{ color: colors.muted }}>Platform overview and system health</p>
 
       {loading ? (
         <p className="animate-pulse" style={{ color: colors.muted }}>Loading stats...</p>
@@ -116,18 +116,18 @@ export default function AdminDashboard() {
               return (
                 <div
                   key={i}
-                  className="rounded-xl border p-5"
+                  className="rounded-[10px] border p-5"
                   style={{ backgroundColor: colors.card, borderColor: colors.cardBorder }}
                 >
                   <div className="flex items-center justify-between mb-3">
-                    <span className="text-xs font-medium uppercase tracking-wider" style={{ color: colors.muted }}>
+                    <span className="t-body2 font-medium uppercase tracking-wider" style={{ color: colors.muted }}>
                       {card.label}
                     </span>
                     <Icon className="h-4 w-4" style={{ color: card.color }} />
                   </div>
                   <p className="text-3xl font-bold" style={{ color: colors.foreground }}>{card.value}</p>
                   {card.sub && (
-                    <p className="text-xs mt-1" style={{ color: card.color }}>{card.sub}</p>
+                    <p className="t-body2 mt-1" style={{ color: card.color }}>{card.sub}</p>
                   )}
                 </div>
               );
@@ -141,7 +141,7 @@ export default function AdminDashboard() {
               Object.entries(health).map(([service, check]) => (
                 <div
                   key={service}
-                  className="rounded-xl border p-4 flex items-center gap-4"
+                  className="rounded-[10px] border p-4 flex items-center gap-4"
                   style={{ backgroundColor: colors.card, borderColor: colors.cardBorder }}
                 >
                   <div
@@ -149,8 +149,8 @@ export default function AdminDashboard() {
                     style={{ backgroundColor: check.status === 'ok' ? colors.success : colors.error }}
                   />
                   <div>
-                    <p className="font-medium text-sm capitalize" style={{ color: colors.foreground }}>{service}</p>
-                    <p className="text-xs" style={{ color: colors.muted }}>
+                    <p className="font-medium t-lead capitalize" style={{ color: colors.foreground }}>{service}</p>
+                    <p className="t-body2" style={{ color: colors.muted }}>
                       {check.status === 'ok'
                         ? check.vendors_count !== undefined
                           ? `${check.vendors_count} vendors, ${check.knowledge_count} docs`
@@ -169,16 +169,16 @@ export default function AdminDashboard() {
             <h2 className="text-lg font-bold" style={{ color: colors.foreground }}>Recent Signups</h2>
             <Link
               href="/admin/users"
-              className="text-xs flex items-center gap-1 hover:underline"
+              className="t-body2 flex items-center gap-1 hover:underline"
               style={{ color: colors.primary }}
             >
               View all
               <ArrowRight className="h-3 w-3" />
             </Link>
           </div>
-          <div className="rounded-xl border overflow-hidden" style={{ backgroundColor: colors.card, borderColor: colors.cardBorder }}>
+          <div className="rounded-[10px] border overflow-hidden" style={{ backgroundColor: colors.card, borderColor: colors.cardBorder }}>
             {recentUsers.length === 0 ? (
-              <p className="px-4 py-8 text-sm text-center" style={{ color: colors.muted }}>
+              <p className="px-4 py-8 t-lead text-center" style={{ color: colors.muted }}>
                 No users yet
               </p>
             ) : (
@@ -189,21 +189,21 @@ export default function AdminDashboard() {
                   style={{ borderTop: i === 0 ? 'none' : `1px solid ${colors.cardBorder}` }}
                 >
                   <div
-                    className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold"
+                    className="w-8 h-8 rounded-full flex items-center justify-center t-body2 font-bold"
                     style={{ backgroundColor: `${colors.primary}20`, color: colors.primary }}
                   >
                     {(u.email || '?').charAt(0).toUpperCase()}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate" style={{ color: colors.foreground }}>
+                    <p className="t-lead font-medium truncate" style={{ color: colors.foreground }}>
                       {u.name || u.email}
                     </p>
-                    <p className="text-xs truncate" style={{ color: colors.muted }}>
+                    <p className="t-body2 truncate" style={{ color: colors.muted }}>
                       {u.email}
                     </p>
                   </div>
                   <span
-                    className="px-2 py-0.5 rounded-full text-xs font-medium"
+                    className="px-2 py-0.5 rounded-full t-body2 font-medium"
                     style={{
                       backgroundColor:
                         u.role === 'admin' ? `${colors.error}20` :
@@ -217,7 +217,7 @@ export default function AdminDashboard() {
                   >
                     {u.role}
                   </span>
-                  <span className="text-xs whitespace-nowrap" style={{ color: colors.muted }}>
+                  <span className="t-body2 whitespace-nowrap" style={{ color: colors.muted }}>
                     {u.created_at ? formatRelative(u.created_at) : '—'}
                   </span>
                 </div>

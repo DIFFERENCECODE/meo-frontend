@@ -39,15 +39,15 @@ interface Form {
 const EMPTY: Form = { fullName: '', profBody: '', regNumber: '', specialties: [], clinicName: '', clinicAddress: '', website: '', bio: '', reasonForJoining: '' };
 
 // ── Shared input style ──────────────────────────────────────────────────────
-const inputBase = "w-full rounded-lg border px-3.5 py-2.5 text-sm outline-none bg-white transition-colors";
-const iS = { borderColor: '#e5e7eb', color: '#111827', fontSize: '16px' };
-const onFocus = (e: React.FocusEvent<any>) => (e.currentTarget.style.borderColor = '#a4d65e');
-const onBlur  = (e: React.FocusEvent<any>) => (e.currentTarget.style.borderColor = '#e5e7eb');
+const inputBase = "w-full rounded-lg border px-3.5 py-2.5 text-base outline-none transition-colors";
+const iS = { borderColor: 'rgba(var(--mc-fg-rgb),0.14)', color: 'var(--mc-text)', background: 'var(--mc-input)', fontSize: '16px' };
+const onFocus = (e: React.FocusEvent<any>) => (e.currentTarget.style.borderColor = 'var(--mc-accent)');
+const onBlur  = (e: React.FocusEvent<any>) => (e.currentTarget.style.borderColor = 'rgba(var(--mc-fg-rgb),0.14)');
 
 function Label({ text, required }: { text: string; required?: boolean }) {
   return (
-    <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>
-      {text}{required && <span style={{ color: '#a4d65e' }}> *</span>}
+    <label className="block text-base font-medium mb-1.5" style={{ color: '#c3d0d0' }}>
+      {text}{required && <span style={{ color: 'var(--mc-accent)' }}> *</span>}
     </label>
   );
 }
@@ -84,31 +84,31 @@ function RightPanel() {
       style={{ background: 'linear-gradient(160deg, #1a3a3a 0%, #264545 45%, #2a5555 100%)' }}
     >
       <div className="absolute inset-0 pointer-events-none" style={{
-        backgroundImage: `radial-gradient(circle at 70% 20%, rgba(164,214,94,0.08) 0%, transparent 50%),
-                           radial-gradient(circle at 20% 80%, rgba(164,214,94,0.05) 0%, transparent 40%)`,
+        backgroundImage: `radial-gradient(circle at 70% 20%, rgba(var(--mc-accent-rgb),0.08) 0%, transparent 50%),
+                           radial-gradient(circle at 20% 80%, rgba(var(--mc-accent-rgb),0.05) 0%, transparent 40%)`,
       }} />
-      <div className="absolute -right-20 -top-20 h-72 w-72 rounded-full pointer-events-none" style={{ background: 'rgba(164,214,94,0.06)' }} />
+      <div className="absolute -right-20 -top-20 h-72 w-72 rounded-full pointer-events-none" style={{ background: 'rgba(var(--mc-accent-rgb),0.06)' }} />
 
       {/* Top: logo + headline + features */}
       <div className="relative z-10">
         <div className="flex items-center gap-3">
           <div className="flex h-12 w-12 items-center justify-center rounded-xl"
-            style={{ background: 'rgba(164,214,94,0.15)', border: '1px solid rgba(164,214,94,0.3)' }}>
-            <Activity className="h-6 w-6" style={{ color: '#a4d65e' }} />
+            style={{ background: 'rgba(var(--mc-accent-rgb),0.15)', border: '1px solid rgba(var(--mc-accent-rgb),0.3)' }}>
+            <Activity className="h-6 w-6" style={{ color: 'var(--mc-accent)' }} />
           </div>
           <div>
-            <p className="text-lg font-bold" style={{ color: '#ffffff' }}>Meterbolic</p>
-            <p className="text-xs" style={{ color: 'rgba(255,255,255,0.5)' }}>Clinician Platform</p>
+            <p className="text-lg font-bold" style={{ color: 'var(--mc-text)' }}>Meterbolic</p>
+            <p className="text-sm" style={{ color: 'rgba(var(--mc-fg-rgb),0.5)' }}>Clinician Platform</p>
           </div>
         </div>
 
         <div className="mt-10 max-w-md">
-          <h2 className="text-3xl xl:text-4xl font-bold leading-snug" style={{ color: '#ffffff' }}>
+          <h2 className="text-3xl xl:text-4xl font-bold leading-snug" style={{ color: 'var(--mc-text)' }}>
             Join the clinicians<br />
-            <span style={{ color: '#a4d65e' }}>shaping the future</span><br />
+            <span style={{ color: 'var(--mc-accent)' }}>shaping the future</span><br />
             of metabolic health.
           </h2>
-          <p className="mt-4 text-sm leading-relaxed" style={{ color: 'rgba(255,255,255,0.6)' }}>
+          <p className="mt-4 text-base leading-relaxed" style={{ color: 'rgba(var(--mc-fg-rgb),0.6)' }}>
             Get verified, access real-time patient data, and deliver better outcomes with AI-powered clinical tools.
           </p>
         </div>
@@ -124,25 +124,25 @@ function RightPanel() {
         ].map(({ icon, label }) => (
           <div key={label} className="flex items-center gap-3">
             <span className="text-base">{icon}</span>
-            <span className="text-sm" style={{ color: 'rgba(255,255,255,0.75)' }}>{label}</span>
+            <span className="text-base" style={{ color: 'rgba(var(--mc-fg-rgb),0.75)' }}>{label}</span>
           </div>
         ))}
       </div>
 
       {/* Bottom: testimonial */}
       <div className="relative z-10 rounded-2xl p-6"
-        style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(12px)' }}>
-        <p className="text-sm leading-relaxed" style={{ color: 'rgba(255,255,255,0.85)' }}>
+        style={{ background: 'rgba(var(--mc-fg-rgb),0.06)', border: '1px solid rgba(var(--mc-fg-rgb),0.1)', backdropFilter: 'blur(12px)' }}>
+        <p className="text-base leading-relaxed" style={{ color: 'rgba(var(--mc-fg-rgb),0.85)' }}>
           &ldquo;{t.quote}&rdquo;
         </p>
         <div className="mt-4 flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold flex-shrink-0"
-            style={{ background: '#a4d65e', color: '#1a3a3a' }}>
+          <div className="flex h-9 w-9 items-center justify-center rounded-full text-base font-bold flex-shrink-0"
+            style={{ background: 'var(--mc-accent)', color: 'var(--mc-on-accent)' }}>
             {t.name.split(' ').map(n => n[0]).slice(0, 2).join('')}
           </div>
           <div>
-            <p className="text-sm font-semibold" style={{ color: '#ffffff' }}>{t.name}</p>
-            <p className="text-xs" style={{ color: 'rgba(255,255,255,0.5)' }}>{t.role}</p>
+            <p className="text-base font-semibold" style={{ color: 'var(--mc-text)' }}>{t.name}</p>
+            <p className="text-sm" style={{ color: 'rgba(var(--mc-fg-rgb),0.5)' }}>{t.role}</p>
           </div>
         </div>
       </div>
@@ -259,11 +259,11 @@ export default function ClinicianRegisterPage() {
   };
 
   if (redirecting) return (
-    <div className="min-h-screen flex items-center justify-center bg-white">
+    <div className="min-h-screen flex items-center justify-center bg-transparent">
       <div className="text-center space-y-3">
-        <Loader2 className="h-9 w-9 mx-auto animate-spin" style={{ color: '#1a3a3a' }} />
-        <p className="text-sm font-medium" style={{ color: '#374151' }}>Redirecting to secure payment…</p>
-        <p className="text-xs" style={{ color: '#9ca3af' }}>£99/month · Cancel any time</p>
+        <Loader2 className="h-9 w-9 mx-auto animate-spin" style={{ color: 'var(--mc-on-accent)' }} />
+        <p className="text-base font-medium" style={{ color: '#c3d0d0' }}>Redirecting to secure payment…</p>
+        <p className="text-sm" style={{ color: '#a3b4b4' }}>£99/month · Cancel any time</p>
       </div>
     </div>
   );
@@ -273,19 +273,19 @@ export default function ClinicianRegisterPage() {
   return (
     <div className="min-h-screen flex flex-col">
       {/* Progress bar */}
-      <div className="h-[3px] w-full flex-shrink-0" style={{ background: '#e5e7eb' }}>
-        <div className="h-full transition-all duration-500" style={{ width: `${progress}%`, background: '#a4d65e' }} />
+      <div className="h-[3px] w-full flex-shrink-0" style={{ background: 'rgba(var(--mc-fg-rgb),0.14)' }}>
+        <div className="h-full transition-all duration-500" style={{ width: `${progress}%`, background: 'var(--mc-accent)' }} />
       </div>
 
       <div className="flex flex-1">
         {/* ── Left: form ─────────────────────────────────────── */}
-        <div className="flex flex-col w-full lg:w-[500px] xl:w-[540px] flex-shrink-0 bg-white px-8 sm:px-12 py-10 min-h-screen lg:min-h-0">
+        <div className="flex flex-col w-full lg:w-[500px] xl:w-[540px] flex-shrink-0 bg-transparent px-8 sm:px-12 py-10 min-h-screen lg:min-h-0">
           {/* Logo — pinned top */}
           <div className="flex items-center gap-2 mb-auto pb-0">
-            <div className="flex h-7 w-7 items-center justify-center rounded-md" style={{ background: '#1a3a3a' }}>
-              <Activity className="h-3.5 w-3.5" style={{ color: '#a4d65e' }} />
+            <div className="flex h-7 w-7 items-center justify-center rounded-md" style={{ background: 'var(--mc-ground-solid)' }}>
+              <Activity className="h-3.5 w-3.5" style={{ color: 'var(--mc-accent)' }} />
             </div>
-            <span className="text-sm font-bold" style={{ color: '#1a3a3a' }}>Meterbolic</span>
+            <span className="text-base font-bold" style={{ color: 'var(--mc-on-accent)' }}>Meterbolic</span>
           </div>
 
           {/* Form — vertically centered */}
@@ -293,11 +293,11 @@ export default function ClinicianRegisterPage() {
           <div className="w-full max-w-sm mx-auto">
 
           {/* Step counter */}
-          <p className="text-xs font-medium mb-3" style={{ color: '#9ca3af' }}>Step {step + 1} of {TOTAL}</p>
+          <p className="text-sm font-medium mb-3" style={{ color: '#a3b4b4' }}>Step {step + 1} of {TOTAL}</p>
 
           {/* Title */}
-          <h1 className="text-2xl font-bold mb-1.5" style={{ color: '#111827' }}>{STEPS[step].title}</h1>
-          <p className="text-sm mb-8" style={{ color: '#6b7280' }}>{STEPS[step].subtitle}</p>
+          <h1 className="text-2xl font-bold mb-1.5" style={{ color: 'var(--mc-text)' }}>{STEPS[step].title}</h1>
+          <p className="text-base mb-8" style={{ color: '#a3b4b4' }}>{STEPS[step].subtitle}</p>
 
           {/* ── Inline OTP auth (shown instead of form when not signed in) ── */}
           {!token && (
@@ -305,50 +305,50 @@ export default function ClinicianRegisterPage() {
               {authScreen === 'email' ? (
                 <form onSubmit={sendOtp} className="flex flex-col gap-4 max-w-sm">
                   <div>
-                    <p className="text-sm mb-4" style={{ color: '#6b7280' }}>
+                    <p className="text-base mb-4" style={{ color: '#a3b4b4' }}>
                       Create your account to continue your application. We'll send a verification code to your email.
                     </p>
-                    <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>Email address</label>
+                    <label className="block text-base font-medium mb-1.5" style={{ color: '#c3d0d0' }}>Email address</label>
                     <input
                       type="email" value={authEmail} onChange={e => setAuthEmail(e.target.value)}
                       placeholder="you@example.com" autoFocus
                       className={inputBase} style={iS} onFocus={onFocus} onBlur={onBlur}
                     />
                   </div>
-                  {authError && <p className="text-xs" style={{ color: '#ef4444' }}>{authError}</p>}
+                  {authError && <p className="text-sm" style={{ color: 'var(--mc-red)' }}>{authError}</p>}
                   <button type="submit" disabled={authLoading}
-                    className="flex items-center justify-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-60"
-                    style={{ background: '#1a3a3a', color: '#ffffff' }}>
+                    className="flex items-center justify-center gap-2 rounded-full px-6 py-2.5 text-base font-semibold hover:opacity-90 transition-opacity disabled:opacity-60"
+                    style={{ background: 'var(--mc-ground-solid)', color: 'var(--mc-text)' }}>
                     {authLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <>Send code <ArrowRight className="h-4 w-4" /></>}
                   </button>
                 </form>
               ) : (
                 <form onSubmit={verifyOtp} className="flex flex-col gap-4 max-w-sm">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-full mb-1" style={{ background: '#f0fdf4' }}>
+                  <div className="flex h-11 w-11 items-center justify-center rounded-full mb-1" style={{ background: 'rgba(var(--mc-accent-rgb),0.15)' }}>
                     <Mail className="h-5 w-5" style={{ color: '#16a34a' }} />
                   </div>
                   <div>
-                    <p className="text-sm mb-4" style={{ color: '#6b7280' }}>
-                      Enter the 6-digit code sent to <span className="font-medium" style={{ color: '#111827' }}>{authEmail}</span>
+                    <p className="text-base mb-4" style={{ color: '#a3b4b4' }}>
+                      Enter the 6-digit code sent to <span className="font-medium" style={{ color: 'var(--mc-text)' }}>{authEmail}</span>
                     </p>
                     <input
                       type="text" inputMode="numeric" pattern="[0-9]{6}" maxLength={6}
                       value={authOtp} onChange={e => setAuthOtp(e.target.value.replace(/\D/g, ''))}
                       placeholder="000000" autoFocus suppressHydrationWarning
                       className="w-full rounded-lg border px-3.5 py-3 text-2xl font-bold tracking-[0.4em] text-center outline-none transition-colors"
-                      style={{ borderColor: '#e5e7eb', color: '#111827' }}
-                      onFocus={e => (e.currentTarget.style.borderColor = '#a4d65e')}
-                      onBlur={e => (e.currentTarget.style.borderColor = '#e5e7eb')}
+                      style={{ borderColor: 'rgba(var(--mc-fg-rgb),0.14)', color: 'var(--mc-text)' }}
+                      onFocus={e => (e.currentTarget.style.borderColor = 'var(--mc-accent)')}
+                      onBlur={e => (e.currentTarget.style.borderColor = 'rgba(var(--mc-fg-rgb),0.14)')}
                     />
                   </div>
-                  {authError && <p className="text-xs" style={{ color: '#ef4444' }}>{authError}</p>}
+                  {authError && <p className="text-sm" style={{ color: 'var(--mc-red)' }}>{authError}</p>}
                   <button type="submit" disabled={authLoading || authOtp.length < 6}
-                    className="flex items-center justify-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-60"
-                    style={{ background: '#1a3a3a', color: '#ffffff' }}>
+                    className="flex items-center justify-center gap-2 rounded-full px-6 py-2.5 text-base font-semibold hover:opacity-90 transition-opacity disabled:opacity-60"
+                    style={{ background: 'var(--mc-ground-solid)', color: 'var(--mc-text)' }}>
                     {authLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <>Verify & continue <ArrowRight className="h-4 w-4" /></>}
                   </button>
                   <button type="button" onClick={() => { setAuthScreen('email'); setAuthOtp(''); setAuthError(''); }}
-                    className="text-xs underline" style={{ color: '#9ca3af' }}>
+                    className="text-sm underline" style={{ color: '#a3b4b4' }}>
                     ← Use a different email
                   </button>
                 </form>
@@ -377,7 +377,7 @@ export default function ClinicianRegisterPage() {
                 <div>
                   <Label text="Registration body" required />
                   <select value={form.profBody} onChange={e => set('profBody', e.target.value)}
-                    className={inputBase + ' appearance-none'} style={{ ...iS, color: form.profBody ? '#111827' : '#9ca3af' }}
+                    className={inputBase + ' appearance-none'} style={{ ...iS, color: form.profBody ? 'var(--mc-text)' : '#a3b4b4' }}
                     onFocus={onFocus} onBlur={onBlur}>
                     <option value="">Select your registration body…</option>
                     {PROF_BODIES.map(b => <option key={b} value={b}>{b}</option>)}
@@ -394,14 +394,14 @@ export default function ClinicianRegisterPage() {
             {step === 2 && (
               <div>
                 <Label text="Select your specialties" required />
-                <p className="text-xs mb-3" style={{ color: '#9ca3af' }}>Choose all that apply</p>
+                <p className="text-sm mb-3" style={{ color: '#a3b4b4' }}>Choose all that apply</p>
                 <div className="flex flex-wrap gap-2">
                   {SPECIALTIES.map(s => {
                     const active = form.specialties.includes(s);
                     return (
                       <button key={s} type="button" onClick={() => toggleSpec(s)}
-                        className="px-3 py-1.5 rounded-full text-xs transition-all font-medium"
-                        style={{ background: active ? '#f0fdf4' : '#f9fafb', border: `1px solid ${active ? '#a4d65e' : '#e5e7eb'}`, color: active ? '#1a3a3a' : '#374151' }}>
+                        className="px-3 py-1.5 rounded-full text-sm transition-all font-medium"
+                        style={{ background: active ? 'rgba(var(--mc-accent-rgb),0.15)' : 'rgba(var(--mc-fg-rgb),0.04)', border: `1px solid ${active ? 'var(--mc-accent)' : 'rgba(var(--mc-fg-rgb),0.14)'}`, color: active ? 'var(--mc-on-accent)' : '#c3d0d0' }}>
                         {active && <Check className="inline h-3 w-3 mr-1" />}{s}
                       </button>
                     );
@@ -437,7 +437,7 @@ export default function ClinicianRegisterPage() {
                   <textarea value={form.bio} onChange={e => set('bio', e.target.value)} rows={4}
                     placeholder="Tell patients about your background, approach, and specialisation…"
                     className={inputBase + ' resize-none'} style={iS} onFocus={onFocus} onBlur={onBlur} />
-                  <p className="text-xs mt-1 text-right" style={{ color: form.bio.length >= 50 ? '#a4d65e' : '#9ca3af' }}>
+                  <p className="text-sm mt-1 text-right" style={{ color: form.bio.length >= 50 ? 'var(--mc-accent)' : '#a3b4b4' }}>
                     {form.bio.length} / 50 min {form.bio.length >= 50 ? '✓' : ''}
                   </p>
                 </div>
@@ -453,7 +453,7 @@ export default function ClinicianRegisterPage() {
 
           {/* Error */}
           {error && (
-            <div className="mt-5 rounded-lg px-4 py-3 flex items-start gap-2 text-sm"
+            <div className="mt-5 rounded-lg px-4 py-3 flex items-start gap-2 text-base"
               style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#b91c1c' }}>
               {error}
             </div>
@@ -463,19 +463,19 @@ export default function ClinicianRegisterPage() {
           <div className="mt-8 flex items-center gap-3">
             {step > 0 && (
               <button onClick={() => { setStep(s => s - 1); setError(''); }}
-                className="flex items-center gap-1.5 px-4 py-2.5 rounded-full text-sm font-medium transition-colors hover:bg-gray-100"
-                style={{ border: '1px solid #e5e7eb', color: '#374151' }}>
+                className="flex items-center gap-1.5 px-4 py-2.5 rounded-full text-base font-medium transition-colors hover:bg-white/5"
+                style={{ border: '1px solid rgba(var(--mc-fg-rgb),0.14)', color: '#c3d0d0' }}>
                 <ArrowLeft className="h-4 w-4" /> Back
               </button>
             )}
             <button onClick={next} disabled={submitting}
-              className="flex items-center gap-2 px-6 py-2.5 rounded-full text-sm font-semibold transition-opacity hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
-              style={{ background: '#111827', color: '#ffffff' }}>
+              className="flex items-center gap-2 px-6 py-2.5 rounded-full text-base font-semibold transition-opacity hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{ background: 'var(--mc-text)', color: 'var(--mc-text)' }}>
               {submitting ? <><Loader2 className="h-4 w-4 animate-spin" /> Processing…</> : step === TOTAL - 1 ? <>Pay £99/month <ArrowRight className="h-4 w-4" /></> : <>Continue <ArrowRight className="h-4 w-4" /></>}
             </button>
           </div>
 
-          <p className="mt-4 text-xs" style={{ color: '#9ca3af' }}>
+          <p className="mt-4 text-sm" style={{ color: '#a3b4b4' }}>
             {step === TOTAL - 1 ? 'Secure payment via Stripe. Cancel any time.' : `${TOTAL - step - 1} step${TOTAL - step - 1 !== 1 ? 's' : ''} remaining`}
           </p>
           </>}

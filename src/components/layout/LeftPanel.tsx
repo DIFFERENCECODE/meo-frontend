@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import {
   Menu,
   SquarePen,
@@ -16,11 +17,24 @@ import {
   ChevronDown,
   ChevronRight,
   Check,
+  Home,
+  TrendingUp,
+  History,
+  ClipboardList,
+  Link2,
+  UserRound,
   FlaskConical,
+  Plus,
+  PanelLeftClose,
+  Smartphone,
+  Map as MapIcon,
+  HeartPulse,
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
+import { useModalFocus } from '@/hooks/useModalFocus';
+import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
 import { useTheme } from '@/theme/ThemeProvider';
 import { SkeletonChatRow } from '@/components/Skeleton';
+import { SidebarUser } from './SidebarUser';
 import { LanguagePicker } from '@/components/layout/LanguagePicker';
 import { useTranslation } from '@/i18n/LanguageContext';
 import { cn } from '@/lib/utils';
@@ -44,6 +58,19 @@ interface LeftPanelProps {
   className?: string;
 }
 
+/** Today / Previous 7 days / Older, newest first, as the frames group them. */
+function groupChats(chats: ChatListItem[]): [string, ChatListItem[]][] {
+  const startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
+  const weekAgo = startOfToday.getTime() - 7 * 86400000;
+  const groups: Record<string, ChatListItem[]> = { Today: [], 'Previous 7 days': [], Older: [] };
+  for (const c of chats) {
+    const t = new Date(c.updated_at || c.created_at || 0).getTime();
+    groups[t >= startOfToday.getTime() ? 'Today' : t >= weekAgo ? 'Previous 7 days' : 'Older'].push(c);
+  }
+  return (Object.entries(groups) as [string, ChatListItem[]][]).filter(([, v]) => v.length > 0);
+}
+
 function formatChatDate(created_at?: string | null): string {
   if (!created_at) return '';
   try {
@@ -64,8 +91,8 @@ function formatChatDate(created_at?: string | null): string {
 function RailTooltip({ label }: { label: string }) {
   return (
     <span
-      className="pointer-events-none absolute left-full top-1/2 -translate-y-1/2 ml-2 px-2.5 py-1 rounded-lg text-xs font-medium whitespace-nowrap
-        opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0
+      className="pointer-events-none absolute left-full top-1/2 -translate-y-1/2 ml-2 px-2.5 py-1 rounded-[9px] t-body2 font-medium whitespace-nowrap
+        opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 group-focus-within:opacity-100 group-focus-within:translate-x-0
         transition-all duration-150 z-[60]"
       style={{
         backgroundColor: 'var(--rail-tip-bg)',
@@ -94,6 +121,7 @@ export function LeftPanel({
   const {
     isLeftPanelOpen,
     toggleLeftPanel,
+    setLeftPanelOpen,
     isRightPanelOpen,
     theme,
     colors,
@@ -102,6 +130,57 @@ export function LeftPanel({
     vendor,
     setVendor,
   } = useTheme();
+  const reducedMotion = useReducedMotion();
+  const [drawerElement, setDrawerElement] = useState<HTMLElement | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const query = window.matchMedia('(max-width: 767px)');
+    const update = () => setIsMobile(query.matches);
+    update();
+    query.addEventListener('change', update);
+    return () => query.removeEventListener('change', update);
+  }, []);
+  useModalFocus(drawerElement, isLeftPanelOpen && isMobile);
+  const pathname = usePathname();
+
+  // How many sources have actually sent data, for the Connectors badge and the
+  // sync card. Counted by the backend from what is on the record, so "2 live"
+  // is never a claim about a pairing that has not delivered anything.
+  const [liveSources, setLiveSources] = useState(0);
+  useEffect(() => {
+    let live = true;
+    (async () => {
+      try {
+        const { getValidIdToken } = await import('@/app/lib/auth');
+        const token = await getValidIdToken();
+        if (!token) return;
+        const res = await fetch('/api/me/connectors', { headers: { Authorization: `Bearer ${token}` } });
+        if (!res.ok) return;
+        const d = await res.json();
+        const n = (d?.sources ?? []).filter((x: { status?: string }) => x.status === 'connected').length;
+        if (live) setLiveSources(n);
+      } catch {
+        /* the badge is a convenience */
+      }
+    })();
+    return () => { live = false; };
+  }, []);
+  const previousPath = useRef(pathname);
+  useEffect(() => {
+    if (previousPath.current !== pathname && window.matchMedia('(max-width: 767px)').matches) {
+      setLeftPanelOpen(false);
+    }
+    previousPath.current = pathname;
+  }, [pathname, setLeftPanelOpen]);
+
+  useEffect(() => {
+    if (!isLeftPanelOpen) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setLeftPanelOpen(false);
+    };
+    window.addEventListener('keydown', closeOnEscape);
+    return () => window.removeEventListener('keydown', closeOnEscape);
+  }, [isLeftPanelOpen, setLeftPanelOpen]);
   const { t } = useTranslation();
   const [showSettings, setShowSettings] = useState(false);
   const [showVendorPicker, setShowVendorPicker] = useState(false);
@@ -124,9 +203,12 @@ export function LeftPanel({
       {!isLeftPanelOpen && (
         <button
           onClick={toggleLeftPanel}
-          className="md:hidden fixed top-3 left-3 z-30 p-2.5 rounded-lg shadow-md"
+          className="md:hidden fixed top-3 left-3 z-30 p-2.5 rounded-[9px] shadow-md"
           style={{ backgroundColor: colors.background, border: `1px solid ${colors.cardBorder}40` }}
           aria-label="Open menu"
+          data-menu-trigger
+          aria-expanded={false}
+          aria-controls="patient-navigation"
         >
           <Menu className="h-5 w-5" style={{ color: colors.foreground }} />
         </button>
@@ -140,6 +222,8 @@ export function LeftPanel({
         <React.Fragment key="expanded">
           {/* Mobile overlay */}
           <motion.div
+            data-menu-backdrop
+            aria-hidden="true"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -148,209 +232,201 @@ export function LeftPanel({
           />
 
           <motion.aside
-            initial={{ width: 0, opacity: 0 }}
-            animate={{ width: 260, opacity: 1 }}
+            id="patient-navigation"
+            ref={setDrawerElement}
+            role={isMobile ? 'dialog' : undefined}
+            aria-modal={isMobile ? true : undefined}
+            aria-label="Navigation"
+            tabIndex={-1}
+            initial={reducedMotion ? { opacity: 0 } : { width: 0, opacity: 0 }}
+            animate={{ width: 248, opacity: 1 }}
             exit={{ width: 0, opacity: 0 }}
-            transition={{ duration: 0.2, ease: 'easeOut' }}
+            transition={reducedMotion ? { duration: 0 } : { type: 'spring', bounce: 0, duration: 0.3 }}
             className={cn(
-              'h-screen flex flex-col overflow-hidden z-50',
+              'h-dvh flex flex-col overflow-hidden z-50',
               'fixed md:relative left-0 top-0',
               className,
             )}
             style={{ backgroundColor: colors.background }}
           >
-            {/* Header */}
-            <div className="flex items-center justify-between p-3">
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={toggleLeftPanel}
-                  className="p-2 rounded-lg transition-colors hover:bg-white/10"
-                  aria-label="Close menu"
-                >
-                  <Menu className="h-5 w-5" style={{ color: colors.foreground }} />
-                </button>
-                <span className="font-medium text-base" style={{ color: colors.foreground }}>
-                  {theme.name}
+            {/* Header: the frames open on the MeO mark, not a menu button. The
+                collapse control stays, quietly, for the person who wants room. */}
+            <div className="flex items-center justify-between" style={{ padding: '18px 12px 14px 20px' }}>
+              <Link href="/" className="flex items-center no-underline" style={{ gap: 10 }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/droplet-logo.png" alt="" style={{ width: 28, height: 28, objectFit: 'contain' }} />
+                <span>
+                  <span className="block" style={{ fontSize: 16.5, fontWeight: 800, color: 'var(--mc-text)' }}>MeO</span>
+                  <span className="block" style={{ fontSize: 12.5, color: 'var(--mc-text)' }}>by Meterbolic</span>
                 </span>
-                <ChevronRight className="h-4 w-4" style={{ color: colors.muted }} />
-              </div>
-            </div>
-
-            {/* New Chat */}
-            <div className="px-3 py-2">
+              </Link>
               <button
-                data-tour="new-chat"
-                onClick={onNewChat}
-                className="flex items-center gap-3 w-full px-4 py-3 rounded-full border transition-colors hover:bg-white/5"
-                style={{ borderColor: colors.cardBorder, color: colors.foreground }}
+                onClick={toggleLeftPanel}
+                className="meo-press p-2 rounded-[9px] hover:bg-white/5"
+                aria-label="Collapse menu"
+                aria-expanded={true}
+                aria-controls="patient-navigation"
               >
-                <SquarePen className="h-5 w-5" />
-                <span className="font-medium">{t('sidebar.new_chat')}</span>
+                <PanelLeftClose className="h-4 w-4" style={{ color: 'var(--mc-text)' }} />
               </button>
             </div>
 
-            {/* Free plan */}
-            <div className="px-3 pb-1">
-              <a
-                href="https://www.meterbolic.com/pricing"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border w-fit text-xs transition-colors hover:bg-white/5 no-underline"
-                style={{ borderColor: colors.cardBorder }}
+            {/* New chat: the one filled control in the sidebar, as in the frames. */}
+            <div style={{ padding: '0 12px 10px' }}>
+              <button
+                data-tour="new-chat"
+                onClick={() => { onNewChat?.(); if (isMobile) setLeftPanelOpen(false); }}
+                className="meo-press flex items-center justify-center w-full"
+                style={{ gap: 8, padding: '11px 16px', borderRadius: 10, background: 'var(--mc-accent)', color: 'var(--mc-on-accent)', fontSize: 16, fontWeight: 600, border: 0, cursor: 'pointer' }}
               >
-                <span style={{ color: colors.muted }}>Free plan</span>
-                <span style={{ color: colors.muted }}>·</span>
-                <span className="font-medium" style={{ color: colors.primary }}>Upgrade</span>
-              </a>
+                <Plus className="h-4 w-4" />
+                <span>{t('sidebar.new_chat')}</span>
+              </button>
             </div>
 
-            {/* Chats */}
-            <div className="flex-1 overflow-y-auto px-2 py-4">
-              <p className="px-3 py-2 text-xs font-medium uppercase tracking-wider" style={{ color: colors.muted }}>
-                {t('sidebar.chats')}
-              </p>
-              <div className="space-y-1">
-                {chatsLoading && (!chats || chats.length === 0) ? (
-                  <>
-                    <SkeletonChatRow />
-                    <SkeletonChatRow />
-                    <SkeletonChatRow />
-                    <SkeletonChatRow />
-                  </>
-                ) : chats && chats.length > 0 ? (
-                  chats.map((chat) => (
-                    <div
-                      key={chat.id}
-                      className="group relative w-full rounded-lg transition-colors hover:bg-white/5"
-                      style={{
-                        backgroundColor: currentChatId === chat.id ? colors.accent || 'transparent' : undefined,
-                      }}
-                    >
-                      <button
-                        type="button"
-                        onClick={() => onSelectChat?.(chat.id)}
-                        className="w-full text-left px-3 py-2 pr-9 rounded-lg text-sm truncate"
-                        style={{ color: colors.foreground }}
+            {/* Scroll region: nav + history. The footer stays pinned below it
+                so Settings and sign-out are reachable at any viewport height. */}
+            <div className="flex-1 min-h-0 overflow-y-auto">
+
+            {/* Primary navigation.
+                The storyboard puts these ABOVE the chat history, because the
+                record is the app's home and chat is one destination among
+                several. They used to sit in the footer under the conversation
+                list, which quietly said the opposite. */}
+            <nav aria-label="Main navigation" className="px-3 pt-1 pb-1" style={{ display: 'flex', flexDirection: 'column', gap: 2 }} onClick={(event) => {
+              if ((event.target as HTMLElement).closest('a') && window.matchMedia('(max-width: 767px)').matches) setLeftPanelOpen(false);
+            }}>
+              {[
+                { href: '/', label: 'My record', Icon: Home },
+                { href: '/test', label: 'Guided test', Icon: FlaskConical },
+                { href: '/trends', label: 'Trends', Icon: TrendingUp },
+                { href: '/timeline', label: 'Timeline', Icon: History },
+                { href: '/library', label: 'Library', Icon: BookOpen, tour: 'library-nav' },
+                { divider: true },
+                { href: '/plan', label: 'My plan', Icon: ClipboardList, tour: 'plan-nav' },
+                { href: '/from-practitioner', label: 'From your practitioner', Icon: UserRound },
+                { href: '/connectors', label: 'Connectors', Icon: Link2, badge: liveSources ? `${liveSources} live` : null },
+              ].map((item, i) => {
+                if ('divider' in item) {
+                  return <div key={`d${i}`} style={{ height: 1, background: 'rgba(var(--mc-fg-rgb),0.08)', margin: '10px 4px' }} />;
+                }
+                const { href, label, Icon, tour, badge } = item as { href: string; label: string; Icon: typeof Home; tour?: string; badge?: string | null };
+                const active = pathname === href;
+                return (
+                  <Link
+                    key={label}
+                    data-tour={tour}
+                    href={href}
+                    aria-current={active ? 'page' : undefined}
+                    className="meo-press flex items-center no-underline"
+                    style={{
+                      gap: 10, padding: '9px 12px', borderRadius: 10, fontSize: 15.5,
+                      fontWeight: active ? 700 : 500,
+                      color: active ? 'var(--mc-accent)' : 'var(--mc-text)',
+                      background: active ? 'rgba(var(--mc-accent-rgb),0.12)' : 'transparent',
+                    }}
+                  >
+                    <Icon className="h-4 w-4 shrink-0" />
+                    <span className="flex-1 truncate">{label}</span>
+                    {badge && (
+                      <span style={{ fontSize: 12.5, fontWeight: 600, color: 'var(--mc-text)', border: '1px solid rgba(var(--mc-fg-rgb),0.14)', borderRadius: 999, padding: '1px 8px', whiteSpace: 'nowrap' }}>
+                        {badge}
+                      </span>
+                    )}
+                  </Link>
+                );
+              })}
+            </nav>
+
+            <div className="mx-4 my-1" style={{ height: 1, backgroundColor: colors.cardBorder }} />
+
+            {/* Chats, grouped by when, titles only, as the frames list them. */}
+            <div className="px-3 pt-2 pb-2">
+              {chatsLoading && (!chats || chats.length === 0) ? (
+                <>
+                  <SkeletonChatRow />
+                  <SkeletonChatRow />
+                  <SkeletonChatRow />
+                </>
+              ) : chats && chats.length > 0 ? (
+                groupChats(chats).map(([group, items]) => (
+                  <div key={group}>
+                    <p style={{ fontSize: 13, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--mc-text)', padding: '12px 12px 4px', margin: 0 }}>
+                      {group}
+                    </p>
+                    {items.map((chat) => (
+                      <div
+                        key={chat.id}
+                        className="group relative w-full meo-row"
+                        style={{ borderRadius: 9, backgroundColor: currentChatId === chat.id ? 'rgba(var(--mc-accent-rgb),0.12)' : undefined }}
                       >
-                        <span className="block truncate">{chat.title}</span>
-                        {formatChatDate(chat.updated_at || chat.created_at) && (
-                          <span className="block text-xs mt-0.5" style={{ color: colors.muted }}>
-                            {formatChatDate(chat.updated_at || chat.created_at)}
-                          </span>
-                        )}
-                      </button>
-                      {onDeleteChat && (
                         <button
                           type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            if (window.confirm(t('chat.delete_confirm', { title: chat.title }))) {
-                              onDeleteChat(chat.id);
-                            }
-                          }}
-                          aria-label={t('sidebar.delete_chat_aria')}
-                          className="absolute right-1.5 top-1/2 -translate-y-1/2 p-1.5 rounded-md opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity hover:bg-red-500/15"
-                          style={{ color: colors.muted }}
+                          onClick={() => { onSelectChat?.(chat.id); if (isMobile) setLeftPanelOpen(false); }}
+                          className="w-full text-left truncate"
+                          style={{ padding: '6px 34px 6px 12px', fontSize: 15, color: 'var(--mc-text)', background: 'transparent', border: 0, cursor: 'pointer' }}
+                          title={formatChatDate(chat.updated_at || chat.created_at) || undefined}
                         >
-                          <Trash2 className="h-3.5 w-3.5" />
+                          <span className="block truncate">{chat.title}</span>
                         </button>
-                      )}
-                    </div>
-                  ))
-                ) : (
-                  <p className="px-3 py-2 text-sm" style={{ color: colors.muted }}>
-                    {t('sidebar.empty_chats')}
-                  </p>
-                )}
-              </div>
+                        {onDeleteChat && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (window.confirm(t('chat.delete_confirm', { title: chat.title }))) {
+                                onDeleteChat(chat.id);
+                              }
+                            }}
+                            aria-label={t('sidebar.delete_chat_aria')}
+                            className="absolute right-1.5 top-1/2 -translate-y-1/2 p-1.5 rounded-md opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity hover:bg-red-500/15"
+                            style={{ color: 'var(--mc-text)' }}
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ))
+              ) : (
+                <p className="px-3 py-2" style={{ fontSize: 15, color: 'var(--mc-text)' }}>
+                  {t('sidebar.empty_chats')}
+                </p>
+              )}
             </div>
 
-            {/* Footer */}
-            <div className="p-2 space-y-1" style={{ borderTop: `1px solid ${colors.cardBorder}` }}>
+            </div>
+
+            {/* Footer.
+                The storyboard's sidebar ends with one entry, not seven. Language,
+                vendor, Personalize and Activity all used to be stacked here, which
+                meant the bottom of the panel competed with the primary nav at the
+                top for the same attention — and lost, because none of them is what
+                a patient opens the app to do. They are all still reachable, one
+                level down, under Settings. */}
+            <div className="p-2" style={{ borderTop: `1px solid ${colors.cardBorder}` }}>
+              {/* Language stays on the surface rather than under Settings: for
+                  anyone not reading in English it is the first thing they need,
+                  and burying it makes them hunt for it. */}
               <div className="px-2 pb-1">
                 <LanguagePicker compact showLabelWhenCompact />
               </div>
               <button
-                data-tour="library-nav"
-                onClick={onLibraryOpen}
-                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors hover:bg-white/5"
-                style={{ color: colors.muted }}
-              >
-                <BookOpen className="h-5 w-5" />
-                <span>Library</span>
-              </button>
-              {/* Vendor switcher */}
-              <div className="relative">
-                <button
-                  data-tour="vendor-nav"
-                  onClick={() => setShowVendorPicker(!showVendorPicker)}
-                  className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm transition-colors hover:bg-white/5"
-                  style={{ color: colors.muted }}
-                >
-                  <span className="flex items-center gap-3">
-                    <Store className="h-5 w-5" />
-                    <span>Vendor</span>
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <span className="text-xs" style={{ color: colors.primary }}>
-                      {vendor === 'eos' ? 'Eos' : 'Meterbolic'}
-                    </span>
-                    <ChevronDown
-                      className="h-3.5 w-3.5 transition-transform"
-                      style={{ transform: showVendorPicker ? 'rotate(180deg)' : 'rotate(0deg)' }}
-                    />
-                  </span>
-                </button>
-                <AnimatePresence>
-                  {showVendorPicker && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: 'auto', opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      className="overflow-hidden"
-                    >
-                      <div className="mx-2 mb-1 p-1 rounded-lg space-y-0.5" style={{ backgroundColor: colors.accent }}>
-                        {(['meterbolic', 'eos'] as const).map((v) => (
-                          <button
-                            key={v}
-                            onClick={() => { setVendor(v); setShowVendorPicker(false); }}
-                            className="w-full flex items-center justify-between px-3 py-2 rounded-md text-sm transition-colors hover:bg-white/5"
-                            style={{ color: colors.foreground }}
-                          >
-                            <span>{v === 'eos' ? 'Eos' : 'Meterbolic'}</span>
-                            {vendor === v && <Check className="h-3.5 w-3.5" style={{ color: colors.primary }} />}
-                          </button>
-                        ))}
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-
-              {/* 2026-11-11: one "Lab results" entry replaces Personalize (the
-                  paste-a-report importer) and Activity (the history list);
-                  the importer is reached from the results page. Marketplace
-                  (practitioner finding) is parked until that side of the
-                  product is introduced properly; the route still exists. */}
-              <Link
-                data-tour="activity-nav"
-                href="/activity"
-                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors hover:bg-white/5"
-                style={{ color: colors.muted }}
-              >
-                <FlaskConical className="h-5 w-5" />
-                <span>{t('sidebar.lab_results')}</span>
-              </Link>
-              <button
                 onClick={() => setShowSettings(!showSettings)}
-                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors hover:bg-white/5"
+                className="w-full flex items-center justify-between px-3 py-2 rounded-[9px] t-lead transition-colors hover:bg-transparent/5"
                 style={{ color: colors.muted }}
               >
-                <Settings className="h-5 w-5" />
-                <span>{t('sidebar.settings')}</span>
+                <span className="flex items-center gap-3">
+                  <Settings className="h-5 w-5" />
+                  <span>{t('sidebar.settings')}</span>
+                </span>
+                <ChevronDown
+                  className="h-3.5 w-3.5 transition-transform"
+                  style={{ transform: showSettings ? 'rotate(180deg)' : 'rotate(0deg)' }}
+                />
               </button>
 
-              {/* Settings submenu */}
               <AnimatePresence>
                 {showSettings && (
                   <motion.div
@@ -359,36 +435,90 @@ export function LeftPanel({
                     exit={{ height: 0, opacity: 0 }}
                     className="overflow-hidden"
                   >
-                    <div className="ml-6 mt-1 p-2 rounded-lg space-y-1" style={{ backgroundColor: colors.accent }}>
-                      <Link
-                        href="/profile"
-                        className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors hover:bg-white/5"
-                        style={{ color: colors.foreground }}
-                      >
+                    <div className="mt-1 p-2 rounded-[9px] space-y-0.5" style={{ backgroundColor: colors.accent }}>
+                      {/* Onboarding can be skipped; this is where it is finished later. */}
+                      <Link href="/profile/clinical-details" className="w-full flex items-center gap-2 px-3 py-2 rounded-[9px] t-lead transition-colors hover:bg-transparent/5" style={{ color: colors.foreground }}>
+                        <HeartPulse className="h-4 w-4" />
+                        <span>Your health details</span>
+                      </Link>
+                      <Link href="/profile" className="w-full flex items-center gap-2 px-3 py-2 rounded-[9px] t-lead transition-colors hover:bg-transparent/5" style={{ color: colors.foreground }}>
                         <User className="h-4 w-4" />
                         <span>Profile</span>
                       </Link>
-                      <Link
-                        href="/pricing"
-                        className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors hover:bg-white/5"
-                        style={{ color: colors.foreground }}
-                      >
+                      {/* 2026-11-11 (main d46384f): one "Lab results" entry replaces
+                          Personalize (the paste-a-report importer) and Activity (the
+                          history list); the importer is reached from the results page. */}
+                      <Link data-tour="activity-nav" href="/activity" className="w-full flex items-center gap-2 px-3 py-2 rounded-[9px] t-lead transition-colors hover:bg-transparent/5" style={{ color: colors.foreground }}>
+                        <FlaskConical className="h-4 w-4" />
+                        <span>{t('sidebar.lab_results')}</span>
+                      </Link>
+                      <Link href="/pricing" className="w-full flex items-center gap-2 px-3 py-2 rounded-[9px] t-lead transition-colors hover:bg-transparent/5" style={{ color: colors.foreground }}>
                         <CreditCard className="h-4 w-4" />
                         <span>Subscription</span>
                       </Link>
-                      {onStartTour && (
-                        <button
-                          onClick={() => { setShowSettings(false); onStartTour(); }}
-                          className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors hover:bg-white/5"
-                          style={{ color: colors.foreground }}
-                        >
-                          <span>🗺️</span>
-                          <span>Take the tour</span>
-                        </button>
-                      )}
+
+                      <div className="my-1" style={{ height: 1, backgroundColor: colors.cardBorder }} />
+
+                      {/* Vendor switcher — a tenant setting, not a destination. */}
+                      <button
+                        data-tour="vendor-nav"
+                        onClick={() => setShowVendorPicker(!showVendorPicker)}
+                        className="w-full flex items-center justify-between px-3 py-2 rounded-[9px] t-lead transition-colors hover:bg-transparent/5"
+                        style={{ color: colors.foreground }}
+                      >
+                        <span className="flex items-center gap-2">
+                          <Store className="h-4 w-4" />
+                          <span>Vendor</span>
+                        </span>
+                        <span className="flex items-center gap-1.5">
+                          <span className="t-body2" style={{ color: colors.primary }}>
+                            {vendor === 'eos' ? 'Eos' : 'Meterbolic'}
+                          </span>
+                          <ChevronDown
+                            className="h-3.5 w-3.5 transition-transform"
+                            style={{ transform: showVendorPicker ? 'rotate(180deg)' : 'rotate(0deg)' }}
+                          />
+                        </span>
+                      </button>
+                      <AnimatePresence>
+                        {showVendorPicker && (
+                          <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: 'auto', opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            className="overflow-hidden"
+                          >
+                            <div className="ml-6 mb-1 space-y-0.5">
+                              {(['meterbolic', 'eos'] as const).map((v) => (
+                                <button
+                                  key={v}
+                                  onClick={() => { setVendor(v); setShowVendorPicker(false); }}
+                                  className="w-full flex items-center justify-between px-3 py-1.5 rounded-md t-lead transition-colors hover:bg-transparent/5"
+                                  style={{ color: colors.foreground }}
+                                >
+                                  <span>{v === 'eos' ? 'Eos' : 'Meterbolic'}</span>
+                                  {vendor === v && <Check className="h-3.5 w-3.5" style={{ color: colors.primary }} />}
+                                </button>
+                              ))}
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+
+                      <button
+                        onClick={() => {
+                          setShowSettings(false);
+                          // The chat has its own tour; every other screen replays its own.
+                          if (onStartTour) onStartTour(); else window.dispatchEvent(new Event('meo:tour'));
+                        }}
+                        className="w-full flex items-center gap-2 px-3 py-2 rounded-[9px] t-lead transition-colors hover:bg-transparent/5" style={{ color: colors.foreground }}
+                      >
+                        <MapIcon className="h-4 w-4" />
+                        <span>Take the tour</span>
+                      </button>
                       <button
                         onClick={toggleColorMode}
-                        className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors hover:bg-white/5"
+                        className="w-full flex items-center justify-between px-3 py-2 rounded-[9px] t-lead transition-colors hover:bg-transparent/5"
                         style={{ color: colors.foreground }}
                       >
                         <span className="flex items-center gap-2">
@@ -396,7 +526,7 @@ export function LeftPanel({
                           <span>{colorMode === 'dark' ? 'Dark mode' : 'Light mode'}</span>
                         </span>
                         <span
-                          className="text-xs px-2 py-0.5 rounded"
+                          className="t-body2 px-2 py-0.5 rounded"
                           style={{ backgroundColor: colors.primary + '30', color: colors.primary }}
                         >
                           {colorMode === 'dark' ? 'ON' : 'OFF'}
@@ -406,6 +536,18 @@ export function LeftPanel({
                   </motion.div>
                 )}
               </AnimatePresence>
+
+              <div style={{ borderTop: `1px solid ${colors.cardBorder}`, marginTop: 8, paddingTop: 2 }}>
+                <Link
+                  href="/connectors"
+                  className="meo-press flex items-center no-underline"
+                  style={{ gap: 10, margin: '6px 4px 4px', padding: '9px 12px', borderRadius: 10, background: 'rgba(var(--mc-fg-rgb),0.04)', border: '1px solid rgba(var(--mc-fg-rgb),0.1)', fontSize: 13.5, color: 'var(--mc-text)' }}
+                >
+                  <Smartphone className="h-4 w-4 shrink-0" style={{ color: liveSources ? 'var(--mc-accent)' : 'var(--mc-text)' }} />
+                  <span className="truncate">{liveSources ? `${liveSources} source${liveSources === 1 ? '' : 's'} sending data` : 'Connect your meter or phone'}</span>
+                </Link>
+                <SidebarUser />
+              </div>
             </div>
           </motion.aside>
         </React.Fragment>
@@ -416,7 +558,7 @@ export function LeftPanel({
           initial={{ width: 0, opacity: 0 }}
           animate={{ width: 56, opacity: 1 }}
           exit={{ width: 0, opacity: 0 }}
-          transition={{ duration: 0.2, ease: 'easeOut' }}
+          transition={reducedMotion ? { duration: 0 } : { type: 'spring', bounce: 0, duration: 0.3 }}
           onAnimationStart={() => setRailOverflow('hidden')}
           onAnimationComplete={() => setRailOverflow('visible')}
           className={cn(
@@ -435,16 +577,19 @@ export function LeftPanel({
           <div className="pt-3 pb-1 flex flex-col items-center gap-1 w-full">
             <button
               onClick={toggleLeftPanel}
-              className="relative group p-3 rounded-lg transition-colors hover:bg-white/10"
+              className="relative group p-3 rounded-[9px] transition-colors hover:bg-transparent/10"
               aria-label="Open menu"
+          data-menu-trigger
+          aria-expanded={false}
+          aria-controls="patient-navigation"
             >
               <Menu className="h-5 w-5" style={{ color: colors.foreground }} />
               <RailTooltip label="Menu" />
             </button>
 
             <button
-              onClick={onNewChat}
-              className="relative group p-3 rounded-lg transition-colors hover:bg-white/10"
+              onClick={() => { onNewChat?.(); if (isMobile) setLeftPanelOpen(false); }}
+              className="relative group p-3 rounded-[9px] transition-colors hover:bg-transparent/10"
               aria-label={t('sidebar.new_chat')}
             >
               <SquarePen className="h-5 w-5" style={{ color: colors.foreground }} />
@@ -455,37 +600,55 @@ export function LeftPanel({
           <div className="w-6 my-1" style={{ height: 1, backgroundColor: `${colors.cardBorder}60` }} />
 
           <div className="flex-1 flex flex-col items-center gap-0.5 py-2 w-full">
-            <button
-              data-tour="library-nav"
-              onClick={onLibraryOpen}
-              className="relative group p-3 rounded-lg transition-colors hover:bg-white/10 w-full flex justify-center"
+            {/* The record is the app's home, so it leads the rail. Chat is
+                reached from New Chat and from the history below, not from
+                here — it is a destination now, not the ground floor. */}
+            <Link
+              href="/"
+              className="relative group p-3 rounded-[9px] transition-colors hover:bg-transparent/10 w-full flex justify-center"
+            >
+              <Home className="h-5 w-5" style={{ color: colors.muted }} />
+              <RailTooltip label="My record" />
+            </Link>
+
+            <Link
+              href="/test"
+              className="relative group p-3 rounded-[9px] transition-colors hover:bg-transparent/10 w-full flex justify-center"
+            >
+              <FlaskConical className="h-5 w-5" style={{ color: colors.muted }} />
+              <RailTooltip label="Guided test" />
+            </Link>
+
+            <Link
+              href="/trends"
+              className="relative group p-3 rounded-[9px] transition-colors hover:bg-transparent/10 w-full flex justify-center"
+            >
+              <TrendingUp className="h-5 w-5" style={{ color: colors.muted }} />
+              <RailTooltip label="Trends" />
+            </Link>
+
+            <Link
+              href="/timeline"
+              className="relative group p-3 rounded-[9px] transition-colors hover:bg-transparent/10 w-full flex justify-center"
+            >
+              <History className="h-5 w-5" style={{ color: colors.muted }} />
+              <RailTooltip label="Timeline" />
+            </Link>
+
+            <Link
+              href="/library"
+              className="relative group p-3 rounded-[9px] transition-colors hover:bg-white/10 w-full flex justify-center"
             >
               <BookOpen className="h-5 w-5" style={{ color: colors.muted }} />
               <RailTooltip label="Library" />
-            </button>
-
-            <button
-              data-tour="vendor-nav"
-              className="relative group p-3 rounded-lg transition-colors hover:bg-white/10 w-full flex justify-center"
-            >
-              <Store className="h-5 w-5" style={{ color: colors.muted }} />
-              <RailTooltip label={vendor === 'eos' ? 'Eos' : 'Meterbolic'} />
-            </button>
-
-            <Link
-              data-tour="activity-nav"
-              href="/activity"
-              className="relative group p-3 rounded-lg transition-colors hover:bg-white/10 w-full flex justify-center"
-            >
-              <FlaskConical className="h-5 w-5" style={{ color: colors.muted }} />
-              <RailTooltip label={t('sidebar.lab_results')} />
             </Link>
+
           </div>
 
           <div className="pb-3 w-full flex flex-col items-center">
             <div className="w-6 mb-1" style={{ height: 1, backgroundColor: `${colors.cardBorder}60` }} />
             <button
-              className="relative group p-3 rounded-lg transition-colors hover:bg-white/10 w-full flex justify-center"
+              className="relative group p-3 rounded-[9px] transition-colors hover:bg-transparent/10 w-full flex justify-center"
               onClick={() => { toggleLeftPanel(); setTimeout(() => setShowSettings(true), 250); }}
             >
               <Settings className="h-5 w-5" style={{ color: colors.muted }} />

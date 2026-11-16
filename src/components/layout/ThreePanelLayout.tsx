@@ -151,7 +151,7 @@ export function ThreePanelLayout({
                 onPointerUp={onHandlePointerUp}
               >
                 <div
-                  className="w-px h-full transition-colors group-hover:bg-white/30 group-active:bg-white/50"
+                  className="w-px h-full transition-colors group-hover:bg-transparent/30 group-active:bg-transparent/50"
                   style={{ backgroundColor: `${colors.cardBorder}80` }}
                 />
               </motion.div>

@@ -46,8 +46,8 @@ interface ScoresResponse {
 const BAS_STOPS: Array<[number, string]> = [
   [0, '#22c55e'],    // green
   [57.6, '#EAB839'], // yellow — exact hex from Grafana
-  [70, '#f97316'],   // orange
-  [80, '#ef4444'],   // red
+  [70, 'var(--mc-orange)'],   // orange
+  [80, 'var(--mc-red)'],   // red
 ];
 
 const VAT_STOPS: Array<[number, string]> = [
@@ -156,7 +156,7 @@ function GaugeCard({
           anchor: {
             show: true,
             size: 12,
-            itemStyle: { color: pointerColor, borderColor: '#1f2937', borderWidth: 2 },
+            itemStyle: { color: pointerColor, borderColor: 'var(--mc-text)', borderWidth: 2 },
           },
           axisLine: {
             lineStyle: {
@@ -168,12 +168,12 @@ function GaugeCard({
           splitLine: {
             distance: -22,
             length: 8,
-            lineStyle: { color: '#9ca3af', width: 2 },
+            lineStyle: { color: 'var(--mc-text)', width: 2 },
           },
           axisLabel: {
             distance: -20,
-            color: '#d1d5db',
-            fontSize: 11,
+            color: 'rgba(var(--mc-fg-rgb),0.14)',
+            fontSize: 13,
             formatter: (val: number) => {
               // Show min + every threshold + max, matching Grafana's layout
               if (val === min || val === max) return String(val);
@@ -200,7 +200,7 @@ function GaugeCard({
 
   return (
     <div
-      className="rounded-xl border p-6"
+      className="rounded-[10px] border p-6"
       style={{
         backgroundColor: theme.colors.card,
         borderColor: theme.colors.cardBorder,
@@ -227,7 +227,7 @@ function GaugeCard({
         </div>
       ) : (
         <div className="h-[230px] flex items-center justify-center px-6 text-center">
-          <p className="text-sm" style={{ color: theme.colors.muted }}>
+          <p className="t-lead" style={{ color: theme.colors.muted }}>
             {emptyCopy}
           </p>
         </div>
@@ -354,7 +354,7 @@ export function ScoreGauges() {
         <div className="flex items-center gap-3">
           <label
             htmlFor="score-session-picker"
-            className="text-xs uppercase tracking-wide"
+            className="t-body2 uppercase tracking-wide"
             style={{ color: theme.colors.muted }}
           >
             Session
@@ -364,7 +364,7 @@ export function ScoreGauges() {
             value={selectedSeries ?? ''}
             onChange={(e) => setSelectedSeries(e.target.value)}
             disabled={scoresLoading}
-            className="rounded-lg border px-3 py-1.5 text-sm font-medium"
+            className="rounded-[9px] border px-3 py-1.5 t-lead font-medium"
             style={{
               backgroundColor: theme.colors.card,
               borderColor: theme.colors.cardBorder,
@@ -378,7 +378,7 @@ export function ScoreGauges() {
             ))}
           </select>
           {scoresLoading && (
-            <span className="text-xs" style={{ color: theme.colors.muted }}>
+            <span className="t-body2" style={{ color: theme.colors.muted }}>
               Loading scores…
             </span>
           )}
@@ -387,10 +387,10 @@ export function ScoreGauges() {
 
       {error && (
         <div
-          className="rounded-lg border px-4 py-2 text-sm"
+          className="rounded-[9px] border px-4 py-2 t-lead"
           style={{
-            borderColor: '#ef4444',
-            color: '#ef4444',
+            borderColor: 'var(--mc-red)',
+            color: 'var(--mc-red)',
             backgroundColor: 'rgba(239, 68, 68, 0.08)',
           }}
         >
@@ -401,7 +401,7 @@ export function ScoreGauges() {
       {/* Missing measurements banner — shown only when there are no sessions yet */}
       {!sessionsLoading && sessionCount === 0 && missingAnalytes.length > 0 && (
         <div
-          className="rounded-xl border p-4 text-sm space-y-2"
+          className="rounded-[10px] border p-4 t-lead space-y-2"
           style={{
             backgroundColor: theme.colors.card,
             borderColor: theme.colors.cardBorder,
@@ -413,7 +413,7 @@ export function ScoreGauges() {
           <ul className="space-y-1 list-none">
             {missingAnalytes.map((m, i) => (
               <li key={i} className="flex items-start gap-2" style={{ color: theme.colors.muted }}>
-                <span style={{ color: '#f97316' }}>•</span>
+                <span style={{ color: 'var(--mc-orange)' }}>•</span>
                 {m}
               </li>
             ))}
@@ -437,7 +437,7 @@ export function ScoreGauges() {
           : rawBas !== null && basValue === null ? EMPTY_COPY_RAW_SCORE
           : EMPTY_COPY_NO_SCORES
         }
-        dotColor="#ef4444"
+        dotColor="var(--mc-red)"
       />
 
       <GaugeCard
@@ -453,7 +453,7 @@ export function ScoreGauges() {
           : sessionCount === 0 ? EMPTY_COPY_NO_DATA
           : EMPTY_COPY_NO_SCORES
         }
-        dotColor="#ef4444"
+        dotColor="var(--mc-red)"
       />
     </div>
   );

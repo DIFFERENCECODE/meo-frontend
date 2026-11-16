@@ -196,10 +196,10 @@ export default function PricingPage() {
   };
 
   return (
-    <AppShell>
+    <AppShell requireAuth={false}>
       <div className="flex-1 overflow-auto" style={{ background: 'transparent' }}>
         <div className="max-w-6xl mx-auto px-6 py-8">
-          <Link href="/" className="inline-block mb-6 text-sm underline" style={{ color: colors.primary }}>
+          <Link href="/" className="inline-block mb-6 t-lead underline" style={{ color: colors.primary }}>
             &larr; Back to MeO
           </Link>
 
@@ -229,7 +229,7 @@ export default function PricingPage() {
                 >
                   {plan.popular && (
                     <div
-                      className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full text-xs font-bold"
+                      className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full t-body2 font-bold"
                       style={{ background: colors.primary, color: colors.primaryForeground }}
                     >
                       Most Popular
@@ -244,7 +244,7 @@ export default function PricingPage() {
                     <span className="text-4xl font-bold" style={{ color: colors.foreground }}>
                       ${plan.price}
                     </span>
-                    <span className="text-sm" style={{ color: colors.muted }}>
+                    <span className="t-lead" style={{ color: colors.muted }}>
                       {plan.period}
                     </span>
                   </div>
@@ -256,7 +256,7 @@ export default function PricingPage() {
                           className="h-4 w-4 mt-0.5 shrink-0"
                           style={{ color: colors.primary }}
                         />
-                        <span className="text-sm" style={{ color: colors.foreground }}>
+                        <span className="t-lead" style={{ color: colors.foreground }}>
                           {feature}
                         </span>
                       </li>
@@ -269,7 +269,7 @@ export default function PricingPage() {
                       // Stripe's billing portal, so don't offer that button.
                       <button
                         disabled
-                        className="w-full rounded-lg py-3 text-sm font-semibold border"
+                        className="w-full rounded-[9px] py-3 t-lead font-semibold border"
                         style={{ borderColor: colors.primary, color: colors.primary, opacity: 0.7 }}
                       >
                         Lifetime Member
@@ -278,7 +278,7 @@ export default function PricingPage() {
                       <button
                         onClick={plan.id !== 'free' ? handleManage : undefined}
                         disabled={loading === 'manage'}
-                        className="w-full rounded-lg py-3 text-sm font-semibold border transition-colors"
+                        className="w-full rounded-[9px] py-3 t-lead font-semibold border transition-colors"
                         style={{
                           borderColor: colors.primary,
                           color: colors.primary,
@@ -292,7 +292,7 @@ export default function PricingPage() {
                     <button
                       onClick={() => handleSubscribe(plan.id)}
                       disabled={loading === plan.id}
-                      className="w-full rounded-lg py-3 text-sm font-semibold transition-colors disabled:opacity-70"
+                      className="w-full rounded-[9px] py-3 t-lead font-semibold transition-colors disabled:opacity-70"
                       style={{
                         background: plan.popular ? colors.primary : 'transparent',
                         color: plan.popular ? colors.primaryForeground : colors.primary,
@@ -304,7 +304,7 @@ export default function PricingPage() {
                   ) : (
                     <button
                       disabled
-                      className="w-full rounded-lg py-3 text-sm font-semibold opacity-50"
+                      className="w-full rounded-[9px] py-3 t-lead font-semibold opacity-50"
                       style={{ color: colors.muted, border: `1px solid ${colors.cardBorder}` }}
                     >
                       Free Tier
@@ -315,7 +315,7 @@ export default function PricingPage() {
             })}
           </div>
 
-          <p className="text-center text-xs mt-8" style={{ color: colors.muted }}>
+          <p className="text-center t-body2 mt-8" style={{ color: colors.muted }}>
             Monthly and annual plans include a 14-day free trial and can be cancelled anytime. Lifetime is a one-time purchase. Prices in USD.
           </p>
         </div>

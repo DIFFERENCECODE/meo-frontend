@@ -109,7 +109,7 @@ export default function ActivityPage() {
             </div>
           ) : error ? (
             <div className="rounded-2xl p-12 text-center border" style={{ background: colors.card, borderColor: colors.cardBorder }}>
-              <p className="text-sm" style={{ color: colors.error || '#ef4444' }}>{error}</p>
+              <p className="text-sm" style={{ color: colors.error || 'var(--mc-red)' }}>{error}</p>
             </div>
           ) : measurements.length === 0 ? (
             <div className="rounded-2xl p-12 text-center border" style={{ background: colors.card, borderColor: colors.cardBorder }}>
@@ -132,7 +132,7 @@ export default function ActivityPage() {
                         <Link
                           key={sess.id}
                           href={`/activity/${encodeURIComponent(sess.id)}`}
-                          className="flex items-center gap-3 rounded-2xl border px-5 py-4 transition-colors hover:bg-white/5"
+                          className="flex items-center gap-3 rounded-2xl border px-5 py-4 transition-colors hover:bg-transparent/5"
                           style={{ background: colors.card, borderColor: colors.cardBorder, borderLeft: `3px solid ${meta.color}` }}
                         >
                           <div className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0" style={{ background: meta.color + '22' }}>

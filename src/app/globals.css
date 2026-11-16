@@ -1,11 +1,23 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 @import "tailwindcss";
+
+/* Clinician portal scrollbar */
+.meo-clinician ::-webkit-scrollbar { width: 8px; height: 8px; }
+.meo-clinician ::-webkit-scrollbar-thumb { background: rgba(255,255,255,.14); border-radius: 8px; }
+.meo-clinician ::-webkit-scrollbar-track { background: transparent; }
+@keyframes meoShimmer { 0% { background-position: -380px 0 } 100% { background-position: 380px 0 } }
+.meo-shim { background: linear-gradient(90deg, rgba(255,255,255,.05) 0%, rgba(255,255,255,.12) 45%, rgba(255,255,255,.05) 90%); background-size: 380px 100%; animation: meoShimmer 1.4s linear infinite; border-radius: 6px; }
 
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Light mode - medical-grade palette */
-  --background: oklch(0.99 0.005 180);
-  --foreground: oklch(0.2 0.01 240);
+  /* The product has one ground: the brand teal. There is no light surface in
+     the storyboard, and the root used to carry a near-black --foreground that
+     only .dark overrode — so every element that set no colour of its own
+     inherited black text on a dark background. The JS theme already said
+     #ffffff; the CSS disagreed with it. */
+  --background: #2C5858;
+  --foreground: #ffffff;
 
   --medical-bg: oklch(0.98 0.01 180);
   --medical-accent: oklch(0.96 0.02 180);
@@ -680,3 +692,152 @@ html {
     overflow: hidden;
   }
 }
+
+/* ── Storyboard type scale ────────────────────────────────────────────────
+   The storyboard uses six steps between 10.5 and 15px; Tailwind's defaults
+   have two, which put every screen roughly one step too large. These are the
+   measured values, nudged a half-pixel down where Cabinet Grotesk runs wider
+   than the Plus Jakarta Sans the frames were drawn in.                      */
+.t-meta   { font-size: 12.5px; line-height: 1.45; }
+.t-dense  { font-size: 13px;   line-height: 1.45; }
+.t-small  { font-size: 14px;   line-height: 1.5; }
+.t-body2  { font-size: 14.5px; line-height: 1.5; }
+.t-body   { font-size: 15px;   line-height: 1.55; }
+.t-lead   { font-size: 15.5px; line-height: 1.55; }
+.t-lg     { font-size: 17px;   line-height: 1.45; }
+.t-head   { font-size: 24px;   line-height: 1.2;  letter-spacing: -0.01em; }
+
+/* Big numbers are set, not inflated: weight 800 and negative tracking. */
+.t-metric { font-size: 30px; font-weight: 800; letter-spacing: -0.025em; line-height: 1.05; }
+.t-metric-xl { font-size: 44px; font-weight: 800; letter-spacing: -0.045em; line-height: 1; }
+
+/* The storyboard's uppercase section label, in full. */
+.t-label {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* Keep keyboard location visible across the shared patient interface. */
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid #a4d65e;
+  outline-offset: 4px;
+}
+
+/* Patient record: keep measurement names readable before adding visual detail. */
+.record-change-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "label label" "values direction" "bar note"; }
+.record-change-label { grid-area: label; font-weight: 600; }
+.record-change-values { grid-area: values; text-align: left !important; }
+.record-change-direction { grid-area: direction; justify-self: end; }
+.record-change-bar { grid-area: bar; }
+.record-change-note { grid-area: note; justify-self: end; }
+@media (min-width: 1024px) {
+  .record-change-row { grid-template-columns: minmax(8rem, 1fr) 6rem 1.5rem 6rem 6.5rem; grid-template-areas: "label values direction bar note"; }
+  .record-change-values { text-align: right !important; }
+}
+.meo-floating-bar {
+  background: color-mix(in srgb, var(--meo-bar-background) 94%, transparent);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 4px 20px rgb(0 0 0 / 12%);
+}
+:where(button:not(:disabled), a, summary) { touch-action: manipulation; }
+:where(button:not(:disabled), a, summary):active { filter: brightness(0.9); }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+@media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
+  .meo-floating-bar { background: var(--meo-bar-background); backdrop-filter: none; -webkit-backdrop-filter: none; }
+}
+@media (prefers-contrast: more) {
+  .meo-floating-bar { border: 2px solid currentColor !important; }
+}
+
+/* Press feedback on pointer-down, as the apple-design skill puts it: the control
+   answers the touch, not the release. Scale is dropped under reduced motion. */
+.meo-press { transition: transform 100ms ease-out, background-color 120ms ease-out; }
+.meo-press:not(:disabled):active { transform: scale(0.97); }
+.meo-row { transition: background-color 120ms ease-out; }
+.meo-row:hover { background: rgba(255,255,255,0.05); }
+:where(.meo-app) :focus-visible { outline: 2px solid #a4d65e; outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { .meo-press:not(:disabled):active { transform: none; } }
+
+/* ── MeO colour modes (2026-10-17) ─────────────────────────────────────────
+   Dark is the storyboard's teal and the default. Light is white with green.
+   Components use these variables instead of literals, and every translucent
+   white overlay is written rgba(var(--mc-fg-rgb), a): white on teal in dark,
+   deep green on white in light, so borders, chips and dividers invert by
+   themselves. The light accents are deeper than the dark ones because the
+   bright lime, amber and orange are unreadable as text on white. */
+:root {
+  --mc-fg-rgb: 23, 58, 46;
+  --mc-text: rgb(var(--mc-fg-rgb));
+  --mc-ground: linear-gradient(140deg, #f8fbf4 0%, #eff6e8 55%, #e7f1dd 100%);
+  --mc-ground-solid: #f4f9ef;
+  --mc-card: #ffffff;
+  --mc-card-solid: #ffffff;
+  --mc-card-soft: rgba(255, 255, 255, 0.7);
+  --mc-sidebar: #edf5e5;
+  --mc-rail: #f1f7eb;
+  --mc-sheet: rgba(255, 255, 255, 0.96);
+  --mc-accent: #3f7d1c;
+  --mc-accent-rgb: 63, 125, 28;
+  --mc-on-accent: #ffffff;
+  --mc-amber: #a16207;
+  --mc-orange: #c2410c;
+  --mc-blue: #0e7490;
+  --mc-red: #b91c1c;
+  --mc-input: #ffffff;
+  --mc-input-soft: #ffffff;
+  --background: #f4f9ef;
+  --foreground: #173a2e;
+}
+.dark {
+  --mc-fg-rgb: 255, 255, 255;
+  --mc-text: #ffffff;
+  --mc-ground: linear-gradient(140deg, #1a3a3a 0%, #264545 55%, #2a5555 100%);
+  --mc-ground-solid: #1a3a3a;
+  --mc-card: rgba(40, 70, 70, 0.82);
+  --mc-card-solid: #284646;
+  --mc-card-soft: rgba(40, 70, 70, 0.5);
+  --mc-sidebar: rgba(16, 38, 38, 0.72);
+  --mc-rail: rgba(16, 38, 38, 0.45);
+  --mc-sheet: rgba(22, 48, 48, 0.9);
+  --mc-accent: #a4d65e;
+  --mc-accent-rgb: 164, 214, 94;
+  --mc-on-accent: #1a3a3a;
+  --mc-amber: #eab839;
+  --mc-orange: #f97316;
+  --mc-blue: #7cc5d8;
+  --mc-red: #ef4444;
+  --mc-input: rgba(0, 0, 0, 0.26);
+  --mc-input-soft: rgba(0, 0, 0, 0.18);
+  --background: #2C5858;
+  --foreground: #ffffff;
+}
+
+/* Trend lines draw in; points arrive after the line reaches them. */
+.meo-draw { stroke-dasharray: 1; stroke-dashoffset: 1; animation: meo-draw 900ms cubic-bezier(0.25, 0.8, 0.3, 1) forwards; }
+@keyframes meo-draw { to { stroke-dashoffset: 0; } }
+.meo-pop { transform-box: fill-box; transform-origin: center; opacity: 0; animation: meo-pop 260ms cubic-bezier(0.2, 0.9, 0.3, 1.2) forwards; }
+@keyframes meo-pop { from { opacity: 0; transform: scale(0.4); } to { opacity: 1; transform: scale(1); } }
+/* A sheet rises from the bar that opened it. */
+.meo-sheet { transform-origin: bottom center; animation: meo-rise 220ms cubic-bezier(0.2, 0.9, 0.3, 1); }
+@keyframes meo-rise { from { opacity: 0; transform: translateY(8px) scale(0.985); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .meo-draw { animation: none; stroke-dashoffset: 0; }
+  .meo-pop { animation: none; opacity: 1; }
+  .meo-sheet { animation: none; }
+}
+.meo-fade { animation: meo-fade 140ms ease-out; }
+@keyframes meo-fade { from { opacity: 0; } to { opacity: 1; } }
+
+/* The section answer grows up and back down rather than jumping. */
+.meo-answer { transition: max-height 320ms cubic-bezier(0.32, 0.72, 0, 1); }
+@media (prefers-reduced-motion: reduce) { .meo-answer { transition: none; } }

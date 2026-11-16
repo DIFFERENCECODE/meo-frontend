@@ -65,14 +65,14 @@ export function LanguagePicker({ value, onChange, compact = false, showLabelWhen
         onClick={() => setOpen((v) => !v)}
         className={
           compact
-            ? 'flex items-center gap-1 p-2 rounded-full transition-colors hover:bg-white/10'
-            : 'flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors hover:bg-white/10'
+            ? 'flex items-center gap-1 p-2 rounded-full transition-colors hover:bg-transparent/10'
+            : 'flex items-center gap-1.5 px-3 py-1.5 rounded-[9px] transition-colors hover:bg-transparent/10'
         }
         style={{ color: colors.muted }}
         aria-label={`Chat language: ${current.englishLabel}`}
       >
         <Languages className="h-4 w-4" />
-        {(!compact || showLabelWhenCompact) && <span className="text-sm">{current.nativeLabel}</span>}
+        {(!compact || showLabelWhenCompact) && <span className="t-lead">{current.nativeLabel}</span>}
         <ChevronDown className="h-3 w-3 opacity-70" />
       </button>
 
@@ -81,7 +81,7 @@ export function LanguagePicker({ value, onChange, compact = false, showLabelWhen
           {/* Click-outside backdrop */}
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
           <div
-            className="absolute bottom-full mb-2 left-0 w-44 rounded-xl border shadow-xl overflow-hidden z-50"
+            className="absolute bottom-full mb-2 left-0 w-44 rounded-[10px] border shadow-xl overflow-hidden z-50"
             style={{ backgroundColor: colors.cardHover, borderColor: colors.cardBorder }}
           >
             {LANGUAGES.map((lang) => (
@@ -92,20 +92,20 @@ export function LanguagePicker({ value, onChange, compact = false, showLabelWhen
                   handleChange(lang.code);
                   setOpen(false);
                 }}
-                className="w-full flex items-center justify-between px-3 py-2 text-left transition-colors hover:bg-white/5"
+                className="w-full flex items-center justify-between px-3 py-2 text-left transition-colors hover:bg-transparent/5"
                 style={{
                   color: colors.foreground,
                   backgroundColor: lang.code === activeValue ? colors.accent : undefined,
                 }}
               >
                 <div>
-                  <div className="text-sm font-medium">{lang.nativeLabel}</div>
-                  <div className="text-xs" style={{ color: colors.muted }}>
+                  <div className="t-lead font-medium">{lang.nativeLabel}</div>
+                  <div className="t-body2" style={{ color: colors.muted }}>
                     {lang.englishLabel}
                   </div>
                 </div>
                 {lang.code === activeValue && (
-                  <span className="text-xs" style={{ color: colors.primary }}>
+                  <span className="t-body2" style={{ color: colors.primary }}>
                     ✓
                   </span>
                 )}

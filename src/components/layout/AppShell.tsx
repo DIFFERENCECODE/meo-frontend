@@ -5,45 +5,120 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'motion/react';
 import { useTheme } from '@/theme/ThemeProvider';
 import { LeftPanel, ChatListItem } from './LeftPanel';
-import { apiFetch, getIdToken } from '@/app/lib/auth';
-import { ProfileMenu } from './ProfileMenu';
+import { SectionAssistant } from '@/components/assistant/SectionAssistant';
+import { apiFetch, getIdToken, getValidIdToken, redirectToLogin } from '@/app/lib/auth';
+import { Backdrop } from './Backdrop';
+import { AskBar } from './AskBar';
+import { PanelBar } from './PanelBar';
+import { ScreenTour } from '@/components/tour/ScreenTour';
 import { cn } from '@/lib/utils';
 
 interface AppShellProps {
   children: React.ReactNode;
   className?: string;
+  /**
+   * Optional third column. The storyboard uses it on the record, trends,
+   * library and marketplace — the screens where there is a "what you're
+   * looking at" to show beside the main content — and omits it on the
+   * protocol screens, where a second column would compete with the step.
+   */
+  rightPanel?: React.ReactNode;
+  rightPanelLabel?: string;
+  /**
+   * Set false only on screens that own their own composer (chat). The guided
+   * test keeps it: mid-test is exactly when "is 5.8 high?" gets asked, and
+   * making someone abandon the step to ask is how you lose the reading.
+   */
+  showAskBar?: boolean;
+  askPlaceholder?: string;
+  /** Passed to the conversation so the answer starts where the question did. */
+  askContext?: string;
+  /**
+   * Send a visitor with no usable session to sign-in. On by default: every
+   * screen behind the shell shows the person's own record, and without this
+   * an expired session left them on "Couldn't load your record" with no way
+   * back. Off only for pages that work signed out (pricing, marketplace).
+   */
+  requireAuth?: boolean;
+}
+
+// Guards against a sign-in loop if the code exchange itself is broken: after
+// a few bounces in a minute, stop redirecting and let the page show its error.
+function shouldRedirectToLogin(): boolean {
+  try {
+    const key = 'meo_login_bounces';
+    const now = Date.now();
+    const recent = (JSON.parse(window.sessionStorage.getItem(key) || '[]') as number[])
+      .filter((t) => now - t < 60_000);
+    if (recent.length >= 3) return false;
+    window.sessionStorage.setItem(key, JSON.stringify([...recent, now]));
+  } catch {
+    // sessionStorage unavailable: redirect anyway, the loop guard is a nicety.
+  }
+  return true;
 }
 
 /**
  * Wraps content with the app sidebar (LeftPanel) so pages like Profile
  * open with the same navigation as the main chat view.
  */
-export function AppShell({ children, className }: AppShellProps) {
-  const { theme, colors, isLeftPanelOpen } = useTheme();
+export function AppShell({
+  children,
+  className,
+  rightPanel,
+  rightPanelLabel = 'Reading details',
+  showAskBar = true,
+  askPlaceholder = 'Ask MeO…',
+  askContext,
+  requireAuth = true,
+}: AppShellProps) {
+  const { colors } = useTheme();
   const router = useRouter();
   const [chats, setChats] = useState<ChatListItem[]>([]);
 
   useEffect(() => {
-    const token = getIdToken();
-    if (!token) return;
-    fetch('/api/chats', { headers: { Authorization: `Bearer ${token}` } })
-      .then((res) => (res.ok ? res.json() : []))
-      .then((list: ChatListItem[]) => setChats(list))
-      .catch(() => {});
-  }, []);
+    let cancelled = false;
+    (async () => {
+      // A stored token or a ?code= in the URL means this person was signed in
+      // (or is mid sign-in); only they get the "session expired" notice.
+      const hadSession =
+        !!getIdToken() || new URL(window.location.href).searchParams.has('code');
+      const token = await getValidIdToken();
+      if (cancelled) return;
+      if (!token) {
+        if (requireAuth && shouldRedirectToLogin()) {
+          redirectToLogin(hadSession ? 'session_expired' : undefined);
+        }
+        return;
+      }
+      try {
+        const res = await fetch('/api/chats', { headers: { Authorization: `Bearer ${token}` } });
+        const list: ChatListItem[] = res.ok ? await res.json() : [];
+        if (!cancelled) setChats(list);
+      } catch {
+        // The sidebar's history is a convenience; the page still works without it.
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [requireAuth]);
 
   return (
     <div
-      className={cn('h-screen w-screen flex overflow-hidden', className)}
+      className={cn('h-dvh w-full flex overflow-hidden', className)}
       style={{
         background: `linear-gradient(180deg, ${colors.backgroundGradientStart} 0%, ${colors.backgroundGradientMid} 40%, ${colors.backgroundGradientEnd} 100%)`,
       }}
     >
+      <Backdrop />
+      <ScreenTour />
       <LeftPanel
-        onNewChat={() => router.push('/')}
+        onLibraryOpen={() => router.push('/library')}
+        onNewChat={() => router.push('/chat')}
         onSettingsClick={() => {}}
         chats={chats}
-        onSelectChat={(id) => router.push(`/?chat=${id}`)}
+        onSelectChat={(id) => router.push(`/chat?chat=${id}`)}
         onDeleteChat={async (id) => {
           // Optimistic remove — restore the row if the DELETE fails so
           // the user isn't left thinking it worked.
@@ -56,7 +131,7 @@ export function AppShell({ children, className }: AppShellProps) {
             // next-most-recent conversation (or a fresh new chat).
             const currentUrl = new URL(window.location.href);
             if (currentUrl.searchParams.get('chat') === id) {
-              router.push('/');
+              router.push('/chat');
             }
           } catch (err) {
             console.error('Failed to delete chat', err);
@@ -71,20 +146,33 @@ export function AppShell({ children, className }: AppShellProps) {
       />
       <motion.main
         className={cn(
-          'flex-1 flex flex-col h-full overflow-auto relative',
-          !isLeftPanelOpen ? 'pt-14 md:pt-0' : '',
+          'meo-app min-w-0 flex-1 flex flex-col h-full overflow-hidden relative pt-14 md:pt-0',
         )}
         layout
-        transition={{ duration: 0.3, ease: 'easeInOut' }}
+        transition={{ type: 'spring', bounce: 0, duration: 0.3 }}
       >
-        {/* Profile avatar — always top-right, above all content */}
-        <div
-          className="fixed top-0 right-0 z-50 p-3"
-          style={{ paddingTop: 'max(0.75rem, env(safe-area-inset-top))' }}
-        >
-          <ProfileMenu />
+        {/* No floating avatar or top bar: the frames open straight on the
+            screen header, and the account lives at the foot of the sidebar
+            (SidebarUser), where it is always reachable. */}
+
+        <div className="flex-1 flex min-h-0 relative">
+          <div className="flex-1 flex flex-col min-w-0 min-h-0 overflow-hidden">
+            <SectionAssistant
+              context={askContext}
+              composer={showAskBar || rightPanel ? (
+                <>
+                  {rightPanel && <PanelBar label={rightPanelLabel}>{rightPanel}</PanelBar>}
+                  {showAskBar && <AskBar placeholder={askPlaceholder} />}
+                </>
+              ) : null}
+            >
+            <div className="flex-1 min-h-0 overflow-auto">
+              <div className="min-h-full flex flex-col">{children}</div>
+            </div>
+            </SectionAssistant>
+          </div>
+
         </div>
-        {children}
       </motion.main>
     </div>
   );

@@ -3,14 +3,17 @@
 import React, { useCallback } from 'react';
 import { Joyride, type EventData, type Controls, STATUS } from 'react-joyride';
 import { useTheme } from '@/theme/ThemeProvider';
+import type { Step } from 'react-joyride';
 import { MEO_TOUR_STEPS } from './tourSteps';
 
 interface ProductTourProps {
   run: boolean;
   onFinish: () => void;
+  /** Defaults to the chat tour; screen tours pass their own. */
+  steps?: Step[];
 }
 
-export function ProductTour({ run, onFinish }: ProductTourProps) {
+export function ProductTour({ run, onFinish, steps = MEO_TOUR_STEPS }: ProductTourProps) {
   const { colors } = useTheme();
 
   const handleEvent = useCallback((data: EventData, _controls: Controls) => {
@@ -22,7 +25,7 @@ export function ProductTour({ run, onFinish }: ProductTourProps) {
 
   return (
     <Joyride
-      steps={MEO_TOUR_STEPS}
+      steps={steps}
       run={run}
       continuous
       scrollToFirstStep
@@ -40,11 +43,11 @@ export function ProductTour({ run, onFinish }: ProductTourProps) {
       styles={{
         tooltip: {
           borderRadius: 12,
-          fontSize: 14,
+          fontSize: 16,
           padding: '16px 20px',
         },
         tooltipTitle: {
-          fontSize: 15,
+          fontSize: 17,
           fontWeight: 600,
           marginBottom: 6,
           color: colors.foreground,
@@ -56,17 +59,17 @@ export function ProductTour({ run, onFinish }: ProductTourProps) {
         buttonPrimary: {
           backgroundColor: colors.primary,
           borderRadius: 8,
-          fontSize: 13,
+          fontSize: 15,
           fontWeight: 500,
           padding: '8px 16px',
         },
         buttonBack: {
           color: colors.muted,
-          fontSize: 13,
+          fontSize: 15,
         },
         buttonSkip: {
           color: colors.muted,
-          fontSize: 12,
+          fontSize: 14,
         },
       }}
       locale={{

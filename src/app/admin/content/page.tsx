@@ -49,11 +49,11 @@ export default function ContentPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-1" style={{ color: colors.foreground }}>Content Management</h1>
-      <p className="text-sm mb-6" style={{ color: colors.muted }}>Manage Qdrant vector store content (vendors and knowledge base)</p>
+      <h1 className="t-head font-bold mb-1" style={{ color: colors.foreground }}>Content Management</h1>
+      <p className="t-lead mb-6" style={{ color: colors.muted }}>Manage Qdrant vector store content (vendors and knowledge base)</p>
 
       {/* Tabs */}
-      <div className="flex gap-1 p-1 rounded-xl mb-6" style={{ backgroundColor: colors.accent }}>
+      <div className="flex gap-1 p-1 rounded-[10px] mb-6" style={{ backgroundColor: colors.accent }}>
         {[
           { id: 'vendors' as const, label: 'Vendors', icon: Package, count: vendors.length },
           { id: 'knowledge' as const, label: 'Knowledge Base', icon: BookOpen, count: knowledge.length },
@@ -64,7 +64,7 @@ export default function ContentPage() {
             <button
               key={t.id}
               onClick={() => setTab(t.id)}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors"
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-[9px] t-lead font-medium transition-colors"
               style={{
                 backgroundColor: isActive ? colors.primary : 'transparent',
                 color: isActive ? colors.primaryForeground : colors.muted,
@@ -81,7 +81,7 @@ export default function ContentPage() {
       {loading ? (
         <p className="animate-pulse py-8 text-center" style={{ color: colors.muted }}>Loading content...</p>
       ) : items.length === 0 ? (
-        <div className="rounded-xl border p-8 text-center" style={{ backgroundColor: colors.card, borderColor: colors.cardBorder }}>
+        <div className="rounded-[10px] border p-8 text-center" style={{ backgroundColor: colors.card, borderColor: colors.cardBorder }}>
           <p style={{ color: colors.muted }}>
             {tab === 'vendors' ? 'No vendors in Qdrant. Qdrant may not be connected.' : 'No knowledge base entries.'}
           </p>
@@ -91,31 +91,31 @@ export default function ContentPage() {
           {items.map((item) => (
             <div
               key={item.id}
-              className="rounded-xl border p-4"
+              className="rounded-[10px] border p-4"
               style={{ backgroundColor: colors.card, borderColor: colors.cardBorder }}
             >
               <div className="flex items-start justify-between">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
-                    <p className="font-medium text-sm truncate" style={{ color: colors.foreground }}>
+                    <p className="font-medium t-lead truncate" style={{ color: colors.foreground }}>
                       {item.payload?.title || item.payload?.name || `ID: ${item.id}`}
                     </p>
                     {item.payload?.category && (
-                      <span className="px-2 py-0.5 rounded text-xs" style={{ backgroundColor: colors.accent, color: colors.muted }}>
+                      <span className="px-2 py-0.5 rounded t-body2" style={{ backgroundColor: colors.accent, color: colors.muted }}>
                         {item.payload.category}
                       </span>
                     )}
                   </div>
-                  <p className="text-xs line-clamp-2" style={{ color: colors.muted }}>
+                  <p className="t-body2 line-clamp-2" style={{ color: colors.muted }}>
                     {item.payload?.content || item.payload?.description || item.payload?.gap_solved || JSON.stringify(item.payload).slice(0, 200)}
                   </p>
-                  <p className="text-xs mt-1 font-mono" style={{ color: colors.muted }}>
+                  <p className="t-body2 mt-1 font-mono" style={{ color: colors.muted }}>
                     ID: {item.id}
                   </p>
                 </div>
                 <button
                   onClick={() => handleDelete(tab, item.id)}
-                  className="p-2 rounded-lg hover:opacity-80 ml-3"
+                  className="p-2 rounded-[9px] hover:opacity-80 ml-3"
                   title="Delete"
                 >
                   <Trash2 className="h-4 w-4" style={{ color: colors.error }} />

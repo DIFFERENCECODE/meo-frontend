@@ -38,21 +38,21 @@ export function Interventions({ interventions = [], className }: InterventionsPr
 
   if (interventions.length === 0) {
     return (
-      <div className={`rounded-xl border p-6 ${className || ''}`} style={{ backgroundColor: theme.colors.card, borderColor: theme.colors.cardBorder }}>
+      <div className={`rounded-[10px] border p-6 ${className || ''}`} style={{ backgroundColor: theme.colors.card, borderColor: theme.colors.cardBorder }}>
         <div className="flex items-center gap-2 mb-2">
           <Activity className="h-4 w-4" style={{ color: theme.colors.primary }} />
           <h3 className="font-semibold" style={{ color: theme.colors.foreground }}>Active Interventions</h3>
         </div>
-        <p className="text-sm" style={{ color: theme.colors.muted }}>No interventions recorded for this patient</p>
+        <p className="t-lead" style={{ color: theme.colors.muted }}>No interventions recorded for this patient</p>
       </div>
     );
   }
 
   return (
-    <div className={`rounded-xl border overflow-hidden ${className || ''}`} style={{ backgroundColor: theme.colors.card, borderColor: theme.colors.cardBorder }}>
+    <div className={`rounded-[10px] border overflow-hidden ${className || ''}`} style={{ backgroundColor: theme.colors.card, borderColor: theme.colors.cardBorder }}>
       <div className="p-4 border-b" style={{ borderColor: theme.colors.cardBorder }}>
         <h3 className="font-semibold" style={{ color: theme.colors.foreground }}>Active Interventions</h3>
-        <p className="text-xs mt-1" style={{ color: theme.colors.muted }}>Current treatment plan and recommendations</p>
+        <p className="t-body2 mt-1" style={{ color: theme.colors.muted }}>Current treatment plan and recommendations</p>
       </div>
 
       <div className="p-4 space-y-3">
@@ -64,7 +64,7 @@ export function Interventions({ interventions = [], className }: InterventionsPr
           return (
             <div
               key={i}
-              className="p-3 rounded-lg border"
+              className="p-3 rounded-[9px] border"
               style={{
                 backgroundColor: theme.colors.background,
                 borderColor: theme.colors.cardBorder,
@@ -72,13 +72,13 @@ export function Interventions({ interventions = [], className }: InterventionsPr
               }}
             >
               <div className="flex items-start gap-3">
-                <div className="p-2 rounded-lg" style={{ backgroundColor: theme.colors.accent }}>
+                <div className="p-2 rounded-[9px]" style={{ backgroundColor: theme.colors.accent }}>
                   <Icon className="h-4 w-4" style={{ color: theme.colors.primary }} />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <h4
-                      className="font-medium text-sm truncate"
+                      className="font-medium t-lead truncate"
                       style={{ color: theme.colors.foreground, textDecoration: intervention.status === 'completed' ? 'line-through' : 'none' }}
                     >
                       {intervention.title}
@@ -88,10 +88,10 @@ export function Interventions({ interventions = [], className }: InterventionsPr
                       style={{ color: statusColor, fill: intervention.status === 'completed' ? statusColor : 'transparent' }}
                     />
                   </div>
-                  <p className="text-xs mt-1 line-clamp-2" style={{ color: theme.colors.muted }}>{intervention.description}</p>
+                  <p className="t-body2 mt-1 line-clamp-2" style={{ color: theme.colors.muted }}>{intervention.description}</p>
                   {intervention.status === 'active' && intervention.progress !== undefined && (
                     <div className="mt-2">
-                      <div className="flex items-center justify-between text-xs mb-1">
+                      <div className="flex items-center justify-between t-body2 mb-1">
                         <span style={{ color: theme.colors.muted }}>Progress</span>
                         <span style={{ color: theme.colors.primary }}>{intervention.progress}%</span>
                       </div>
